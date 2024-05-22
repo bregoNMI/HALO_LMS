@@ -1,0 +1,14 @@
+-r test.txt
+-r docs.txt
+
+django-debug-toolbar
+
+# i18n
+# newer version of transifex-client doesn't work with python3.12.2
+transifex-client==0.12.5
+
+# Visual Studio Code Debugger
+ptvsd
+
+# For devserver code reloading
+pywatchman

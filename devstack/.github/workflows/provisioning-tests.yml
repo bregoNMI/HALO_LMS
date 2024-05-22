@@ -1,0 +1,113 @@
+# Core tests: Provision and bring up various services on devstack
+
+name: Provisioning tests
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**.rst'
+  pull_request:
+    paths-ignore:
+      - '**.rst'
+  schedule:
+    # run at 7:30 am M-F
+    - cron: '30 11 * * 1-5'
+
+jobs:
+
+  run_ci:
+    runs-on: ${{ matrix.os }}
+    env:
+      DEVSTACK_WORKSPACE: /tmp
+      SHALLOW_CLONE: 1
+      # Don't report metrics as real usage
+      DEVSTACK_METRICS_TESTING: ci
+    strategy:
+      matrix:
+        os:
+          - ubuntu-20.04 # Ubuntu 20.04 "Focal Fossa"
+        python-version: [ '3.8' ]
+        services: [ discovery+lms+forum ,registrar+lms, ecommerce+lms, edx_notes_api+lms, credentials+lms, xqueue, analyticsapi+insights+lms]
+      fail-fast: false # some services can be flaky; let others run to completion even if one fails
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: installations and version upgrades
+        run: |
+          docker version
+          sudo apt-get update
+          sudo apt install apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal test"
+          sudo apt update
+          sudo apt install docker-ce containerd.io
+          docker version
+          docker compose --version
+
+      - name: free up disk space
+        # 2023-09-28: google-cloud-sdk removed from this list because it was intermittently
+        #   unavailable as an apt package to remove, and might be migrating to snap. If more
+        #   disk space is needed, see if the snap is installed, and remove that.
+        run:  sudo apt remove --purge -y ghc-* azure-cli hhvm llvm-* dotnet-* powershell mono-* php* ruby*
+
+      - name: set up requirements
+        run:  make requirements
+
+      - name: clone repositories
+        run:  make dev.clone.https
+
+      - name: pull images and print
+        run: |
+          make dev.pull.${{matrix.services}}
+          docker images --digests | grep latest | sort
+
+      - name: provision
+        run:  make dev.provision.${{matrix.services}}
+
+      - name: "Bring up services"
+        run:  make dev.up.${{matrix.services}}
+
+      - name: "Wait for services to become ready"
+        run: |
+          # Wait a reasonable amount of time for services to come up. If they
+          # don't, then call the checks one more time to ensure that diagnostic
+          # information is printed out. (It's suppressed by wait-for.)
+          timeout 5m make dev.wait-for.${{matrix.services}} || timeout 1m make dev.check.${{matrix.services}}
+
+      - name: notify on failure
+        if: ${{ failure() && github.ref == 'refs/heads/master' }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+           server_address: email-smtp.us-east-1.amazonaws.com
+           server_port: 465
+           username: ${{secrets.EDX_SMTP_USERNAME}}
+           password: ${{secrets.EDX_SMTP_PASSWORD}}
+           subject: 'Failure: Devstack provisioning tests for ${{matrix.services}} #${{github.run_id}}'
+           to: devstack-provisioning-tests@2u-internal.opsgenie.net
+           from: github-actions <github-actions@edx.org>
+           body: |
+             Devstack provisioning tests in ${{github.repository}} for ${{matrix.services}} failed!
+             For details, see https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+             Runbook url: https://2u-internal.atlassian.net/wiki/spaces/AT/pages/16384920/Failure+Devstack+provisioning+tests+-+Runbook
+
+      - name: close alerts on success
+        if: ${{ !failure() && github.ref == 'refs/heads/master' }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+           server_address: email-smtp.us-east-1.amazonaws.com
+           server_port: 465
+           username: ${{secrets.EDX_SMTP_USERNAME}}
+           password: ${{secrets.EDX_SMTP_PASSWORD}}
+           subject: 'Back to normal: Devstack provisioning tests for ${{matrix.services}} #${{github.run_id}}'
+           to: devstack-provisioning-tests@2u-internal.opsgenie.net
+           from: github-actions <github-actions@edx.org>
+           body: Devstack provisioning tests in ${{github.repository}} are back to normal for ${{matrix.services}}
+
+      - name: docs
+        run:  make docs

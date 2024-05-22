@@ -1,0 +1,21 @@
+
+-c constraints.txt
+
+Django
+requests
+djangorestframework
+drf-yasg
+elasticsearch
+elasticsearch-dsl
+django-elasticsearch-dsl
+django-elasticsearch-dsl-drf
+django-cors-headers
+mysqlclient
+PyJWT
+gunicorn     # MIT
+path.py
+python-dateutil
+newrelic
+edx-django-release-util
+edx-django-utils
+edx-drf-extensions

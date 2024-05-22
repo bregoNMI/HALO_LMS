@@ -1,0 +1,22 @@
+# Packages required for testing
+-c constraints.txt
+
+-r base.txt
+
+coverage
+django-dynamic-fixture
+code-annotations
+edx-lint
+factory_boy
+Faker
+freezegun
+moto
+ddt
+pycodestyle
+pytest
+pytest-cov
+pytest-django
+responses
+yamllint
+isort[requirements]
+tox

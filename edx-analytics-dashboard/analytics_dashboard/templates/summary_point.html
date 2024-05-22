@@ -1,0 +1,27 @@
+{% load humanize %}
+
+<div class="summary-point text-center">
+  <div class="summary-point-wrapper">
+    {% with value=value|default_if_none:0 %}
+      <div class="summary-point-number" title="{{ value|intcomma }}">{{ value|intcomma|truncatechars:13 }}</div>
+    {% endwith %}
+    <div class="summary-point-label">{{ label }}</div>
+    {% if subheading %}
+      <span class="summary-point-note">{{ subheading }}</span>
+    {% endif %}
+    {% if additional_value %}
+      <span class="summary-point-addtional-value">{{ additional_value }}</span>
+    {% endif %}
+    {% if tooltip %}
+      <div class="summary-point-help">
+        <span class="sr-only">{{ tooltip }}</span>
+        <span data-toggle="tooltip" data-placement="top" title="{{ tooltip }}"
+           data-track-event="edx.bi.tooltip.displayed"
+           data-track-title="{{ label }}"
+           data-track-category="summary"
+           data-track-type="tooltip"
+           class="ico ico-tooltip fa fa-info-circle has-tooltip" aria-hidden="true"></span>
+      </div>
+    {% endif %}
+  </div>
+</div>

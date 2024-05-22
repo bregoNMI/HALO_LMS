@@ -1,0 +1,22 @@
+{% load i18n %}
+{% load dashboard_extras %}
+
+<div class="alert alert-error" role="alert" aria-labelledby="alert-error-title" tabindex="-1">
+    <span class="icon alert-icon fa fa-warning" aria-hidden="true"></span>
+
+    <div class="alert-message">
+        <h3 class="alert-title" id="alert-error-title">
+            {% if content_type == 'chart' %}
+                {% blocktrans %}We are unable to load this chart.{% endblocktrans %}
+            {% elif content_type == 'table' %}
+                {% blocktrans %}We are unable to load this table.{% endblocktrans %}
+            {% elif content_type == 'metrics' %}
+                {% blocktrans %}We are unable to load these metrics.{% endblocktrans %}
+            {% endif%}
+        </h3>
+
+        <p class="alert-copy-with-title">
+            {{load_error_message|safe}}
+        </p>
+    </div>
+</div>

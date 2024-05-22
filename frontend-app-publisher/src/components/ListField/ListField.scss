@@ -1,0 +1,15 @@
+.react-autosuggest__suggestions-container--open {
+  position: absolute;
+  top: 29px;
+  border: 1px solid;
+  margin-top: 12px;
+  z-index: 2;
+  border-bottom: {
+    left-radius: 0.1875rem;
+    right-radius: 0.1875rem;
+  }
+}
+
+.react-autosuggest__suggestions-list {
+  max-height: 318px;
+}

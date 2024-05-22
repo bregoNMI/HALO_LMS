@@ -1,0 +1,77 @@
+{% extends 'edx/base.html' %}
+{% load i18n %}
+{% load offer_tags %}
+{% load static %}
+
+{% block title %}{% trans "Enterprise Offers" as tmsg %}{{ tmsg | force_escape }}{% endblock %}
+
+{% block navbar %}
+  {% include "edx/partials/_staff_navbar.html" %}
+  {% include "edx/partials/_administration_menu.html" %}
+{% endblock navbar %}
+
+{% block content %}
+  <div class="container">
+    <div class="page-header">
+      <h1 class="hd-1 emphasized">
+        {% trans "Enterprise Offers" %}
+        <div class="pull-right">
+          <a href="{% url 'enterprise:offers:new' %}"
+             class="btn btn-primary btn-small">{% trans "Create Enterprise Offer" as tmsg %}{{ tmsg | force_escape }}</a>
+        </div>
+      </h1>
+    </div>
+
+    <table id="offerTable" class="copy copy-base table table-striped table-bordered" cellspacing="0">
+      <caption class="sr-only">{% trans "Current enterprise offers" as tmsg %}{{ tmsg | force_escape }}</caption>
+      <thead>
+      <tr>
+        <th>{% trans 'Enterprise Customer Name' as tmsg %}{{ tmsg | force_escape }}</th>
+        <th>{% trans 'Enterprise Customer UUID' as tmsg %}{{ tmsg | force_escape }}</th>
+        <th>{% trans 'Enterprise Customer Catalog UUID' as tmsg %}{{ tmsg | force_escape }}</th>
+        <th>{% trans 'Type' as tmsg %}{{ tmsg | force_escape }}</th>
+        <th>{% trans 'Value' as tmsg %}{{ tmsg | force_escape }}</th>
+        <th>{% trans 'Start' as tmsg %}{{ tmsg | force_escape }}</th>
+        <th>{% trans 'End' as tmsg %}{{ tmsg | force_escape }}</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for offer in object_list %}
+        <tr>
+          <td>
+            <a href="{% url 'enterprise:offers:edit' pk=offer.pk %}">{{ offer.condition.enterprise_customer_name }}</a>
+          </td>
+          <td>{{ offer.condition.enterprise_customer_uuid }}</td>
+          <td>{{ offer.condition.enterprise_customer_catalog_uuid }}</td>
+          <td>{{ offer.benefit|benefit_type|capfirst }}</td>
+          <td>{{ offer.benefit.value }}</td>
+          <td>{{ offer.start_datetime|default_if_none:'--' }}</td>
+          <td>{{ offer.end_datetime|default_if_none:'--' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 text-right">
+          <em>
+            {% filter force_escape %}
+              {% blocktrans %}
+                {{ platform_name }} Enterprise Offer Administration Tool
+              {% endblocktrans %}
+            {% endfilter %}
+          </em>
+        </div>
+      </div>
+    </div>
+  </footer>
+{% endblock footer %}
+
+{% block javascript %}
+  <script src="{% static 'js/pages/offer_list_page.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,46 @@
+/* stylelint-disable */
+thead,
+thead tr,
+tbody {
+  display: block;
+}
+
+tbody {
+  height: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    -webkit-appearance: none;
+
+    &:vertical {
+      width: 11px;
+    }
+    &:horizontal {
+      height: 11px;
+    }
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid #ffffff;
+    background-color: rgba(0, 0, 0, .5);
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #fff;
+    border-radius: 8px;
+  }
+}
+
+td,
+th {
+  max-width: 25vw;
+  width: 25vw;
+}
+
+/* Manually override data table max width for td to accomodate full width size*/ 
+td.pgn__data-table-cell-wrap {
+    max-width: 25vw;
+    word-break: break-all;
+}

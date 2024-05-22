@@ -1,0 +1,61 @@
+common: &default_client
+  options:
+    write:
+      w: <%= ENV['MONGOID_WRITE_MODE'] || 1 %>
+    read:
+      mode: :<%= ENV['MONGOID_READ_MODE'] || 'primary' %>
+    max_retries: <%= ENV['MONGOID_MAX_RETRIES'] || 1 %>
+    retry_interval: <%= ENV['MONGOID_RETRY_INTERVAL'] || 0 %>
+    timeout: <%= ENV['MONGOID_TIMEOUT'] || 0.5 %>
+    ssl: <%= ENV['MONGOID_USE_SSL'] || false %>
+    auth_source: <%= ENV['MONGOID_AUTH_SOURCE'] || '' %>
+    auth_mech: <%= ENV['MONGOID_AUTH_MECH'].nil? ? ':scram' : ENV['MONGOID_AUTH_MECH'] %>
+
+common_uri: &default_uri
+  uri: <%= ENV['MONGOHQ_URL'] %>
+
+development:
+  clients:
+    default:
+      <<: *default_uri
+      <<: *default_client
+
+test:
+  clients:
+    default:
+      <<: *default_uri
+      <<: *default_client
+
+production:
+  clients:
+    default:
+      <<: *default_uri
+      <<: *default_client
+
+edgeprod:
+  clients:
+    default:
+      <<: *default_uri
+      <<: *default_client
+
+edgestage:
+  clients:
+    default:
+      <<: *default_uri
+      <<: *default_client
+
+staging:
+  clients:
+    default:
+      <<: *default_uri
+      <<: *default_client
+
+loadtest:
+  clients:
+    default:
+      <<: *default_uri
+      <<: *default_client
+
+defaults: &defaults
+  use_utc: false
+  use_activesupport_time_zone: true

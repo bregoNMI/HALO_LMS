@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ResumeButton snapshot disabled snapshot 1`] = `
+<ActionButton
+  as="a"
+  disabled={true}
+  href="#"
+  onClick={
+    Object {
+      "trackCourseEvent": Object {
+        "cardId": "cardId",
+        "eventName": [MockFunction segment.enterCourseClicked],
+        "upgradeUrl": "resume-urlexec-ed-tracking-path=cardId",
+      },
+    }
+  }
+>
+  Resume
+</ActionButton>
+`;
+
+exports[`ResumeButton snapshot enabled snapshot 1`] = `
+<ActionButton
+  as="a"
+  disabled={false}
+  href="#"
+  onClick={
+    Object {
+      "trackCourseEvent": Object {
+        "cardId": "cardId",
+        "eventName": [MockFunction segment.enterCourseClicked],
+        "upgradeUrl": "resume-urlexec-ed-tracking-path=cardId",
+      },
+    }
+  }
+>
+  Resume
+</ActionButton>
+`;

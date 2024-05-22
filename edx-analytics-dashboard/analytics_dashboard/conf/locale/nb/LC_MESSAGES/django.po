@@ -1,0 +1,1487 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# Translators:
+# Erland Flaten <eflaten@vangenplotz.no>, 2015
+# Frode Arntsen <frode.arntsen@unit.no>, 2016-2018
+# Frode Arntsen <frode.arntsen@unit.no>, 2018
+# Gabi Hurlen <gabihurlen@gmail.com>, 2022
+# Harald Indgul <harald.indgul@gmail.com>, 2015
+# Helge Høivik <Helge.Hoivik@hioa.no>, 2019
+# mymark <mark.stenersen@uit.no>, 2014
+# Ole Kristian Losvik <ole@losol.no>, 2017
+# Pål Messenlien <paal@vangenplotz.no>, 2014
+# Vangenplotz edx <edx@vangenplotz.no>, 2015
+# Victor Zimmer <victor.zimmer@me.com>, 2020
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-18 15:22+0000\n"
+"PO-Revision-Date: 2014-08-25 20:09+0000\n"
+"Last-Translator: Gabi Hurlen <gabihurlen@gmail.com>, 2022\n"
+"Language-Team: Norwegian Bokmål (http://app.transifex.com/open-edx/edx-platform/language/nb/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nb\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: analytics_dashboard/core/templates/core/landing.html:15
+#: analytics_dashboard/templates/_skip_link.html:3
+msgid "Skip to content"
+msgstr "Hopp til innhold"
+
+#: analytics_dashboard/core/templates/core/landing.html:23
+msgid "Login"
+msgstr "Logg inn"
+
+#: analytics_dashboard/core/templates/core/landing.html:33
+msgid "Insights to help course teams improve courses."
+msgstr "Innsikt for å hjelpe kursteamet å forbedre kursene. "
+
+#: analytics_dashboard/core/templates/core/landing.html:42
+#: analytics_dashboard/courses/views/__init__.py:603
+msgid "Who are my learners?"
+msgstr "Hvem er mine kursdeltagere?"
+
+#: analytics_dashboard/core/templates/core/landing.html:43
+msgid "Target your course to fit the backgrounds of your learners."
+msgstr "Målrett kurset ditt for å passe med bakgrunnen til studentene."
+
+#: analytics_dashboard/core/templates/core/landing.html:44
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:28
+#: analytics_dashboard/courses/tests/test_views/__init__.py:255
+#: analytics_dashboard/courses/views/__init__.py:309
+#: analytics_dashboard/courses/views/__init__.py:601
+msgid "Enrollment"
+msgstr "Påmeldinger"
+
+#: analytics_dashboard/core/templates/core/landing.html:47
+msgid "What are learners engaging with in my course?"
+msgstr "Hva engasjerer kursdeltagerne i mitt kurs?"
+
+#: analytics_dashboard/core/templates/core/landing.html:48
+msgid ""
+"Improve frequently accessed content, or point learners at underused "
+"resources."
+msgstr "Forbedre ofte brukt innhold, eller vise studenter til lite brukte resurser. "
+
+#: analytics_dashboard/core/templates/core/landing.html:49
+#: analytics_dashboard/courses/tests/test_views/test_engagement.py:40
+#: analytics_dashboard/courses/views/__init__.py:320
+#: analytics_dashboard/courses/views/__init__.py:609
+msgid "Engagement"
+msgstr "Engasjement"
+
+#: analytics_dashboard/core/templates/core/landing.html:52
+msgid "How well is my content supporting learners?"
+msgstr "Hvor godt støtter mitt innhold kursdeltagerne?"
+
+#: analytics_dashboard/core/templates/core/landing.html:53
+msgid "Adjust your course based on where learners are struggling."
+msgstr "Tilpass kurset dii basert på hvor kursdeltagerne har problemer."
+
+#: analytics_dashboard/core/templates/core/landing.html:54
+#: analytics_dashboard/courses/tests/test_views/test_performance.py:51
+#: analytics_dashboard/courses/views/__init__.py:331
+#: analytics_dashboard/courses/views/__init__.py:689
+msgid "Performance"
+msgstr "Ytelse"
+
+#: analytics_dashboard/core/templates/core/landing.html:63
+msgid "Join the Open Source Community"
+msgstr "Bli med i Open Source Community"
+
+#: analytics_dashboard/core/templates/core/landing.html:68
+#, python-format
+msgid ""
+"The edX analytics data pipeline and edX Insights are open source. "
+"%(link_start)sLearn more%(link_end)s."
+msgstr "edX analytics data pipeline og  edX Insights er åpen kildekode. %(link_start)sLær mer%(link_end)s."
+
+#: analytics_dashboard/core/templates/core/landing.html:75
+msgid "Research at edX"
+msgstr "Forskning hos edX"
+
+#: analytics_dashboard/core/templates/core/landing.html:80
+#, python-format
+msgid ""
+"We are committed to advancing teaching and learning through research. "
+"%(link_start)sLearn more%(link_end)s."
+msgstr "Vi har forpliktet oss til å fremme undervisning og læring gjennom forskning. %(link_start)sLær mer%(link_end)s."
+
+#: analytics_dashboard/core/templates/core/landing.html:87
+msgid "Need Help?"
+msgstr "Behov for hjelp?"
+
+#: analytics_dashboard/core/templates/core/landing.html:92
+#, python-format
+msgid ""
+"%(link_start)sOur support center%(link_end)s can help you find solutions."
+msgstr "%(link_start)sVårt støttesenter%(link_end)s kan hjelpe deg å finne løsninger."
+
+#. Translators: Simply move the percent symbol (%) to the correct location. Do
+#. NOT translate the word statistic.
+#: analytics_dashboard/core/templatetags/dashboard_extras.py:27
+#, python-brace-format
+msgid "{statistic}%"
+msgstr "{statistic}%"
+
+#. Translators: '{percentage}' in as a placeholder for the percentage value.
+#: analytics_dashboard/courses/presenters/engagement.py:124
+#, python-brace-format
+msgid "{percentage} of current learners"
+msgstr "{percentage} av nåværende kursdeltagere"
+
+#: analytics_dashboard/courses/presenters/enrollment.py:23
+msgid "Female"
+msgstr "Kvinne"
+
+#: analytics_dashboard/courses/presenters/enrollment.py:24
+msgid "Male"
+msgstr "Mann"
+
+#. Translators: Other gender
+#. Translators: This describes the learner's education level.
+#: analytics_dashboard/courses/presenters/enrollment.py:26
+#: analytics_dashboard/courses/presenters/enrollment.py:45
+msgid "Other"
+msgstr "Annet"
+
+#. Translators: Unknown gender
+#. Translators: This describes the learner's education level.
+#: analytics_dashboard/courses/presenters/enrollment.py:28
+#: analytics_dashboard/courses/presenters/enrollment.py:63
+#: analytics_dashboard/courses/presenters/enrollment.py:458
+msgid "Unknown"
+msgstr "Ukjent"
+
+#. Translators: This describes the learner's education level.
+#: analytics_dashboard/courses/presenters/enrollment.py:43
+msgid "None"
+msgstr "Ingen"
+
+#. Translators: This describes the learner's education level (e.g. Elementary
+#. School Degree).
+#: analytics_dashboard/courses/presenters/enrollment.py:47
+#: analytics_dashboard/courses/tests/test_serializers.py:12
+msgid "Primary"
+msgstr "Hoved"
+
+#. Translators: This describes the learner's education level  (e.g. Middle
+#. School Degree).
+#: analytics_dashboard/courses/presenters/enrollment.py:49
+msgid "Middle"
+msgstr "Midten"
+
+#. Translators: This describes the learner's education level.
+#: analytics_dashboard/courses/presenters/enrollment.py:51
+msgid "Secondary"
+msgstr "Underordnet"
+
+#. Translators: This describes the learner's education level (e.g. Associate's
+#. Degree).
+#: analytics_dashboard/courses/presenters/enrollment.py:53
+msgid "Associate"
+msgstr "Partner"
+
+#. Translators: This describes the learner's education level (e.g. Bachelor's
+#. Degree).
+#: analytics_dashboard/courses/presenters/enrollment.py:55
+msgid "Bachelor's"
+msgstr "Bachelorgrad"
+
+#. Translators: This describes the learner's education level (e.g. Master's
+#. Degree).
+#: analytics_dashboard/courses/presenters/enrollment.py:57
+msgid "Master's"
+msgstr "Mastergrad"
+
+#. Translators: This describes the learner's education level (e.g. Doctorate
+#. Degree).
+#: analytics_dashboard/courses/presenters/enrollment.py:59
+msgid "Doctorate"
+msgstr "Doktorgrad"
+
+#. Translators: This is a placeholder for enrollment data collected without a
+#. known geolocation.
+#: analytics_dashboard/courses/presenters/enrollment.py:188
+msgid "Unknown Country"
+msgstr "Ukjent land"
+
+#. Translators: This describes the data displayed in the chart below.
+#: analytics_dashboard/courses/presenters/performance.py:150
+#: analytics_dashboard/courses/templates/courses/submissions_chart_info.html:4
+msgid "Submissions"
+msgstr "Innleveringer"
+
+#: analytics_dashboard/courses/presenters/performance.py:154
+#, python-brace-format
+msgid "Submissions for Part {part_number}: {part_description}"
+msgstr "Innlevering for del {part_number}: {part_description}"
+
+#: analytics_dashboard/courses/presenters/performance.py:155
+#, python-brace-format
+msgid "Part {part_number}: {part_description}"
+msgstr "Del {part_number}: {part_description}"
+
+#: analytics_dashboard/courses/presenters/performance.py:157
+#, python-brace-format
+msgid "Submissions: {part_description}"
+msgstr "Innleveringer: {part_description}"
+
+#: analytics_dashboard/courses/presenters/performance.py:158
+#, python-brace-format
+msgid "{part_description}"
+msgstr "{part_description}"
+
+#: analytics_dashboard/courses/presenters/performance.py:161
+#, python-brace-format
+msgid "Submissions for Part {part_number}"
+msgstr "Innleveringer for del {part_number}"
+
+#: analytics_dashboard/courses/presenters/performance.py:162
+#, python-brace-format
+msgid "Part {part_number}"
+msgstr "Del {part_number}"
+
+#: analytics_dashboard/courses/templates/courses/_base_content_nav.html:25
+#, python-format
+msgid "%(all_sections_text)s"
+msgstr "%(all_sections_text)s"
+
+#: analytics_dashboard/courses/templates/courses/_graded_content_nav.html:16
+msgid "Select Assignment Type"
+msgstr "Velg oppgavetype"
+
+#. Translators: This refers to all course assignment types (e.g. homework,
+#. exam, lab).
+#: analytics_dashboard/courses/templates/courses/_graded_content_nav.html:21
+msgid "All Assignments"
+msgstr "Alle oppgaver"
+
+#: analytics_dashboard/courses/templates/courses/_graded_content_nav.html:25
+#, python-format
+msgid ""
+"\n"
+"        Select %(level)s\n"
+"    "
+msgstr "\nVelg %(level)s"
+
+#: analytics_dashboard/courses/templates/courses/_graded_content_nav.html:31
+#: analytics_dashboard/courses/templates/courses/_tags_content_nav.html:23
+#: analytics_dashboard/courses/templates/courses/_ungraded_content_nav.html:28
+msgid "Select Problem"
+msgstr "Velg problem"
+
+#. Translators: This text will be a direct link to the a specific
+#. module/problem.
+#: analytics_dashboard/courses/templates/courses/_module_description.html:14
+#: analytics_dashboard/courses/templates/courses/_video_preview.html:9
+msgid "View Live"
+msgstr "Vis live"
+
+#: analytics_dashboard/courses/templates/courses/_tags_content_nav.html:15
+msgid "Select Outcome"
+msgstr "Velg utbytte"
+
+#: analytics_dashboard/courses/templates/courses/_tags_content_nav.html:19
+msgid "All Outcomes"
+msgstr "Alle utbytter"
+
+#: analytics_dashboard/courses/templates/courses/_ungraded_content_nav.html:16
+#: analytics_dashboard/courses/templates/courses/_video_content_nav.html:16
+msgid "Select Section"
+msgstr "Velg seksjon"
+
+#: analytics_dashboard/courses/templates/courses/_ungraded_content_nav.html:20
+#: analytics_dashboard/courses/templates/courses/_video_content_nav.html:20
+msgid "All Sections"
+msgstr "Alle seksjoner"
+
+#: analytics_dashboard/courses/templates/courses/_ungraded_content_nav.html:24
+#: analytics_dashboard/courses/templates/courses/_video_content_nav.html:24
+msgid "Select Subsection"
+msgstr "Velg underseksjon"
+
+#: analytics_dashboard/courses/templates/courses/_video_content_nav.html:28
+msgid "Select Video"
+msgstr "Velg video"
+
+#: analytics_dashboard/courses/templates/courses/_video_module_controls.html:8
+msgid "Previous Video"
+msgstr "Forrige video"
+
+#: analytics_dashboard/courses/templates/courses/_video_module_controls.html:15
+msgid "Next Video"
+msgstr "Neste video"
+
+#. Translators: This text describes a bar chart displayed.
+#: analytics_dashboard/courses/templates/courses/base_performance_answer_distribution.html:60
+msgid ""
+"This chart shows the most common answers submitted by learners, ordered by "
+"frequency."
+msgstr "Fremstillingen viser de vanligste svarene valgt av studenter, sortert etter hyppighet."
+
+#. Translators: Variants refers to versions of a problem/assignment.
+#: analytics_dashboard/courses/templates/courses/base_performance_answer_distribution.html:82
+#, python-format
+msgid ""
+"Due to the number of possible variants for randomized problems, charts are "
+"not available. %(read_more_link_start)sRead more%(read_more_link_end)s."
+msgstr "På grunn av antall mulige varianter av tilfeldige oppgaver, er ikke visningen tilgjengelig.  %(read_more_link_start)sLes mer%(read_more_link_end)s."
+
+#. Translators: Variants refers to versions of a problem/assignment.
+#: analytics_dashboard/courses/templates/courses/base_performance_answer_distribution.html:87
+msgid ""
+"Review all submission variants below, or click Download CSV to review them "
+"offline."
+msgstr "Gå gjennom alle variantene av innleveringer nedenfor, eller klikk Last ned CSV for å se de offline. "
+
+#: analytics_dashboard/courses/templates/courses/base_performance_answer_distribution.html:108
+msgid "Submission Counts"
+msgstr "Antall innlevering"
+
+#: analytics_dashboard/courses/templates/courses/base_performance_answer_distribution.html:116
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:96
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:87
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:116
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:109
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:100
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_gender.html:65
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:97
+msgid "Download CSV"
+msgstr "Last ned CSV"
+
+#: analytics_dashboard/courses/templates/courses/base_performance_answer_distribution.html:117
+msgid "Learner Submission Counts"
+msgstr "Antall studentbesvarelser"
+
+#. Translators: This describes the data displayed in the chart below.
+#: analytics_dashboard/courses/templates/courses/demographics_chart_info.html:4
+msgid "Learners (Self-Reported)"
+msgstr "Studenter (selvrapportert)"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:23
+msgid "Weekly Learner Engagement"
+msgstr "Ukentlig kursdeltagerengasjement"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:24
+#: analytics_dashboard/courses/views/__init__.py:614
+msgid "How many learners are interacting with my course?"
+msgstr "Hvor mange studenter deltar på mitt kurs?"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:31
+#: analytics_dashboard/courses/views/__init__.py:343
+#: analytics_dashboard/courses/views/__init__.py:697
+#: analytics_dashboard/courses/views/__init__.py:761
+#: analytics_dashboard/courses/views/learners.py:22
+msgid "Learners"
+msgstr "Kursdeltagere"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:32
+msgid ""
+"The number of active learners, and the number of learners who engaged in "
+"specific activities, over time."
+msgstr "Antall aktive studenter, og antall studenter som har deltatt i spesifikke aktiviteter, over tid."
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:48
+msgid "Learner Activity Metrics"
+msgstr "Studentaktivitetstatistikk"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:54
+msgid "Active Learners Last Week"
+msgstr "Aktive studenter forrige uke"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:55
+msgid "Learners who visited at least one page in the course content."
+msgstr "Studenter som besøkte minst en side av kursinnholdet."
+
+#. Translators: This is a label indicating the number of learners who watched
+#. a video.
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:61
+msgid "Watched a Video Last Week"
+msgstr "Så en video forrige uke."
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:62
+msgid "Learners who played one or more videos."
+msgstr "Studenter som spilte av en eller flere videoer."
+
+#. Translators: This is a label indicating the number of learners who tried a
+#. problem.
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:68
+msgid "Tried a Problem Last Week"
+msgstr "Prøvde et problem i forrige uke"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:69
+msgid ""
+"Learners who submitted an answer for a standard problem. Not all problem "
+"types are included."
+msgstr "Studenter som leverte et svar på et standard problem. \nIkke alle problemtyper er inkludert. "
+
+#. Translators: This is a label indicating the number of learners who posted
+#. in a forum discussion.
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:76
+msgid "Participated in Discussions Last Week"
+msgstr "Deltok i diskusjoner forrige uke"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:77
+msgid ""
+"Learners who added a post, response, or comment to any course discussion."
+msgstr "Studenter som la inn et innlegg, svarte eller kommenterte i en kursdiskusjon."
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:89
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:97
+msgid "Content Engagement Breakdown"
+msgstr "Innholdsengasjement fordeling"
+
+#. Translators: This describes the data displayed in the chart below. E.g. how
+#. many learners viewed a video.
+#: analytics_dashboard/courses/templates/courses/engagement_grouped_content.html:17
+#: analytics_dashboard/courses/templates/courses/views_chart_info.html:4
+msgid "Video Views"
+msgstr "Videovisninger"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_by_section.html:5
+msgid "How did learners interact with videos in this section?"
+msgstr "Hvordan brukte studentene videoene i denne seksjonen?"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_by_section.html:10
+msgid ""
+"Each bar shows the average number of complete and incomplete views for "
+"videos in that subsection. Click on bars with low totals or a high "
+"incomplete rate to drill down and understand why."
+msgstr "Hver søyle viser gjennomsnittlig antall fullstendige og ufullstendige visninger for videoer i den delen. Klikk på søyler med lave nummer eller en høy ufullstendig rate for å fordype deg i det og forsøk å forstå hvorfor."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_by_subsection.html:10
+msgid "How did learners interact with videos in this subsection?"
+msgstr "Hvordan brukte studentene videoene i denne subseksjonen?"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_by_subsection.html:15
+msgid ""
+"Each bar shows the counts of complete and incomplete views for that video. "
+"Click to understand where learners drop off and which parts they replay."
+msgstr "Hver søyle viser antall fullførte og ikke-fullførte visninger for videoen. Klikk for å forstå hvor studentene faller av, og hvilke deler de spiller på nytt. "
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_course.html:5
+#: analytics_dashboard/courses/views/__init__.py:627
+msgid "How did learners interact with course videos?"
+msgstr "Hvordan brukte studentene kursvideoene?"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_course.html:10
+msgid ""
+"Each bar shows the average number of complete and incomplete views for "
+"videos in that section. Click on bars with low totals or a high incomplete "
+"rate to drill down and understand why."
+msgstr "Hver søyle viser gjennomsnittlig antall fullstendige og ufullstendige visninger for videoer i den delen. Klikk på søyler med lave nummer eller en høy ufullstendig rate for å fordype deg i det og forsøk å forstå hvorfor."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:17
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:21
+msgid "Total Video Views"
+msgstr "Total antall videovisninger"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:26
+msgid "What were the viewing patterns for this video?"
+msgstr "Hva var visningsmønsteret for denne videoen?"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:31
+msgid ""
+"The number of learners who watched each segment of the video, and the number"
+" of replays for each segment."
+msgstr "Antall studenter som så hvert segment av videoen, og antall ganger de ble spilt om igjen for hvert segment."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:37
+msgid "Collapse Preview"
+msgstr "Fell sammen forhåndsvisning"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:38
+msgid "Expand Preview"
+msgstr "Utvid forhåndsvisning"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:55
+msgid "Video Metrics"
+msgstr "Videostatistikk"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:61
+msgid "Completion Rate"
+msgstr "Ferdigstillingsrate"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:62
+msgid "Estimated percentage of learners who watched the entire video."
+msgstr "Estimert prosentandel studenter som så hele videoen."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:66
+msgid "Started Video"
+msgstr "Startet video"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:67
+msgid "Learners who started watching the video."
+msgstr "Kursdeltagere som har startet å se videoen."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:71
+msgid "Finished Video"
+msgstr "Ferdigsett video"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:72
+msgid "Learners who watched the video to the end."
+msgstr "Kursdeltagere som så hele videoen."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:88
+msgid "Video Viewing Over Time"
+msgstr "Videovisninger over tid"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:24
+msgid "Daily Learner Enrollment"
+msgstr "Daglig kurspåmelding"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:25
+#: analytics_dashboard/courses/views/__init__.py:546
+msgid "How many learners are in my course?"
+msgstr "Hvor mange kursdeltagere er det i mitt kurs?"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:32
+msgid "Enrollments"
+msgstr "Påmeldinger"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:33
+msgid ""
+"This graph displays the current enrollment for the course as of the end of "
+"each day. This includes new enrollments as well as unenrollments."
+msgstr "Denne grafen viser gjeldende påmelding til kurset som på slutten for hver dag. Dette inkluderer nye påmeldinger samt de som har avsluttet kurset"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:49
+msgid "Enrollment Metrics"
+msgstr "Innmeldingsstatistikk"
+
+#. Translators: This is a label to identify the number of learners who ever
+#. enrolled in the course.
+#. Translators: This is a label to identify the maximum number of learners
+#. ever in all of the instructor's courses.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:59
+#: analytics_dashboard/courses/templates/courses/index.html:26
+msgid "Total Enrollment"
+msgstr "Total antall påmeldinger"
+
+#. Translators: This is a label indicating the number of learners in a course.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:61
+msgid "Learners who ever enrolled in the course."
+msgstr "Studenter totalt som har meldt seg på kurset."
+
+#. Translators: This is a label to identify current learner enrollment.
+#. Translators: This is a label to identify the current number of learners in
+#. all of the instructor's courses.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:68
+#: analytics_dashboard/courses/templates/courses/index.html:33
+msgid "Current Enrollment"
+msgstr "Påmeldinger så langt"
+
+#. Translators: This is a label indicating the number of learners enrolled in
+#. a course.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:70
+msgid "Learners currently enrolled in the course."
+msgstr "Kursdeltagere påmeldt kurset."
+
+#. Translators: This is a label indicating the change in the number of
+#. learners enrolled in a course since the previous week.
+#. Translators: This is a label to identify the change in the number of
+#. learners in all of the instructor's courses in the last week.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:76
+#: analytics_dashboard/courses/templates/courses/index.html:40
+msgid "Change in Last Week"
+msgstr "Endringer siste uke"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:77
+msgid "Net difference in current enrollment in the last week."
+msgstr "Nettoforskjellen på antall deltakende studenter den siste uken"
+
+#. Translators: This is a label to identify enrollment of learners on the
+#. verified track.
+#. Translators: This is a label to identify the current number of verified
+#. learners in all of the instructor's courses.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:84
+#: analytics_dashboard/courses/templates/courses/index.html:47
+msgid "Verified Enrollment"
+msgstr "Bekreftet påmeldt"
+
+#. Translators: This is a label indicating the number of learners enrolled in
+#. a course on the verified track.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:86
+msgid ""
+"Number of currently enrolled learners pursuing a verified certificate of "
+"achievement."
+msgstr "Antall deltakende studenter som jobber for å oppnå verifisert kursbevis."
+
+#. Translators: This is a label to identify enrollment of learners on the
+#. masters track.
+#. Translators: This is a label to identify the current number of masters
+#. learners in all of the instructor's courses.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:93
+#: analytics_dashboard/courses/templates/courses/index.html:53
+msgid "Master's Enrollment"
+msgstr ""
+
+#. Translators: This is a label indicating the number of learners enrolled in
+#. a course on the masters track.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:95
+msgid "Number of currently enrolled learners pursuing a Master's degree."
+msgstr "Antall innrullerte studenter som tar mastergrad."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:109
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:117
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:110
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:101
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_gender.html:66
+msgid "Enrollment Over Time"
+msgstr "Innmeldinger over tid"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:26
+#: analytics_dashboard/courses/views/__init__.py:558
+msgid "How old are my learners?"
+msgstr "Hvilken alder har mine kursdeltagere?"
+
+#. Translators: Maintain the double percentage symbols (%%) but move them to
+#. the appropriate location (before/after the value placeholder) for your
+#. language.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:39
+#, python-format
+msgid ""
+"This age histogram presents data computed for the %(value)s%% of enrolled "
+"learners who provided a year of birth."
+msgstr "Aldershistogrammet viser data utregnet for %(value)s%% av påmeldte studenter som oppga fødselsår."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:56
+msgid "Age Metrics"
+msgstr "Aldersstatistikk"
+
+#. Translators: This is a label to identify the median age of enrolled
+#. learners.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:65
+msgid "Median Learner Age"
+msgstr "Median for kursdeltagernes alder"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:66
+msgid ""
+"The midpoint of the learner ages, computed from the provided year of birth."
+msgstr "Median alder av studenter, utregnet fra oppgitt fødselsår."
+
+#. Translators: This is a label to identify the number of learners in the age
+#. range.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:72
+msgid "Learners 25 and Under"
+msgstr "Kursdeltagere som er 25 og under"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:73
+msgid ""
+"The percentage of learners aged 25 years or younger (of those who provided a"
+" year of birth)."
+msgstr "Prosentandel av studenter som er 25 år eller yngre (av de som oppga fødselsår)."
+
+#. Translators: This is a label to identify the number of learners in the age
+#. range.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:79
+msgid "Learners 26 to 40"
+msgstr "Kursdeltagere 26-40"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:80
+msgid ""
+"The percentage of learners aged from 26 to 40 years (of those who provided a"
+" year of birth)."
+msgstr "Prosentandel av studenter som er mellom 26 og 40 år (av de som la ved fødselsår)."
+
+#. Translators: This is a label to identify the number of learners in the age
+#. range.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:86
+msgid "Learners 41 and Over"
+msgstr "Kursdeltagere 41 og over"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:87
+msgid ""
+"The percentage of learners aged 41 years or older (of those who provided a "
+"year of birth)."
+msgstr "Prosentandel av studenter eldre enn 41 år (av de som la ved fødselsår)."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:101
+msgid "Age Breakdown"
+msgstr "Aldersklassifisering"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:25
+#: analytics_dashboard/courses/views/__init__.py:569
+msgid "What level of education do my learners have?"
+msgstr "Hvilket utdanningsnivå har mine studenter?"
+
+#. Translators: Maintain the double percentage symbols (%%) but move them to
+#. the appropriate location (before/after the value placeholder) for your
+#. language.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:38
+#, python-format
+msgid ""
+"This graph presents data for the %(value)s%% of enrolled learners who "
+"provided a highest level of education completed."
+msgstr "Grafen viser data for %(value)s%% av innmeldte studenter som oppga høyeste grad av gjennomført utdanning."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:56
+msgid "Education Metrics"
+msgstr "Utdanningsstatistikk"
+
+#. Translators: This is a label to identify learner educational background.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:64
+msgid "High School Diploma or Less"
+msgstr "Vitnemål fra videregående skole eller lavere"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:65
+msgid ""
+"The percentage of learners who selected Secondary/high school, Junior "
+"secondary/junior high/middle school, or Elementary/primary school as their "
+"highest level of education completed."
+msgstr "Prosentandel av studenter som valgte videregående, ungdomskole eller barneskole som sin høyeste grad av gjennomført utdanning."
+
+#. Translators: This is a label to identify learner educational background.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:71
+msgid "College Degree"
+msgstr "Høyskolegrad"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:72
+msgid ""
+"The percentage of learners who selected Bachelor's degree or Associate "
+"degree as their highest level of education completed."
+msgstr "Prosentandel av studenter som oppga bachelorgrad eller fagbrev som deres høyeste grad av gjennomført utdanning."
+
+#. Translators: This is a label to identify learner educational background.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:78
+msgid "Advanced Degree"
+msgstr "Høyere grad"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:79
+msgid ""
+"The percentage of learners who selected Doctorate or Master's or "
+"professional degree as their highest level of education completed."
+msgstr "Andelen kursdeltagere som valgte Doktorgrad eller Mastergrad eller Profesjonsutdanning som sin høyeste fullførte utdanning."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:91
+msgid "Educational Breakdown"
+msgstr "Klassifisering utdannelse"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_gender.html:25
+#: analytics_dashboard/courses/views/__init__.py:579
+msgid "What is the learner gender breakdown?"
+msgstr "Hvordan er kjønnssammensetningen av studenter?"
+
+#. Translators: Maintain the double percentage symbols (%%) but move them to
+#. the appropriate location (before/after the value placeholder) for your
+#. language.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_gender.html:38
+#, python-format
+msgid ""
+"This graph presents data for the %(value)s%% of enrolled learners who "
+"specified their gender."
+msgstr "Grafen viser data for %(value)s%% av påmeldte studenter som oppga kjønn."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_gender.html:56
+msgid "Gender Breakdown Over Time"
+msgstr "Klassifisering av kjønn over tid"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:21
+msgid "Geographic Distribution"
+msgstr "Geografisk fordeling"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:22
+#: analytics_dashboard/courses/views/__init__.py:589
+msgid "Where are my learners?"
+msgstr "Hvor er studentene mine?"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:27
+msgid "Enrollment by Country"
+msgstr "Påmeldinger etter land"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:45
+msgid "Geography Metrics"
+msgstr "Geografistatistikk "
+
+#. Translators: This string represents the number of countries where learners
+#. are enrolled.
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:53
+msgid "Total Countries or Regions Represented"
+msgstr "Antall land eller regioner som er representert"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:54
+msgid "Countries or regions with at least one learner."
+msgstr "Land eller regioner med minst en student."
+
+#. Translators: This string represents the country or region with the greatest
+#. number of enrolled learners.
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:62
+msgid "Top Country or Region by Enrollment"
+msgstr "Høyest rangerte land utifra påmeldinger"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:63
+msgid "Country or region with the largest number of learners."
+msgstr "Land eller region med det største antall kursdeltakere."
+
+#. Translators: This string represents the country or region with the second-
+#. greatest number of enrolled learners.
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:66
+msgid "Second Country or Region by Enrollment"
+msgstr "Land eller region med det nest-største antallet kursdeltakere"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:67
+msgid "Country or region with the second largest number of learners."
+msgstr "Land eller region med nest høyest antall påmeldte deltagere"
+
+#. Translators: This string represents the country or region with the third-
+#. greatest number of enrolled learners.
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:70
+msgid "Third Country or Region by Enrollment"
+msgstr "Tredje land eller region etter påmelding"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:71
+msgid "Country or region with the third largest number of learners."
+msgstr "Land eller region med tredje høyeste antall påmeldte deltagere"
+
+#. Translators: This string represents the percentage of learners in a course.
+#. Move the % symbol, if necessary, but keep the percent variable/placeholder.
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:77
+#, python-format
+msgid "%(percent)s%% of learners"
+msgstr "%(percent)s%% av deltagerne"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:91
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:98
+msgid "Geographic Breakdown"
+msgstr "Geografisk klassifisering"
+
+#. Translators: Application here refers to the web site/application being used
+#. (e.g. the dashboard).
+#: analytics_dashboard/courses/templates/courses/home.html:11
+#: analytics_dashboard/templates/base_dashboard.html:28
+#: analytics_dashboard/templates/footer.html:5
+#: analytics_dashboard/templates/lens-navigation.html:9
+msgid "Application"
+msgstr "Applikasjon"
+
+#. Translators: This refers to the homepage of a course.
+#: analytics_dashboard/courses/templates/courses/home.html:15
+#: analytics_dashboard/courses/views/__init__.py:539
+#: analytics_dashboard/templates/lens-navigation.html:20
+msgid "Course Home"
+msgstr "Kurs hjem"
+
+#. Translators: This refers to the active tab/navigation item.
+#: analytics_dashboard/courses/templates/courses/home.html:16
+#: analytics_dashboard/templates/lens-navigation.html:31
+#: analytics_dashboard/templates/submenu_navigation.html:14
+msgid "Active"
+msgstr "Aktiv"
+
+#. Translators: This indicates that the adjacent link will trigger a CSV
+#. download. '{{download_icon}}' will be replaced with an icon.
+#: analytics_dashboard/courses/templates/courses/home.html:73
+#, python-format
+msgid ""
+"\n"
+"                    (%(download_icon)s CSV Download)\n"
+"                  "
+msgstr "\n                    (%(download_icon)s CSV Nedlasting)\n                  "
+
+#: analytics_dashboard/courses/templates/courses/home.html:93
+msgid "Basic Course Information"
+msgstr "Grunnleggende kursinformasjon"
+
+#. Translators: This title describes a list of links to outside tools for this
+#. course.
+#: analytics_dashboard/courses/templates/courses/home.html:106
+msgid "External Tools"
+msgstr "Eksterne verktøy"
+
+#: analytics_dashboard/courses/templates/courses/index.html:10
+#: analytics_dashboard/courses/views/course_summaries.py:31
+msgid "Courses"
+msgstr "Kurs"
+
+#: analytics_dashboard/courses/templates/courses/index.html:17
+msgid "Across all your courses:"
+msgstr "Over alle dine kurs:"
+
+#: analytics_dashboard/courses/templates/courses/index.html:27
+msgid "Total enrollments across all of your courses."
+msgstr "Totalt antall påmeldte for alle dine kurs."
+
+#: analytics_dashboard/courses/templates/courses/index.html:34
+msgid "Current enrollments across all of your courses."
+msgstr "Nåværende påmelding for alle dine kurs."
+
+#: analytics_dashboard/courses/templates/courses/index.html:41
+msgid "Total change in enrollment last week across all of your courses."
+msgstr "Forandring i påmelding forrige uke for alle dine kurs."
+
+#: analytics_dashboard/courses/templates/courses/index.html:48
+msgid "Verified enrollments across all of your courses."
+msgstr "Verifiserte påmeldinger for alle dine kurs."
+
+#: analytics_dashboard/courses/templates/courses/index.html:54
+msgid "Master's enrollments across all of your courses."
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_answer_distribution.html:7
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_answer_distribution.html:5
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_answer_distribution.html:7
+msgid "How did learners answer this problem?"
+msgstr "Hvordan svarte deltagerne på denne oppgaven?"
+
+#: analytics_dashboard/courses/templates/courses/performance_assignment.html:10
+msgid "How are learners doing on this assignment?"
+msgstr "Hvordan klarer studentene seg på denne oppgaven?"
+
+#: analytics_dashboard/courses/templates/courses/performance_assignment.html:15
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_by_subsection.html:15
+msgid ""
+"These bars show the correct and incorrect submission counts for each "
+"problem. Only the last submission from each learner is counted."
+msgstr "Disse skillene viser antall korrekte og ukorrekte besvarelser på hvert problem. Bare den siste besvarelsen fra hver student er telt med."
+
+#: analytics_dashboard/courses/templates/courses/performance_assignment.html:19
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_section.html:20
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_by_subsection.html:19
+msgid "Problem Submissions"
+msgstr "Problembesvarelser"
+
+#: analytics_dashboard/courses/templates/courses/performance_graded_content.html:9
+msgid "Which assignment type do you want to investigate?"
+msgstr "Hvilke type oppgaver ønsker du å se nærmere på?"
+
+#: analytics_dashboard/courses/templates/courses/performance_graded_content.html:13
+msgid ""
+"Click an assignment type to view more detail information about the "
+"assignments."
+msgstr "Klikk på en oppgavetype for å se mer informasjon og detaljer om oppgavene. "
+
+#. Translators: This describes the percent an assignment contributes to that
+#. of a learner's grade (e.g. Exam: 60% of the grading policy.).
+#: analytics_dashboard/courses/templates/courses/performance_graded_content.html:22
+#, python-format
+msgid ""
+"\n"
+"                %(assignment_type)s: %(policy_ratio)s%% of the grading policy\n"
+"              "
+msgstr "\n%(assignment_type)s: %(policy_ratio)s%% av graderingspolicyen"
+
+#. Translators: This describes the percent of a learner's grade (e.g. 60%).
+#: analytics_dashboard/courses/templates/courses/performance_graded_content.html:34
+#, python-format
+msgid "%(policy_ratio)s%%"
+msgstr "%(policy_ratio)s%%"
+
+#: analytics_dashboard/courses/templates/courses/performance_graded_content_by_type.html:7
+#, python-format
+msgid ""
+"\n"
+"      How are learners doing on the %(type)s?\n"
+"    "
+msgstr "\nHvordan gjør studentene det i %(type)s?"
+
+#: analytics_dashboard/courses/templates/courses/performance_graded_content_by_type.html:15
+msgid ""
+"Each bar shows the average number of correct and incorrect submissions for "
+"problems in the assignment. Only the last submission from each learner is "
+"counted."
+msgstr "Hvert skille viser gjennomsnittet av antall riktige og gale besvarelser på oppgaven. Bare den siste besvarelsen fra hver student telles med."
+
+#: analytics_dashboard/courses/templates/courses/performance_graded_content_by_type.html:19
+msgid "Assignment Submissions"
+msgstr "Oppgavebesvarelser"
+
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_content.html:6
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_section.html:6
+msgid "Measured by learning outcome, how are learners performing?"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_content.html:16
+msgid ""
+"Each bar shows the average number of correct and incorrect submissions for "
+"each outcome."
+msgstr "Hver stolpe viser det gjennomsnittlige antallet besvarelser som er rett eller galt for hvert utbytte."
+
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_content.html:20
+msgid "Outcome Submissions"
+msgstr "Utbytte innleveringer"
+
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_section.html:16
+msgid ""
+"Each bar shows the correct and incorrect number of submissions for each "
+"problem for the current outcome."
+msgstr "Hver stolpe viser antall riktige og gale besvarelser for hvert problem som er en del av dette utbyttet."
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_by_section.html:5
+msgid "How are learners doing on this section?"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_by_section.html:10
+msgid ""
+"Each bar shows the average number of correct and incorrect submissions for "
+"each subsection. Only the last submission from each learner is counted."
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_by_section.html:14
+msgid "Subsection Submissions"
+msgstr "Oppgavesubseksjoner"
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_by_subsection.html:10
+msgid "How are learners doing on this subsection?"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_content.html:7
+#: analytics_dashboard/courses/views/__init__.py:650
+msgid "How are learners doing on ungraded exercises?"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_content.html:12
+msgid ""
+"Each bar shows the average number of correct and incorrect submissions for "
+"each section. Only the last submission from each learner is counted."
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_content.html:16
+msgid "Section Submissions"
+msgstr "Seksjonbesvarelser"
+
+#. Translators: This message is displayed when the website is unable to get
+#. the credentials for the user
+#: analytics_dashboard/courses/templates/courses/permissions-retrieval-failed.html:5
+#: analytics_dashboard/courses/templates/courses/permissions-retrieval-failed.html:7
+msgid "Permissions Retrieval Failed"
+msgstr "Fant ikke tillatelse"
+
+#: analytics_dashboard/courses/templates/courses/permissions-retrieval-failed.html:9
+msgid ""
+"There was a problem retrieving course permissions for your account. Please "
+"try again. If you continue to experience issues, please let us know."
+msgstr "Det oppstod et problem ved hentingen av kurstillatelsene for din konto. Prøv igjen. Hvis problemet oppstår igjen, kontakt oss og gi en tilbakemelding."
+
+#: analytics_dashboard/courses/templates/courses/permissions-retrieval-failed.html:14
+msgid "Try Again"
+msgstr "Last inn siden på nytt!"
+
+#: analytics_dashboard/courses/tests/test_views/__init__.py:271
+#: analytics_dashboard/courses/views/__init__.py:548
+#: analytics_dashboard/courses/views/enrollment.py:42
+msgid "Activity"
+msgstr "Aktivitet"
+
+#: analytics_dashboard/courses/tests/test_views/__init__.py:281
+#: analytics_dashboard/courses/tests/test_views/__init__.py:304
+#: analytics_dashboard/courses/views/__init__.py:560
+#: analytics_dashboard/courses/views/__init__.py:571
+#: analytics_dashboard/courses/views/__init__.py:581
+#: analytics_dashboard/courses/views/enrollment.py:23
+#: analytics_dashboard/courses/views/enrollment.py:31
+msgid "Demographics"
+msgstr "Demografi"
+
+#: analytics_dashboard/courses/tests/test_views/__init__.py:291
+#: analytics_dashboard/courses/views/__init__.py:591
+#: analytics_dashboard/courses/views/enrollment.py:52
+msgid "Geography"
+msgstr "Geografi"
+
+#: analytics_dashboard/courses/tests/test_views/__init__.py:341
+#: analytics_dashboard/courses/views/__init__.py:560
+#: analytics_dashboard/courses/views/enrollment.py:77
+msgid "Age"
+msgstr "Alder"
+
+#: analytics_dashboard/courses/tests/test_views/__init__.py:351
+#: analytics_dashboard/courses/views/__init__.py:571
+#: analytics_dashboard/courses/views/enrollment.py:88
+msgid "Education"
+msgstr "Utdannelse"
+
+#: analytics_dashboard/courses/tests/test_views/__init__.py:361
+#: analytics_dashboard/courses/views/__init__.py:581
+#: analytics_dashboard/courses/views/enrollment.py:97
+msgid "Gender"
+msgstr "kjønn"
+
+#. Translators: Content as in course content (e.g. things, not the feeling)
+#: analytics_dashboard/courses/tests/test_views/test_engagement.py:58
+#: analytics_dashboard/courses/views/__init__.py:616
+#: analytics_dashboard/courses/views/engagement.py:33
+msgid "Content"
+msgstr "Innhold"
+
+#: analytics_dashboard/courses/tests/test_views/test_engagement.py:69
+#: analytics_dashboard/courses/views/__init__.py:629
+#: analytics_dashboard/courses/views/engagement.py:42
+msgid "Videos"
+msgstr "Videoer"
+
+#: analytics_dashboard/courses/tests/test_views/test_performance.py:68
+#: analytics_dashboard/courses/views/__init__.py:643
+#: analytics_dashboard/courses/views/performance.py:43
+#: analytics_dashboard/courses/views/performance.py:106
+msgid "Graded Content"
+msgstr "Gradert innhold"
+
+#: analytics_dashboard/courses/tests/test_views/test_performance.py:79
+#: analytics_dashboard/courses/views/__init__.py:652
+#: analytics_dashboard/courses/views/performance.py:52
+#: analytics_dashboard/courses/views/performance.py:91
+msgid "Ungraded Problems"
+msgstr "Ikke graderte problemer"
+
+#: analytics_dashboard/courses/tests/test_views/test_performance.py:542
+#: analytics_dashboard/courses/views/__init__.py:664
+#: analytics_dashboard/courses/views/performance.py:70
+msgid "Learning Outcomes"
+msgstr "Læringsutbytter"
+
+#: analytics_dashboard/courses/views/__init__.py:611
+msgid "What are learners doing in my course?"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:641
+msgid "How are learners doing on graded course assignments?"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:662
+msgid "What is the breakdown for course learning outcomes?"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:682
+msgid "How are learners responding to questions?"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:684
+msgid "Problem Response Report"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:691
+msgid "How are learners doing on course assignments?"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:699
+msgid "What are individual learners doing?"
+msgstr "Hva gjør de enkelte kursdeltakerne?"
+
+#: analytics_dashboard/courses/views/__init__.py:702
+msgid "Who is engaged? Who isn't?"
+msgstr "Hvem er engasjert? Hvem er ikke?"
+
+#: analytics_dashboard/courses/views/__init__.py:704
+msgid "All Learners"
+msgstr "Alle kursdelatgere"
+
+#. Translators: 'Course ID' is 'Course Identifier', the unique code that
+#. identifies the course
+#: analytics_dashboard/courses/views/__init__.py:768
+msgid "Course ID"
+msgstr "KursID"
+
+#: analytics_dashboard/courses/views/__init__.py:770
+msgid "Course Name"
+msgstr "Kursnavn"
+
+#. Translators: 'In Progress' and 'Ended' refer to whether learners are
+#. actively using the course or it is over.
+#: analytics_dashboard/courses/views/__init__.py:787
+msgid "In Progress"
+msgstr "Pågår"
+
+#: analytics_dashboard/courses/views/__init__.py:787
+msgid "Ended"
+msgstr "Avsluttet"
+
+#. Translators: This refers to a course that has not yet begun.
+#: analytics_dashboard/courses/views/__init__.py:790
+msgid "Not Started Yet"
+msgstr "Ikke startet enda"
+
+#: analytics_dashboard/courses/views/__init__.py:792
+msgid "Start Date"
+msgstr "Startdato"
+
+#: analytics_dashboard/courses/views/__init__.py:793
+msgid "End Date"
+msgstr "Sluttdato"
+
+#: analytics_dashboard/courses/views/__init__.py:794
+msgid "Status"
+msgstr "Status"
+
+#: analytics_dashboard/courses/views/__init__.py:803
+msgid "Instructor Dashboard"
+msgstr "Instruktørens instrumentpanel"
+
+#: analytics_dashboard/courses/views/__init__.py:808
+msgid "Courseware"
+msgstr "Kursinnhold"
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/course_summaries.py:40
+#, python-format
+msgid ""
+"Course summary data was last updated %(update_date)s at %(update_time)s UTC."
+msgstr ""
+
+#: analytics_dashboard/courses/views/engagement.py:58
+msgid "Engagement Content"
+msgstr "Engasjerende innhold"
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/engagement.py:68
+#, python-format
+msgid ""
+"Course engagement data was last updated %(update_date)s at %(update_time)s "
+"UTC."
+msgstr "Kursengasjementdata var sist oppdatert %(update_date)s ved kl. %(update_time)s UTC."
+
+#: analytics_dashboard/courses/views/engagement.py:95
+msgid "Engagement Videos"
+msgstr "Engasjementvideoer"
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/engagement.py:100
+#, python-format
+msgid "Video data was last updated %(update_date)s at %(update_time)s UTC."
+msgstr "Videodata var sist oppdatert %(update_date)s ved kl. %(update_time)s UTC."
+
+#: analytics_dashboard/courses/views/engagement.py:101
+msgid "Looks like no one has watched any videos in these sections."
+msgstr "Ser ut som om ingen har sett noen videoer i disse seksjonene."
+
+#: analytics_dashboard/courses/views/engagement.py:127
+#: analytics_dashboard/courses/views/performance.py:308
+msgid "Section Name"
+msgstr "Seksjonsnavn"
+
+#: analytics_dashboard/courses/views/engagement.py:147
+#: analytics_dashboard/courses/views/performance.py:330
+msgid "Subsection Name"
+msgstr "Subseksjonsnavn"
+
+#: analytics_dashboard/courses/views/engagement.py:168
+msgid "Video Name"
+msgstr "Videonavn"
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/enrollment.py:118
+#, python-format
+msgid ""
+"Demographic learner data was last updated %(update_date)s at %(update_time)s"
+" UTC."
+msgstr ""
+
+#. Translators: This sentence is displayed at the bottom of the page and
+#. describe the demographics data displayed.
+#: analytics_dashboard/courses/views/enrollment.py:122
+msgid ""
+"All above demographic data was self-reported at the time of registration."
+msgstr "Alt over demografisk data var selv-reportert ved registreringsklokkeslettet."
+
+#: analytics_dashboard/courses/views/enrollment.py:135
+msgid "Enrollment Activity"
+msgstr "Påmeldings aktivitet"
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/enrollment.py:145
+#, python-format
+msgid ""
+"Enrollment activity data was last updated %(update_date)s at %(update_time)s"
+" UTC."
+msgstr "Påmeldingsaktivitetdata var sist oppdatert %(update_date)s ved kl. %(update_time)s UTC."
+
+#: analytics_dashboard/courses/views/enrollment.py:176
+msgid "Enrollment Demographics by Age"
+msgstr "Påmeldingsdemografi etter alder"
+
+#: analytics_dashboard/courses/views/enrollment.py:214
+msgid "Enrollment Demographics by Education"
+msgstr "Påmeldingsdemografi etter utdannelse"
+
+#: analytics_dashboard/courses/views/enrollment.py:252
+msgid "Enrollment Demographics by Gender"
+msgstr "Påmeldingsdemografi etter kjønn"
+
+#: analytics_dashboard/courses/views/enrollment.py:290
+msgid "Enrollment Geography"
+msgstr "Påmeldingsgeografi"
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/enrollment.py:300
+#, python-format
+msgid ""
+"Geographic learner data was last updated %(update_date)s at %(update_time)s "
+"UTC."
+msgstr ""
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/performance.py:38
+#, python-format
+msgid ""
+"Problem submission data was last updated %(update_date)s at %(update_time)s "
+"UTC."
+msgstr "Problembesvarelsedata var sist oppdatert %(update_date)s ved kl. %(update_time)s UTC."
+
+#: analytics_dashboard/courses/views/performance.py:84
+msgid "Assignment Name"
+msgstr "Oppgavenavn"
+
+#: analytics_dashboard/courses/views/performance.py:95
+#: analytics_dashboard/courses/views/performance.py:378
+msgid "No submissions received for these exercises."
+msgstr "Ingen besvarelser er motatt for disse oppgavene. "
+
+#: analytics_dashboard/courses/views/performance.py:111
+msgid "No submissions received for these assignments."
+msgstr "Ingen besvarelser er mottatt for disse oppgavene. "
+
+#: analytics_dashboard/courses/views/performance.py:203
+#: analytics_dashboard/courses/views/performance.py:370
+#: analytics_dashboard/courses/views/performance.py:468
+msgid "Performance: Problem Submissions"
+msgstr "Ytelse: problembesvarelser"
+
+#: analytics_dashboard/courses/views/performance.py:265
+#, python-format
+msgid "Graded Content: %(assignment_type)s"
+msgstr "Gradert innhold: %(assignment_type)s"
+
+#: analytics_dashboard/courses/views/performance.py:284
+#: analytics_dashboard/courses/views/performance.py:352
+msgid "Problem Name"
+msgstr "Navn på oppgaven"
+
+#: analytics_dashboard/courses/views/performance.py:377
+#, python-format
+msgid ""
+"Tags distribution data was last updated %(update_date)s at %(update_time)s "
+"UTC."
+msgstr ""
+
+#: analytics_dashboard/courses/views/performance.py:406
+#: analytics_dashboard/courses/views/performance.py:436
+msgid "Performance: Learning Outcomes"
+msgstr ""
+
+#: analytics_dashboard/settings/base.py:436
+msgid "Terms of Service"
+msgstr "Bruksvilkår for tjenesten"
+
+#: analytics_dashboard/settings/base.py:437
+msgid "Privacy Policy"
+msgstr "Erklæring om personvern"
+
+#: analytics_dashboard/templates/403.html:5
+#: analytics_dashboard/templates/403.html:8
+msgid "Access Denied"
+msgstr "Du har ikke tilgang"
+
+#: analytics_dashboard/templates/403.html:10
+msgid ""
+"You do not have permission to view this page. If you believe you should have"
+" access to this page, try logging out and logging in again to refresh your "
+"permissions."
+msgstr "Du har ikke tilgang til å se denne siden. Hvis du mener du burde ha tilgang til denne siden, prøv å logge inn og ut igjen for å oppdatere din tilgang. "
+
+#: analytics_dashboard/templates/403.html:17
+msgid "Logout then Login"
+msgstr "Logg ut og inn igjen"
+
+#: analytics_dashboard/templates/404.html:5
+#: analytics_dashboard/templates/404.html:8
+msgid "Page Not Found"
+msgstr "Side ikke funnet"
+
+#: analytics_dashboard/templates/404.html:10
+msgid ""
+"We can't find the page you're looking for. Please make sure the URL is "
+"correct and if not try again."
+msgstr "Vi finner ikke siden du leter etter. Vennligst sjekk om URL-linken er korrekt, og hvis ikke, prøv igjen. "
+
+#: analytics_dashboard/templates/500.html:5
+#: analytics_dashboard/templates/500.html:8
+msgid "An Error Occurred"
+msgstr "Det har oppstått en feil"
+
+#: analytics_dashboard/templates/500.html:10
+msgid ""
+"Our servers weren't able to complete your request. Please try again by "
+"refreshing this page or retracing your steps."
+msgstr "Våre servere klarte ikke å gjennomføre din etterspørsel. Vennligst prøv igjen ved å oppdatere denne siden eller gjenoppta stegene dine. "
+
+#: analytics_dashboard/templates/503.html:5
+#: analytics_dashboard/templates/503.html:7
+msgid "We're having trouble loading this page. Please try again in a minute."
+msgstr "Vi har problemer med å laste inn siden. Vennligst prøv igjen om et minutt. "
+
+#: analytics_dashboard/templates/503.html:10
+msgid "(Technical details: 503 Service Unavailable.)"
+msgstr "(Technical details: 503 Service Unavailable.)"
+
+#: analytics_dashboard/templates/_announcement.html:28
+msgid "Close"
+msgstr "Lukk"
+
+#: analytics_dashboard/templates/base-error.html:42
+msgid "Use our support tool to ask questions or share feedback."
+msgstr "Bruk vårt support-hjelpemiddel for å stille spørsmål eller gi tilbakemeldinger."
+
+#. Translators: This intention here is that a user clicks a button to contact
+#. a support group (e.g. edX Support, or MITx Support). Reorder the
+#. placeholder as you see fit.
+#: analytics_dashboard/templates/base-error.html:47
+#, python-format
+msgid "Contact %(platform_name)s Support"
+msgstr "Kontakt %(platform_name)s support"
+
+#: analytics_dashboard/templates/footer.html:16
+#, python-format
+msgid ""
+"We want this dashboard to work for you! Need help? "
+"%(support_link_start)sContact course team support%(support_link_end)s."
+msgstr ""
+
+#. Translators: The © symbol appears directly before this line.
+#: analytics_dashboard/templates/footer.html:39
+#, python-format
+msgid ""
+" %(current_year)s %(platform_name)s, except where noted, all rights\n"
+"            reserved. "
+msgstr "%(current_year)s %(platform_name)s, utenom hvor notert, alle rettigheter\ner forbeholdt. "
+
+#: analytics_dashboard/templates/header.html:13
+msgid "Toggle navigation"
+msgstr "Navigasjon"
+
+#: analytics_dashboard/templates/header.html:40
+msgid "Help"
+msgstr "Hjelp"
+
+#: analytics_dashboard/templates/header.html:46
+msgid "Menu for"
+msgstr "Meny for"
+
+#: analytics_dashboard/templates/header.html:60
+msgid "Logout"
+msgstr "Logg ut"
+
+#: analytics_dashboard/templates/lens-navigation.html:27
+msgid "Navigation Menu."
+msgstr "Navigasjonsmeny."
+
+#: analytics_dashboard/templates/loading.html:7
+msgid "Loading"
+msgstr "Laster"
+
+#: analytics_dashboard/templates/section_error.html:10
+msgid "We are unable to load this chart."
+msgstr "Ikke mulig å laste denne siden. "
+
+#: analytics_dashboard/templates/section_error.html:12
+msgid "We are unable to load this table."
+msgstr "Ikke mulig å laste denne tabellen. "
+
+#: analytics_dashboard/templates/section_error.html:14
+msgid "We are unable to load these metrics."
+msgstr "Ikke mulig å laste denne statistikkene. "

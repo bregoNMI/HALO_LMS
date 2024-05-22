@@ -1,0 +1,839 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# Translators:
+# Angelos Chraniotis, 2016,2023
+# defaultuser2003 <defaultuser2003@gmail.com>, 2014
+# Dimosthenis Karakatsoulis <karakatsou@gmail.com>, 2015
+# Eirini Mageiropoulou <eirmageir@yahoo.com>, 2021
+# Giannoulis Thanasis <thanasis@giannoulis.net>, 2015
+# Katerina Ligkovanli <kaligova@gmail.com>, 2016-2017,2019-2020
+# Konstantina Samara <kon.samara@hotmail.com>, 2015
+# LOUKAS SKOUROLIAKOS, 2015
+# Nick Gikopoulos, 2017
+# Ειρήνη Απέργη, 2023
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-18 15:22+0000\n"
+"PO-Revision-Date: 2014-08-26 21:24+0000\n"
+"Last-Translator: Ειρήνη Απέργη, 2023\n"
+"Language-Team: Greek (http://app.transifex.com/open-edx/edx-platform/language/el/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: el\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: analytics_dashboard/static/apps/components/download/views/download-data.js:25
+msgid "Download CSV"
+msgstr "Λήψη CSV"
+
+#: analytics_dashboard/static/apps/components/download/views/download-data.js:26
+msgid "Download search results to CSV"
+msgstr "Λήψη αποτελεσμάτων αναζήτησης σε μορφή CSV"
+
+#. Translators: "All" refers to viewing all items (e.g. all courses).
+#: analytics_dashboard/static/apps/components/filter/views/drop-down-filter.js:31
+msgid "All"
+msgstr "Όλα"
+
+#. Translators: 'name' here refers to the name of the filter, while 'count'
+#. refers to the number of items belonging to that filter.
+#: analytics_dashboard/static/apps/components/filter/views/filter.js:90
+msgid "<%= name %> (<%= count %>)"
+msgstr "<%= name %> (<%= count %>)"
+
+#. Translators: this is a label describing a filter selection that the user
+#. initiated.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:62
+msgid "<%= filterDisplayName %>: <%= filterVal %>"
+msgstr "<%= filterDisplayName %>: <%= filterVal %>"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:87
+msgid "Filters In Use:"
+msgstr "Φίλτρα σε χρήση:"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:88
+msgid "Click to remove this filter"
+msgstr "Κάντε κλικ για την αφαίρεση αυτού του φίλτρου"
+
+#. Translators: "Clear" in this context means "remove all of the filters"
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:90
+msgid "Clear"
+msgstr "Καθαρισμός"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:91
+msgid "Click to remove all filters"
+msgstr "Κάντε κλικ για την αφαίρεση όλων των φίλτρων"
+
+#. Translators: "sort ascending" describes the current sort state to the user.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/base-header-cell.js:71
+msgid "sort ascending"
+msgstr "αύξουσα ταξινόμηση"
+
+#. Translators: "sort descending" describes the current sort state to the
+#. user.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/base-header-cell.js:73
+msgid "sort descending"
+msgstr "φθίνουσα ταξινόμηση"
+
+#. Translators: "click to sort" tells the user that they can click this link
+#. to sort by the current field.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/base-header-cell.js:76
+msgid "click to sort"
+msgstr "κάντε κλικ για ταξινόμηση"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/list.js:51
+msgid "Results"
+msgstr "Αποτελέσματα"
+
+#. Translators: 'count' refers to the number of results contained in the
+#. table.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/num-results.js:30
+msgid "Number of results: <%= count %>"
+msgstr "Αριθμός αποτελεσμάτων: <%= count %>"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:70
+msgid "first page"
+msgstr "πρώτη σελίδα"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:72
+msgid "previous page"
+msgstr "προηγούμενη σελίδα"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:74
+msgid "next page"
+msgstr "επόμενη σελίδα"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:76
+msgid "last page"
+msgstr "τελευταία σελίδα"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:78
+msgid "page"
+msgstr "σελίδα"
+
+#. Translators: describes the state of a pagination button as not clickable
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:88
+msgid "disabled"
+msgstr "ανενεργό"
+
+#. Translators: describes a pagination button as representing the current page
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:91
+msgid "active"
+msgstr "ενεργό"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/table.js:27
+msgid "Generic List"
+msgstr "Γενική λίστα"
+
+#. Translators: This message indicates content is loading in the page.
+#: analytics_dashboard/static/apps/components/loading/views/loading-view.js:20
+msgid "Loading..."
+msgstr "Φόρτωση..."
+
+#. Translators: "504" is a number representing a server error, so please leave
+#. it as "504".
+#: analytics_dashboard/static/apps/components/utils/utils.js:62
+msgid "504: Server error"
+msgstr "504: Σφάλμα διακομιστή"
+
+#: analytics_dashboard/static/apps/components/utils/utils.js:64
+msgid ""
+"Processing your request took too long to complete. Reload the page to try "
+"again."
+msgstr "Η επεξεργασία του αιτήματός σας διήρκεσε υπερβολικά για να ολοκληρωθεί. Ανανεώστε τη σελίδα, ώστε να προσπαθήσετε ξανά."
+
+#: analytics_dashboard/static/apps/components/utils/utils.js:68
+msgid "Server error"
+msgstr "Σφάλμα διακομιστή"
+
+#: analytics_dashboard/static/apps/components/utils/utils.js:69
+#: analytics_dashboard/static/apps/components/utils/utils.js:81
+msgid "Your request could not be processed. Reload the page to try again."
+msgstr "Δεν ήταν δυνατή η επεξεργασία του αιτήματός σας. Ανανεώστε τη σελίδα, ώστε να προσπαθήσετε ξανά."
+
+#: analytics_dashboard/static/apps/components/utils/utils.js:80
+msgid "Network error"
+msgstr "Σφάλμα δικτύου"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:38
+msgid "Instructor-Paced"
+msgstr "Στον ρυθμό του διδάσκοντα"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:39
+msgid "Self-Paced"
+msgstr "Στον ρυθμό του φοιτητή"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:42
+msgid "Upcoming"
+msgstr "Επερχόμενο"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:43
+msgid "Current"
+msgstr "Τρέχον"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:44
+msgid "Archived"
+msgstr "Αρχειοθετημένο"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:45
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:17
+msgid "Unknown"
+msgstr "Άγνωστο"
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:44
+#: analytics_dashboard/static/apps/course-list/app/controller.js:106
+msgid "Course List"
+msgstr "Λίστα κύκλου μαθημάτων"
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:95
+#: analytics_dashboard/static/apps/learners/app/controller.js:94
+msgid "Invalid Parameters"
+msgstr "Μη έγκυρες παράμετροι"
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:96
+msgid "Sorry, we couldn't find any courses that matched that query."
+msgstr "Λυπούμαστε, δεν μπορέσαμε να βρούμε κύκλους μαθημάτων που να ταιριάζουν με αυτό το ερώτημα."
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:97
+msgid "Return to the Course List page."
+msgstr "Επιστρέψτε στη σελίδα «Λίστα κύκλου μαθημάτων»."
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:123
+#: analytics_dashboard/static/apps/learners/app/controller.js:177
+msgid "Sorry, we couldn't find the page you're looking for."
+msgstr "Λυπούμαστε, δεν μπορέσαμε να βρούμε τη σελίδα την οποία αναζητάτε."
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:125
+#: analytics_dashboard/static/apps/learners/app/controller.js:180
+msgid "Page Not Found"
+msgstr "Η ΣΕΛΙΔΑ ΔΕΝ ΒΡΕΘΗΚΕ"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:77
+msgid "Course Name"
+msgstr "Τίτλος Μαθήματος"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:78
+msgid "Start Date"
+msgstr "Ημερομηνία Έναρξης"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:79
+msgid "End Date"
+msgstr "Ημερομηνία λήξης"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:80
+msgid "Total Enrollment"
+msgstr "Σύνολο συμμετοχών"
+
+#. Translators: The noun count (e.g. number of learners)
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:81
+#: analytics_dashboard/static/js/enrollment-activity-main.js:27
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:32
+#: analytics_dashboard/static/js/enrollment-geography-main.js:29
+msgid "Current Enrollment"
+msgstr "Τρέχουσα εγγραφή"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:82
+msgid "Change Last Week"
+msgstr "Αλλαγές την τελευταία εβδομάδα"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:83
+msgid "Verified Enrollment"
+msgstr "Εγγραφή με πιστοποίηση"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:86
+msgid "Passing Learners"
+msgstr "Περαστικοί σπουδαστές"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:89
+msgid "Availability"
+msgstr "Διαθεσιμότητα"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:90
+msgid "Pacing Type"
+msgstr "Τύπος διάρκειας"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:91
+msgid "Programs"
+msgstr "Προγράμματα"
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:11
+msgid "Course name advertised on edX site."
+msgstr "Όνομα κύκλου μαθημάτων που διαφημίζεται στον ιστότοπο edX."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:12
+msgid "Start date advertised on edX site."
+msgstr "Ημερομηνία έναρξης που διαφημίζεται στον ιστότοπο edX."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:13
+msgid "End date set in edX Studio."
+msgstr "Η ημερομηνία λήξης που ορίστηκε στο edX Studio."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:14
+msgid "Learners who ever enrolled in the course."
+msgstr "Σπουδαστές που εγγράφηκαν ποτέ στον κύκλο μαθημάτων."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:15
+msgid "Learners currently enrolled in the course."
+msgstr "Οι σπουδαστές που είναι εγγεγραμμένοι αυτήν τη στιγμή στον κύκλο μαθημάτων."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:16
+msgid "Net difference in current enrollment in the last week."
+msgstr "Καθαρή διαφορά στις τρέχουσες εγγραφές την τελευταία εβδομάδα."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:18
+msgid ""
+"Number of currently enrolled learners pursuing a verified certificate of "
+"achievement."
+msgstr "Αριθμός εγγεγραμμένων σπουδαστών που επιδιώκουν επαληθευμένο πιστοποιητικό επιτυχίας."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:19
+msgid "Learners who have earned a passing grade."
+msgstr "Σπουδαστές που έχουν κερδίσει βαθμολογία επιτυχίας."
+
+#: analytics_dashboard/static/apps/course-list/list/views/controls.js:38
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:39
+msgid "Skip to results"
+msgstr "Μετάβαση στα αποτελέσματα"
+
+#: analytics_dashboard/static/apps/course-list/list/views/controls.js:58
+msgid "Find a course"
+msgstr "Εύρεση κύκλου μαθημάτων"
+
+#: analytics_dashboard/static/apps/course-list/list/views/course-list.js:66
+msgid "Download full course list to CSV"
+msgstr "Κατεβάστε την πλήρη λίστα κύκλου μαθημάτων σε μορφή CSV"
+
+#: analytics_dashboard/static/apps/course-list/list/views/course-list.js:91
+msgid "Course list controls"
+msgstr "Στοιχεία ελέγχου λίστας κύκλου μαθημάτων"
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:47
+msgid "No courses matched your criteria."
+msgstr "Κανένας κύκλος μαθημάτων δεν ταιριάζει με τα κριτήριά σας."
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:49
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:49
+msgid "Try a different search."
+msgstr "Δοκιμάστε διαφορετική αναζήτηση."
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:52
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:52
+msgid "Try clearing the filters."
+msgstr "Δοκιμάστε να καθαρίστε τα φίλτρα."
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:55
+msgid "No course data is currently available for your course."
+msgstr "Δεν υπάρχουν διαθέσιμα δεδομένα για τον κύκλο μαθημάτων σας."
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:57
+msgid ""
+"No courses are enrolled, or course activity data has not yet been processed."
+" Data is updated every day, so check back regularly for up-to-date metrics."
+msgstr "Κανείς δεν έχει δηλώσει συμμετοχή, ή δεν υπάρχουν δεδομένα δραστηριότητας, Τα δεδομένα ενημερώνονται καθημερινά, γι' αυτό ελέγχετε τακτικά για ενημερωμένα στατιστικά."
+
+#: analytics_dashboard/static/apps/course-list/list/views/search.js:71
+msgid "Search courses"
+msgstr "Αναζήτηση κύκλων μαθημάτων"
+
+#: analytics_dashboard/static/apps/course-list/list/views/search.js:72
+#: analytics_dashboard/static/apps/learners/roster/views/search.js:56
+msgid "search"
+msgstr "αναζήτηση"
+
+#: analytics_dashboard/static/apps/course-list/list/views/search.js:73
+#: analytics_dashboard/static/apps/learners/roster/views/search.js:57
+msgid "clear search"
+msgstr "εκκαθάριση αναζήτησης"
+
+#: analytics_dashboard/static/apps/course-list/list/views/table.js:48
+msgid "Date not available"
+msgstr "Η ημερομηνία δεν είναι διαθέσιμη"
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:59
+msgid "Learner Roster"
+msgstr "Πρόγραμμα σπουδαστή"
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:95
+msgid "Sorry, we couldn't find any learners who matched that query."
+msgstr "Λυπούμαστε, δεν μπορέσαμε να βρούμε σπουδαστές που να αντιστοιχούν σε αυτό το ερώτημα."
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:96
+msgid "Return to the Learners page."
+msgstr "Επιστροφή στη σελίδα «Σπουδαστές»."
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:104
+msgid "Learners"
+msgstr "Σπουδαστές"
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:137
+msgid "Learner Details"
+msgstr "Λεπτομέρειες σπουδαστή"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:17
+msgid "Name (Username)"
+msgstr "Όνομα (ψευδώνυμο)"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:18
+msgid "Problems Tried"
+msgstr "Προσπαθημένα προβλήματα"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:19
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-table.js:33
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:35
+msgid "Problems Correct"
+msgstr "Σωστά προβλήματα"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:20
+msgid "Attempts per Problem Correct"
+msgstr "Προσπάθειες ανά σωστό πρόγραμμα"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:21
+#: analytics_dashboard/static/js/engagement-video-content-main.js:33
+msgid "Videos"
+msgstr "Βίντεο"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:22
+msgid "Discussions"
+msgstr "Συζητήσεις"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:24
+msgid "Segments"
+msgstr "Τμήματα"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:25
+msgid "Segments to Ignore"
+msgstr "Τμήματα προς αγνόηση"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:26
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:101
+msgid "Cohort"
+msgstr "Κοόρτη"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:27
+msgid "Enrollment Mode"
+msgstr "Λειτουργία συμμετοχής"
+
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-table.js:22
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:43
+#: analytics_dashboard/static/js/enrollment-activity-main.js:22
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:31
+msgid "Date"
+msgstr "Ημερομηνία"
+
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-table.js:27
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:31
+msgid "Discussion Contributions"
+msgstr "Συμβολή στη συζήτηση"
+
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-table.js:39
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:39
+msgid "Videos Viewed"
+msgstr "Προβεβλημένα βίντεο"
+
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:47
+msgid "Value"
+msgstr "Τιμή"
+
+#. Translators: e.g. Learner engagement activity
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:28
+msgid "Engagement Activity"
+msgstr "Δραστηριότητα ενασχόλησης"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:29
+msgid "Daily Activity"
+msgstr "Καθημερινή ενασχόληση"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:30
+msgid "Activity Over Time"
+msgstr "Δραστηριότητα σε βάθος χρόνου"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:95
+msgid "Enrollment"
+msgstr "Εγγραφή"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:106
+msgid "Last Accessed"
+msgstr "Τελευταία πρόσβαση"
+
+#. Translators: 'n/a' means 'not available'
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:109
+#: analytics_dashboard/static/apps/learners/detail/views/learner-summary-field.js:44
+#: analytics_dashboard/static/apps/learners/roster/views/activity-date-range.js:16
+msgid "n/a"
+msgstr "δ/υ"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:139
+msgid "Check back daily for up-to-date data."
+msgstr "Να ελέγχετε καθημερινά για ενημερωμένα δεδομένα."
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:149
+msgid "No course activity data is available for this learner."
+msgstr "Δεν υπάρχουν διαθέσιμα δεδομένα δραστηριότητας στον κύκλο μαθημάτων για αυτόν το σπουδαστή."
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:156
+msgid "No learner data is available."
+msgstr "Δεν υπάρχουν διαθέσιμα δεδομένα για τον σπουδαστή."
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-return.js:12
+msgid "Return to Learners"
+msgstr "Επιστροφή στο «Σπουδαστές»"
+
+#. Translators: this is a label describing a selection that the user
+#. initiated.
+#: analytics_dashboard/static/apps/learners/roster/views/active-filters.js:23
+msgid "Cohort: <%= filterVal %>"
+msgstr "Κοόρτη: <%= filterVal %>"
+
+#. Translators: this is a label describing a selection that the user
+#. initiated.
+#: analytics_dashboard/static/apps/learners/roster/views/active-filters.js:27
+msgid "Enrollment Track: <%= filterVal %>"
+msgstr "Μετρητής συμμετοχής: <%= filterVal %>"
+
+#: analytics_dashboard/static/apps/learners/roster/views/active-filters.js:32
+#: analytics_dashboard/static/js/engagement-content-main.js:20
+msgid "Active Learners"
+msgstr "Ενεργοί σπουδαστές"
+
+#: analytics_dashboard/static/apps/learners/roster/views/activity-date-range.js:11
+msgid "Activity between <%- startDate %> - <%- endDate %>"
+msgstr "Δραστηριότητα μεταξύ <%- startDate %> - <%- endDate %>"
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:10
+msgid "The name and username of this learner. Click to sort by username."
+msgstr "Το όνομα και το ψευδώνυμο του σπουδαστή. Κάντε κλικ για ταξινόμηση βάσει ψευδώνυμου."
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:11
+msgid "Number of unique problems this learner attempted."
+msgstr "Αριθμός μοναδικών προβλημάτων που αποπειράθηκαν από αυτό το σπουδαστή."
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:12
+msgid "Number of unique problems the learner answered correctly."
+msgstr "Ο αριθμός των μοναδικών προβλημάτων που απαντήθηκαν σωστά από το σπουδαστή."
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:13
+msgid "Number of unique videos this learner played."
+msgstr "Ο αριθμός των μοναδικών βίντεο που αναπαρήγαγε αυτός ο σπουδαστής."
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:15
+msgid ""
+"Average number of attempts per correct problem. Learners with a relatively "
+"high value compared to their peers may be struggling."
+msgstr "Μέσος όρος προσπαθειών ανά σωστό πρόβλημα. Οι σπουδαστές με σχετικά μεγαλύτερες τιμές σε σύγκριση με τους συμμαθητές τους που δυσκολεύονται."
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:17
+msgid ""
+"Number of contributions by this learner, including posts, responses, and "
+"comments."
+msgstr "Ποσοστό συμβολής από αυτόν το σπουδαστή, εξαιρουμένων των αναρτήσεων, των απαντήσεων και των σχολίων."
+
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:62
+msgid "Find a learner"
+msgstr "Εύρεση σπουδαστή"
+
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:75
+msgid "Cohort Groups"
+msgstr "Ομάδες κοόρτης"
+
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:87
+msgid "Enrollment Tracks"
+msgstr "Μετρητές συμμετοχής"
+
+#. Translators: inactive meaning that these learners have not interacted with
+#. the
+#. course recently.
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:103
+msgid "Hide Inactive Learners"
+msgstr "Απόκρυψη ανενεργών σπουδαστών"
+
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:47
+msgid "No learners matched your criteria."
+msgstr "Δε βρέθηκαν σπουδαστές για τα κριτήριά σας."
+
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:55
+msgid "No learner data is currently available for your course."
+msgstr "Δεν υπάρχουν διαθέσιμα δεδομένα σπουδαστή για το μάθημά σας."
+
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:57
+msgid ""
+"No learners are enrolled, or course activity data has not yet been "
+"processed. Data is updated every day, so check back regularly for up-to-date"
+" metrics."
+msgstr "Κανείς δεν έχει δηλώσει συμμετοχή, ή δεν υπάρχουν δεδομένα δραστηριότητας, Τα δεδομένα ενημερώνονται καθημερινά, γι' αυτό να προσπαθείτε τακτικά για ενημερωμένες μετρήσεις."
+
+#: analytics_dashboard/static/apps/learners/roster/views/roster.js:110
+msgid "Learner roster controls"
+msgstr "Στοιχεία ελέγχου προγράμματος σπουδαστή"
+
+#: analytics_dashboard/static/apps/learners/roster/views/search.js:55
+msgid "Search learners"
+msgstr "Αναζήτηση σπουδαστών"
+
+#. Translators: 'N/A' is an abbreviation of "Not Applicable". Please translate
+#. accordingly.
+#: analytics_dashboard/static/apps/learners/roster/views/table.js:40
+msgid "N/A"
+msgstr "ΔΥ"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:15
+msgid "Week Ending"
+msgstr "Τέλος εβδομάδας"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:27
+msgid "Watched a Video"
+msgstr "Παρακολούθησε ένα βίντεο"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:34
+msgid "Tried a Problem"
+msgstr "Προσπάθησε ένα πρόβλημα"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:41
+msgid "Participated in Discussions"
+msgstr "Συμμετείχε σε συζητήσεις"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:48
+msgid "Percent of Current Learners"
+msgstr "Ποσοστό τρεχόντων σπουδαστών"
+
+#. Translators: <%=value%> will be replaced with a date.
+#: analytics_dashboard/static/js/engagement-content-main.js:85
+msgid "Week Ending <%=value%>"
+msgstr "Τέλος εβδομάδας <%=value%>"
+
+#: analytics_dashboard/static/js/engagement-video-content-main.js:14
+msgid "Average Complete Views"
+msgstr "Μέσος όρος ολοκληρωμένων προβολών"
+
+#: analytics_dashboard/static/js/engagement-video-content-main.js:23
+msgid "Average Incomplete Views"
+msgstr "Μέσος Όρος Μη Ολοκληρωμένων Προβολών"
+
+#: analytics_dashboard/static/js/engagement-video-content-main.js:31
+#: analytics_dashboard/static/js/engagement-videos-main.js:29
+#: analytics_dashboard/static/js/performance-content-main.js:28
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:28
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:28
+#: analytics_dashboard/static/js/performance-problems-main.js:26
+msgid "Order"
+msgstr "Σειρά"
+
+#: analytics_dashboard/static/js/engagement-video-content-main.js:41
+#: analytics_dashboard/static/js/engagement-videos-main.js:38
+msgid "Completion Percentage"
+msgstr "Ποσοστό ολοκλήρωσης"
+
+#: analytics_dashboard/static/js/engagement-video-timeline-main.js:25
+msgid "Unique Viewers"
+msgstr "Μοναδικοί θεατές"
+
+#: analytics_dashboard/static/js/engagement-video-timeline-main.js:32
+msgid "Replays"
+msgstr "Επαναλήψεις"
+
+#: analytics_dashboard/static/js/engagement-video-timeline-main.js:39
+msgid "Time"
+msgstr "Χρόνος"
+
+#: analytics_dashboard/static/js/engagement-videos-main.js:14
+msgid "Complete Views"
+msgstr "Ολοκληρωμένες θεάσεις "
+
+#: analytics_dashboard/static/js/engagement-videos-main.js:22
+msgid "Incomplete Views"
+msgstr "Μη ολοκληρωμένες προβολές"
+
+#. Translators: this describe the learner's enrollment track (e.g. Honor
+#. certificate)
+#: analytics_dashboard/static/js/enrollment-activity-main.js:33
+msgid "Honor"
+msgstr "Κώδικας τιμής"
+
+#: analytics_dashboard/static/js/enrollment-activity-main.js:38
+msgid "Audit"
+msgstr "Ακρόαση"
+
+#: analytics_dashboard/static/js/enrollment-activity-main.js:43
+msgid "Verified"
+msgstr "Πιστοποιημένοι χρήστες"
+
+#: analytics_dashboard/static/js/enrollment-activity-main.js:48
+msgid "Professional"
+msgstr "Επαγγελματικό"
+
+#. Translators: this label indicates the learner has registered for academic
+#. credit
+#: analytics_dashboard/static/js/enrollment-activity-main.js:54
+msgid "Verified with Credit"
+msgstr "Επαληθευμένο για ακαδημαϊκές μονάδες"
+
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:19
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:34
+#: analytics_dashboard/static/js/enrollment-demographics-education-main.js:32
+msgid "Number of Learners"
+msgstr "Αριθμός σπουδαστών"
+
+#. Translators: <%=value%> will be replaced with an age.
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:26
+msgid "Age: <%=value%>"
+msgstr "Ηλικία <%=value%> "
+
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:33
+msgid "Age"
+msgstr "Ηλικία"
+
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:35
+msgid "Percent of Total"
+msgstr "Ποσοστό επί του συνόλου"
+
+#: analytics_dashboard/static/js/enrollment-demographics-education-main.js:18
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:17
+msgid "Percentage"
+msgstr "Ποσοστό"
+
+#. Translators: <%=value%> will be replaced with a level of education (e.g.
+#. Doctorate).
+#: analytics_dashboard/static/js/enrollment-demographics-education-main.js:24
+msgid "Education: <%=value%>"
+msgstr "Εκπαίδευση <%=value%>"
+
+#: analytics_dashboard/static/js/enrollment-demographics-education-main.js:31
+msgid "Educational Background"
+msgstr "Εκπαιδευτικό υπόβαθρο"
+
+#. Translators: <%=value%> will be replaced with a level of gender (e.g.
+#. Female).
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:23
+msgid "Gender: <%=value%>"
+msgstr "Φύλο <%=value%>"
+
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:33
+msgid "Female"
+msgstr "Γυναίκα"
+
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:34
+msgid "Male"
+msgstr "Άνδρας"
+
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:35
+msgid "Other"
+msgstr "Άλλο"
+
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:36
+msgid "Not Reported"
+msgstr "Δεν αναφέρθηκε"
+
+#: analytics_dashboard/static/js/enrollment-geography-main.js:18
+msgid ""
+"Learner location is determined from IP address. This map shows where "
+"learners most recently connected."
+msgstr "Η τοποθεσία του σπουδαστή καθορίζεται από τη διεύθυνση IP. Αυτός ο χάρτης δείχνει από πού συνδέθηκαν οι σπουδαστές πιο πρόσφατα."
+
+#: analytics_dashboard/static/js/enrollment-geography-main.js:26
+msgid "Country or Region"
+msgstr "Χώρα"
+
+#: analytics_dashboard/static/js/enrollment-geography-main.js:27
+msgid "Percent"
+msgstr "Ποσοστό"
+
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:12
+msgid "Answer"
+msgstr "Απάντηση"
+
+#. Translators: "Correct" is displayed in a table..
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:15
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:43
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:11
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:37
+#: analytics_dashboard/static/js/performance-problems-main.js:11
+#: analytics_dashboard/static/js/views/data-table-view.js:216
+msgid "Correct"
+msgstr "Σωστό"
+
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:16
+msgid "Submission Count"
+msgstr "Καταμέτρηση υποβολών"
+
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:30
+msgid "Variant"
+msgstr "Μεταβλητή"
+
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:45
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:20
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:45
+#: analytics_dashboard/static/js/performance-problems-main.js:19
+msgid "Incorrect"
+msgstr "Λανθασμένο"
+
+#. Translators: <%=value%> will be replaced by a learner response to a
+#. question asked in a course.
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:60
+msgid "Answer: <%=value%>"
+msgstr "Απάντηση: <%=value%>"
+
+#: analytics_dashboard/static/js/performance-content-main.js:11
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:11
+msgid "Average Correct"
+msgstr "Μέσος όρος σωστών απαντήσεων"
+
+#: analytics_dashboard/static/js/performance-content-main.js:20
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:20
+msgid "Average Incorrect"
+msgstr "Μέσος όρος λανθασμένων απαντήσεων"
+
+#: analytics_dashboard/static/js/performance-content-main.js:30
+msgid "Problems"
+msgstr "Προβλήματα"
+
+#: analytics_dashboard/static/js/performance-content-main.js:39
+msgid "Average Submissions Per Problem"
+msgstr "Μέσος όρος υποβολών ανά πρόβλημα"
+
+#: analytics_dashboard/static/js/performance-content-main.js:48
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:46
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:61
+#: analytics_dashboard/static/js/performance-problems-main.js:43
+msgid "Percentage Correct"
+msgstr "Ποσοστό σωστών απαντήσεων"
+
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:38
+msgid "Average Submissions per Problem"
+msgstr "Μέσος όρος υποβολών ανά πρόβλημα"
+
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:30
+msgid "Difficulty"
+msgstr "Βαθμός δυσκολίας"
+
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:53
+#: analytics_dashboard/static/js/performance-problems-main.js:35
+msgid "Total"
+msgstr "Σύνολο"
+
+#: analytics_dashboard/static/js/utils/utils.js:93
+msgid "..."
+msgstr "..."
+
+#. Translators: (empty) is displayed in a table and indicates no label/value.
+#. Keep text in the parenthesis or an equivalent symbol.
+#. Translators: (empty) is displayed as a label in a chart and indicates that
+#. no label was provided.
+#: analytics_dashboard/static/js/views/data-table-view.js:199
+#: analytics_dashboard/static/js/views/discrete-bar-view.js:21
+msgid "(empty)"
+msgstr "(άδειο)"
+
+#. Translators: <%=value%> will be replaced by a number followed by a
+#. percentage.
+#. For example, "400 (29%)"
+#: analytics_dashboard/static/js/views/stacked-bar-view.js:13
+msgid "<%=value%> (<%=percent%>)"
+msgstr "<%=value%> (<%=percent%>)"
+
+#~ msgid ", "
+#~ msgstr "."

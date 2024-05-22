@@ -1,0 +1,28 @@
+{
+    "extends": "@edx/eslint-config",
+    "plugins": [
+        "import"
+    ],
+    "globals": {
+        "gettext": true, // added by django for i18n
+        "setFixtures": true,  // added globally by jasmine-jquery
+        "sinon": true, // used for mocking
+        "requirejs": true,
+        "define": true,
+        "spyOn": true,
+        "amd": true,
+        "jasmine": true,
+        "$": true
+    },
+    "settings": {
+        "import/resolver": "webpack"
+    },
+    "rules": {
+        "import/no-unresolved": ["error", {"amd": true}],
+        "import/no-amd": 0,
+        "prefer-rest-params": 0,
+        "func-names": 0,
+        "import/no-extraneous-dependencies": [2, {"devDependencies": true}],
+        "import/no-dynamic-require": 0
+    }
+}

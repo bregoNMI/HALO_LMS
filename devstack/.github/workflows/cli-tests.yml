@@ -1,0 +1,72 @@
+# CLI tests: Check that various Makefile targets behave as expected
+# (without going deeper into provisioning and such)
+
+name: CLI tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+
+  run_ci:
+    runs-on: ${{ matrix.os.image }}
+    env:
+      DEVSTACK_WORKSPACE: /tmp
+      SHALLOW_CLONE: 1
+      # Don't report metrics as real usage
+      DEVSTACK_METRICS_TESTING: ci
+    strategy:
+      matrix:
+        os:
+          - name: linux
+            image: ubuntu-20.04 # Focal Fossa
+          - name: mac
+            image: macos-12
+        python-version:
+          - '3.8'
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Docker installation - Linux
+        if: ${{ matrix.os.name == 'linux' }}
+        run: |
+          docker version
+          sudo apt-get update
+          sudo apt install apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal test"
+          sudo apt update
+          sudo apt install docker-ce containerd.io
+          docker version
+          docker compose --version
+
+      # Note: we cannot use Docker Desktop because it has not been licensed for use in GithubActions
+      - name: Docker installation - Mac
+        if: ${{ matrix.os.name == 'mac' }}
+        run: |
+          brew install lima docker docker-compose
+          limactl start --name=default template://docker
+          echo "DOCKER_HOST=unix:///Users/runner/.lima/default/sock/docker.sock" >> $GITHUB_ENV
+          mkdir -p ~/.docker/cli-plugins
+          ln -sfn /usr/local/opt/docker-compose/bin/docker-compose ~/.docker/cli-plugins/docker-compose
+
+      - name: Install Python dependencies
+        run:  make requirements
+
+      # proactively download and extract the image to avoid test timeouts in tests/metrics.py
+      # this should be moved into a test setup
+      - name: Pull redis docker image
+        run: make dev.pull.redis
+
+      - name: CLI tests
+        run: pytest -s ./tests/*.py

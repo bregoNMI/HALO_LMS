@@ -1,0 +1,16 @@
+{% extends "base-error.html" %}
+{% load i18n %}
+
+{% comment %}Translators: This message is displayed when the website is unable to get the credentials for the user{% endcomment %}
+{% block title %}{% trans "Permissions Retrieval Failed" %} {{ block.super }}{% endblock title %}
+
+{% block error-title %}{% trans "Permissions Retrieval Failed" %}{% endblock %}
+{% block error-copy %}
+  {% trans "There was a problem retrieving course permissions for your account. Please try again. If you continue to experience issues, please let us know." %}
+{% endblock %}
+
+{% block buttons %}
+  <a onclick="location.reload(true);" class="btn btn-lg btn-primary"> <span class="ico fa fa-refresh" aria-hidden="true"></span>
+    {% trans "Try Again" %}</a>
+  {{ block.super }}
+{% endblock %}

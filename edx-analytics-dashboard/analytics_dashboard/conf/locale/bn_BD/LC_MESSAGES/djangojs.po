@@ -1,0 +1,832 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# Translators:
+# Masud Ahmed <masud.ahmed92@gmail.com>, 2017
+# Sahadat Hossain, 2021
+# sunanda chakraborty <corporate.saifurs@gmail.com>, 2017
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-18 15:22+0000\n"
+"PO-Revision-Date: 2014-08-26 21:24+0000\n"
+"Last-Translator: Sahadat Hossain, 2021\n"
+"Language-Team: Bengali (Bangladesh) (http://app.transifex.com/open-edx/edx-platform/language/bn_BD/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: bn_BD\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: analytics_dashboard/static/apps/components/download/views/download-data.js:25
+msgid "Download CSV"
+msgstr "ডাউনলোড সিএসভি "
+
+#: analytics_dashboard/static/apps/components/download/views/download-data.js:26
+msgid "Download search results to CSV"
+msgstr " অনুসন্ধানের ফলাফল সিএসভি তে ডাউনলোড করুন "
+
+#. Translators: "All" refers to viewing all items (e.g. all courses).
+#: analytics_dashboard/static/apps/components/filter/views/drop-down-filter.js:31
+msgid "All"
+msgstr "সকল"
+
+#. Translators: 'name' here refers to the name of the filter, while 'count'
+#. refers to the number of items belonging to that filter.
+#: analytics_dashboard/static/apps/components/filter/views/filter.js:90
+msgid "<%= name %> (<%= count %>)"
+msgstr "<%= name %> (<%= count %>)"
+
+#. Translators: this is a label describing a filter selection that the user
+#. initiated.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:62
+msgid "<%= filterDisplayName %>: <%= filterVal %>"
+msgstr "<%= filterDisplayName %>: <%= filterVal %>"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:87
+msgid "Filters In Use:"
+msgstr "ছাঁকনির ব্যবহার"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:88
+msgid "Click to remove this filter"
+msgstr "শ্রেনিবিভাগ মুছতে ক্লিক করুন"
+
+#. Translators: "Clear" in this context means "remove all of the filters"
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:90
+msgid "Clear"
+msgstr "মুছে ফেলুন"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:91
+msgid "Click to remove all filters"
+msgstr "সকল শ্রেনিবিভাগ মুছে ফেলুন"
+
+#. Translators: "sort ascending" describes the current sort state to the user.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/base-header-cell.js:71
+msgid "sort ascending"
+msgstr "ক্রমানুসারে নির্বাচন"
+
+#. Translators: "sort descending" describes the current sort state to the
+#. user.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/base-header-cell.js:73
+msgid "sort descending"
+msgstr "বিপরীত ক্রমানুসারে নির্বাচন"
+
+#. Translators: "click to sort" tells the user that they can click this link
+#. to sort by the current field.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/base-header-cell.js:76
+msgid "click to sort"
+msgstr "শ্রেণিবিন্যাস করুন"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/list.js:51
+msgid "Results"
+msgstr "ফলাফল"
+
+#. Translators: 'count' refers to the number of results contained in the
+#. table.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/num-results.js:30
+msgid "Number of results: <%= count %>"
+msgstr "ফলাফলের সংখ্যা "
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:70
+msgid "first page"
+msgstr "প্রথম পাতা"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:72
+msgid "previous page"
+msgstr "পূর্বের পাতা"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:74
+msgid "next page"
+msgstr "পরবর্তী পাতা"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:76
+msgid "last page"
+msgstr "শেষ পাতা"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:78
+msgid "page"
+msgstr "পাতা"
+
+#. Translators: describes the state of a pagination button as not clickable
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:88
+msgid "disabled"
+msgstr "অক্ষম"
+
+#. Translators: describes a pagination button as representing the current page
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:91
+msgid "active"
+msgstr "সক্রিয়"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/table.js:27
+msgid "Generic List"
+msgstr "সাধারন তালিকা"
+
+#. Translators: This message indicates content is loading in the page.
+#: analytics_dashboard/static/apps/components/loading/views/loading-view.js:20
+msgid "Loading..."
+msgstr "লোড হচ্ছে"
+
+#. Translators: "504" is a number representing a server error, so please leave
+#. it as "504".
+#: analytics_dashboard/static/apps/components/utils/utils.js:62
+msgid "504: Server error"
+msgstr "সার্ভার সমস্যা"
+
+#: analytics_dashboard/static/apps/components/utils/utils.js:64
+msgid ""
+"Processing your request took too long to complete. Reload the page to try "
+"again."
+msgstr "আপনার অনুরুধ করা পেজটি প্রদর্শিত হতে বিলম্ব হচ্ছে । দয়া করে পেজ টি তে আবার ক্লিক করুন"
+
+#: analytics_dashboard/static/apps/components/utils/utils.js:68
+msgid "Server error"
+msgstr "সার্ভার সমস্যা"
+
+#: analytics_dashboard/static/apps/components/utils/utils.js:69
+#: analytics_dashboard/static/apps/components/utils/utils.js:81
+msgid "Your request could not be processed. Reload the page to try again."
+msgstr "আপনার অনুরুধ করা পেজটি প্রদর্শিত হচ্ছে না । দয়া করে পেজ টি তে আবার চেষ্টা করুন"
+
+#: analytics_dashboard/static/apps/components/utils/utils.js:80
+msgid "Network error"
+msgstr "নেটওয়ার্ক সমস্যা"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:38
+msgid "Instructor-Paced"
+msgstr "প্রশিক্ষক বিন্যস্ত"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:39
+msgid "Self-Paced"
+msgstr "স্ব-বিন্যস্ত"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:42
+msgid "Upcoming"
+msgstr "পরবর্তী"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:43
+msgid "Current"
+msgstr "বর্তমান"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:44
+msgid "Archived"
+msgstr "সংরক্ষন"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:45
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:17
+msgid "Unknown"
+msgstr "অপরিচিত"
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:44
+#: analytics_dashboard/static/apps/course-list/app/controller.js:106
+msgid "Course List"
+msgstr "কোর্স তালিকা"
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:95
+#: analytics_dashboard/static/apps/learners/app/controller.js:94
+msgid "Invalid Parameters"
+msgstr "ভুল প্যারামিটার"
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:96
+msgid "Sorry, we couldn't find any courses that matched that query."
+msgstr "দুঃখিত,  অনুরোধ করা কোর্স  মিলছে না "
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:97
+msgid "Return to the Course List page."
+msgstr "কোর্স তালিকা পৃষ্ঠায় ফিরে যান"
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:123
+#: analytics_dashboard/static/apps/learners/app/controller.js:177
+msgid "Sorry, we couldn't find the page you're looking for."
+msgstr "দুঃখিত, আমরা আপনি যে পৃষ্ঠাটি নাই "
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:125
+#: analytics_dashboard/static/apps/learners/app/controller.js:180
+msgid "Page Not Found"
+msgstr "পৃষ্ঠা খুঁজে পাওয়া যায়নি"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:77
+msgid "Course Name"
+msgstr "কোর্সের নাম "
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:78
+msgid "Start Date"
+msgstr "শুরুর তারিখ "
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:79
+msgid "End Date"
+msgstr "শেষ তারিখ "
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:80
+msgid "Total Enrollment"
+msgstr "সমস্ত অন্তর্ভুক্তি "
+
+#. Translators: The noun count (e.g. number of learners)
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:81
+#: analytics_dashboard/static/js/enrollment-activity-main.js:27
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:32
+#: analytics_dashboard/static/js/enrollment-geography-main.js:29
+msgid "Current Enrollment"
+msgstr "বর্তমান অন্তর্ভুক্তি "
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:82
+msgid "Change Last Week"
+msgstr "গত সপ্তাহ পরিবর্তিত  সম্পন্ন হইয়াছে"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:83
+msgid "Verified Enrollment"
+msgstr "যাচাইকৃত অন্তর্ভুক্তি "
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:86
+msgid "Passing Learners"
+msgstr ""
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:89
+msgid "Availability"
+msgstr "পাওয়া যাবে"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:90
+msgid "Pacing Type"
+msgstr "পদার্পণ প্রকার"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:91
+msgid "Programs"
+msgstr "প্রোগ্রাম "
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:11
+msgid "Course name advertised on edX site."
+msgstr " edX সাইটে কোর্সের  নাম"
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:12
+msgid "Start date advertised on edX site."
+msgstr "edX সাইটে বিজ্ঞাপন শুরুর তারিখ "
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:13
+msgid "End date set in edX Studio."
+msgstr "edX স্টুডিওতে শেষ তারিখ"
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:14
+msgid "Learners who ever enrolled in the course."
+msgstr "শিক্ষার্থীগণ যারা সবসময় কোর্সে অন্তর্ভুক্ত আছেন । "
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:15
+msgid "Learners currently enrolled in the course."
+msgstr "শিক্ষার্থীগন যারা কোর্সে অন্তর্ভুক্ত আছেন । "
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:16
+msgid "Net difference in current enrollment in the last week."
+msgstr "গত সপ্তাহের সাথে বর্তমান অন্তর্ভুক্তির সঠিক পার্থক্য "
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:18
+msgid ""
+"Number of currently enrolled learners pursuing a verified certificate of "
+"achievement."
+msgstr "বর্তমানে অন্তর্ভুক্ত শিক্ষার্থীর সংখা যারা একটি কৃতিত্বের যাচাইকৃত সনদপত্র ক্রয় করেছেন । "
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:19
+msgid "Learners who have earned a passing grade."
+msgstr ""
+
+#: analytics_dashboard/static/apps/course-list/list/views/controls.js:38
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:39
+msgid "Skip to results"
+msgstr "ফলাফল দেখাও"
+
+#: analytics_dashboard/static/apps/course-list/list/views/controls.js:58
+msgid "Find a course"
+msgstr "কোর্স খুঁজুন"
+
+#: analytics_dashboard/static/apps/course-list/list/views/course-list.js:66
+msgid "Download full course list to CSV"
+msgstr ""
+
+#: analytics_dashboard/static/apps/course-list/list/views/course-list.js:91
+msgid "Course list controls"
+msgstr "কোর্স তালিকা নিয়ন্ত্রণ"
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:47
+msgid "No courses matched your criteria."
+msgstr "কোন কোর্স আপনার সন্ধানের বিষয়ের সাথে মেলে নি."
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:49
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:49
+msgid "Try a different search."
+msgstr "ভিন্ন কিছু অনুসন্ধান  করুন"
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:52
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:52
+msgid "Try clearing the filters."
+msgstr "শ্রেনিবিভাগ মুছে ফেলুন"
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:55
+msgid "No course data is currently available for your course."
+msgstr "কোন  তথ্য বর্তমানে আপনার কোর্সের জন্য নাই"
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:57
+msgid ""
+"No courses are enrolled, or course activity data has not yet been processed."
+" Data is updated every day, so check back regularly for up-to-date metrics."
+msgstr "কোন কোর্সে ভর্তি করা হয়নি, বা কোর্স কার্যকলাপ তথ্য এখনো প্রক্রিয়াভুক্ত করা হয়নি। প্রতিদিন তথ্য আপডেট করা হয়, তাই আপ-টু-ডেট বৈশিষ্ট্যের মান ফিরে পেতে নিয়মিত চেক করুন।"
+
+#: analytics_dashboard/static/apps/course-list/list/views/search.js:71
+msgid "Search courses"
+msgstr "কোর্স অনুসন্ধান"
+
+#: analytics_dashboard/static/apps/course-list/list/views/search.js:72
+#: analytics_dashboard/static/apps/learners/roster/views/search.js:56
+msgid "search"
+msgstr "অনুসন্ধান"
+
+#: analytics_dashboard/static/apps/course-list/list/views/search.js:73
+#: analytics_dashboard/static/apps/learners/roster/views/search.js:57
+msgid "clear search"
+msgstr "আবার অনুসন্ধান"
+
+#: analytics_dashboard/static/apps/course-list/list/views/table.js:48
+msgid "Date not available"
+msgstr "তারিখ নাই"
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:59
+msgid "Learner Roster"
+msgstr "রোস্টার শিক্ষার্থী"
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:95
+msgid "Sorry, we couldn't find any learners who matched that query."
+msgstr "দুঃখিত, আমরা কোনো শিক্ষার্থী  যে প্রশ্নের সাথে মিলেছে এমন  খুঁজে পাইনি"
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:96
+msgid "Return to the Learners page."
+msgstr "লার্নার্স পৃষ্ঠায় প্রত্যাবর্তন"
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:104
+msgid "Learners"
+msgstr "শিক্ষার্থীগণ "
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:137
+msgid "Learner Details"
+msgstr "লার্নার বিস্তারিত"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:17
+msgid "Name (Username)"
+msgstr "নাম (ব্যবহারকারীর নাম)"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:18
+msgid "Problems Tried"
+msgstr "চেষ্টাক্রীত সমস্যা"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:19
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-table.js:33
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:35
+msgid "Problems Correct"
+msgstr "সমস্যার সমাধান"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:20
+msgid "Attempts per Problem Correct"
+msgstr "প্রতি সমস্যা সমাধানের প্রচেষ্টা"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:21
+#: analytics_dashboard/static/js/engagement-video-content-main.js:33
+msgid "Videos"
+msgstr "ভিডিও "
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:22
+msgid "Discussions"
+msgstr "আলোচনা"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:24
+msgid "Segments"
+msgstr "বিভাগ"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:25
+msgid "Segments to Ignore"
+msgstr "উপেক্ষা করা করা বিভাগগুলি "
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:26
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:101
+msgid "Cohort"
+msgstr "দল"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:27
+msgid "Enrollment Mode"
+msgstr "তালিকাভুক্তি মোড"
+
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-table.js:22
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:43
+#: analytics_dashboard/static/js/enrollment-activity-main.js:22
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:31
+msgid "Date"
+msgstr "তারিখ"
+
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-table.js:27
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:31
+msgid "Discussion Contributions"
+msgstr "আলোচনার অবদান"
+
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-table.js:39
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:39
+msgid "Videos Viewed"
+msgstr "দেখা ভিডিও "
+
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:47
+msgid "Value"
+msgstr "মূল্য"
+
+#. Translators: e.g. Learner engagement activity
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:28
+msgid "Engagement Activity"
+msgstr "সম্প্রিত করার কর্মকাণ্ড"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:29
+msgid "Daily Activity"
+msgstr "দৈনন্দিন কাজ"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:30
+msgid "Activity Over Time"
+msgstr "ওভার টাইম কার্যকলাপ"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:95
+msgid "Enrollment"
+msgstr "নিয়োগ "
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:106
+msgid "Last Accessed"
+msgstr "সর্বশেষ প্রবেশ"
+
+#. Translators: 'n/a' means 'not available'
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:109
+#: analytics_dashboard/static/apps/learners/detail/views/learner-summary-field.js:44
+#: analytics_dashboard/static/apps/learners/roster/views/activity-date-range.js:16
+msgid "n/a"
+msgstr "n/a"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:139
+msgid "Check back daily for up-to-date data."
+msgstr "আপ-টু-ডেট তথ্য দৈনিক চেক করুন। "
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:149
+msgid "No course activity data is available for this learner."
+msgstr "কোন কোর্সে কার্যকলাপ তথ্য এই শিক্ষার্থীর জন্য উপলব্ধ নেই"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:156
+msgid "No learner data is available."
+msgstr "কোন শিক্ষার্থীর তথ্য পাওয়া যায়নি। "
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-return.js:12
+msgid "Return to Learners"
+msgstr "লার্নার্স  এ ফিরুন"
+
+#. Translators: this is a label describing a selection that the user
+#. initiated.
+#: analytics_dashboard/static/apps/learners/roster/views/active-filters.js:23
+msgid "Cohort: <%= filterVal %>"
+msgstr "দল: <%= filterVal %>"
+
+#. Translators: this is a label describing a selection that the user
+#. initiated.
+#: analytics_dashboard/static/apps/learners/roster/views/active-filters.js:27
+msgid "Enrollment Track: <%= filterVal %>"
+msgstr "তালিকাভুক্ত ট্র্যাক: <%= filterVal %>"
+
+#: analytics_dashboard/static/apps/learners/roster/views/active-filters.js:32
+#: analytics_dashboard/static/js/engagement-content-main.js:20
+msgid "Active Learners"
+msgstr "শিক্ষার্থী খুঁজুন"
+
+#: analytics_dashboard/static/apps/learners/roster/views/activity-date-range.js:11
+msgid "Activity between <%- startDate %> - <%- endDate %>"
+msgstr "কার্যকলাপের মধ্যে <%- startDate %> - <%- endDate %>"
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:10
+msgid "The name and username of this learner. Click to sort by username."
+msgstr "নাম এবং এই শিক্ষার্থীর ব্যবহারকারীর নাম. ব্যবহারকারীর নাম বাছার জন্য ক্লিক করুন"
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:11
+msgid "Number of unique problems this learner attempted."
+msgstr "অনন্য ব্যতিক্রমী সমস্যায় এই শিক্ষার্থীর চেষ্টা সংখ্যা"
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:12
+msgid "Number of unique problems the learner answered correctly."
+msgstr "শিক্ষার্থীরা সঠিকভাবে কিছু সংখ্যক ইউনিক সমস্যার উত্তর দিতে পারে।"
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:13
+msgid "Number of unique videos this learner played."
+msgstr "অনন্য ভিডিওর সংখ্যা এই শিক্ষার্থী দেখাছেন"
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:15
+msgid ""
+"Average number of attempts per correct problem. Learners with a relatively "
+"high value compared to their peers may be struggling."
+msgstr "গড় সংখ্যা প্রচেষ্টা করা হয় প্রতিটি সঠিক সমস্যার জন্য। অপেক্ষাকৃত উচ্চ মূল্য তাদের সহকর্মীরা শিক্ষার্থী সংগ্রামের সঙ্গে তুলনা করতে পারে। "
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:17
+msgid ""
+"Number of contributions by this learner, including posts, responses, and "
+"comments."
+msgstr "এই শিক্ষার্থী দ্বারা অবদান হল পোস্ট, প্রতিক্রিয়া, এবং মন্তব্য সহকারে। "
+
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:62
+msgid "Find a learner"
+msgstr "শিক্ষার্থী খুঁজুন"
+
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:75
+msgid "Cohort Groups"
+msgstr "Cohort গোষ্ঠীসমূহ"
+
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:87
+msgid "Enrollment Tracks"
+msgstr "তালিকাভুক্তি ট্র্যাক"
+
+#. Translators: inactive meaning that these learners have not interacted with
+#. the
+#. course recently.
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:103
+msgid "Hide Inactive Learners"
+msgstr "নিষ্ক্রিয় লার্নার্স লুকান"
+
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:47
+msgid "No learners matched your criteria."
+msgstr "কোন শিক্ষার্থী আপনার সন্ধানের বিষয়ের সাথে মেলেনি."
+
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:55
+msgid "No learner data is currently available for your course."
+msgstr "কোন শিক্ষার্থীর তথ্য বর্তমানে আপনার কোর্সের জন্য উপলব্ধ নেই"
+
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:57
+msgid ""
+"No learners are enrolled, or course activity data has not yet been "
+"processed. Data is updated every day, so check back regularly for up-to-date"
+" metrics."
+msgstr "কোন কোর্সে ভর্তি করা হয়নি, বা কোর্স কার্যকলাপ তথ্য এখনো প্রক্রিয়াভুক্ত করা হয়নি। প্রতিদিন তথ্য আপডেট করা হয়, তাই আপ-টু-ডেট বৈশিষ্ট্যের মান ফিরে পেতে নিয়মিত চেক করুন।"
+
+#: analytics_dashboard/static/apps/learners/roster/views/roster.js:110
+msgid "Learner roster controls"
+msgstr "লার্নার রোস্টারে নিয়ন্ত্রণগুলি"
+
+#: analytics_dashboard/static/apps/learners/roster/views/search.js:55
+msgid "Search learners"
+msgstr "শিক্ষার্থী অনুসন্ধান "
+
+#. Translators: 'N/A' is an abbreviation of "Not Applicable". Please translate
+#. accordingly.
+#: analytics_dashboard/static/apps/learners/roster/views/table.js:40
+msgid "N/A"
+msgstr "N/A "
+
+#: analytics_dashboard/static/js/engagement-content-main.js:15
+msgid "Week Ending"
+msgstr "সপ্তাহটি শেষ"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:27
+msgid "Watched a Video"
+msgstr "একটি ভিডিও দেখা হোল"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:34
+msgid "Tried a Problem"
+msgstr "সমস্যা সমাধনের চেষ্টা করা হোল"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:41
+msgid "Participated in Discussions"
+msgstr "আলোচনায় অংশগ্রহণ"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:48
+msgid "Percent of Current Learners"
+msgstr "বর্তমান লার্নার্স শতাংশ"
+
+#. Translators: <%=value%> will be replaced with a date.
+#: analytics_dashboard/static/js/engagement-content-main.js:85
+msgid "Week Ending <%=value%>"
+msgstr "সপ্তাহটি শেষ"
+
+#: analytics_dashboard/static/js/engagement-video-content-main.js:14
+msgid "Average Complete Views"
+msgstr "এভারেজ সম্পূর্ণ দেখেছে"
+
+#: analytics_dashboard/static/js/engagement-video-content-main.js:23
+msgid "Average Incomplete Views"
+msgstr "এভারেজ অসম্পূর্ণ দেখেছে"
+
+#: analytics_dashboard/static/js/engagement-video-content-main.js:31
+#: analytics_dashboard/static/js/engagement-videos-main.js:29
+#: analytics_dashboard/static/js/performance-content-main.js:28
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:28
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:28
+#: analytics_dashboard/static/js/performance-problems-main.js:26
+msgid "Order"
+msgstr "আদেশ"
+
+#: analytics_dashboard/static/js/engagement-video-content-main.js:41
+#: analytics_dashboard/static/js/engagement-videos-main.js:38
+msgid "Completion Percentage"
+msgstr "সম্পূর্ণতা শতকরা"
+
+#: analytics_dashboard/static/js/engagement-video-timeline-main.js:25
+msgid "Unique Viewers"
+msgstr "স্বতন্ত্র দর্শকরা"
+
+#: analytics_dashboard/static/js/engagement-video-timeline-main.js:32
+msgid "Replays"
+msgstr "রিপ্লেতে"
+
+#: analytics_dashboard/static/js/engagement-video-timeline-main.js:39
+msgid "Time"
+msgstr "সময়"
+
+#: analytics_dashboard/static/js/engagement-videos-main.js:14
+msgid "Complete Views"
+msgstr "সম্পূর্ণ দেখেছে"
+
+#: analytics_dashboard/static/js/engagement-videos-main.js:22
+msgid "Incomplete Views"
+msgstr "অসম্পূর্ণ দেখেছে"
+
+#. Translators: this describe the learner's enrollment track (e.g. Honor
+#. certificate)
+#: analytics_dashboard/static/js/enrollment-activity-main.js:33
+msgid "Honor"
+msgstr "সম্মান"
+
+#: analytics_dashboard/static/js/enrollment-activity-main.js:38
+msgid "Audit"
+msgstr "অডিট"
+
+#: analytics_dashboard/static/js/enrollment-activity-main.js:43
+msgid "Verified"
+msgstr "যাচাই"
+
+#: analytics_dashboard/static/js/enrollment-activity-main.js:48
+msgid "Professional"
+msgstr "পেশাদারী"
+
+#. Translators: this label indicates the learner has registered for academic
+#. credit
+#: analytics_dashboard/static/js/enrollment-activity-main.js:54
+msgid "Verified with Credit"
+msgstr "ক্রেডিট এর সাথে যাচাইকৃত"
+
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:19
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:34
+#: analytics_dashboard/static/js/enrollment-demographics-education-main.js:32
+msgid "Number of Learners"
+msgstr "লার্নার্স সংখ্যা"
+
+#. Translators: <%=value%> will be replaced with an age.
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:26
+msgid "Age: <%=value%>"
+msgstr "বয়স"
+
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:33
+msgid "Age"
+msgstr "বয়স "
+
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:35
+msgid "Percent of Total"
+msgstr "মোট শতাংশ"
+
+#: analytics_dashboard/static/js/enrollment-demographics-education-main.js:18
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:17
+msgid "Percentage"
+msgstr "শতকরা হার"
+
+#. Translators: <%=value%> will be replaced with a level of education (e.g.
+#. Doctorate).
+#: analytics_dashboard/static/js/enrollment-demographics-education-main.js:24
+msgid "Education: <%=value%>"
+msgstr "শিক্ষা"
+
+#: analytics_dashboard/static/js/enrollment-demographics-education-main.js:31
+msgid "Educational Background"
+msgstr "শিক্ষাগত যোগ্যতা"
+
+#. Translators: <%=value%> will be replaced with a level of gender (e.g.
+#. Female).
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:23
+msgid "Gender: <%=value%>"
+msgstr "লিঙ্গ"
+
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:33
+msgid "Female"
+msgstr "মহিলা"
+
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:34
+msgid "Male"
+msgstr "পুরুষ"
+
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:35
+msgid "Other"
+msgstr "অনন্য "
+
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:36
+msgid "Not Reported"
+msgstr "অপ্রতিবেদিত"
+
+#: analytics_dashboard/static/js/enrollment-geography-main.js:18
+msgid ""
+"Learner location is determined from IP address. This map shows where "
+"learners most recently connected."
+msgstr "লার্নার অবস্থান আইপি ঠিকানা থেকে নির্ধারণ করা হয়. এই মানচিত্র দেখায় যেখানে শিক্ষার্থী সম্প্রতি সংযুক্ত"
+
+#: analytics_dashboard/static/js/enrollment-geography-main.js:26
+msgid "Country or Region"
+msgstr "দেশ বা অঞ্চল"
+
+#: analytics_dashboard/static/js/enrollment-geography-main.js:27
+msgid "Percent"
+msgstr "শতাংশ"
+
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:12
+msgid "Answer"
+msgstr "উত্তর"
+
+#. Translators: "Correct" is displayed in a table..
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:15
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:43
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:11
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:37
+#: analytics_dashboard/static/js/performance-problems-main.js:11
+#: analytics_dashboard/static/js/views/data-table-view.js:216
+msgid "Correct"
+msgstr "নির্ভুল"
+
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:16
+msgid "Submission Count"
+msgstr "জমাদান কাউন্ট"
+
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:30
+msgid "Variant"
+msgstr "বৈকল্পিক"
+
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:45
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:20
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:45
+#: analytics_dashboard/static/js/performance-problems-main.js:19
+msgid "Incorrect"
+msgstr "ভুল"
+
+#. Translators: <%=value%> will be replaced by a learner response to a
+#. question asked in a course.
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:60
+msgid "Answer: <%=value%>"
+msgstr "উত্তর"
+
+#: analytics_dashboard/static/js/performance-content-main.js:11
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:11
+msgid "Average Correct"
+msgstr "গড় সঠিক"
+
+#: analytics_dashboard/static/js/performance-content-main.js:20
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:20
+msgid "Average Incorrect"
+msgstr "গড় ভুল"
+
+#: analytics_dashboard/static/js/performance-content-main.js:30
+msgid "Problems"
+msgstr "সমস্যা"
+
+#: analytics_dashboard/static/js/performance-content-main.js:39
+msgid "Average Submissions Per Problem"
+msgstr "সমস্যা"
+
+#: analytics_dashboard/static/js/performance-content-main.js:48
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:46
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:61
+#: analytics_dashboard/static/js/performance-problems-main.js:43
+msgid "Percentage Correct"
+msgstr "শতকরা সঠিক"
+
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:38
+msgid "Average Submissions per Problem"
+msgstr "সমস্যা প্রতি গড় জমা"
+
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:30
+msgid "Difficulty"
+msgstr "অসুবিধা"
+
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:53
+#: analytics_dashboard/static/js/performance-problems-main.js:35
+msgid "Total"
+msgstr "মোট"
+
+#: analytics_dashboard/static/js/utils/utils.js:93
+msgid "..."
+msgstr "..."
+
+#. Translators: (empty) is displayed in a table and indicates no label/value.
+#. Keep text in the parenthesis or an equivalent symbol.
+#. Translators: (empty) is displayed as a label in a chart and indicates that
+#. no label was provided.
+#: analytics_dashboard/static/js/views/data-table-view.js:199
+#: analytics_dashboard/static/js/views/discrete-bar-view.js:21
+msgid "(empty)"
+msgstr "(খালি)"
+
+#. Translators: <%=value%> will be replaced by a number followed by a
+#. percentage.
+#. For example, "400 (29%)"
+#: analytics_dashboard/static/js/views/stacked-bar-view.js:13
+msgid "<%=value%> (<%=percent%>)"
+msgstr "<%=value%> (<%=percent%>)"
+
+#~ msgid ", "
+#~ msgstr "."

@@ -1,0 +1,22 @@
+# Python artifacts
+*.pyc
+
+# Tests / Coverage reports
+.coverage
+.tox
+coverage/
+pii_report/
+
+# Sqlite Database
+*.db
+
+#vim
+*.swp
+
+venv/
+
+.idea/
+
+
+# Helm dependencies
+/helmcharts/**/*.tgz

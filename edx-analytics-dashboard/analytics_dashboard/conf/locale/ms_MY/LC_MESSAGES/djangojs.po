@@ -1,0 +1,830 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# Translators:
+# Bella Mohd <bellamohd.bm@gmail.com>, 2021
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-18 15:22+0000\n"
+"PO-Revision-Date: 2014-08-26 21:24+0000\n"
+"Last-Translator: Bella Mohd <bellamohd.bm@gmail.com>, 2021\n"
+"Language-Team: Malay (Malaysia) (http://app.transifex.com/open-edx/edx-platform/language/ms_MY/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ms_MY\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: analytics_dashboard/static/apps/components/download/views/download-data.js:25
+msgid "Download CSV"
+msgstr "Muat Turun CSV"
+
+#: analytics_dashboard/static/apps/components/download/views/download-data.js:26
+msgid "Download search results to CSV"
+msgstr "Muat turun hasil carian ke CSV"
+
+#. Translators: "All" refers to viewing all items (e.g. all courses).
+#: analytics_dashboard/static/apps/components/filter/views/drop-down-filter.js:31
+msgid "All"
+msgstr "Semua"
+
+#. Translators: 'name' here refers to the name of the filter, while 'count'
+#. refers to the number of items belonging to that filter.
+#: analytics_dashboard/static/apps/components/filter/views/filter.js:90
+msgid "<%= name %> (<%= count %>)"
+msgstr "<%= name %> (<%= count %>)"
+
+#. Translators: this is a label describing a filter selection that the user
+#. initiated.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:62
+msgid "<%= filterDisplayName %>: <%= filterVal %>"
+msgstr "<%= filterDisplayName %>: <%= filterVal %>"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:87
+msgid "Filters In Use:"
+msgstr "Penyaring Sedang Digunakan:"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:88
+msgid "Click to remove this filter"
+msgstr "Klik untuk mengalih keluar penyaring ini"
+
+#. Translators: "Clear" in this context means "remove all of the filters"
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:90
+msgid "Clear"
+msgstr "Bersih"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/active-filters.js:91
+msgid "Click to remove all filters"
+msgstr "Klik untuk mengalih keluar kesemua penyaring"
+
+#. Translators: "sort ascending" describes the current sort state to the user.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/base-header-cell.js:71
+msgid "sort ascending"
+msgstr "Isih menaik"
+
+#. Translators: "sort descending" describes the current sort state to the
+#. user.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/base-header-cell.js:73
+msgid "sort descending"
+msgstr "Isih menurun"
+
+#. Translators: "click to sort" tells the user that they can click this link
+#. to sort by the current field.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/base-header-cell.js:76
+msgid "click to sort"
+msgstr "Klik untuk mengisih"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/list.js:51
+msgid "Results"
+msgstr "Hasil"
+
+#. Translators: 'count' refers to the number of results contained in the
+#. table.
+#: analytics_dashboard/static/apps/components/generic-list/list/views/num-results.js:30
+msgid "Number of results: <%= count %>"
+msgstr "Jumlah hasil: <%= count %>"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:70
+msgid "first page"
+msgstr "laman pertama"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:72
+msgid "previous page"
+msgstr "laman sebelumnya"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:74
+msgid "next page"
+msgstr "laman seterusnya"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:76
+msgid "last page"
+msgstr "laman terakhir"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:78
+msgid "page"
+msgstr "laman"
+
+#. Translators: describes the state of a pagination button as not clickable
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:88
+msgid "disabled"
+msgstr "dilumpuhkan"
+
+#. Translators: describes a pagination button as representing the current page
+#: analytics_dashboard/static/apps/components/generic-list/list/views/paging-footer.js:91
+msgid "active"
+msgstr "aktif"
+
+#: analytics_dashboard/static/apps/components/generic-list/list/views/table.js:27
+msgid "Generic List"
+msgstr "Senarai Umum"
+
+#. Translators: This message indicates content is loading in the page.
+#: analytics_dashboard/static/apps/components/loading/views/loading-view.js:20
+msgid "Loading..."
+msgstr "Sedang Memuatkan..."
+
+#. Translators: "504" is a number representing a server error, so please leave
+#. it as "504".
+#: analytics_dashboard/static/apps/components/utils/utils.js:62
+msgid "504: Server error"
+msgstr "504: Ralat pelayan"
+
+#: analytics_dashboard/static/apps/components/utils/utils.js:64
+msgid ""
+"Processing your request took too long to complete. Reload the page to try "
+"again."
+msgstr "Memproses permintaan anda mengambil masa terlalu lama untuk selesai. Sila memuatkan semula laman untuk mencuba lagi."
+
+#: analytics_dashboard/static/apps/components/utils/utils.js:68
+msgid "Server error"
+msgstr "Ralat pelayan"
+
+#: analytics_dashboard/static/apps/components/utils/utils.js:69
+#: analytics_dashboard/static/apps/components/utils/utils.js:81
+msgid "Your request could not be processed. Reload the page to try again."
+msgstr "Permintaan anda tidak dapat diproses. Sila memuatkan semula laman untuk mencuba lagi."
+
+#: analytics_dashboard/static/apps/components/utils/utils.js:80
+msgid "Network error"
+msgstr "Ralat rangkaian"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:38
+msgid "Instructor-Paced"
+msgstr "Kadar Pengajar"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:39
+msgid "Self-Paced"
+msgstr "Mampu Diri"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:42
+msgid "Upcoming"
+msgstr "Baharu"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:43
+msgid "Current"
+msgstr "Semasa"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:44
+msgid "Archived"
+msgstr "Arkib"
+
+#: analytics_dashboard/static/apps/course-list/app/app.js:45
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:17
+msgid "Unknown"
+msgstr "Tidak diketahui"
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:44
+#: analytics_dashboard/static/apps/course-list/app/controller.js:106
+msgid "Course List"
+msgstr "Senarai Kursus"
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:95
+#: analytics_dashboard/static/apps/learners/app/controller.js:94
+msgid "Invalid Parameters"
+msgstr "Parameter Tak Sah"
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:96
+msgid "Sorry, we couldn't find any courses that matched that query."
+msgstr "Maaf. Kami tidak menjumpai sebarang kursus yang sepadan dengan pertanyaan."
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:97
+msgid "Return to the Course List page."
+msgstr "Kembali ke laman Senarai Kursus."
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:123
+#: analytics_dashboard/static/apps/learners/app/controller.js:177
+msgid "Sorry, we couldn't find the page you're looking for."
+msgstr "Maaf. Kami tidak menjumpai laman yang anda cari."
+
+#: analytics_dashboard/static/apps/course-list/app/controller.js:125
+#: analytics_dashboard/static/apps/learners/app/controller.js:180
+msgid "Page Not Found"
+msgstr "Laman Tidak Ditemui"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:77
+msgid "Course Name"
+msgstr "Nama Kursus"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:78
+msgid "Start Date"
+msgstr "Tarikh Mula"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:79
+msgid "End Date"
+msgstr "Tarikh Tamat"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:80
+msgid "Total Enrollment"
+msgstr "Jumlah Enrolmen"
+
+#. Translators: The noun count (e.g. number of learners)
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:81
+#: analytics_dashboard/static/js/enrollment-activity-main.js:27
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:32
+#: analytics_dashboard/static/js/enrollment-geography-main.js:29
+msgid "Current Enrollment"
+msgstr "Enrolmen Semasa"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:82
+msgid "Change Last Week"
+msgstr "Tukar Minggu Akhir"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:83
+msgid "Verified Enrollment"
+msgstr "Enrolmen yang Disahkan"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:86
+msgid "Passing Learners"
+msgstr "Pelajar lulus"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:89
+msgid "Availability"
+msgstr "Kebolehsediaan"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:90
+msgid "Pacing Type"
+msgstr "Jenis Kecepatan"
+
+#: analytics_dashboard/static/apps/course-list/common/collections/course-list.js:91
+msgid "Programs"
+msgstr "Program"
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:11
+msgid "Course name advertised on edX site."
+msgstr "Nama kursus yang diiklankan di halaman edX."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:12
+msgid "Start date advertised on edX site."
+msgstr "Tarikh mula diiklankan di halaman edX."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:13
+msgid "End date set in edX Studio."
+msgstr "Tarikh tamat ditetapkan di Studio edX "
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:14
+msgid "Learners who ever enrolled in the course."
+msgstr "Pelajar yang pernah mendaftar kursus."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:15
+msgid "Learners currently enrolled in the course."
+msgstr "Pelajar yang sedang mendaftar kursus."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:16
+msgid "Net difference in current enrollment in the last week."
+msgstr "Beza bersih dalam enrolmen semasa pada minggu akhir."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:18
+msgid ""
+"Number of currently enrolled learners pursuing a verified certificate of "
+"achievement."
+msgstr "Jumlah pelajar yang sedang mendaftar untuk mendapatkan sijil pencapaian yang disahkan."
+
+#: analytics_dashboard/static/apps/course-list/list/views/base-header-cell.js:19
+msgid "Learners who have earned a passing grade."
+msgstr "Pelajar yang telah mendapat gred lulus."
+
+#: analytics_dashboard/static/apps/course-list/list/views/controls.js:38
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:39
+msgid "Skip to results"
+msgstr "Langkau ke keputusan"
+
+#: analytics_dashboard/static/apps/course-list/list/views/controls.js:58
+msgid "Find a course"
+msgstr "Cari kursus"
+
+#: analytics_dashboard/static/apps/course-list/list/views/course-list.js:66
+msgid "Download full course list to CSV"
+msgstr "Muat Turun senarai kursus penuh ke CSV"
+
+#: analytics_dashboard/static/apps/course-list/list/views/course-list.js:91
+msgid "Course list controls"
+msgstr "Kawalan senarai kursus"
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:47
+msgid "No courses matched your criteria."
+msgstr "Tiada kursus yang padan dengan kriteria anda."
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:49
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:49
+msgid "Try a different search."
+msgstr "Sila cuba carian berbeza."
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:52
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:52
+msgid "Try clearing the filters."
+msgstr "Sila cuba bersihkan penyaring."
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:55
+msgid "No course data is currently available for your course."
+msgstr "Tiada data kursus yang sedang tersedia untuk kursus anda."
+
+#: analytics_dashboard/static/apps/course-list/list/views/results.js:57
+msgid ""
+"No courses are enrolled, or course activity data has not yet been processed."
+" Data is updated every day, so check back regularly for up-to-date metrics."
+msgstr "Tiada pendaftaran kursus atau data aktiviti kursus belum diproses. Data dikemas kini setiap hari. Oleh itu, sila semak semula secara kerap untuk metrik terkini."
+
+#: analytics_dashboard/static/apps/course-list/list/views/search.js:71
+msgid "Search courses"
+msgstr "Buat carian kursus"
+
+#: analytics_dashboard/static/apps/course-list/list/views/search.js:72
+#: analytics_dashboard/static/apps/learners/roster/views/search.js:56
+msgid "search"
+msgstr "Carian"
+
+#: analytics_dashboard/static/apps/course-list/list/views/search.js:73
+#: analytics_dashboard/static/apps/learners/roster/views/search.js:57
+msgid "clear search"
+msgstr "Bersihkan carian"
+
+#: analytics_dashboard/static/apps/course-list/list/views/table.js:48
+msgid "Date not available"
+msgstr "Tarikh tidak tersedia"
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:59
+msgid "Learner Roster"
+msgstr "Senarai Pelajar"
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:95
+msgid "Sorry, we couldn't find any learners who matched that query."
+msgstr "Maaf. Kami tidak menjumpai mana-mana pelajar yang padan dengan pertanyaan."
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:96
+msgid "Return to the Learners page."
+msgstr "Kembali ke laman Pelajar."
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:104
+msgid "Learners"
+msgstr "Pelajar"
+
+#: analytics_dashboard/static/apps/learners/app/controller.js:137
+msgid "Learner Details"
+msgstr "Butiran Pelajar"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:17
+msgid "Name (Username)"
+msgstr "Nama (Nama pengguna)"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:18
+msgid "Problems Tried"
+msgstr "Masalah yang Dicuba"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:19
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-table.js:33
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:35
+msgid "Problems Correct"
+msgstr "Masalah yang Betul"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:20
+msgid "Attempts per Problem Correct"
+msgstr "Percubaan per Masalah yang Betul"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:21
+#: analytics_dashboard/static/js/engagement-video-content-main.js:33
+msgid "Videos"
+msgstr "Video"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:22
+msgid "Discussions"
+msgstr "Perbincangan"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:24
+msgid "Segments"
+msgstr "Segmen"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:25
+msgid "Segments to Ignore"
+msgstr "Segmen untuk Diabaikan"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:26
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:101
+msgid "Cohort"
+msgstr "Kohort"
+
+#: analytics_dashboard/static/apps/learners/common/collections/learners.js:27
+msgid "Enrollment Mode"
+msgstr "Mod Enrolmen"
+
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-table.js:22
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:43
+#: analytics_dashboard/static/js/enrollment-activity-main.js:22
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:31
+msgid "Date"
+msgstr "Tarikh"
+
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-table.js:27
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:31
+msgid "Discussion Contributions"
+msgstr "Sumbangan Perbincangan"
+
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-table.js:39
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:39
+msgid "Videos Viewed"
+msgstr "Video yang Dilihat"
+
+#: analytics_dashboard/static/apps/learners/detail/views/engagement-timeline.js:47
+msgid "Value"
+msgstr "Nilai"
+
+#. Translators: e.g. Learner engagement activity
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:28
+msgid "Engagement Activity"
+msgstr "Aktiviti Keterlibatan"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:29
+msgid "Daily Activity"
+msgstr "Aktiviti Harian"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:30
+msgid "Activity Over Time"
+msgstr "Aktiviti Lebih Masa"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:95
+msgid "Enrollment"
+msgstr "Enrolmen"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:106
+msgid "Last Accessed"
+msgstr "Kali Terakhir Diakses"
+
+#. Translators: 'n/a' means 'not available'
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:109
+#: analytics_dashboard/static/apps/learners/detail/views/learner-summary-field.js:44
+#: analytics_dashboard/static/apps/learners/roster/views/activity-date-range.js:16
+msgid "n/a"
+msgstr "tidak tersedia"
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:139
+msgid "Check back daily for up-to-date data."
+msgstr "Semak semula secara harian untuk data terkini."
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:149
+msgid "No course activity data is available for this learner."
+msgstr "Tiada data aktiviti kursus tersedia untuk pelajar ini."
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-detail.js:156
+msgid "No learner data is available."
+msgstr "Tiada data pelajar tersedia."
+
+#: analytics_dashboard/static/apps/learners/detail/views/learner-return.js:12
+msgid "Return to Learners"
+msgstr "Kembali ke Pelajar"
+
+#. Translators: this is a label describing a selection that the user
+#. initiated.
+#: analytics_dashboard/static/apps/learners/roster/views/active-filters.js:23
+msgid "Cohort: <%= filterVal %>"
+msgstr "Kohort: <%= filterVal %>"
+
+#. Translators: this is a label describing a selection that the user
+#. initiated.
+#: analytics_dashboard/static/apps/learners/roster/views/active-filters.js:27
+msgid "Enrollment Track: <%= filterVal %>"
+msgstr "Jejak Enrolmen: <%= filterVal %>"
+
+#: analytics_dashboard/static/apps/learners/roster/views/active-filters.js:32
+#: analytics_dashboard/static/js/engagement-content-main.js:20
+msgid "Active Learners"
+msgstr "Pelajar Aktif"
+
+#: analytics_dashboard/static/apps/learners/roster/views/activity-date-range.js:11
+msgid "Activity between <%- startDate %> - <%- endDate %>"
+msgstr "Aktiviti antara <%- startDate %> - <%- endDate %>"
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:10
+msgid "The name and username of this learner. Click to sort by username."
+msgstr "Nama dan nama pengguna pelajar ini. Klik untuk mengisih daripada nama pengguna."
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:11
+msgid "Number of unique problems this learner attempted."
+msgstr "Jumlah masalah unik yang dicuba pelajar ini."
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:12
+msgid "Number of unique problems the learner answered correctly."
+msgstr "Jumlah masalah unik yang dijawab betul oleh pelajar."
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:13
+msgid "Number of unique videos this learner played."
+msgstr "Jumlah video unik yang pelajar ini mainkan."
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:15
+msgid ""
+"Average number of attempts per correct problem. Learners with a relatively "
+"high value compared to their peers may be struggling."
+msgstr "Purata jumlah percubaan per masalah yang betul. Pelajar dengan nilai tinggi secara relatif berbanding rakan sebaya mereka mungkin sedang bergelut. "
+
+#: analytics_dashboard/static/apps/learners/roster/views/base-header-cell.js:17
+msgid ""
+"Number of contributions by this learner, including posts, responses, and "
+"comments."
+msgstr "Jumlah sumbangan daripada pelajar ini termasuklah hantaran, respons dan ulasan."
+
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:62
+msgid "Find a learner"
+msgstr "Cari seorang pelajar"
+
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:75
+msgid "Cohort Groups"
+msgstr "Kumpulan Kohort"
+
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:87
+msgid "Enrollment Tracks"
+msgstr "Jejak Enrolmen"
+
+#. Translators: inactive meaning that these learners have not interacted with
+#. the
+#. course recently.
+#: analytics_dashboard/static/apps/learners/roster/views/controls.js:103
+msgid "Hide Inactive Learners"
+msgstr "Sorok Pelajar Tidak Aktif"
+
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:47
+msgid "No learners matched your criteria."
+msgstr "Tiada pelajar yang padan dengan kriteria anda."
+
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:55
+msgid "No learner data is currently available for your course."
+msgstr "Tiada data pelajar yang sedang tersedia untuk kursus anda."
+
+#: analytics_dashboard/static/apps/learners/roster/views/results.js:57
+msgid ""
+"No learners are enrolled, or course activity data has not yet been "
+"processed. Data is updated every day, so check back regularly for up-to-date"
+" metrics."
+msgstr "Tiada pelajar yang mendaftar atau data aktiviti kursus belum diproses lagi. Data dikemas kini setiap hari. Oleh itu, sila semak semula secara kerap untuk metrik terkini."
+
+#: analytics_dashboard/static/apps/learners/roster/views/roster.js:110
+msgid "Learner roster controls"
+msgstr "Kawalan senarai pelajar"
+
+#: analytics_dashboard/static/apps/learners/roster/views/search.js:55
+msgid "Search learners"
+msgstr "Buat carian pelajar"
+
+#. Translators: 'N/A' is an abbreviation of "Not Applicable". Please translate
+#. accordingly.
+#: analytics_dashboard/static/apps/learners/roster/views/table.js:40
+msgid "N/A"
+msgstr "Tidak Berkaitan"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:15
+msgid "Week Ending"
+msgstr "Penghujung Minggu"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:27
+msgid "Watched a Video"
+msgstr "Menonton Video"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:34
+msgid "Tried a Problem"
+msgstr "Mencuba Masalah"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:41
+msgid "Participated in Discussions"
+msgstr "Menyertai Perbincangan"
+
+#: analytics_dashboard/static/js/engagement-content-main.js:48
+msgid "Percent of Current Learners"
+msgstr "Peratusan Pelajar Semasa"
+
+#. Translators: <%=value%> will be replaced with a date.
+#: analytics_dashboard/static/js/engagement-content-main.js:85
+msgid "Week Ending <%=value%>"
+msgstr "Penghujung Minggu <%=value%>"
+
+#: analytics_dashboard/static/js/engagement-video-content-main.js:14
+msgid "Average Complete Views"
+msgstr "Purata Tontonan Lengkap"
+
+#: analytics_dashboard/static/js/engagement-video-content-main.js:23
+msgid "Average Incomplete Views"
+msgstr "Purata Tontonan Tidak Lengkap"
+
+#: analytics_dashboard/static/js/engagement-video-content-main.js:31
+#: analytics_dashboard/static/js/engagement-videos-main.js:29
+#: analytics_dashboard/static/js/performance-content-main.js:28
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:28
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:28
+#: analytics_dashboard/static/js/performance-problems-main.js:26
+msgid "Order"
+msgstr "Tempahan"
+
+#: analytics_dashboard/static/js/engagement-video-content-main.js:41
+#: analytics_dashboard/static/js/engagement-videos-main.js:38
+msgid "Completion Percentage"
+msgstr "Peratusan Selesai"
+
+#: analytics_dashboard/static/js/engagement-video-timeline-main.js:25
+msgid "Unique Viewers"
+msgstr "Penonton Unik"
+
+#: analytics_dashboard/static/js/engagement-video-timeline-main.js:32
+msgid "Replays"
+msgstr "Mainkan Semula"
+
+#: analytics_dashboard/static/js/engagement-video-timeline-main.js:39
+msgid "Time"
+msgstr "Masa"
+
+#: analytics_dashboard/static/js/engagement-videos-main.js:14
+msgid "Complete Views"
+msgstr "Tontonan Lengkap"
+
+#: analytics_dashboard/static/js/engagement-videos-main.js:22
+msgid "Incomplete Views"
+msgstr "Tontonan Tidak Lengkap"
+
+#. Translators: this describe the learner's enrollment track (e.g. Honor
+#. certificate)
+#: analytics_dashboard/static/js/enrollment-activity-main.js:33
+msgid "Honor"
+msgstr "Kepujian"
+
+#: analytics_dashboard/static/js/enrollment-activity-main.js:38
+msgid "Audit"
+msgstr "Audit"
+
+#: analytics_dashboard/static/js/enrollment-activity-main.js:43
+msgid "Verified"
+msgstr "Disahkan"
+
+#: analytics_dashboard/static/js/enrollment-activity-main.js:48
+msgid "Professional"
+msgstr "Profesional"
+
+#. Translators: this label indicates the learner has registered for academic
+#. credit
+#: analytics_dashboard/static/js/enrollment-activity-main.js:54
+msgid "Verified with Credit"
+msgstr "Disahkan dengan Kredit"
+
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:19
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:34
+#: analytics_dashboard/static/js/enrollment-demographics-education-main.js:32
+msgid "Number of Learners"
+msgstr "Jumlah Pelajar"
+
+#. Translators: <%=value%> will be replaced with an age.
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:26
+msgid "Age: <%=value%>"
+msgstr "Umur: <%=value%>"
+
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:33
+msgid "Age"
+msgstr "Umur"
+
+#: analytics_dashboard/static/js/enrollment-demographics-age-main.js:35
+msgid "Percent of Total"
+msgstr "Peratus Total"
+
+#: analytics_dashboard/static/js/enrollment-demographics-education-main.js:18
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:17
+msgid "Percentage"
+msgstr "Peratusan"
+
+#. Translators: <%=value%> will be replaced with a level of education (e.g.
+#. Doctorate).
+#: analytics_dashboard/static/js/enrollment-demographics-education-main.js:24
+msgid "Education: <%=value%>"
+msgstr "Pendidikan: <%=value%>"
+
+#: analytics_dashboard/static/js/enrollment-demographics-education-main.js:31
+msgid "Educational Background"
+msgstr "Latar Belakang Pendidikan"
+
+#. Translators: <%=value%> will be replaced with a level of gender (e.g.
+#. Female).
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:23
+msgid "Gender: <%=value%>"
+msgstr "Jantina: <%=value%>"
+
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:33
+msgid "Female"
+msgstr "Perempuan"
+
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:34
+msgid "Male"
+msgstr "Lelaki"
+
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:35
+msgid "Other"
+msgstr "Lain-lain"
+
+#: analytics_dashboard/static/js/enrollment-demographics-gender-main.js:36
+msgid "Not Reported"
+msgstr "Tidak Dilaporkan"
+
+#: analytics_dashboard/static/js/enrollment-geography-main.js:18
+msgid ""
+"Learner location is determined from IP address. This map shows where "
+"learners most recently connected."
+msgstr "Lokasi pelajar ditentukan daripada alamat IP. Peta ini menunjukkan tempat pelajar baru-baru ini dihubungkan."
+
+#: analytics_dashboard/static/js/enrollment-geography-main.js:26
+msgid "Country or Region"
+msgstr "Negara atau Rantau"
+
+#: analytics_dashboard/static/js/enrollment-geography-main.js:27
+msgid "Percent"
+msgstr "Peratus"
+
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:12
+msgid "Answer"
+msgstr "Jawapan"
+
+#. Translators: "Correct" is displayed in a table..
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:15
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:43
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:11
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:37
+#: analytics_dashboard/static/js/performance-problems-main.js:11
+#: analytics_dashboard/static/js/views/data-table-view.js:216
+msgid "Correct"
+msgstr "Betul"
+
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:16
+msgid "Submission Count"
+msgstr "Kiraan Penyerahan"
+
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:30
+msgid "Variant"
+msgstr "Varian"
+
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:45
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:20
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:45
+#: analytics_dashboard/static/js/performance-problems-main.js:19
+msgid "Incorrect"
+msgstr "Salah"
+
+#. Translators: <%=value%> will be replaced by a learner response to a
+#. question asked in a course.
+#: analytics_dashboard/static/js/performance-answer-distribution-main.js:60
+msgid "Answer: <%=value%>"
+msgstr "Jawapan: <%=value%>"
+
+#: analytics_dashboard/static/js/performance-content-main.js:11
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:11
+msgid "Average Correct"
+msgstr "Purata Betul"
+
+#: analytics_dashboard/static/js/performance-content-main.js:20
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:20
+msgid "Average Incorrect"
+msgstr "Purata Salah"
+
+#: analytics_dashboard/static/js/performance-content-main.js:30
+msgid "Problems"
+msgstr "Masalah"
+
+#: analytics_dashboard/static/js/performance-content-main.js:39
+msgid "Average Submissions Per Problem"
+msgstr "Purata Penyerahan Per Masalah"
+
+#: analytics_dashboard/static/js/performance-content-main.js:48
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:46
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:61
+#: analytics_dashboard/static/js/performance-problems-main.js:43
+msgid "Percentage Correct"
+msgstr "Peratusan Betul"
+
+#: analytics_dashboard/static/js/performance-learning-outcomes-content-main.js:38
+msgid "Average Submissions per Problem"
+msgstr "Purata Penyerahan per Masalah"
+
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:30
+msgid "Difficulty"
+msgstr "Kesukaran"
+
+#: analytics_dashboard/static/js/performance-learning-outcomes-section-main.js:53
+#: analytics_dashboard/static/js/performance-problems-main.js:35
+msgid "Total"
+msgstr "Total"
+
+#: analytics_dashboard/static/js/utils/utils.js:93
+msgid "..."
+msgstr "..."
+
+#. Translators: (empty) is displayed in a table and indicates no label/value.
+#. Keep text in the parenthesis or an equivalent symbol.
+#. Translators: (empty) is displayed as a label in a chart and indicates that
+#. no label was provided.
+#: analytics_dashboard/static/js/views/data-table-view.js:199
+#: analytics_dashboard/static/js/views/discrete-bar-view.js:21
+msgid "(empty)"
+msgstr "(kosong)"
+
+#. Translators: <%=value%> will be replaced by a number followed by a
+#. percentage.
+#. For example, "400 (29%)"
+#: analytics_dashboard/static/js/views/stacked-bar-view.js:13
+msgid "<%=value%> (<%=percent%>)"
+msgstr "<%=value%> (<%=percent%>)"
+
+#~ msgid ", "
+#~ msgstr "."

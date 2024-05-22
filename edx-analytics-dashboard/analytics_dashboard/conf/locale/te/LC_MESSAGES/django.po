@@ -1,0 +1,1479 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# Translators:
+# 63c054d943ef6b82d960f113de5033db_b754cbd <8e1a45c3295e15137a5f443a488cad0e_926654>, 2020
+# Vamsi Gopal Vasireddy <vasireddy.vamsi.gopal@gmail.com>, 2015
+# Zimeng Chen, 2021
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-18 15:22+0000\n"
+"PO-Revision-Date: 2014-08-25 20:09+0000\n"
+"Last-Translator: Zimeng Chen, 2021\n"
+"Language-Team: Telugu (http://app.transifex.com/open-edx/edx-platform/language/te/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: te\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: analytics_dashboard/core/templates/core/landing.html:15
+#: analytics_dashboard/templates/_skip_link.html:3
+msgid "Skip to content"
+msgstr "విషయమునకు వెళ్ళండి"
+
+#: analytics_dashboard/core/templates/core/landing.html:23
+msgid "Login"
+msgstr "లాగిన్"
+
+#: analytics_dashboard/core/templates/core/landing.html:33
+msgid "Insights to help course teams improve courses."
+msgstr "పాఠ్యములను మెరుగు పరుచుటకు పాఠ్య రచయితలకు సూచనలు."
+
+#: analytics_dashboard/core/templates/core/landing.html:42
+#: analytics_dashboard/courses/views/__init__.py:603
+msgid "Who are my learners?"
+msgstr "నా విద్యార్థులు ఎవరు?"
+
+#: analytics_dashboard/core/templates/core/landing.html:43
+msgid "Target your course to fit the backgrounds of your learners."
+msgstr "మీ విద్యార్థుల గతచరిత్రకు సరిపడు విధముగా పాఠ్యములను దిద్దండి."
+
+#: analytics_dashboard/core/templates/core/landing.html:44
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:28
+#: analytics_dashboard/courses/tests/test_views/__init__.py:255
+#: analytics_dashboard/courses/views/__init__.py:309
+#: analytics_dashboard/courses/views/__init__.py:601
+msgid "Enrollment"
+msgstr "విద్యార్థుల చేరిక"
+
+#: analytics_dashboard/core/templates/core/landing.html:47
+msgid "What are learners engaging with in my course?"
+msgstr "నా పాఠ్యంలో విద్యార్థులు ఏ పనిలో ఉన్నారు?"
+
+#: analytics_dashboard/core/templates/core/landing.html:48
+msgid ""
+"Improve frequently accessed content, or point learners at underused "
+"resources."
+msgstr "తరచుగా వాడు విషయమును మెరుగు పరుచుము, లేక విద్యార్థులకు తక్కువ పరిచయము గల వనరులని చూపించుము."
+
+#: analytics_dashboard/core/templates/core/landing.html:49
+#: analytics_dashboard/courses/tests/test_views/test_engagement.py:40
+#: analytics_dashboard/courses/views/__init__.py:320
+#: analytics_dashboard/courses/views/__init__.py:609
+msgid "Engagement"
+msgstr "పనిలో భాగస్వామ్యము"
+
+#: analytics_dashboard/core/templates/core/landing.html:52
+msgid "How well is my content supporting learners?"
+msgstr "నా పాఠ్యాంశం విద్యార్థులకి ఎంతవరకు నప్పుతోంది?"
+
+#: analytics_dashboard/core/templates/core/landing.html:53
+msgid "Adjust your course based on where learners are struggling."
+msgstr "విద్యార్థులకి సమస్యాత్మకమైన అంశాలపై స్పందించి పాఠ్యాన్ని మార్పు చేయండి."
+
+#: analytics_dashboard/core/templates/core/landing.html:54
+#: analytics_dashboard/courses/tests/test_views/test_performance.py:51
+#: analytics_dashboard/courses/views/__init__.py:331
+#: analytics_dashboard/courses/views/__init__.py:689
+msgid "Performance"
+msgstr "పనితీరు"
+
+#: analytics_dashboard/core/templates/core/landing.html:63
+msgid "Join the Open Source Community"
+msgstr "ఓపెన్ సోర్స్ కుటుంబంలో చేరండి"
+
+#: analytics_dashboard/core/templates/core/landing.html:68
+#, python-format
+msgid ""
+"The edX analytics data pipeline and edX Insights are open source. "
+"%(link_start)sLearn more%(link_end)s."
+msgstr "ఎడ్ ఎక్స్ ఉపయోగపు లెక్కలు తెలుపు మార్గము మరియు ఎడ్ ఎక్స్ వివరములు అందరికీ ఉచితముగా లభ్యము అవుతాయి. %(link_start)sమరింత సమాచారం%(link_end)s."
+
+#: analytics_dashboard/core/templates/core/landing.html:75
+msgid "Research at edX"
+msgstr "ఎడ్ ఎక్స్ వారి వద్ద పరిశోధన"
+
+#: analytics_dashboard/core/templates/core/landing.html:80
+#, python-format
+msgid ""
+"We are committed to advancing teaching and learning through research. "
+"%(link_start)sLearn more%(link_end)s."
+msgstr "పరిశోధన ఆధారిత బోధన మరియు నేర్చుకొను ప్రక్రియలను వేగిరము చేయుటలో మేము కట్టుబడి ఉన్నాము.%(link_start)sమరింత సమాచారం%(link_end)s"
+
+#: analytics_dashboard/core/templates/core/landing.html:87
+msgid "Need Help?"
+msgstr "సహాయం కావలెనా?"
+
+#: analytics_dashboard/core/templates/core/landing.html:92
+#, python-format
+msgid ""
+"%(link_start)sOur support center%(link_end)s can help you find solutions."
+msgstr "%(link_start)sమా సహాయ కేంద్రము %(link_end)s మీకు పరిష్కారములను సూచించును"
+
+#. Translators: Simply move the percent symbol (%) to the correct location. Do
+#. NOT translate the word statistic.
+#: analytics_dashboard/core/templatetags/dashboard_extras.py:27
+#, python-brace-format
+msgid "{statistic}%"
+msgstr "{statistic}%"
+
+#. Translators: '{percentage}' in as a placeholder for the percentage value.
+#: analytics_dashboard/courses/presenters/engagement.py:124
+#, python-brace-format
+msgid "{percentage} of current learners"
+msgstr "ఇప్పటి విద్యార్థుల {percentage}"
+
+#: analytics_dashboard/courses/presenters/enrollment.py:23
+msgid "Female"
+msgstr "స్త్రీ"
+
+#: analytics_dashboard/courses/presenters/enrollment.py:24
+msgid "Male"
+msgstr "పురుషుడు"
+
+#. Translators: Other gender
+#. Translators: This describes the learner's education level.
+#: analytics_dashboard/courses/presenters/enrollment.py:26
+#: analytics_dashboard/courses/presenters/enrollment.py:45
+msgid "Other"
+msgstr "ఇతర"
+
+#. Translators: Unknown gender
+#. Translators: This describes the learner's education level.
+#: analytics_dashboard/courses/presenters/enrollment.py:28
+#: analytics_dashboard/courses/presenters/enrollment.py:63
+#: analytics_dashboard/courses/presenters/enrollment.py:458
+msgid "Unknown"
+msgstr "తెలియనిది"
+
+#. Translators: This describes the learner's education level.
+#: analytics_dashboard/courses/presenters/enrollment.py:43
+msgid "None"
+msgstr "ఏదీ కాదు"
+
+#. Translators: This describes the learner's education level (e.g. Elementary
+#. School Degree).
+#: analytics_dashboard/courses/presenters/enrollment.py:47
+#: analytics_dashboard/courses/tests/test_serializers.py:12
+msgid "Primary"
+msgstr "ప్రాథమిక"
+
+#. Translators: This describes the learner's education level  (e.g. Middle
+#. School Degree).
+#: analytics_dashboard/courses/presenters/enrollment.py:49
+msgid "Middle"
+msgstr "మధ్య"
+
+#. Translators: This describes the learner's education level.
+#: analytics_dashboard/courses/presenters/enrollment.py:51
+msgid "Secondary"
+msgstr "ఉన్నత"
+
+#. Translators: This describes the learner's education level (e.g. Associate's
+#. Degree).
+#: analytics_dashboard/courses/presenters/enrollment.py:53
+msgid "Associate"
+msgstr "కళాశాల"
+
+#. Translators: This describes the learner's education level (e.g. Bachelor's
+#. Degree).
+#: analytics_dashboard/courses/presenters/enrollment.py:55
+msgid "Bachelor's"
+msgstr "ప్రాథమిక ఉన్నత విద్య లేక బేచిలర్స్"
+
+#. Translators: This describes the learner's education level (e.g. Master's
+#. Degree).
+#: analytics_dashboard/courses/presenters/enrollment.py:57
+msgid "Master's"
+msgstr "మాధ్యమిక ఉన్నత విద్య లేక మాస్టర్స్"
+
+#. Translators: This describes the learner's education level (e.g. Doctorate
+#. Degree).
+#: analytics_dashboard/courses/presenters/enrollment.py:59
+msgid "Doctorate"
+msgstr "పరిశోధక విద్య"
+
+#. Translators: This is a placeholder for enrollment data collected without a
+#. known geolocation.
+#: analytics_dashboard/courses/presenters/enrollment.py:188
+msgid "Unknown Country"
+msgstr "తెలియని దేశం"
+
+#. Translators: This describes the data displayed in the chart below.
+#: analytics_dashboard/courses/presenters/performance.py:150
+#: analytics_dashboard/courses/templates/courses/submissions_chart_info.html:4
+msgid "Submissions"
+msgstr "సమర్పిత అంశాలు"
+
+#: analytics_dashboard/courses/presenters/performance.py:154
+#, python-brace-format
+msgid "Submissions for Part {part_number}: {part_description}"
+msgstr "ఈ భాగము కింద సమర్పిత అంశాలు {part_number}: {part_description}"
+
+#: analytics_dashboard/courses/presenters/performance.py:155
+#, python-brace-format
+msgid "Part {part_number}: {part_description}"
+msgstr "భాగము {part_number}: {part_description}"
+
+#: analytics_dashboard/courses/presenters/performance.py:157
+#, python-brace-format
+msgid "Submissions: {part_description}"
+msgstr "సమర్పిత అంశాలు: {part_description}"
+
+#: analytics_dashboard/courses/presenters/performance.py:158
+#, python-brace-format
+msgid "{part_description}"
+msgstr "{part_description}"
+
+#: analytics_dashboard/courses/presenters/performance.py:161
+#, python-brace-format
+msgid "Submissions for Part {part_number}"
+msgstr "భాగము కింద సమర్పిత అంశాలు {part_number}"
+
+#: analytics_dashboard/courses/presenters/performance.py:162
+#, python-brace-format
+msgid "Part {part_number}"
+msgstr "భాగము {part_number}"
+
+#: analytics_dashboard/courses/templates/courses/_base_content_nav.html:25
+#, python-format
+msgid "%(all_sections_text)s"
+msgstr "%(all_sections_text)s"
+
+#: analytics_dashboard/courses/templates/courses/_graded_content_nav.html:16
+msgid "Select Assignment Type"
+msgstr "పరీక్షను ఎంచుకొనుము"
+
+#. Translators: This refers to all course assignment types (e.g. homework,
+#. exam, lab).
+#: analytics_dashboard/courses/templates/courses/_graded_content_nav.html:21
+msgid "All Assignments"
+msgstr "అన్ని పరీక్షలు"
+
+#: analytics_dashboard/courses/templates/courses/_graded_content_nav.html:25
+#, python-format
+msgid ""
+"\n"
+"        Select %(level)s\n"
+"    "
+msgstr "\nఎంచుకొనుము %(level)s"
+
+#: analytics_dashboard/courses/templates/courses/_graded_content_nav.html:31
+#: analytics_dashboard/courses/templates/courses/_tags_content_nav.html:23
+#: analytics_dashboard/courses/templates/courses/_ungraded_content_nav.html:28
+msgid "Select Problem"
+msgstr "సమస్యను ఎంచుకొనుము"
+
+#. Translators: This text will be a direct link to the a specific
+#. module/problem.
+#: analytics_dashboard/courses/templates/courses/_module_description.html:14
+#: analytics_dashboard/courses/templates/courses/_video_preview.html:9
+msgid "View Live"
+msgstr "ప్రత్యక్షముగా చూడుము"
+
+#: analytics_dashboard/courses/templates/courses/_tags_content_nav.html:15
+msgid "Select Outcome"
+msgstr "ఫలితమును ఎంచుకొనుము"
+
+#: analytics_dashboard/courses/templates/courses/_tags_content_nav.html:19
+msgid "All Outcomes"
+msgstr "అన్ని ఫలితములు"
+
+#: analytics_dashboard/courses/templates/courses/_ungraded_content_nav.html:16
+#: analytics_dashboard/courses/templates/courses/_video_content_nav.html:16
+msgid "Select Section"
+msgstr "విభాగమును ఎంచుకొనుము"
+
+#: analytics_dashboard/courses/templates/courses/_ungraded_content_nav.html:20
+#: analytics_dashboard/courses/templates/courses/_video_content_nav.html:20
+msgid "All Sections"
+msgstr "అన్ని విభాగములు"
+
+#: analytics_dashboard/courses/templates/courses/_ungraded_content_nav.html:24
+#: analytics_dashboard/courses/templates/courses/_video_content_nav.html:24
+msgid "Select Subsection"
+msgstr "ఉప విభాగమును ఎంచుకొనుము"
+
+#: analytics_dashboard/courses/templates/courses/_video_content_nav.html:28
+msgid "Select Video"
+msgstr "వీడియోని ఎంచుకొనుము"
+
+#: analytics_dashboard/courses/templates/courses/_video_module_controls.html:8
+msgid "Previous Video"
+msgstr "ముందరి వీడియో"
+
+#: analytics_dashboard/courses/templates/courses/_video_module_controls.html:15
+msgid "Next Video"
+msgstr "తరువాతి వీడియో"
+
+#. Translators: This text describes a bar chart displayed.
+#: analytics_dashboard/courses/templates/courses/base_performance_answer_distribution.html:60
+msgid ""
+"This chart shows the most common answers submitted by learners, ordered by "
+"frequency."
+msgstr "విద్యార్థులు సమర్పించిన అతి సాధారణ సమాధానములను ఈ చిత్రం వాటి పౌనఃపున్యం ఆధారంగా క్రమంలో పేర్చి చూపిస్తుంది."
+
+#. Translators: Variants refers to versions of a problem/assignment.
+#: analytics_dashboard/courses/templates/courses/base_performance_answer_distribution.html:82
+#, python-format
+msgid ""
+"Due to the number of possible variants for randomized problems, charts are "
+"not available. %(read_more_link_start)sRead more%(read_more_link_end)s."
+msgstr "క్రమం లేకుండా ఏరిన సమస్యలకు ఉండే రకరకములగు పరివర్తిత రూపాల కారణంగా, ఇక్కడ చితాలను ఇవ్వలేకున్నాము. %(read_more_link_start)s ఇంకా చదవండి %(read_more_link_end)s."
+
+#. Translators: Variants refers to versions of a problem/assignment.
+#: analytics_dashboard/courses/templates/courses/base_performance_answer_distribution.html:87
+msgid ""
+"Review all submission variants below, or click Download CSV to review them "
+"offline."
+msgstr "కింద సమర్పించిన అన్ని రూపాలను సరిచూడుము, లేక డౌన్లోడ్ సీఎస్వీ పై నొక్కి వాటిని ఆఫ్లైన్ లో సరిచూడుము."
+
+#: analytics_dashboard/courses/templates/courses/base_performance_answer_distribution.html:108
+msgid "Submission Counts"
+msgstr "సమర్పణల సంఖ్య"
+
+#: analytics_dashboard/courses/templates/courses/base_performance_answer_distribution.html:116
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:96
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:87
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:116
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:109
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:100
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_gender.html:65
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:97
+msgid "Download CSV"
+msgstr "డౌన్లోడ్ సీఎస్వీ"
+
+#: analytics_dashboard/courses/templates/courses/base_performance_answer_distribution.html:117
+msgid "Learner Submission Counts"
+msgstr "విద్యార్థుల సమర్పణల లెక్క"
+
+#. Translators: This describes the data displayed in the chart below.
+#: analytics_dashboard/courses/templates/courses/demographics_chart_info.html:4
+msgid "Learners (Self-Reported)"
+msgstr "విద్యార్థులు (స్వప్రకటిత)"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:23
+msgid "Weekly Learner Engagement"
+msgstr "పనిలో ప్రతి వారం విద్యార్థుల భాగస్వామ్యము"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:24
+#: analytics_dashboard/courses/views/__init__.py:614
+msgid "How many learners are interacting with my course?"
+msgstr "నా పాఠ్యంలో ఎందరు విద్యార్థులు పాలుపంచు కొంటున్నారు?"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:31
+#: analytics_dashboard/courses/views/__init__.py:343
+#: analytics_dashboard/courses/views/__init__.py:697
+#: analytics_dashboard/courses/views/__init__.py:761
+#: analytics_dashboard/courses/views/learners.py:22
+msgid "Learners"
+msgstr "విద్యార్థులు"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:32
+msgid ""
+"The number of active learners, and the number of learners who engaged in "
+"specific activities, over time."
+msgstr "ప్రస్తుతం నేర్చు విద్యార్థుల సంఖ్య, కొంత కాల పరిమితి లో కొన్ని ప్రత్యేక పాఠాలు నేర్చిన విద్యార్థుల సంఖ్య."
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:48
+msgid "Learner Activity Metrics"
+msgstr "విద్యార్థులు పాఠములను ఉపయోగించిన లెక్కలు"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:54
+msgid "Active Learners Last Week"
+msgstr "క్రితం వారం పాఠములను చదివిన విద్యార్థులు"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:55
+msgid "Learners who visited at least one page in the course content."
+msgstr "పాఠ్యములో కనీసం ఒక పేజీని దర్శించిన విద్యార్థులు"
+
+#. Translators: This is a label indicating the number of learners who watched
+#. a video.
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:61
+msgid "Watched a Video Last Week"
+msgstr "క్రితం వారం వీడియో చూసినవారు"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:62
+msgid "Learners who played one or more videos."
+msgstr "ఒకటి లేక అంతకన్నా ఎక్కువ వీడియోలు చూసిన విద్యార్థులు."
+
+#. Translators: This is a label indicating the number of learners who tried a
+#. problem.
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:68
+msgid "Tried a Problem Last Week"
+msgstr "క్రితం వారం ఒక సమస్యని పరిష్కరించ ప్రయత్నించినవారు"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:69
+msgid ""
+"Learners who submitted an answer for a standard problem. Not all problem "
+"types are included."
+msgstr "ఒక క్లిష్ట సమస్యకి పరిష్కారం సమర్పించిన విద్యార్థులు. అన్ని రకముల సమస్యలు ఇందులో పేర్కొనలేదు."
+
+#. Translators: This is a label indicating the number of learners who posted
+#. in a forum discussion.
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:76
+msgid "Participated in Discussions Last Week"
+msgstr "క్రితం వారం తర్జన భర్జనలలో పాల్గొనిన వారు"
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:77
+msgid ""
+"Learners who added a post, response, or comment to any course discussion."
+msgstr "పాఠ్యముపై చర్చలో ఒక పోస్టు, సమాధానం, లేక వ్యాఖ్య చేర్చిన విద్యార్థులు."
+
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:89
+#: analytics_dashboard/courses/templates/courses/engagement_content.html:97
+msgid "Content Engagement Breakdown"
+msgstr "పాఠ్యాంశం వాడుకతీరు వివరములు"
+
+#. Translators: This describes the data displayed in the chart below. E.g. how
+#. many learners viewed a video.
+#: analytics_dashboard/courses/templates/courses/engagement_grouped_content.html:17
+#: analytics_dashboard/courses/templates/courses/views_chart_info.html:4
+msgid "Video Views"
+msgstr "వీడియో వీక్షణలు"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_by_section.html:5
+msgid "How did learners interact with videos in this section?"
+msgstr "ఈ విభాగంలో విద్యార్థులు వీడియోలని ఎలా వాడుక చేసిరి?"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_by_section.html:10
+msgid ""
+"Each bar shows the average number of complete and incomplete views for "
+"videos in that subsection. Click on bars with low totals or a high "
+"incomplete rate to drill down and understand why."
+msgstr "ప్రతి బార్ ఆ ఉప విభాగం లోని వీడియోల యొక్క పూర్తి లేక పాక్షికమైన వీక్షణల సగటుని చూపిస్తుంది. తక్కువ మొత్తాలు గల లేక ఎక్కువ పూర్తిచేయని రేటు గల బార్ లపై క్లిక్ చేసి అందులకు కారణములను మధించండి లేక అర్ధం చేసికొండి."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_by_subsection.html:10
+msgid "How did learners interact with videos in this subsection?"
+msgstr "ఈ ఉప విభాగం లోని వీడియోలని విద్యార్థులు ఎలా వాడుక చేసినారు?"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_by_subsection.html:15
+msgid ""
+"Each bar shows the counts of complete and incomplete views for that video. "
+"Click to understand where learners drop off and which parts they replay."
+msgstr "ఒక్కో బార్ ఆ వీడియో యొక్క పూర్తి లేక పాక్షికమైన వీక్షణలని చూపిస్తుంది. విద్యార్థులు వీడియోని అందులో ఎక్కడ వదిలేసిరో లేక ఏ భాగములని తిరిగి చూసిరో ఇక్కడ నొక్కి తెలుసుకోండి."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_course.html:5
+#: analytics_dashboard/courses/views/__init__.py:627
+msgid "How did learners interact with course videos?"
+msgstr "పాఠ్యం లోని వీడియోలని విద్యార్థులు ఎలా ఉపయోగించారు?"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_course.html:10
+msgid ""
+"Each bar shows the average number of complete and incomplete views for "
+"videos in that section. Click on bars with low totals or a high incomplete "
+"rate to drill down and understand why."
+msgstr "ప్రతి బార్ ఆ వీడియో యొక్క పూర్తి మరియు పాక్షికమైన వీక్షణల సంఖ్యని చూపిస్తుంది. చిన్న మొత్తాలు ఉన్న లేక పూర్తికాని రేటు అధికంగా ఉన్న బార్ లపై క్లిక్ చేసి అందులకు కారణాలని అవగాహన చేసుకొనండి."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:17
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:21
+msgid "Total Video Views"
+msgstr "అన్ని వీడియో వీక్షణల సంఖ్య"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:26
+msgid "What were the viewing patterns for this video?"
+msgstr "ఈ వీడియోని చూసిన విధానములు ఎలా ఉండినవి?"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:31
+msgid ""
+"The number of learners who watched each segment of the video, and the number"
+" of replays for each segment."
+msgstr "వీడియో లోని ప్రతి అంకమును చూసిన విద్యార్థుల సంఖ్య, మరియు ప్రతి అంకం యొక్క పునః వీక్షణ."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:37
+msgid "Collapse Preview"
+msgstr "పరిశీలన మూసివేత"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:38
+msgid "Expand Preview"
+msgstr "పరిశీలన తెరిచివేత"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:55
+msgid "Video Metrics"
+msgstr "వీడియో ఉపయోగపు లెక్కలు"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:61
+msgid "Completion Rate"
+msgstr "పూర్తి అయ్యే రేటు"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:62
+msgid "Estimated percentage of learners who watched the entire video."
+msgstr "పూర్తి వీడియోని చూసిన విద్యార్థుల శాతం సుమారుగా."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:66
+msgid "Started Video"
+msgstr "వీడియో మొదలు"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:67
+msgid "Learners who started watching the video."
+msgstr "వీడియో చూడడం మొదలుపెట్టిన విద్యార్థులు."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:71
+msgid "Finished Video"
+msgstr "వీడియో ముగింపు"
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:72
+msgid "Learners who watched the video to the end."
+msgstr "వీడియోని చివరివరకీ చూసిన విద్యార్థులు."
+
+#: analytics_dashboard/courses/templates/courses/engagement_video_timeline.html:88
+msgid "Video Viewing Over Time"
+msgstr "కాలానుగుణంగా వీడియో వీక్షణ"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:24
+msgid "Daily Learner Enrollment"
+msgstr "రోజువారీ విద్యార్థుల చేరిక"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:25
+#: analytics_dashboard/courses/views/__init__.py:546
+msgid "How many learners are in my course?"
+msgstr "నా పాఠ్యంలో ఎంతమంది విద్యార్థులు కలరు?"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:32
+msgid "Enrollments"
+msgstr "విద్యార్థుల చేరికలు"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:33
+msgid ""
+"This graph displays the current enrollment for the course as of the end of "
+"each day. This includes new enrollments as well as unenrollments."
+msgstr "ప్రతి దినం చివరలో వరకి చేరిన మొత్తం విద్యార్థుల సంఖ్యని ఈ చిత్రం చూపిస్తుంది. ఇందులో కొత్తగా చేరినవారూ, తొలగిన వారూ ఉన్నారు."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:49
+msgid "Enrollment Metrics"
+msgstr "చేరికల సంఖ్యలు"
+
+#. Translators: This is a label to identify the number of learners who ever
+#. enrolled in the course.
+#. Translators: This is a label to identify the maximum number of learners
+#. ever in all of the instructor's courses.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:59
+#: analytics_dashboard/courses/templates/courses/index.html:26
+msgid "Total Enrollment"
+msgstr "మొత్తం చేరికలు"
+
+#. Translators: This is a label indicating the number of learners in a course.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:61
+msgid "Learners who ever enrolled in the course."
+msgstr "పాఠ్యంలో ఏదో ఒక సమయంలో చేరిన విద్యార్థుల సంఖ్య."
+
+#. Translators: This is a label to identify current learner enrollment.
+#. Translators: This is a label to identify the current number of learners in
+#. all of the instructor's courses.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:68
+#: analytics_dashboard/courses/templates/courses/index.html:33
+msgid "Current Enrollment"
+msgstr "ప్రస్తుతపు చేరికలు"
+
+#. Translators: This is a label indicating the number of learners enrolled in
+#. a course.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:70
+msgid "Learners currently enrolled in the course."
+msgstr "పాఠ్యంలో ప్రస్తుతం చేరి ఉన్న విద్యార్థులు."
+
+#. Translators: This is a label indicating the change in the number of
+#. learners enrolled in a course since the previous week.
+#. Translators: This is a label to identify the change in the number of
+#. learners in all of the instructor's courses in the last week.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:76
+#: analytics_dashboard/courses/templates/courses/index.html:40
+msgid "Change in Last Week"
+msgstr "చివరి వారం జరిగిన మార్పులు"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:77
+msgid "Net difference in current enrollment in the last week."
+msgstr "చివరి వారం లోని చేరికల మధ్యని భేదము."
+
+#. Translators: This is a label to identify enrollment of learners on the
+#. verified track.
+#. Translators: This is a label to identify the current number of verified
+#. learners in all of the instructor's courses.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:84
+#: analytics_dashboard/courses/templates/courses/index.html:47
+msgid "Verified Enrollment"
+msgstr "సరిచూడబడిన చేరికలు"
+
+#. Translators: This is a label indicating the number of learners enrolled in
+#. a course on the verified track.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:86
+msgid ""
+"Number of currently enrolled learners pursuing a verified certificate of "
+"achievement."
+msgstr "పాఠ్యం పూర్తైనట్టుగా సర్టిఫికేట్ పొందగోరు ప్రస్తుత విద్యార్థుల సంఖ్య."
+
+#. Translators: This is a label to identify enrollment of learners on the
+#. masters track.
+#. Translators: This is a label to identify the current number of masters
+#. learners in all of the instructor's courses.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:93
+#: analytics_dashboard/courses/templates/courses/index.html:53
+msgid "Master's Enrollment"
+msgstr "మాస్టర్స్ విద్యలో చేరికలు"
+
+#. Translators: This is a label indicating the number of learners enrolled in
+#. a course on the masters track.
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:95
+msgid "Number of currently enrolled learners pursuing a Master's degree."
+msgstr "మాస్టర్స్ విద్యని పొందగోరు ప్రస్తుత విద్యార్థుల సంఖ్య."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:109
+#: analytics_dashboard/courses/templates/courses/enrollment_activity.html:117
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:110
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:101
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_gender.html:66
+msgid "Enrollment Over Time"
+msgstr "కాలానుగుణంగా చేరికలు"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:26
+#: analytics_dashboard/courses/views/__init__.py:558
+msgid "How old are my learners?"
+msgstr "నా విద్యార్థుల వయసులు ఎంత?"
+
+#. Translators: Maintain the double percentage symbols (%%) but move them to
+#. the appropriate location (before/after the value placeholder) for your
+#. language.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:39
+#, python-format
+msgid ""
+"This age histogram presents data computed for the %(value)s%% of enrolled "
+"learners who provided a year of birth."
+msgstr "ఈ వయసుల పై హిస్టోగ్రాం లేక చిత్రం చేరిన విద్యార్థులలో పుట్టిన తేదీ సంవత్సరాన్ని ఇచ్చిన వారి %(value)s%% ల కి సంబంధించిన సమాచారాన్ని చూపిస్తుంది."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:56
+msgid "Age Metrics"
+msgstr "వయసుల పై లెక్కలు"
+
+#. Translators: This is a label to identify the median age of enrolled
+#. learners.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:65
+msgid "Median Learner Age"
+msgstr "విద్యార్థుల మధ్యస్తు వయసు"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:66
+msgid ""
+"The midpoint of the learner ages, computed from the provided year of birth."
+msgstr "విద్యార్థుల పుట్టిన సంవత్సరాల నించి లెక్కగట్టిన మధ్య వయసు."
+
+#. Translators: This is a label to identify the number of learners in the age
+#. range.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:72
+msgid "Learners 25 and Under"
+msgstr "25 సంవత్సరాలు లేక తక్కువ వయసుగల విద్యార్థులు"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:73
+msgid ""
+"The percentage of learners aged 25 years or younger (of those who provided a"
+" year of birth)."
+msgstr "(పుట్టిన సంవత్సరం ఇచ్చిన) విద్యార్థులలో 25 లెక తక్కువ వయసు గల వారి శాతం."
+
+#. Translators: This is a label to identify the number of learners in the age
+#. range.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:79
+msgid "Learners 26 to 40"
+msgstr "26 - 40 సంవత్సరాల వయసులు గల విద్యార్థులు"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:80
+msgid ""
+"The percentage of learners aged from 26 to 40 years (of those who provided a"
+" year of birth)."
+msgstr "(పుట్టిన సంవత్సరం ఇచ్చిన) విద్యార్థులలో 26 - 40 మధ్య వయసు గల వారి శాతం."
+
+#. Translators: This is a label to identify the number of learners in the age
+#. range.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:86
+msgid "Learners 41 and Over"
+msgstr "41 సంవత్సరాలు లేక ఆపై వయసుగల విద్యార్థులు"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:87
+msgid ""
+"The percentage of learners aged 41 years or older (of those who provided a "
+"year of birth)."
+msgstr "(పుట్టిన సంవత్సరం ఇచ్చిన) విద్యార్థులలో 41 లేక అపై వయసుగల వారి శాతం."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_age.html:101
+msgid "Age Breakdown"
+msgstr "వయసుల వారీ వివరములు"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:25
+#: analytics_dashboard/courses/views/__init__.py:569
+msgid "What level of education do my learners have?"
+msgstr "నా విద్యార్థుల విద్యా స్థాయి ఏది?"
+
+#. Translators: Maintain the double percentage symbols (%%) but move them to
+#. the appropriate location (before/after the value placeholder) for your
+#. language.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:38
+#, python-format
+msgid ""
+"This graph presents data for the %(value)s%% of enrolled learners who "
+"provided a highest level of education completed."
+msgstr "పూర్తిచేసిన ఉన్నత విద్య అత్యుత్తమ స్థాయిని సమర్పించిన విద్యార్థుల %(value)s%% సమాచారాన్ని ఈ చిత్రం చూపిస్తుంది."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:56
+msgid "Education Metrics"
+msgstr "విద్యా సంబంధిత లెక్కలు"
+
+#. Translators: This is a label to identify learner educational background.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:64
+msgid "High School Diploma or Less"
+msgstr "ఉన్నత పాఠశాల డిప్లొమా లేక అంతకన్నా తక్కువ"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:65
+msgid ""
+"The percentage of learners who selected Secondary/high school, Junior "
+"secondary/junior high/middle school, or Elementary/primary school as their "
+"highest level of education completed."
+msgstr "మాధ్యమిక / ఉన్నత పాఠశాల, తొలి ప్రాథమిక / ఉన్నత / మాధ్యమిక పాఠశాల, లేక బాల్య పాఠశాల లని తమ పూర్తిచేసిన అత్యున్నత విద్యగా సమర్పించిన విద్యార్థుల శాతములు."
+
+#. Translators: This is a label to identify learner educational background.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:71
+msgid "College Degree"
+msgstr "కళాశాల డిగ్రీ"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:72
+msgid ""
+"The percentage of learners who selected Bachelor's degree or Associate "
+"degree as their highest level of education completed."
+msgstr "బేచిలర్స్ లేక అసోసియేట్ దిగ్రీలని తమ పూర్తయిన అత్యున్నత విద్యగా సమర్పించిన విద్యార్థుల శాతములు."
+
+#. Translators: This is a label to identify learner educational background.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:78
+msgid "Advanced Degree"
+msgstr "ఉన్నత డిగ్రీ"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:79
+msgid ""
+"The percentage of learners who selected Doctorate or Master's or "
+"professional degree as their highest level of education completed."
+msgstr "డాక్టరేటు లేక మాస్టర్స్ లేక ప్రౌధ్యోగిక డిగ్రీ లని తమ పూర్తైన అత్యున్నతమైన విద్యగా చూపించిన విద్యార్థుల శాతం."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_education.html:91
+msgid "Educational Breakdown"
+msgstr "విద్యా చరిత్ర"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_gender.html:25
+#: analytics_dashboard/courses/views/__init__.py:579
+msgid "What is the learner gender breakdown?"
+msgstr "విద్యార్థుల లింగ నిష్పత్తులు ఏవి?"
+
+#. Translators: Maintain the double percentage symbols (%%) but move them to
+#. the appropriate location (before/after the value placeholder) for your
+#. language.
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_gender.html:38
+#, python-format
+msgid ""
+"This graph presents data for the %(value)s%% of enrolled learners who "
+"specified their gender."
+msgstr "చేరిన విద్యార్థులలో లింగం పేర్కొనిన వారి యొక్క %(value)s%% కి సంబంధించిన సమాచారాన్ని ఈ చిత్రం చూపిస్తుంది."
+
+#: analytics_dashboard/courses/templates/courses/enrollment_demographics_gender.html:56
+msgid "Gender Breakdown Over Time"
+msgstr "కాలానుగుణంగా లింగ నిష్పత్తి"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:21
+msgid "Geographic Distribution"
+msgstr "ప్రాంతాలవారీ విస్తరణ"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:22
+#: analytics_dashboard/courses/views/__init__.py:589
+msgid "Where are my learners?"
+msgstr "నా విద్యార్థులు ఎక్కడ ఉన్నారు?"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:27
+msgid "Enrollment by Country"
+msgstr "దేశాలవారీగా చేరికలు"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:45
+msgid "Geography Metrics"
+msgstr "ప్రాంతాలవారీ లెక్కలు"
+
+#. Translators: This string represents the number of countries where learners
+#. are enrolled.
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:53
+msgid "Total Countries or Regions Represented"
+msgstr "అన్ని ప్రతిబింబిత దేశాలూ మరియు ప్రాంతాలూ"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:54
+msgid "Countries or regions with at least one learner."
+msgstr "కనీసం ఒక విద్యార్థి గల దేశాలూ లేక ప్రాంతాలు"
+
+#. Translators: This string represents the country or region with the greatest
+#. number of enrolled learners.
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:62
+msgid "Top Country or Region by Enrollment"
+msgstr "అత్యధిక చేరికలు గల దేశం లేక ప్రాంతం"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:63
+msgid "Country or region with the largest number of learners."
+msgstr "అతి ఎక్కువ మంది విద్యార్థులు ఉన్న దేశం లేక ప్రాంతం."
+
+#. Translators: This string represents the country or region with the second-
+#. greatest number of enrolled learners.
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:66
+msgid "Second Country or Region by Enrollment"
+msgstr "అతి ఎక్కువ చేరికలు గల రెండో పెద్ద దేశం లేక ప్రాంతం"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:67
+msgid "Country or region with the second largest number of learners."
+msgstr "అతి ఎక్కువ మంది విద్యార్థులు గల రెండో పెద్ద దేశం లేక ప్రాంతం."
+
+#. Translators: This string represents the country or region with the third-
+#. greatest number of enrolled learners.
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:70
+msgid "Third Country or Region by Enrollment"
+msgstr "చేరికల దృష్ట్యా మూడో పెద్ద దేశం లేక ప్రాంతం"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:71
+msgid "Country or region with the third largest number of learners."
+msgstr "అతి ఎక్కువ మంది విద్యార్థులు గల మూడో అతిపెద్ద దేశం లేక ప్రాంతం."
+
+#. Translators: This string represents the percentage of learners in a course.
+#. Move the % symbol, if necessary, but keep the percent variable/placeholder.
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:77
+#, python-format
+msgid "%(percent)s%% of learners"
+msgstr "విద్యార్థుల %(percent)s%%"
+
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:91
+#: analytics_dashboard/courses/templates/courses/enrollment_geography.html:98
+msgid "Geographic Breakdown"
+msgstr "ప్రాంతాలవారీ వివరములు"
+
+#. Translators: Application here refers to the web site/application being used
+#. (e.g. the dashboard).
+#: analytics_dashboard/courses/templates/courses/home.html:11
+#: analytics_dashboard/templates/base_dashboard.html:28
+#: analytics_dashboard/templates/footer.html:5
+#: analytics_dashboard/templates/lens-navigation.html:9
+msgid "Application"
+msgstr "ధరకాస్తు"
+
+#. Translators: This refers to the homepage of a course.
+#: analytics_dashboard/courses/templates/courses/home.html:15
+#: analytics_dashboard/courses/views/__init__.py:539
+#: analytics_dashboard/templates/lens-navigation.html:20
+msgid "Course Home"
+msgstr "పాఠ్యాంశం మొదలు"
+
+#. Translators: This refers to the active tab/navigation item.
+#: analytics_dashboard/courses/templates/courses/home.html:16
+#: analytics_dashboard/templates/lens-navigation.html:31
+#: analytics_dashboard/templates/submenu_navigation.html:14
+msgid "Active"
+msgstr "పనిచేయునవి"
+
+#. Translators: This indicates that the adjacent link will trigger a CSV
+#. download. '{{download_icon}}' will be replaced with an icon.
+#: analytics_dashboard/courses/templates/courses/home.html:73
+#, python-format
+msgid ""
+"\n"
+"                    (%(download_icon)s CSV Download)\n"
+"                  "
+msgstr "\n(%(download_icon)sసీ ఎస్ వీ డౌన్లోడ్)"
+
+#: analytics_dashboard/courses/templates/courses/home.html:93
+msgid "Basic Course Information"
+msgstr "ప్రాథమిక పాఠ్య సమాచారం"
+
+#. Translators: This title describes a list of links to outside tools for this
+#. course.
+#: analytics_dashboard/courses/templates/courses/home.html:106
+msgid "External Tools"
+msgstr "బాహ్య పనిముట్లు"
+
+#: analytics_dashboard/courses/templates/courses/index.html:10
+#: analytics_dashboard/courses/views/course_summaries.py:31
+msgid "Courses"
+msgstr "కోర్సులు"
+
+#: analytics_dashboard/courses/templates/courses/index.html:17
+msgid "Across all your courses:"
+msgstr "మీ అన్ని పాఠ్యముల లోనూ"
+
+#: analytics_dashboard/courses/templates/courses/index.html:27
+msgid "Total enrollments across all of your courses."
+msgstr "మీ అన్ని పాఠ్యముల లో చేరికలు."
+
+#: analytics_dashboard/courses/templates/courses/index.html:34
+msgid "Current enrollments across all of your courses."
+msgstr "మీ అన్ని పాఠ్యముల లో ప్రస్తుతపు చేరికలు."
+
+#: analytics_dashboard/courses/templates/courses/index.html:41
+msgid "Total change in enrollment last week across all of your courses."
+msgstr "పోయిన వారం మీ అన్ని పాఠ్యములలో చేరికలలో మార్పు"
+
+#: analytics_dashboard/courses/templates/courses/index.html:48
+msgid "Verified enrollments across all of your courses."
+msgstr "మీ అన్ని పాఠ్యములలో సరిచూడబడిన చేరికలు."
+
+#: analytics_dashboard/courses/templates/courses/index.html:54
+msgid "Master's enrollments across all of your courses."
+msgstr "మీ అన్ని పాఠ్యములలో మాస్టర్స్ కోసం చేరికలు."
+
+#: analytics_dashboard/courses/templates/courses/performance_answer_distribution.html:7
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_answer_distribution.html:5
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_answer_distribution.html:7
+msgid "How did learners answer this problem?"
+msgstr "ఈ సమస్యని విద్యార్థులు ఎలా పరిష్కరించారు?"
+
+#: analytics_dashboard/courses/templates/courses/performance_assignment.html:10
+msgid "How are learners doing on this assignment?"
+msgstr "ఈ సమస్యా పట్టికని విద్యార్థులు ఎలా పరిష్కరించారు?"
+
+#: analytics_dashboard/courses/templates/courses/performance_assignment.html:15
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_by_subsection.html:15
+msgid ""
+"These bars show the correct and incorrect submission counts for each "
+"problem. Only the last submission from each learner is counted."
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_assignment.html:19
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_section.html:20
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_by_subsection.html:19
+msgid "Problem Submissions"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_graded_content.html:9
+msgid "Which assignment type do you want to investigate?"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_graded_content.html:13
+msgid ""
+"Click an assignment type to view more detail information about the "
+"assignments."
+msgstr ""
+
+#. Translators: This describes the percent an assignment contributes to that
+#. of a learner's grade (e.g. Exam: 60% of the grading policy.).
+#: analytics_dashboard/courses/templates/courses/performance_graded_content.html:22
+#, python-format
+msgid ""
+"\n"
+"                %(assignment_type)s: %(policy_ratio)s%% of the grading policy\n"
+"              "
+msgstr ""
+
+#. Translators: This describes the percent of a learner's grade (e.g. 60%).
+#: analytics_dashboard/courses/templates/courses/performance_graded_content.html:34
+#, python-format
+msgid "%(policy_ratio)s%%"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_graded_content_by_type.html:7
+#, python-format
+msgid ""
+"\n"
+"      How are learners doing on the %(type)s?\n"
+"    "
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_graded_content_by_type.html:15
+msgid ""
+"Each bar shows the average number of correct and incorrect submissions for "
+"problems in the assignment. Only the last submission from each learner is "
+"counted."
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_graded_content_by_type.html:19
+msgid "Assignment Submissions"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_content.html:6
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_section.html:6
+msgid "Measured by learning outcome, how are learners performing?"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_content.html:16
+msgid ""
+"Each bar shows the average number of correct and incorrect submissions for "
+"each outcome."
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_content.html:20
+msgid "Outcome Submissions"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_learning_outcomes_section.html:16
+msgid ""
+"Each bar shows the correct and incorrect number of submissions for each "
+"problem for the current outcome."
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_by_section.html:5
+msgid "How are learners doing on this section?"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_by_section.html:10
+msgid ""
+"Each bar shows the average number of correct and incorrect submissions for "
+"each subsection. Only the last submission from each learner is counted."
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_by_section.html:14
+msgid "Subsection Submissions"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_by_subsection.html:10
+msgid "How are learners doing on this subsection?"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_content.html:7
+#: analytics_dashboard/courses/views/__init__.py:650
+msgid "How are learners doing on ungraded exercises?"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_content.html:12
+msgid ""
+"Each bar shows the average number of correct and incorrect submissions for "
+"each section. Only the last submission from each learner is counted."
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/performance_ungraded_content.html:16
+msgid "Section Submissions"
+msgstr ""
+
+#. Translators: This message is displayed when the website is unable to get
+#. the credentials for the user
+#: analytics_dashboard/courses/templates/courses/permissions-retrieval-failed.html:5
+#: analytics_dashboard/courses/templates/courses/permissions-retrieval-failed.html:7
+msgid "Permissions Retrieval Failed"
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/permissions-retrieval-failed.html:9
+msgid ""
+"There was a problem retrieving course permissions for your account. Please "
+"try again. If you continue to experience issues, please let us know."
+msgstr ""
+
+#: analytics_dashboard/courses/templates/courses/permissions-retrieval-failed.html:14
+msgid "Try Again"
+msgstr "మళ్ళీ ప్రయత్నించండి"
+
+#: analytics_dashboard/courses/tests/test_views/__init__.py:271
+#: analytics_dashboard/courses/views/__init__.py:548
+#: analytics_dashboard/courses/views/enrollment.py:42
+msgid "Activity"
+msgstr ""
+
+#: analytics_dashboard/courses/tests/test_views/__init__.py:281
+#: analytics_dashboard/courses/tests/test_views/__init__.py:304
+#: analytics_dashboard/courses/views/__init__.py:560
+#: analytics_dashboard/courses/views/__init__.py:571
+#: analytics_dashboard/courses/views/__init__.py:581
+#: analytics_dashboard/courses/views/enrollment.py:23
+#: analytics_dashboard/courses/views/enrollment.py:31
+msgid "Demographics"
+msgstr ""
+
+#: analytics_dashboard/courses/tests/test_views/__init__.py:291
+#: analytics_dashboard/courses/views/__init__.py:591
+#: analytics_dashboard/courses/views/enrollment.py:52
+msgid "Geography"
+msgstr ""
+
+#: analytics_dashboard/courses/tests/test_views/__init__.py:341
+#: analytics_dashboard/courses/views/__init__.py:560
+#: analytics_dashboard/courses/views/enrollment.py:77
+msgid "Age"
+msgstr "వయస్సు"
+
+#: analytics_dashboard/courses/tests/test_views/__init__.py:351
+#: analytics_dashboard/courses/views/__init__.py:571
+#: analytics_dashboard/courses/views/enrollment.py:88
+msgid "Education"
+msgstr ""
+
+#: analytics_dashboard/courses/tests/test_views/__init__.py:361
+#: analytics_dashboard/courses/views/__init__.py:581
+#: analytics_dashboard/courses/views/enrollment.py:97
+msgid "Gender"
+msgstr "లింగము"
+
+#. Translators: Content as in course content (e.g. things, not the feeling)
+#: analytics_dashboard/courses/tests/test_views/test_engagement.py:58
+#: analytics_dashboard/courses/views/__init__.py:616
+#: analytics_dashboard/courses/views/engagement.py:33
+msgid "Content"
+msgstr ""
+
+#: analytics_dashboard/courses/tests/test_views/test_engagement.py:69
+#: analytics_dashboard/courses/views/__init__.py:629
+#: analytics_dashboard/courses/views/engagement.py:42
+msgid "Videos"
+msgstr ""
+
+#: analytics_dashboard/courses/tests/test_views/test_performance.py:68
+#: analytics_dashboard/courses/views/__init__.py:643
+#: analytics_dashboard/courses/views/performance.py:43
+#: analytics_dashboard/courses/views/performance.py:106
+msgid "Graded Content"
+msgstr ""
+
+#: analytics_dashboard/courses/tests/test_views/test_performance.py:79
+#: analytics_dashboard/courses/views/__init__.py:652
+#: analytics_dashboard/courses/views/performance.py:52
+#: analytics_dashboard/courses/views/performance.py:91
+msgid "Ungraded Problems"
+msgstr ""
+
+#: analytics_dashboard/courses/tests/test_views/test_performance.py:542
+#: analytics_dashboard/courses/views/__init__.py:664
+#: analytics_dashboard/courses/views/performance.py:70
+msgid "Learning Outcomes"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:611
+msgid "What are learners doing in my course?"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:641
+msgid "How are learners doing on graded course assignments?"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:662
+msgid "What is the breakdown for course learning outcomes?"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:682
+msgid "How are learners responding to questions?"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:684
+msgid "Problem Response Report"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:691
+msgid "How are learners doing on course assignments?"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:699
+msgid "What are individual learners doing?"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:702
+msgid "Who is engaged? Who isn't?"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:704
+msgid "All Learners"
+msgstr ""
+
+#. Translators: 'Course ID' is 'Course Identifier', the unique code that
+#. identifies the course
+#: analytics_dashboard/courses/views/__init__.py:768
+msgid "Course ID"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:770
+msgid "Course Name"
+msgstr ""
+
+#. Translators: 'In Progress' and 'Ended' refer to whether learners are
+#. actively using the course or it is over.
+#: analytics_dashboard/courses/views/__init__.py:787
+msgid "In Progress"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:787
+msgid "Ended"
+msgstr ""
+
+#. Translators: This refers to a course that has not yet begun.
+#: analytics_dashboard/courses/views/__init__.py:790
+msgid "Not Started Yet"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:792
+msgid "Start Date"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:793
+msgid "End Date"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:794
+msgid "Status"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:803
+msgid "Instructor Dashboard"
+msgstr ""
+
+#: analytics_dashboard/courses/views/__init__.py:808
+msgid "Courseware"
+msgstr ""
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/course_summaries.py:40
+#, python-format
+msgid ""
+"Course summary data was last updated %(update_date)s at %(update_time)s UTC."
+msgstr ""
+
+#: analytics_dashboard/courses/views/engagement.py:58
+msgid "Engagement Content"
+msgstr ""
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/engagement.py:68
+#, python-format
+msgid ""
+"Course engagement data was last updated %(update_date)s at %(update_time)s "
+"UTC."
+msgstr ""
+
+#: analytics_dashboard/courses/views/engagement.py:95
+msgid "Engagement Videos"
+msgstr ""
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/engagement.py:100
+#, python-format
+msgid "Video data was last updated %(update_date)s at %(update_time)s UTC."
+msgstr ""
+
+#: analytics_dashboard/courses/views/engagement.py:101
+msgid "Looks like no one has watched any videos in these sections."
+msgstr ""
+
+#: analytics_dashboard/courses/views/engagement.py:127
+#: analytics_dashboard/courses/views/performance.py:308
+msgid "Section Name"
+msgstr ""
+
+#: analytics_dashboard/courses/views/engagement.py:147
+#: analytics_dashboard/courses/views/performance.py:330
+msgid "Subsection Name"
+msgstr ""
+
+#: analytics_dashboard/courses/views/engagement.py:168
+msgid "Video Name"
+msgstr ""
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/enrollment.py:118
+#, python-format
+msgid ""
+"Demographic learner data was last updated %(update_date)s at %(update_time)s"
+" UTC."
+msgstr ""
+
+#. Translators: This sentence is displayed at the bottom of the page and
+#. describe the demographics data displayed.
+#: analytics_dashboard/courses/views/enrollment.py:122
+msgid ""
+"All above demographic data was self-reported at the time of registration."
+msgstr ""
+
+#: analytics_dashboard/courses/views/enrollment.py:135
+msgid "Enrollment Activity"
+msgstr ""
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/enrollment.py:145
+#, python-format
+msgid ""
+"Enrollment activity data was last updated %(update_date)s at %(update_time)s"
+" UTC."
+msgstr ""
+
+#: analytics_dashboard/courses/views/enrollment.py:176
+msgid "Enrollment Demographics by Age"
+msgstr ""
+
+#: analytics_dashboard/courses/views/enrollment.py:214
+msgid "Enrollment Demographics by Education"
+msgstr ""
+
+#: analytics_dashboard/courses/views/enrollment.py:252
+msgid "Enrollment Demographics by Gender"
+msgstr ""
+
+#: analytics_dashboard/courses/views/enrollment.py:290
+msgid "Enrollment Geography"
+msgstr ""
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/enrollment.py:300
+#, python-format
+msgid ""
+"Geographic learner data was last updated %(update_date)s at %(update_time)s "
+"UTC."
+msgstr ""
+
+#. Translators: Do not translate UTC.
+#: analytics_dashboard/courses/views/performance.py:38
+#, python-format
+msgid ""
+"Problem submission data was last updated %(update_date)s at %(update_time)s "
+"UTC."
+msgstr ""
+
+#: analytics_dashboard/courses/views/performance.py:84
+msgid "Assignment Name"
+msgstr ""
+
+#: analytics_dashboard/courses/views/performance.py:95
+#: analytics_dashboard/courses/views/performance.py:378
+msgid "No submissions received for these exercises."
+msgstr ""
+
+#: analytics_dashboard/courses/views/performance.py:111
+msgid "No submissions received for these assignments."
+msgstr ""
+
+#: analytics_dashboard/courses/views/performance.py:203
+#: analytics_dashboard/courses/views/performance.py:370
+#: analytics_dashboard/courses/views/performance.py:468
+msgid "Performance: Problem Submissions"
+msgstr ""
+
+#: analytics_dashboard/courses/views/performance.py:265
+#, python-format
+msgid "Graded Content: %(assignment_type)s"
+msgstr ""
+
+#: analytics_dashboard/courses/views/performance.py:284
+#: analytics_dashboard/courses/views/performance.py:352
+msgid "Problem Name"
+msgstr ""
+
+#: analytics_dashboard/courses/views/performance.py:377
+#, python-format
+msgid ""
+"Tags distribution data was last updated %(update_date)s at %(update_time)s "
+"UTC."
+msgstr ""
+
+#: analytics_dashboard/courses/views/performance.py:406
+#: analytics_dashboard/courses/views/performance.py:436
+msgid "Performance: Learning Outcomes"
+msgstr ""
+
+#: analytics_dashboard/settings/base.py:436
+msgid "Terms of Service"
+msgstr ""
+
+#: analytics_dashboard/settings/base.py:437
+msgid "Privacy Policy"
+msgstr ""
+
+#: analytics_dashboard/templates/403.html:5
+#: analytics_dashboard/templates/403.html:8
+msgid "Access Denied"
+msgstr ""
+
+#: analytics_dashboard/templates/403.html:10
+msgid ""
+"You do not have permission to view this page. If you believe you should have"
+" access to this page, try logging out and logging in again to refresh your "
+"permissions."
+msgstr ""
+
+#: analytics_dashboard/templates/403.html:17
+msgid "Logout then Login"
+msgstr ""
+
+#: analytics_dashboard/templates/404.html:5
+#: analytics_dashboard/templates/404.html:8
+msgid "Page Not Found"
+msgstr ""
+
+#: analytics_dashboard/templates/404.html:10
+msgid ""
+"We can't find the page you're looking for. Please make sure the URL is "
+"correct and if not try again."
+msgstr ""
+
+#: analytics_dashboard/templates/500.html:5
+#: analytics_dashboard/templates/500.html:8
+msgid "An Error Occurred"
+msgstr ""
+
+#: analytics_dashboard/templates/500.html:10
+msgid ""
+"Our servers weren't able to complete your request. Please try again by "
+"refreshing this page or retracing your steps."
+msgstr ""
+
+#: analytics_dashboard/templates/503.html:5
+#: analytics_dashboard/templates/503.html:7
+msgid "We're having trouble loading this page. Please try again in a minute."
+msgstr ""
+
+#: analytics_dashboard/templates/503.html:10
+msgid "(Technical details: 503 Service Unavailable.)"
+msgstr ""
+
+#: analytics_dashboard/templates/_announcement.html:28
+msgid "Close"
+msgstr ""
+
+#: analytics_dashboard/templates/base-error.html:42
+msgid "Use our support tool to ask questions or share feedback."
+msgstr ""
+
+#. Translators: This intention here is that a user clicks a button to contact
+#. a support group (e.g. edX Support, or MITx Support). Reorder the
+#. placeholder as you see fit.
+#: analytics_dashboard/templates/base-error.html:47
+#, python-format
+msgid "Contact %(platform_name)s Support"
+msgstr ""
+
+#: analytics_dashboard/templates/footer.html:16
+#, python-format
+msgid ""
+"We want this dashboard to work for you! Need help? "
+"%(support_link_start)sContact course team support%(support_link_end)s."
+msgstr ""
+
+#. Translators: The © symbol appears directly before this line.
+#: analytics_dashboard/templates/footer.html:39
+#, python-format
+msgid ""
+" %(current_year)s %(platform_name)s, except where noted, all rights\n"
+"            reserved. "
+msgstr ""
+
+#: analytics_dashboard/templates/header.html:13
+msgid "Toggle navigation"
+msgstr ""
+
+#: analytics_dashboard/templates/header.html:40
+msgid "Help"
+msgstr ""
+
+#: analytics_dashboard/templates/header.html:46
+msgid "Menu for"
+msgstr ""
+
+#: analytics_dashboard/templates/header.html:60
+msgid "Logout"
+msgstr ""
+
+#: analytics_dashboard/templates/lens-navigation.html:27
+msgid "Navigation Menu."
+msgstr ""
+
+#: analytics_dashboard/templates/loading.html:7
+msgid "Loading"
+msgstr ""
+
+#: analytics_dashboard/templates/section_error.html:10
+msgid "We are unable to load this chart."
+msgstr ""
+
+#: analytics_dashboard/templates/section_error.html:12
+msgid "We are unable to load this table."
+msgstr ""
+
+#: analytics_dashboard/templates/section_error.html:14
+msgid "We are unable to load these metrics."
+msgstr ""

@@ -1,0 +1,6 @@
+# Packages required for all environments other than standalone local
+-c constraints.txt
+
+mysqlclient
+python-memcached
+pymemcache

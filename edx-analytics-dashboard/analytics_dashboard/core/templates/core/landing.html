@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+
+{% load i18n %}
+{% load static %}
+{% load dashboard_extras %}
+
+
+{% block title %}{% settings_value 'FULL_APPLICATION_NAME' %}{% endblock title %}
+
+
+{% block body %}
+    <body class="landing">
+        <div id="wrap-content-push-footer">
+            <a id="skip" href="#content" class="skip-link">{% trans 'Skip to content' %}</a>
+            {% include "_skip_link.html" with content_id="content" %}
+            <header class="navbar navbar-default" id="nav">
+                <div class="grid-container grid-manual">
+                    <div class="navbar-header">
+                        {% include 'brand.html' with class_prefix='navbar' %}
+                    </div>
+                    <div class="login-button-container">
+                        <a href="{% url 'login' %}"><button type="button" class="btn btn-default pull-right">{% trans "Login" %}</button></a>
+                    </div>
+                </div>
+                <!-- / container -->
+
+                <div class="row masthead">
+                    <div class="cover-container">
+                        <img class="cover" src="{% static 'images/landing-map.png' %}"/>
+                    </div>
+                    <div class="col col-12 masthead-heading masthead-brand">
+                        <p>{% trans "Insights to help course teams improve courses." %}</p>
+                    </div>
+                </div>
+
+            </header>
+
+            <main class="grid-container grid-manual landing" id="content" tabindex="-1" aria-label="{% trans Content %}">
+
+                <div class="row intro-block">
+                    {% trans "Who are my learners?" as heading %}
+                    {% trans "Target your course to fit the backgrounds of your learners." as description %}
+                    {% trans "Enrollment" as lens_name %}
+                    {% include "landing_lens.html" with heading=heading lens_icon="fa-child" lens_name=lens_name description=description%}
+
+                    {% trans "What are learners engaging with in my course?" as heading %}
+                    {% trans "Improve frequently accessed content, or point learners at underused resources." as description %}
+                    {% trans "Engagement" as lens_name %}
+                    {% include "landing_lens.html" with heading=heading lens_icon="fa-bar-chart" lens_name=lens_name description=description%}
+
+                    {% trans "How well is my content supporting learners?" as heading %}
+                    {% trans "Adjust your course based on where learners are struggling." as description %}
+                    {% trans "Performance" as lens_name %}
+                    {% include "landing_lens.html" with heading=heading lens_icon="fa-check-square-o" lens_name=lens_name description=description%}
+                </div>
+
+                <hr/>
+
+                <div class="row audience-message">
+                    {% captureas link_end %}</a>{% endcaptureas %}
+
+                    {% trans "Join the Open Source Community" as heading %}
+                    {% captureas link_start %}
+                        <a href="{{open_source_url}}" target="_blank">
+                    {% endcaptureas %}
+                    {% captureas description %}
+                        {% blocktrans trimmed %}
+                            The edX analytics data pipeline and edX Insights are open source. {{link_start}}Learn more{{link_end}}.
+                        {% endblocktrans %}
+                    {% endcaptureas %}
+                    {% include "audience_message.html" with heading=heading description=description num_columns=audience_message_column_width %}
+
+                    {% if show_research %}
+                        {% trans "Research at edX" as heading %}
+                        {% captureas link_start %}
+                            <a href="{{research_url}}" target="_blank">
+                        {% endcaptureas %}
+                        {% captureas description %}
+                            {% blocktrans trimmed %}
+                                We are committed to advancing teaching and learning through research. {{link_start}}Learn more{{link_end}}.
+                            {% endblocktrans %}
+                        {% endcaptureas %}
+                        {% include "audience_message.html" with heading=heading description=description num_columns=audience_message_column_width %}
+                    {% endif %}
+
+                    {% trans "Need Help?" as heading %}
+                    {% captureas link_start %}
+                        <a href="mailto:{{support_email}}">
+                    {% endcaptureas %}
+                    {% captureas description %}
+                        {% blocktrans trimmed %}
+                            {{link_start}}Our support center{{link_end}} can help you find solutions.
+                        {% endblocktrans %}
+                    {% endcaptureas %}
+                    {% include "audience_message.html" with heading=heading description=description num_columns=audience_message_column_width %}
+                </div>
+            </div>
+
+            <div id="footer-push"></div>
+        </div>
+        {% block footer %}
+            <div id="footer">
+                {% include "footer.html" with show_feedback=False %}
+            </div>
+        {% endblock footer %}
+    </body>
+{% endblock body %}

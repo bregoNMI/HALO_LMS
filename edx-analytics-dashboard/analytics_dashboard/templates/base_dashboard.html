@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+
+{% load i18n %}
+{% load static %}
+{% load dashboard_extras %}
+
+
+{% block body %}
+  <body class="{% block view-name %}{% endblock view-name %}">
+  <div id="wrap-content-push-footer-sock">
+    {% block header %}
+      {% include "header.html" %}
+    {% endblock header %}
+
+    {% block announcements %}
+      {% include "announcements.html" %}
+    {% endblock %}
+
+    {% block lens_navigation %}
+      {% include "lens-navigation.html" %}
+    {% endblock lens_navigation %}
+
+    <div class="grid-container grid-manual">
+      <div class="row">
+        {% block content-outer %}
+          {#  Translators: Application here refers to the web site/application being used (e.g. the dashboard). #}
+          <main class="col col-12 sm-col-12 main" id="content" aria-label="{% trans "Application" %}">
+            <div class="view-head">
+              {% block header-text %}
+                {% if page_title %}
+                  <div class="row page-title-outer">
+                    <div class="col col-12 sm-col-12 md-col-6">
+                      <h1>{{ page_title }}</h1>
+                    </div>
+                    <div class="col col-12 sm-col-12 md-col-6">
+                      <div class="page-subtitle">{{ page_subtitle|default_if_none:'' }}</div>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endblock %}
+            </div>
+
+            {% block summary-cards %}
+            {% endblock %}
+
+            {% block content %}
+            {% endblock content %}
+          </main>
+        {% endblock %}
+      </div>
+    </div>
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    {% comment %}
+    Make sure to add your JS files here.  You'll probably want to use block.super to add to the comment includes rather
+    than override them.
+    {% endcomment %}
+
+    {# Translation support for JavaScript strings. #}
+    <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
+    <script type="text/javascript">
+      window.language = "{{ LANGUAGE_CODE|languade_code_to_cldr }}";
+    </script>
+
+    {# Initial page data passed from view to JS initializer #}
+    {% if page_data %}
+      <script type="text/javascript">
+        var initModelData = {{ page_data|safe }};
+      </script>
+    {% endif %}
+
+    <div id="footer-sock-push"></div>
+  </div>
+  {% block footer %}
+    <div id="footer-sock">
+      {% include "footer.html" with show_feedback=True %}
+    </div>
+  {% endblock footer %}
+  </body>
+{% endblock body %}

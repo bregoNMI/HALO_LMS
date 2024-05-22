@@ -1,0 +1,12 @@
+-c base.txt
+-c constraints.txt
+
+# Packages required to run e2e tests
+edx-rest-api-client
+pyjwkest
+pytest
+pytest-randomly
+pytest-selenium
+pytest-timeout
+python-dotenv
+selenium

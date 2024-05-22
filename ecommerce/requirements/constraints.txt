@@ -1,0 +1,57 @@
+# Version constraints for pip-installation.
+#
+# This file doesn't install any packages. It specifies version constraints
+# that will be applied if a package is needed.
+#
+# When pinning something here, please provide an explanation of why.  Ideally,
+# link to other information that will help people in the future to remove the
+# pin when possible.  Writing an issue against the offending project and
+# linking to it here is good.
+
+# This file contains all common constraints for edx-repos
+-c common_constraints.txt
+
+# Tests failing in test_cybersouce.py on version 0.0.23
+cybersource-rest-client-python==0.0.21
+
+# Django 3.2 support is added in version 2.2 so pinning it to 2.2
+django-oscar==3.2
+
+# Pinned because transifex-client==0.13.6 pins it
+urllib3>=1.24.2,<2.0.0
+
+# Was causing some tox issues locally.
+virtualenv==16.7.9
+
+# greater versions failing with extract-translations step.
+tox==3.14.6
+pluggy<1.0.0  # pluggy==1.0.0 requires tox>3.14.6
+
+# cybersource-rest-client-python requires 2.7, but requests gives 2.10 by default
+idna==2.7
+
+# TODO : Pinning this until we are sure there aren't any breaking changes, then we'll upgrade.
+celery<6.0.0
+
+# social-auth-app-django 5.3.0 currently introduces a hanging migration for large table sizes
+# Pinning for now to reduce entropy
+social-auth-app-django==5.2.0
+
+# - pytest-selenium v3 has inconsistent pytest dependency requirements
+#   (see pytest-selenium/issues/294)
+# - pytest-variables v3 uses pytest.stash instead of _variables. This
+#   conflicts with how pytest-selenium uses variables prior to v3.
+selenium<4.0.0
+pytest-selenium<3.0.0
+pytest-variables<3.0.0
+
+# pylint>2.12.2 requires a lot of quality fixes. Can be resolved later on.
+pylint==2.12.2
+# pylint==2.12.2 requires mccabe<0.7.0
+mccabe<0.7
+# pylint==2.12.2 requires wrapt<1.14
+wrapt<1.14
+
+# backports-zoneinfo comes by-default in newer versions of python
+# it gives error while building wheel with python>=3.9
+backports.zoneinfo ; python_version < "3.9"

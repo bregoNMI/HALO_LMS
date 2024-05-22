@@ -1,0 +1,19 @@
+$brand-logo-path: '/static/images/openedx-logo-v2.png' !default;
+$brand-logo-width: 265px !default;
+$brand-logo-height: 77px !default;
+
+@import "../mixins";
+
+.masthead-brand-logo {
+  @include brand-logo($brand-logo-path, $brand-logo-width, $brand-logo-height, 60px);
+}
+
+.navbar-brand {
+  .navbar-brand-logo {
+    @include brand-logo($brand-logo-path, $brand-logo-width, $brand-logo-height, 32px);
+  }
+
+  .navbar-brand-app {
+    padding-top: 8px;
+  }
+}

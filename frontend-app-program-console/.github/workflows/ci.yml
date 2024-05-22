@@ -1,0 +1,34 @@
+name: node_js CI
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - '**'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Nodejs Env
+      run: echo "NODE_VER=`cat .nvmrc`" >> $GITHUB_ENV
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VER }}
+    - run: npm ci
+    - run: make validate-no-uncommitted-package-lock-changes
+    - run: npm run lint
+    - run: npm run test
+    - run: npm run build
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload Coverage
+      uses: codecov/codecov-action@v3
+      with:
+        fail_ci_if_error: true

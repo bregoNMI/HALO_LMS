@@ -1,0 +1,45 @@
+{% load i18n %}
+{% load dashboard_extras %}
+
+{#  Translators: Application here refers to the web site/application being used (e.g. the dashboard). #}
+<footer class="footer" aria-label="{% trans "Application" %}">
+  {% if show_feedback %}
+  <div class="feedback">
+    <div class="grid-container grid-manual">
+      <div class="row">
+        <div class="col col-12">
+
+          {% captureas support_link_start %}
+            <a class="support-email" href="mailto:{% settings_value 'SUPPORT_EMAIL' %}">{% endcaptureas %}
+          {% captureas support_link_end %}</a>{% endcaptureas %}
+
+          {% blocktrans trimmed %}We want this dashboard to work for you! Need help? {{ support_link_start }}Contact course team support{{ support_link_end }}.{% endblocktrans %}
+
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  <div class="legal">
+    <div class="grid-container grid-manual">
+      <div class="row">
+        <div class="col col-12 sm-col-12 md-col-6">
+          {% if footer_links %}
+            {% for link in footer_links %}
+            <a href="{{ link.url }}" target="_blank" {% if link.data_role %}data-role="{{ link.data_role }}"{% endif %}>
+              {% trans link.text %}
+            </a>
+            &nbsp;
+            {% endfor %}
+          {% endif %}
+        </div>
+        <div class="col col-12 sm-col-12 md-col-6 text-right">
+          {% captureas current_year %}{% now "Y" %}{% endcaptureas %}
+          {# Translators: The © symbol appears directly before this line. #}
+          <p class="copyright">© {% blocktrans %} {{ current_year }} {{ platform_name }}, except where noted, all rights
+            reserved. {% endblocktrans %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

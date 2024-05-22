@@ -1,0 +1,1598 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ConsolePage renders a warning banner if there is not an authorized user 1`] = `
+<div>
+  <div
+    class="container half-width-element py-5 align-items-start"
+  >
+    <h1>
+      Program Console
+    </h1>
+    <div
+      class="fade alert-content alert alert-warning show"
+      data-testid="alert-warning"
+      role="alert"
+    >
+      <div
+        class="pgn__alert-message-wrapper"
+      >
+        <div
+          class="alert-message-content"
+        >
+          <p>
+            It appears you do not have proper permissions to access this application. Please reach out to 
+            <a
+              href="mailto:partner-support@edx.org"
+            >
+              partner-support@edx.org
+            </a>
+             requesting access to the Registrar service.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ConsolePage renders an error banner when there was an error loading programs 1`] = `
+<div>
+  <div
+    class="container half-width-element py-5 align-items-start"
+  >
+    <h1>
+      Program Console
+    </h1>
+    <div
+      class="fade alert-content alert alert-danger show"
+      data-testid="alert-danger"
+      role="alert"
+    >
+      <div
+        class="pgn__alert-message-wrapper"
+      >
+        <div
+          class="alert-message-content"
+        >
+          <div>
+            <p>
+              An error was encountered while loading your program list: 
+              <em>
+                Request failed with HTTP 418
+              </em>
+            </p>
+            <p>
+              Please try waiting a moment and then refreshing the page. If the issue persists, please reach out to 
+              <a
+                href="mailto:partner-support@edx.org"
+              >
+                partner-support@edx.org
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ConsolePage renders error when filter returns no programs 1`] = `
+<div>
+  <div
+    class="container half-width-element py-5 align-items-start"
+  >
+    <h1>
+      Program Console
+    </h1>
+    <div>
+      <div
+        class="pgn__searchfield d-flex mt-3"
+      >
+        <form
+          class="d-flex align-items-center w-100"
+          role="search"
+        >
+          <label
+            class="m-0"
+            for="pgn-searchfield-input-4"
+          >
+            <span
+              class="sr-only"
+            >
+              search
+            </span>
+          </label>
+          <input
+            class="form-control"
+            id="pgn-searchfield-input-4"
+            name="searchfield-input"
+            placeholder="Filter by Program Title"
+            role="searchbox"
+            type="text"
+            value=""
+          />
+          <button
+            class="btn"
+            type="submit"
+          >
+            <span
+              class="pgn__icon"
+            >
+              <svg
+                aria-hidden="true"
+                fill="none"
+                focusable="false"
+                height="24"
+                role="img"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span
+              class="sr-only"
+            >
+              submit search
+            </span>
+          </button>
+        </form>
+      </div>
+      <div
+        class="fade alert-content mt-2 alert alert-danger show"
+        data-testid="error-alert"
+        role="alert"
+      >
+        <div
+          class="pgn__alert-message-wrapper"
+        >
+          <div
+            class="alert-message-content"
+          >
+            <p>
+              Invalid program title.
+            </p>
+          </div>
+          <div
+            class="pgn__alert-actions pgn__action-row"
+          >
+            <span
+              class="pgn__action-row-spacer"
+            />
+            <button
+              class="btn btn-tertiary btn-sm"
+              type="button"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      </div>
+      <nav
+        aria-label="pagination navigation"
+        class="mt-4 pagination-default"
+      >
+        <div
+          aria-atomic="true"
+          aria-live="polite"
+          aria-relevant="text"
+          class="sr-only"
+        >
+          Page 1, Current Page, of 1
+        </div>
+        <ul
+          class="pagination"
+        >
+          <li
+            class="page-item disabled"
+          >
+            <button
+              aria-label="Previous"
+              class="previous page-link btn btn-primary"
+              disabled=""
+              tabindex="-1"
+              type="button"
+            >
+              <div>
+                <span
+                  class="pgn__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="24"
+                    role="img"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                Previous
+              </div>
+            </button>
+          </li>
+          <li
+            class="page-item disabled"
+          >
+            <button
+              aria-label="Next"
+              class="next page-link btn btn-primary"
+              disabled=""
+              tabindex="-1"
+              type="button"
+            >
+              <div>
+                Next
+                <span
+                  class="pgn__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="24"
+                    role="img"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+              </div>
+            </button>
+          </li>
+        </ul>
+      </nav>
+      <div
+        class="container mb-4"
+      >
+        <h2>
+          a masters
+        </h2>
+        <div
+          class="pgn_collapsible collapsible-card is-open"
+          data-testid="collapsible"
+        >
+          <div
+            aria-expanded="true"
+            class="collapsible-trigger"
+            role="button"
+            tabindex="0"
+          >
+            <span>
+              Manage Enrollments
+            </span>
+            <span
+              class="collapsible-icon"
+            >
+              <span
+                class="pgn__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  focusable="false"
+                  height="24"
+                  role="img"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14l-6-6Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+            </span>
+          </div>
+          <div
+            class="pgn-transition-replace-group position-relative"
+          >
+            <div
+              style="padding: .1px 0px;"
+            >
+              <div
+                class="collapsible-body"
+              >
+                <div
+                  class="container p-0"
+                >
+                  <div
+                    class="enrollment-row d-flex align-items-stretch flex-wrap mt-2"
+                  >
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <div
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                      >
+                        <input
+                          class="sr input-overlay-hack"
+                          type="file"
+                        />
+                        Upload Program Enrollments
+                      </div>
+                    </div>
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <button
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                        type="button"
+                      >
+                        Download Program Enrollments
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="enrollment-row d-flex align-items-stretch flex-wrap"
+                  >
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <div
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                      >
+                        <input
+                          class="sr input-overlay-hack"
+                          type="file"
+                        />
+                        Upload Course Enrollments
+                      </div>
+                    </div>
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <button
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                        type="button"
+                      >
+                        Download Course Enrollments
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="container mb-4"
+      >
+        <h2>
+          b masters
+        </h2>
+        <div
+          class="pgn_collapsible collapsible-card is-open"
+          data-testid="collapsible"
+        >
+          <div
+            aria-expanded="true"
+            class="collapsible-trigger"
+            role="button"
+            tabindex="0"
+          >
+            <span>
+              Manage Enrollments
+            </span>
+            <span
+              class="collapsible-icon"
+            >
+              <span
+                class="pgn__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  focusable="false"
+                  height="24"
+                  role="img"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14l-6-6Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+            </span>
+          </div>
+          <div
+            class="pgn-transition-replace-group position-relative"
+          >
+            <div
+              style="padding: .1px 0px;"
+            >
+              <div
+                class="collapsible-body"
+              >
+                <div
+                  class="container p-0"
+                >
+                  <div
+                    class="enrollment-row d-flex align-items-stretch flex-wrap mt-2"
+                  >
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <div
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                      >
+                        <input
+                          class="sr input-overlay-hack"
+                          type="file"
+                        />
+                        Upload Program Enrollments
+                      </div>
+                    </div>
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <button
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                        type="button"
+                      >
+                        Download Program Enrollments
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="enrollment-row d-flex align-items-stretch flex-wrap"
+                  >
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <div
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                      >
+                        <input
+                          class="sr input-overlay-hack"
+                          type="file"
+                        />
+                        Upload Course Enrollments
+                      </div>
+                    </div>
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <button
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                        type="button"
+                      >
+                        Download Course Enrollments
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav
+        aria-label="pagination navigation"
+        class="pagination-default"
+      >
+        <div
+          aria-atomic="true"
+          aria-live="polite"
+          aria-relevant="text"
+          class="sr-only"
+        >
+          Page 1, Current Page, of 1
+        </div>
+        <ul
+          class="pagination"
+        >
+          <li
+            class="page-item disabled"
+          >
+            <button
+              aria-label="Previous"
+              class="previous page-link btn btn-primary"
+              disabled=""
+              tabindex="-1"
+              type="button"
+            >
+              <div>
+                <span
+                  class="pgn__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="24"
+                    role="img"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                Previous
+              </div>
+            </button>
+          </li>
+          <li
+            class="page-item disabled"
+          >
+            <button
+              aria-label="Next"
+              class="next page-link btn btn-primary"
+              disabled=""
+              tabindex="-1"
+              type="button"
+            >
+              <div>
+                Next
+                <span
+                  class="pgn__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="24"
+                    role="img"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+              </div>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ConsolePage renders program banners when they are included 1`] = `
+<div>
+  <div
+    class="container half-width-element py-5 align-items-start"
+  >
+    <h1>
+      Program Console
+    </h1>
+    <div>
+      <div
+        class="pgn__searchfield d-flex mt-3"
+      >
+        <form
+          class="d-flex align-items-center w-100"
+          role="search"
+        >
+          <label
+            class="m-0"
+            for="pgn-searchfield-input-2"
+          >
+            <span
+              class="sr-only"
+            >
+              search
+            </span>
+          </label>
+          <input
+            class="form-control"
+            id="pgn-searchfield-input-2"
+            name="searchfield-input"
+            placeholder="Filter by Program Title"
+            role="searchbox"
+            type="text"
+            value=""
+          />
+          <button
+            class="btn"
+            type="submit"
+          >
+            <span
+              class="pgn__icon"
+            >
+              <svg
+                aria-hidden="true"
+                fill="none"
+                focusable="false"
+                height="24"
+                role="img"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span
+              class="sr-only"
+            >
+              submit search
+            </span>
+          </button>
+        </form>
+      </div>
+      <nav
+        aria-label="pagination navigation"
+        class="mt-4 pagination-default"
+      >
+        <div
+          aria-atomic="true"
+          aria-live="polite"
+          aria-relevant="text"
+          class="sr-only"
+        >
+          Page 1, Current Page, of 1
+        </div>
+        <ul
+          class="pagination"
+        >
+          <li
+            class="page-item disabled"
+          >
+            <button
+              aria-label="Previous"
+              class="previous page-link btn btn-primary"
+              disabled=""
+              tabindex="-1"
+              type="button"
+            >
+              <div>
+                <span
+                  class="pgn__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="24"
+                    role="img"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                Previous
+              </div>
+            </button>
+          </li>
+          <li
+            class="page-item disabled"
+          >
+            <button
+              aria-label="Next"
+              class="next page-link btn btn-primary"
+              disabled=""
+              tabindex="-1"
+              type="button"
+            >
+              <div>
+                Next
+                <span
+                  class="pgn__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="24"
+                    role="img"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+              </div>
+            </button>
+          </li>
+        </ul>
+      </nav>
+      <div
+        class="container mb-4"
+      >
+        <h2>
+          a masters
+        </h2>
+        <div
+          class="fade alert-content alert alert-danger show"
+          data-testid="alert-info"
+          role="alert"
+        >
+          <div
+            class="pgn__alert-message-wrapper"
+          >
+            <div
+              class="alert-message-content"
+            >
+              <div
+                class="modal-alert"
+              >
+                Sorry something went wrong 
+              </div>
+            </div>
+            <div
+              class="pgn__alert-actions pgn__action-row"
+            >
+              <span
+                class="pgn__action-row-spacer"
+              />
+              <button
+                class="btn btn-tertiary btn-sm"
+                type="button"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pgn_collapsible collapsible-card is-open"
+          data-testid="collapsible"
+        >
+          <div
+            aria-expanded="true"
+            class="collapsible-trigger"
+            role="button"
+            tabindex="0"
+          >
+            <span>
+              Manage Enrollments
+            </span>
+            <span
+              class="collapsible-icon"
+            >
+              <span
+                class="pgn__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  focusable="false"
+                  height="24"
+                  role="img"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14l-6-6Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+            </span>
+          </div>
+          <div
+            class="pgn-transition-replace-group position-relative"
+          >
+            <div
+              style="padding: .1px 0px;"
+            >
+              <div
+                class="collapsible-body"
+              >
+                <div
+                  class="container p-0"
+                >
+                  <div
+                    class="enrollment-row d-flex align-items-stretch flex-wrap mt-2"
+                  >
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <div
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                      >
+                        <input
+                          class="sr input-overlay-hack"
+                          type="file"
+                        />
+                        Upload Program Enrollments
+                      </div>
+                    </div>
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <button
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                        type="button"
+                      >
+                        Download Program Enrollments
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="enrollment-row d-flex align-items-stretch flex-wrap"
+                  >
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <div
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                      >
+                        <input
+                          class="sr input-overlay-hack"
+                          type="file"
+                        />
+                        Upload Course Enrollments
+                      </div>
+                    </div>
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <button
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                        type="button"
+                      >
+                        Download Course Enrollments
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="container mb-4"
+      >
+        <h2>
+          b masters
+        </h2>
+        <div
+          class="fade alert-content alert alert-success show"
+          data-testid="alert-info"
+          role="alert"
+        >
+          <div
+            class="pgn__alert-message-wrapper"
+          >
+            <div
+              class="alert-message-content"
+            >
+              <div
+                class="modal-alert"
+              >
+                You did it! 
+              </div>
+            </div>
+            <div
+              class="pgn__alert-actions pgn__action-row"
+            >
+              <span
+                class="pgn__action-row-spacer"
+              />
+              <button
+                class="btn btn-tertiary btn-sm"
+                type="button"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pgn_collapsible collapsible-card is-open"
+          data-testid="collapsible"
+        >
+          <div
+            aria-expanded="true"
+            class="collapsible-trigger"
+            role="button"
+            tabindex="0"
+          >
+            <span>
+              Manage Enrollments
+            </span>
+            <span
+              class="collapsible-icon"
+            >
+              <span
+                class="pgn__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  focusable="false"
+                  height="24"
+                  role="img"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14l-6-6Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+            </span>
+          </div>
+          <div
+            class="pgn-transition-replace-group position-relative"
+          >
+            <div
+              style="padding: .1px 0px;"
+            >
+              <div
+                class="collapsible-body"
+              >
+                <div
+                  class="container p-0"
+                >
+                  <div
+                    class="enrollment-row d-flex align-items-stretch flex-wrap mt-2"
+                  >
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <div
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                      >
+                        <input
+                          class="sr input-overlay-hack"
+                          type="file"
+                        />
+                        Upload Program Enrollments
+                      </div>
+                    </div>
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <button
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                        type="button"
+                      >
+                        Download Program Enrollments
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="enrollment-row d-flex align-items-stretch flex-wrap"
+                  >
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <div
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                      >
+                        <input
+                          class="sr input-overlay-hack"
+                          type="file"
+                        />
+                        Upload Course Enrollments
+                      </div>
+                    </div>
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <button
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                        type="button"
+                      >
+                        Download Course Enrollments
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav
+        aria-label="pagination navigation"
+        class="pagination-default"
+      >
+        <div
+          aria-atomic="true"
+          aria-live="polite"
+          aria-relevant="text"
+          class="sr-only"
+        >
+          Page 1, Current Page, of 1
+        </div>
+        <ul
+          class="pagination"
+        >
+          <li
+            class="page-item disabled"
+          >
+            <button
+              aria-label="Previous"
+              class="previous page-link btn btn-primary"
+              disabled=""
+              tabindex="-1"
+              type="button"
+            >
+              <div>
+                <span
+                  class="pgn__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="24"
+                    role="img"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                Previous
+              </div>
+            </button>
+          </li>
+          <li
+            class="page-item disabled"
+          >
+            <button
+              aria-label="Next"
+              class="next page-link btn btn-primary"
+              disabled=""
+              tabindex="-1"
+              type="button"
+            >
+              <div>
+                Next
+                <span
+                  class="pgn__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="24"
+                    role="img"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+              </div>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ConsolePage renders programs when there is data passed in 1`] = `
+<div>
+  <div
+    class="container half-width-element py-5 align-items-start"
+  >
+    <h1>
+      Program Console
+    </h1>
+    <div>
+      <div
+        class="pgn__searchfield d-flex mt-3"
+      >
+        <form
+          class="d-flex align-items-center w-100"
+          role="search"
+        >
+          <label
+            class="m-0"
+            for="pgn-searchfield-input-1"
+          >
+            <span
+              class="sr-only"
+            >
+              search
+            </span>
+          </label>
+          <input
+            class="form-control"
+            id="pgn-searchfield-input-1"
+            name="searchfield-input"
+            placeholder="Filter by Program Title"
+            role="searchbox"
+            type="text"
+            value=""
+          />
+          <button
+            class="btn"
+            type="submit"
+          >
+            <span
+              class="pgn__icon"
+            >
+              <svg
+                aria-hidden="true"
+                fill="none"
+                focusable="false"
+                height="24"
+                role="img"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span
+              class="sr-only"
+            >
+              submit search
+            </span>
+          </button>
+        </form>
+      </div>
+      <nav
+        aria-label="pagination navigation"
+        class="mt-4 pagination-default"
+      >
+        <div
+          aria-atomic="true"
+          aria-live="polite"
+          aria-relevant="text"
+          class="sr-only"
+        >
+          Page 1, Current Page, of 1
+        </div>
+        <ul
+          class="pagination"
+        >
+          <li
+            class="page-item disabled"
+          >
+            <button
+              aria-label="Previous"
+              class="previous page-link btn btn-primary"
+              disabled=""
+              tabindex="-1"
+              type="button"
+            >
+              <div>
+                <span
+                  class="pgn__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="24"
+                    role="img"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                Previous
+              </div>
+            </button>
+          </li>
+          <li
+            class="page-item disabled"
+          >
+            <button
+              aria-label="Next"
+              class="next page-link btn btn-primary"
+              disabled=""
+              tabindex="-1"
+              type="button"
+            >
+              <div>
+                Next
+                <span
+                  class="pgn__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="24"
+                    role="img"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+              </div>
+            </button>
+          </li>
+        </ul>
+      </nav>
+      <div
+        class="container mb-4"
+      >
+        <h2>
+          a masters
+        </h2>
+        <div
+          class="pgn_collapsible collapsible-card is-open"
+          data-testid="collapsible"
+        >
+          <div
+            aria-expanded="true"
+            class="collapsible-trigger"
+            role="button"
+            tabindex="0"
+          >
+            <span>
+              Manage Enrollments
+            </span>
+            <span
+              class="collapsible-icon"
+            >
+              <span
+                class="pgn__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  focusable="false"
+                  height="24"
+                  role="img"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14l-6-6Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+            </span>
+          </div>
+          <div
+            class="pgn-transition-replace-group position-relative"
+          >
+            <div
+              style="padding: .1px 0px;"
+            >
+              <div
+                class="collapsible-body"
+              >
+                <div
+                  class="container p-0"
+                >
+                  <div
+                    class="enrollment-row d-flex align-items-stretch flex-wrap mt-2"
+                  >
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <div
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                      >
+                        <input
+                          class="sr input-overlay-hack"
+                          type="file"
+                        />
+                        Upload Program Enrollments
+                      </div>
+                    </div>
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <button
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                        type="button"
+                      >
+                        Download Program Enrollments
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="enrollment-row d-flex align-items-stretch flex-wrap"
+                  >
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <div
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                      >
+                        <input
+                          class="sr input-overlay-hack"
+                          type="file"
+                        />
+                        Upload Course Enrollments
+                      </div>
+                    </div>
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <button
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                        type="button"
+                      >
+                        Download Course Enrollments
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="container mb-4"
+      >
+        <h2>
+          b masters
+        </h2>
+        <div
+          class="pgn_collapsible collapsible-card is-open"
+          data-testid="collapsible"
+        >
+          <div
+            aria-expanded="true"
+            class="collapsible-trigger"
+            role="button"
+            tabindex="0"
+          >
+            <span>
+              Manage Enrollments
+            </span>
+            <span
+              class="collapsible-icon"
+            >
+              <span
+                class="pgn__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  focusable="false"
+                  height="24"
+                  role="img"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14l-6-6Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+            </span>
+          </div>
+          <div
+            class="pgn-transition-replace-group position-relative"
+          >
+            <div
+              style="padding: .1px 0px;"
+            >
+              <div
+                class="collapsible-body"
+              >
+                <div
+                  class="container p-0"
+                >
+                  <div
+                    class="enrollment-row d-flex align-items-stretch flex-wrap mt-2"
+                  >
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <div
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                      >
+                        <input
+                          class="sr input-overlay-hack"
+                          type="file"
+                        />
+                        Upload Program Enrollments
+                      </div>
+                    </div>
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <button
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                        type="button"
+                      >
+                        Download Program Enrollments
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="enrollment-row d-flex align-items-stretch flex-wrap"
+                  >
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <div
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                      >
+                        <input
+                          class="sr input-overlay-hack"
+                          type="file"
+                        />
+                        Upload Course Enrollments
+                      </div>
+                    </div>
+                    <div
+                      class="col-md mb-2"
+                    >
+                      <button
+                        class="btn btn-outline-primary d-flex justify-content-center align-items-center h-100 w-100"
+                        type="button"
+                      >
+                        Download Course Enrollments
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav
+        aria-label="pagination navigation"
+        class="pagination-default"
+      >
+        <div
+          aria-atomic="true"
+          aria-live="polite"
+          aria-relevant="text"
+          class="sr-only"
+        >
+          Page 1, Current Page, of 1
+        </div>
+        <ul
+          class="pagination"
+        >
+          <li
+            class="page-item disabled"
+          >
+            <button
+              aria-label="Previous"
+              class="previous page-link btn btn-primary"
+              disabled=""
+              tabindex="-1"
+              type="button"
+            >
+              <div>
+                <span
+                  class="pgn__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="24"
+                    role="img"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                Previous
+              </div>
+            </button>
+          </li>
+          <li
+            class="page-item disabled"
+          >
+            <button
+              aria-label="Next"
+              class="next page-link btn btn-primary"
+              disabled=""
+              tabindex="-1"
+              type="button"
+            >
+              <div>
+                Next
+                <span
+                  class="pgn__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    focusable="false"
+                    height="24"
+                    role="img"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+              </div>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ConsolePage renders with the most basic props passed to it 1`] = `
+<div>
+  <div
+    class="container half-width-element py-5 align-items-start"
+  >
+    <h1>
+      Program Console
+    </h1>
+  </div>
+</div>
+`;

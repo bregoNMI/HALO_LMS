@@ -1,0 +1,340 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CourseTable shows a populated table 1`] = `
+<Fragment>
+  <div
+    className="test"
+  >
+    <div
+      className="table-responsive"
+    >
+      <DataTable
+        EmptyTableComponent={[Function]}
+        FilterStatusComponent={[Function]}
+        RowStatusComponent={[Function]}
+        SelectionStatusComponent={[Function]}
+        additionalColumns={Array []}
+        bulkActions={Array []}
+        className="table-sm table-striped"
+        columns={
+          Array [
+            Object {
+              "columnSortable": true,
+              "key": "col1",
+              "label": "Col 1",
+              "onSort": null,
+            },
+            Object {
+              "columnSortable": false,
+              "key": "col2",
+              "label": "Col 2",
+              "onSort": [Function],
+            },
+          ]
+        }
+        data={
+          Array [
+            Object {
+              "col1": "Test11",
+              "col2": "Test12",
+            },
+            Object {
+              "col1": "Test21",
+              "col2": "Test22",
+            },
+          ]
+        }
+        dataViewToggleOptions={
+          Object {
+            "defaultActiveStateValue": "card",
+            "isDataViewToggleEnabled": false,
+            "onDataViewToggle": [Function],
+            "togglePlacement": "left",
+          }
+        }
+        defaultColumnValues={Object {}}
+        defaultSortDirection="asc"
+        defaultSortedColumn="key"
+        disableElevation={false}
+        fetchData={null}
+        initialState={Object {}}
+        initialTableOptions={Object {}}
+        isExpandable={false}
+        isFilterable={false}
+        isLoading={false}
+        isPaginated={false}
+        isSelectable={false}
+        isSortable={true}
+        itemCount={2}
+        manualFilters={false}
+        manualPagination={false}
+        manualSortBy={false}
+        numBreakoutFilters={1}
+        showFiltersInSidebar={false}
+        tableActions={Array []}
+      />
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`CourseTable shows a populated table after a component update for ordering 1`] = `
+<Fragment>
+  <div
+    className="test"
+  >
+    <div
+      className="table-responsive"
+    >
+      <DataTable
+        EmptyTableComponent={[Function]}
+        FilterStatusComponent={[Function]}
+        RowStatusComponent={[Function]}
+        SelectionStatusComponent={[Function]}
+        additionalColumns={Array []}
+        bulkActions={Array []}
+        className="table-sm table-striped"
+        columns={
+          Array [
+            Object {
+              "columnSortable": true,
+              "key": "col1",
+              "label": "Col 1",
+              "onSort": null,
+            },
+            Object {
+              "columnSortable": false,
+              "key": "col2",
+              "label": "Col 2",
+              "onSort": [Function],
+            },
+          ]
+        }
+        data={
+          Array [
+            Object {
+              "col1": "Test11",
+              "col2": "Test12",
+            },
+            Object {
+              "col1": "Test21",
+              "col2": "Test22",
+            },
+          ]
+        }
+        dataViewToggleOptions={
+          Object {
+            "defaultActiveStateValue": "card",
+            "isDataViewToggleEnabled": false,
+            "onDataViewToggle": [Function],
+            "togglePlacement": "left",
+          }
+        }
+        defaultColumnValues={Object {}}
+        defaultSortDirection="desc"
+        defaultSortedColumn="key"
+        disableElevation={false}
+        fetchData={null}
+        initialState={Object {}}
+        initialTableOptions={Object {}}
+        isExpandable={false}
+        isFilterable={false}
+        isLoading={false}
+        isPaginated={false}
+        isSelectable={false}
+        isSortable={true}
+        itemCount={2}
+        manualFilters={false}
+        manualPagination={false}
+        manualSortBy={false}
+        numBreakoutFilters={1}
+        showFiltersInSidebar={false}
+        tableActions={Array []}
+      />
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`CourseTable shows a populated table after a component update for page 1`] = `
+<Fragment>
+  <div
+    className="test"
+  >
+    <div
+      className="table-responsive"
+    >
+      <DataTable
+        EmptyTableComponent={[Function]}
+        FilterStatusComponent={[Function]}
+        RowStatusComponent={[Function]}
+        SelectionStatusComponent={[Function]}
+        additionalColumns={Array []}
+        bulkActions={Array []}
+        className="table-sm table-striped"
+        columns={
+          Array [
+            Object {
+              "columnSortable": true,
+              "key": "col1",
+              "label": "Col 1",
+              "onSort": null,
+            },
+            Object {
+              "columnSortable": false,
+              "key": "col2",
+              "label": "Col 2",
+              "onSort": [Function],
+            },
+          ]
+        }
+        data={
+          Array [
+            Object {
+              "col1": "Test11",
+              "col2": "Test12",
+            },
+            Object {
+              "col1": "Test21",
+              "col2": "Test22",
+            },
+          ]
+        }
+        dataViewToggleOptions={
+          Object {
+            "defaultActiveStateValue": "card",
+            "isDataViewToggleEnabled": false,
+            "onDataViewToggle": [Function],
+            "togglePlacement": "left",
+          }
+        }
+        defaultColumnValues={Object {}}
+        defaultSortDirection="asc"
+        defaultSortedColumn="key"
+        disableElevation={false}
+        fetchData={null}
+        initialState={Object {}}
+        initialTableOptions={Object {}}
+        isExpandable={false}
+        isFilterable={false}
+        isLoading={false}
+        isPaginated={false}
+        isSelectable={false}
+        isSortable={true}
+        itemCount={2}
+        manualFilters={false}
+        manualPagination={false}
+        manualSortBy={false}
+        numBreakoutFilters={1}
+        showFiltersInSidebar={false}
+        tableActions={Array []}
+      />
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`CourseTable shows a table 1`] = `<Fragment />`;
+
+exports[`CourseTable shows an empty table 1`] = `
+<Fragment>
+  <div
+    className="test"
+  >
+    <div
+      className="table-responsive"
+    >
+      <DataTable
+        EmptyTableComponent={[Function]}
+        FilterStatusComponent={[Function]}
+        RowStatusComponent={[Function]}
+        SelectionStatusComponent={[Function]}
+        additionalColumns={Array []}
+        bulkActions={Array []}
+        className="table-sm table-striped"
+        columns={
+          Array [
+            Object {
+              "columnSortable": true,
+              "key": "col1",
+              "label": "Col 1",
+              "onSort": null,
+            },
+            Object {
+              "columnSortable": false,
+              "key": "col2",
+              "label": "Col 2",
+              "onSort": [Function],
+            },
+          ]
+        }
+        data={Array []}
+        dataViewToggleOptions={
+          Object {
+            "defaultActiveStateValue": "card",
+            "isDataViewToggleEnabled": false,
+            "onDataViewToggle": [Function],
+            "togglePlacement": "left",
+          }
+        }
+        defaultColumnValues={Object {}}
+        defaultSortDirection="asc"
+        defaultSortedColumn="key"
+        disableElevation={false}
+        fetchData={null}
+        initialState={Object {}}
+        initialTableOptions={Object {}}
+        isExpandable={false}
+        isFilterable={false}
+        isLoading={false}
+        isPaginated={false}
+        isSelectable={false}
+        isSortable={true}
+        manualFilters={false}
+        manualPagination={false}
+        manualSortBy={false}
+        numBreakoutFilters={1}
+        showFiltersInSidebar={false}
+        tableActions={Array []}
+      />
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`CourseTable shows an error 1`] = `
+<Fragment>
+  <ForwardRef
+    dismissible={false}
+    icon={[Function]}
+    onClose={[Function]}
+    show={true}
+    stacked={false}
+    transition={
+      Object {
+        "$$typeof": Symbol(react.forward_ref),
+        "defaultProps": Object {
+          "appear": false,
+          "in": false,
+          "mountOnEnter": false,
+          "timeout": 300,
+          "unmountOnExit": false,
+        },
+        "render": [Function],
+      }
+    }
+    variant="danger"
+  >
+    Unable to load data: 
+    Test error.
+  </ForwardRef>
+</Fragment>
+`;
+
+exports[`CourseTable shows loading 1`] = `
+<Fragment>
+  <LoadingSpinner
+    message="Loading…"
+  />
+</Fragment>
+`;

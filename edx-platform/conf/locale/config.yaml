@@ -1,0 +1,56 @@
+# Configuration for i18n workflow.
+
+locales:
+    - en  # English - Source Language
+
+# The locales used for fake-accented English, for testing.
+dummy_locales:
+    - eo
+    - rtl  # Fake testing language for Arabic
+
+# Directories we don't search for strings.
+ignore_dirs:
+    # Directories with no user-facing code.
+    - '*/migrations'
+    - '*/envs'
+    # Directories that are not our code.
+    - node_modules
+    # Directories containing files that can't have strings in them.
+    - conf
+    - docs
+    - '*/fonts'
+    - '*/img'
+    - '*/images'
+    - '*/sass'
+    - '*/css'
+    # Directories that only contain tests.
+    - common/test
+    - test_root
+    - '*/terrain'
+    - '*/spec'
+    - '*/tests'
+    - '*/djangoapps/*/features'
+    # Directories full of auto-generated JS
+    - lms/static/js/i18n
+    - cms/static/js/i18n
+    # Directories with 3rd party apps.
+    - src/acid-xblock
+    - src/code-block-timer
+    - src/codejail
+    - src/django-wiki
+    - src/done-xblock
+    - src/parse-rest
+    - src/geoip2
+    - src/pystache-custom
+    - src/rate-xblock
+    - src/xblock-google-drive
+    # Ignore the file we use when translations are not setup in development environments.
+    - common/static/js/src/gettext_fallback.js
+
+
+# Third-party installed apps that we also extract strings from.  When adding a
+# file here, also add it to the django.po merge files below, and to the
+# Makefile `extract_translations` target to ensure it makes to Transifex.
+third_party:
+    - wiki
+    - edx_proctoring_proctortrack

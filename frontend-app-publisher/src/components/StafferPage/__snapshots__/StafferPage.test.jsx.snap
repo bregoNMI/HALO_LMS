@@ -1,0 +1,392 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`StafferPage renders html correctly 1`] = `
+<Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+  >
+    <title>
+      Create New Instructor
+    </title>
+  </HelmetWrapper>
+  <PageContainer
+    className=""
+    wide={false}
+  >
+    <div>
+      <h2>
+        Create New Instructor
+      </h2>
+      <hr />
+      <ReduxForm
+        createStaffer={[Function]}
+        destroyOnUnmount={true}
+        editStaffer={null}
+        enableReinitialize={false}
+        fetchOrganizations={[Function]}
+        fetchStafferInfo={[Function]}
+        forceUnregisterOnUnmount={false}
+        form="staffer-form"
+        getFormState={[Function]}
+        id="create-staffer-form"
+        initialValues={
+          Object {
+            "position": Object {
+              "organization_override": null,
+            },
+          }
+        }
+        isCreateForm={true}
+        keepDirtyOnReinitialize={false}
+        onSubmit={[Function]}
+        onSubmitFail={[Function]}
+        organizationName=""
+        persistentSubmitErrors={false}
+        publisherOrganizations={Array []}
+        publisherUserInfo={
+          Object {
+            "organizations": Array [],
+          }
+        }
+        pure={true}
+        shouldAsyncValidate={[Function]}
+        shouldError={[Function]}
+        shouldValidate={[Function]}
+        shouldWarn={[Function]}
+        sourceInfo={Object {}}
+        stafferInfo={Object {}}
+        submitAsSideEffect={false}
+        touchOnBlur={true}
+        touchOnChange={false}
+        updateUnregisteredFields={false}
+      />
+    </div>
+  </PageContainer>
+</Fragment>
+`;
+
+exports[`StafferPage renders html correctly when given a referrer 1`] = `
+<Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+  >
+    <title>
+      Create New Instructor
+    </title>
+  </HelmetWrapper>
+  <PageContainer
+    className=""
+    wide={false}
+  >
+    <ForwardRef
+      dismissible={true}
+      id="sent-from-edit-course-info"
+      onClose={[Function]}
+      show={true}
+      stacked={false}
+      transition={
+        Object {
+          "$$typeof": Symbol(react.forward_ref),
+          "defaultProps": Object {
+            "appear": false,
+            "in": false,
+            "mountOnEnter": false,
+            "timeout": 300,
+            "unmountOnExit": false,
+          },
+          "render": [Function],
+        }
+      }
+      variant="info"
+    >
+      The data you entered on the course edit screen is saved. You will return to that page when you have finished updating instructor information.
+    </ForwardRef>
+    <div>
+      <h2>
+        Create New Instructor
+      </h2>
+      <hr />
+      <ReduxForm
+        createStaffer={[Function]}
+        destroyOnUnmount={true}
+        editStaffer={null}
+        enableReinitialize={false}
+        fetchOrganizations={[Function]}
+        fetchStafferInfo={[Function]}
+        forceUnregisterOnUnmount={false}
+        form="staffer-form"
+        getFormState={[Function]}
+        id="create-staffer-form"
+        initialValues={
+          Object {
+            "position": Object {
+              "organization_override": null,
+            },
+          }
+        }
+        isCreateForm={true}
+        keepDirtyOnReinitialize={false}
+        onSubmit={[Function]}
+        onSubmitFail={[Function]}
+        organizationName=""
+        persistentSubmitErrors={false}
+        publisherOrganizations={Array []}
+        publisherUserInfo={
+          Object {
+            "organizations": Array [],
+          }
+        }
+        pure={true}
+        shouldAsyncValidate={[Function]}
+        shouldError={[Function]}
+        shouldValidate={[Function]}
+        shouldWarn={[Function]}
+        sourceInfo={
+          Object {
+            "referrer": "/course/11111111-1111-1111-111111111111",
+          }
+        }
+        stafferInfo={Object {}}
+        submitAsSideEffect={false}
+        touchOnBlur={true}
+        touchOnChange={false}
+        updateUnregisteredFields={false}
+      />
+    </div>
+  </PageContainer>
+</Fragment>
+`;
+
+exports[`StafferPage renders page correctly while creating 1`] = `
+<Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+  >
+    <title>
+      Create New Instructor
+    </title>
+  </HelmetWrapper>
+  <PageContainer
+    className=""
+    wide={false}
+  >
+    <div>
+      <h2>
+        Create New Instructor
+      </h2>
+      <hr />
+      <ReduxForm
+        createStaffer={[Function]}
+        destroyOnUnmount={true}
+        editStaffer={null}
+        enableReinitialize={false}
+        fetchOrganizations={[Function]}
+        fetchStafferInfo={[Function]}
+        forceUnregisterOnUnmount={false}
+        form="staffer-form"
+        getFormState={[Function]}
+        id="create-staffer-form"
+        initialValues={
+          Object {
+            "position": Object {
+              "organization_override": null,
+            },
+          }
+        }
+        isCreateForm={true}
+        isSaving={true}
+        keepDirtyOnReinitialize={false}
+        onSubmit={[Function]}
+        onSubmitFail={[Function]}
+        organizationName=""
+        persistentSubmitErrors={false}
+        publisherOrganizations={Array []}
+        publisherUserInfo={
+          Object {
+            "organizations": Array [],
+          }
+        }
+        pure={true}
+        shouldAsyncValidate={[Function]}
+        shouldError={[Function]}
+        shouldValidate={[Function]}
+        shouldWarn={[Function]}
+        sourceInfo={Object {}}
+        stafferInfo={
+          Object {
+            "error": null,
+            "isSaving": true,
+          }
+        }
+        submitAsSideEffect={false}
+        touchOnBlur={true}
+        touchOnChange={false}
+        updateUnregisteredFields={false}
+      />
+    </div>
+  </PageContainer>
+</Fragment>
+`;
+
+exports[`StafferPage renders page correctly while fetching 1`] = `
+<Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+  >
+    <title>
+      Create New Instructor
+    </title>
+  </HelmetWrapper>
+  <PageContainer
+    className=""
+    wide={false}
+  >
+    <LoadingSpinner
+      message="Loading…"
+    />
+  </PageContainer>
+</Fragment>
+`;
+
+exports[`StafferPage renders page correctly with no stafferInfo 1`] = `
+<ForwardRef
+  dismissible={false}
+  id="error"
+  message=""
+  onClose={[Function]}
+  show={true}
+  stacked={false}
+  title=""
+  transition={
+    Object {
+      "$$typeof": Symbol(react.forward_ref),
+      "defaultProps": Object {
+        "appear": false,
+        "in": false,
+        "mountOnEnter": false,
+        "timeout": 300,
+        "unmountOnExit": false,
+      },
+      "render": [Function],
+    }
+  }
+  variant="danger"
+>
+  <AlertHeading
+    as={
+      Object {
+        "$$typeof": Symbol(react.forward_ref),
+        "render": [Function],
+      }
+    }
+    bsPrefix="alert-heading"
+  >
+    Could not load page
+  </AlertHeading>
+  <p>
+    Could not get instructor information
+  </p>
+</ForwardRef>
+`;
+
+exports[`StafferPage renders page correctly with staffer info error 1`] = `
+<Fragment>
+  <HelmetWrapper
+    defer={true}
+    encodeSpecialCharacters={true}
+  >
+    <title>
+      Create New Instructor
+    </title>
+  </HelmetWrapper>
+  <PageContainer
+    className=""
+    wide={false}
+  >
+    <div>
+      <h2>
+        Create New Instructor
+      </h2>
+      <hr />
+      <ReduxForm
+        createStaffer={[Function]}
+        destroyOnUnmount={true}
+        editStaffer={null}
+        enableReinitialize={false}
+        fetchOrganizations={[Function]}
+        fetchStafferInfo={[Function]}
+        forceUnregisterOnUnmount={false}
+        form="staffer-form"
+        getFormState={[Function]}
+        id="create-staffer-form"
+        initialValues={
+          Object {
+            "position": Object {
+              "organization_override": null,
+            },
+          }
+        }
+        isCreateForm={true}
+        isSaving={false}
+        keepDirtyOnReinitialize={false}
+        onSubmit={[Function]}
+        onSubmitFail={[Function]}
+        organizationName=""
+        persistentSubmitErrors={false}
+        publisherOrganizations={Array []}
+        publisherUserInfo={
+          Object {
+            "organizations": Array [],
+          }
+        }
+        pure={true}
+        shouldAsyncValidate={[Function]}
+        shouldError={[Function]}
+        shouldValidate={[Function]}
+        shouldWarn={[Function]}
+        sourceInfo={Object {}}
+        stafferInfo={
+          Object {
+            "error": Array [
+              "Fail",
+            ],
+            "isSaving": false,
+          }
+        }
+        submitAsSideEffect={false}
+        touchOnBlur={true}
+        touchOnChange={false}
+        updateUnregisteredFields={false}
+      />
+      <ForwardRef
+        dismissible={false}
+        id="create-staffer-error"
+        onClose={[Function]}
+        show={true}
+        stacked={false}
+        transition={
+          Object {
+            "$$typeof": Symbol(react.forward_ref),
+            "defaultProps": Object {
+              "appear": false,
+              "in": false,
+              "mountOnEnter": false,
+              "timeout": 300,
+              "unmountOnExit": false,
+            },
+            "render": [Function],
+          }
+        }
+        variant="danger"
+      >
+        Fail
+        <br />
+      </ForwardRef>
+    </div>
+  </PageContainer>
+</Fragment>
+`;

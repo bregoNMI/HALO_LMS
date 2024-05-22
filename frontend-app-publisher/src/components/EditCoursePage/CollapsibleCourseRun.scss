@@ -1,0 +1,7 @@
+.course-run-collapsible {
+  .collapsible-body {
+    &.open {
+      overflow: visible;
+    }
+  }
+}

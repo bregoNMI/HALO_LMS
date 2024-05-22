@@ -1,0 +1,106 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Django
+default.db
+
+# Static assets
+media/cache/
+assets/
+node_modules/
+ecommerce/static/bower_components/
+ecommerce/static/build/
+npm-debug.log
+
+# Unit test / coverage reports
+coverage/
+.coverage
+htmlcov
+.tox
+nosetests.xml
+unittests.xml
+e2e/xunit.xml
+
+### Internationalization artifacts
+*.mo
+*.po
+*.prob
+!django.po
+!django.mo
+!djangojs.po
+!djangojs.mo
+ecommerce/conf/locale/fake*/LC_MESSAGES/*.po
+ecommerce/conf/locale/fake*/LC_MESSAGES/*.mo
+ecommerce/conf/locale/messages.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+.pycharm_helpers
+
+# QA
+coverage.xml
+diff_*.html
+*.report
+report
+reports
+edx_ecommerce.log
+venv
+e2e.*.log
+e2e.*.png
+e2e/*.env
+.cache/
+
+# Override config files
+override.cfg
+
+# JetBrains
+.idea
+
+# OS X
+.DS_Store
+
+# pyenv
+.python-version
+
+*.trace
+private.py
+docs/_build
+*.backup
+*.log
+*.bak
+
+# Visual Studio Code
+.vscode
+
+# Certificates
+*.cer
+*.pem
+
+# emacs
+*~
+
+### Unknown artifacts
+*.bak

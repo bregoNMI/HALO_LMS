@@ -1,0 +1,1091 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`StafferForm renders correctly when sent from the edit course page 1`] = `
+<div
+  className="create-staffer-form"
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <Field
+      className="staffer-image"
+      component={[Function]}
+      id="profile_image"
+      label={
+        <FieldLabel
+          className=""
+          extraText="Image must be 110x110 pixels in size."
+          helpText={
+            <div>
+              <p>
+                Image Requirements:
+              </p>
+              <ul>
+                <li>
+                  The image dimensions must be 110×110.
+                </li>
+                <li>
+                  The image size must be less than 256KB.
+                </li>
+              </ul>
+            </div>
+          }
+          id="image.label"
+          optional={false}
+          text="Image"
+        />
+      }
+      maxImageSizeKilo={256}
+      name="profile_image.medium.url"
+      required={false}
+      requiredHeight={110}
+      requiredWidth={110}
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="First name"
+        />
+      }
+      name="given_name"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Last name"
+        />
+      }
+      name="family_name"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                Instructor's title at your organization.
+              </p>
+              <p>
+                <b>
+                  Examples:
+                </b>
+              </p>
+              <ul>
+                <li>
+                  Professor
+                </li>
+                <li>
+                  Content Developer
+                </li>
+                <li>
+                  Director
+                </li>
+              </ul>
+            </div>
+          }
+          id="title.label"
+          optional={false}
+          text="Title"
+        />
+      }
+      name="position.title"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      currentValue=""
+      formatCreateLabel={[Function]}
+      isCreatable={true}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Organization"
+        />
+      }
+      name="position.organization_override"
+      options={Array []}
+      placeholder="Organization..."
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      id="bio"
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Biography"
+        />
+      }
+      maxChars={1000}
+      name="bio"
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      id="works"
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={true}
+          text="Major works"
+        />
+      }
+      maxChars={250}
+      name="major_works"
+    />
+    <FieldLabel
+      className="mb-2"
+      extraText=""
+      helpText=""
+      id={null}
+      optional={true}
+      text="Social links"
+    />
+    <FieldArray
+      component={[Function]}
+      name="urls_detailed"
+    />
+    <FieldLabel
+      className="mb-2"
+      extraText=""
+      helpText=""
+      id={null}
+      optional={true}
+      text="Areas of expertise"
+    />
+    <FieldArray
+      component={[Function]}
+      name="areas_of_expertise"
+    />
+    <ButtonToolbar
+      className=""
+      leftJustify={false}
+    >
+      <Link
+        className="btn btn-outline-primary form-cancel-btn"
+        disabled={true}
+        onClick={[Function]}
+        to="courses/00000000-0000-0000-0000-000000000000"
+      >
+        Cancel
+      </Link>
+      <ActionButton
+        className=""
+        disabled={true}
+        labels={
+          Object {
+            "default": "Save",
+            "pending": "Saving",
+          }
+        }
+        primary={true}
+        state="default"
+      />
+    </ButtonToolbar>
+  </form>
+</div>
+`;
+
+exports[`StafferForm renders correctly with staffer info 1`] = `
+<div
+  className="create-staffer-form"
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <Field
+      className="staffer-image"
+      component={[Function]}
+      id="profile_image"
+      label={
+        <FieldLabel
+          className=""
+          extraText="Image must be 110x110 pixels in size."
+          helpText={
+            <div>
+              <p>
+                Image Requirements:
+              </p>
+              <ul>
+                <li>
+                  The image dimensions must be 110×110.
+                </li>
+                <li>
+                  The image size must be less than 256KB.
+                </li>
+              </ul>
+            </div>
+          }
+          id="image.label"
+          optional={false}
+          text="Image"
+        />
+      }
+      maxImageSizeKilo={256}
+      name="profile_image.medium.url"
+      required={false}
+      requiredHeight={110}
+      requiredWidth={110}
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="First name"
+        />
+      }
+      name="given_name"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Last name"
+        />
+      }
+      name="family_name"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                Instructor's title at your organization.
+              </p>
+              <p>
+                <b>
+                  Examples:
+                </b>
+              </p>
+              <ul>
+                <li>
+                  Professor
+                </li>
+                <li>
+                  Content Developer
+                </li>
+                <li>
+                  Director
+                </li>
+              </ul>
+            </div>
+          }
+          id="title.label"
+          optional={false}
+          text="Title"
+        />
+      }
+      name="position.title"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      currentValue=""
+      formatCreateLabel={[Function]}
+      isCreatable={true}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Organization"
+        />
+      }
+      name="position.organization_override"
+      options={Array []}
+      placeholder="Organization..."
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      id="bio"
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Biography"
+        />
+      }
+      maxChars={1000}
+      name="bio"
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      id="works"
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={true}
+          text="Major works"
+        />
+      }
+      maxChars={250}
+      name="major_works"
+    />
+    <FieldLabel
+      className="mb-2"
+      extraText=""
+      helpText=""
+      id={null}
+      optional={true}
+      text="Social links"
+    />
+    <FieldArray
+      component={[Function]}
+      name="urls_detailed"
+    />
+    <FieldLabel
+      className="mb-2"
+      extraText=""
+      helpText=""
+      id={null}
+      optional={true}
+      text="Areas of expertise"
+    />
+    <FieldArray
+      component={[Function]}
+      name="areas_of_expertise"
+    />
+    <ButtonToolbar
+      className=""
+      leftJustify={false}
+    >
+      <Link
+        className="btn btn-outline-primary form-cancel-btn"
+        disabled={true}
+        onClick={[Function]}
+        to="/"
+      >
+        Cancel
+      </Link>
+      <ActionButton
+        className=""
+        disabled={true}
+        labels={
+          Object {
+            "default": "Save",
+            "pending": "Saving",
+          }
+        }
+        primary={true}
+        state="default"
+      />
+    </ButtonToolbar>
+  </form>
+</div>
+`;
+
+exports[`StafferForm renders html correctly 1`] = `
+<div
+  className="create-staffer-form"
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <Field
+      className="staffer-image"
+      component={[Function]}
+      id="profile_image"
+      label={
+        <FieldLabel
+          className=""
+          extraText="Image must be 110x110 pixels in size."
+          helpText={
+            <div>
+              <p>
+                Image Requirements:
+              </p>
+              <ul>
+                <li>
+                  The image dimensions must be 110×110.
+                </li>
+                <li>
+                  The image size must be less than 256KB.
+                </li>
+              </ul>
+            </div>
+          }
+          id="image.label"
+          optional={false}
+          text="Image"
+        />
+      }
+      maxImageSizeKilo={256}
+      name="profile_image.medium.url"
+      required={false}
+      requiredHeight={110}
+      requiredWidth={110}
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="First name"
+        />
+      }
+      name="given_name"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Last name"
+        />
+      }
+      name="family_name"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                Instructor's title at your organization.
+              </p>
+              <p>
+                <b>
+                  Examples:
+                </b>
+              </p>
+              <ul>
+                <li>
+                  Professor
+                </li>
+                <li>
+                  Content Developer
+                </li>
+                <li>
+                  Director
+                </li>
+              </ul>
+            </div>
+          }
+          id="title.label"
+          optional={false}
+          text="Title"
+        />
+      }
+      name="position.title"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      currentValue=""
+      formatCreateLabel={[Function]}
+      isCreatable={true}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Organization"
+        />
+      }
+      name="position.organization_override"
+      options={Array []}
+      placeholder="Organization..."
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      id="bio"
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Biography"
+        />
+      }
+      maxChars={1000}
+      name="bio"
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      id="works"
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={true}
+          text="Major works"
+        />
+      }
+      maxChars={250}
+      name="major_works"
+    />
+    <FieldLabel
+      className="mb-2"
+      extraText=""
+      helpText=""
+      id={null}
+      optional={true}
+      text="Social links"
+    />
+    <FieldArray
+      component={[Function]}
+      name="urls_detailed"
+    />
+    <FieldLabel
+      className="mb-2"
+      extraText=""
+      helpText=""
+      id={null}
+      optional={true}
+      text="Areas of expertise"
+    />
+    <FieldArray
+      component={[Function]}
+      name="areas_of_expertise"
+    />
+    <ButtonToolbar
+      className=""
+      leftJustify={false}
+    >
+      <Link
+        className="btn btn-outline-primary form-cancel-btn"
+        disabled={true}
+        onClick={[Function]}
+        to="/"
+      >
+        Cancel
+      </Link>
+      <ActionButton
+        className=""
+        disabled={true}
+        labels={
+          Object {
+            "default": "Save",
+            "pending": "Saving",
+          }
+        }
+        primary={true}
+        state="default"
+      />
+    </ButtonToolbar>
+  </form>
+</div>
+`;
+
+exports[`StafferForm renders html correctly when creating 1`] = `
+<div
+  className="create-staffer-form"
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <Field
+      className="staffer-image"
+      component={[Function]}
+      id="profile_image"
+      label={
+        <FieldLabel
+          className=""
+          extraText="Image must be 110x110 pixels in size."
+          helpText={
+            <div>
+              <p>
+                Image Requirements:
+              </p>
+              <ul>
+                <li>
+                  The image dimensions must be 110×110.
+                </li>
+                <li>
+                  The image size must be less than 256KB.
+                </li>
+              </ul>
+            </div>
+          }
+          id="image.label"
+          optional={false}
+          text="Image"
+        />
+      }
+      maxImageSizeKilo={256}
+      name="profile_image.medium.url"
+      required={false}
+      requiredHeight={110}
+      requiredWidth={110}
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="First name"
+        />
+      }
+      name="given_name"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Last name"
+        />
+      }
+      name="family_name"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                Instructor's title at your organization.
+              </p>
+              <p>
+                <b>
+                  Examples:
+                </b>
+              </p>
+              <ul>
+                <li>
+                  Professor
+                </li>
+                <li>
+                  Content Developer
+                </li>
+                <li>
+                  Director
+                </li>
+              </ul>
+            </div>
+          }
+          id="title.label"
+          optional={false}
+          text="Title"
+        />
+      }
+      name="position.title"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      currentValue=""
+      formatCreateLabel={[Function]}
+      isCreatable={true}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Organization"
+        />
+      }
+      name="position.organization_override"
+      options={Array []}
+      placeholder="Organization..."
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      id="bio"
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Biography"
+        />
+      }
+      maxChars={1000}
+      name="bio"
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      id="works"
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={true}
+          text="Major works"
+        />
+      }
+      maxChars={250}
+      name="major_works"
+    />
+    <FieldLabel
+      className="mb-2"
+      extraText=""
+      helpText=""
+      id={null}
+      optional={true}
+      text="Social links"
+    />
+    <FieldArray
+      component={[Function]}
+      name="urls_detailed"
+    />
+    <FieldLabel
+      className="mb-2"
+      extraText=""
+      helpText=""
+      id={null}
+      optional={true}
+      text="Areas of expertise"
+    />
+    <FieldArray
+      component={[Function]}
+      name="areas_of_expertise"
+    />
+    <ButtonToolbar
+      className=""
+      leftJustify={false}
+    >
+      <Link
+        className="btn btn-outline-primary form-cancel-btn"
+        disabled={true}
+        onClick={[Function]}
+        to="/"
+      >
+        Cancel
+      </Link>
+      <ActionButton
+        className=""
+        disabled={true}
+        labels={
+          Object {
+            "default": "Save",
+            "pending": "Saving",
+          }
+        }
+        primary={true}
+        state="pending"
+      />
+    </ButtonToolbar>
+  </form>
+</div>
+`;
+
+exports[`StafferForm renders html correctly when submitting 1`] = `
+<div
+  className="create-staffer-form"
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <Field
+      className="staffer-image"
+      component={[Function]}
+      id="profile_image"
+      label={
+        <FieldLabel
+          className=""
+          extraText="Image must be 110x110 pixels in size."
+          helpText={
+            <div>
+              <p>
+                Image Requirements:
+              </p>
+              <ul>
+                <li>
+                  The image dimensions must be 110×110.
+                </li>
+                <li>
+                  The image size must be less than 256KB.
+                </li>
+              </ul>
+            </div>
+          }
+          id="image.label"
+          optional={false}
+          text="Image"
+        />
+      }
+      maxImageSizeKilo={256}
+      name="profile_image.medium.url"
+      required={false}
+      requiredHeight={110}
+      requiredWidth={110}
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="First name"
+        />
+      }
+      name="given_name"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Last name"
+        />
+      }
+      name="family_name"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                Instructor's title at your organization.
+              </p>
+              <p>
+                <b>
+                  Examples:
+                </b>
+              </p>
+              <ul>
+                <li>
+                  Professor
+                </li>
+                <li>
+                  Content Developer
+                </li>
+                <li>
+                  Director
+                </li>
+              </ul>
+            </div>
+          }
+          id="title.label"
+          optional={false}
+          text="Title"
+        />
+      }
+      name="position.title"
+      required={true}
+      type="text"
+    />
+    <Field
+      component={[Function]}
+      currentValue=""
+      formatCreateLabel={[Function]}
+      isCreatable={true}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Organization"
+        />
+      }
+      name="position.organization_override"
+      options={Array []}
+      placeholder="Organization..."
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      id="bio"
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={false}
+          text="Biography"
+        />
+      }
+      maxChars={1000}
+      name="bio"
+      validate={[Function]}
+    />
+    <Field
+      component={[Function]}
+      id="works"
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText=""
+          id={null}
+          optional={true}
+          text="Major works"
+        />
+      }
+      maxChars={250}
+      name="major_works"
+    />
+    <FieldLabel
+      className="mb-2"
+      extraText=""
+      helpText=""
+      id={null}
+      optional={true}
+      text="Social links"
+    />
+    <FieldArray
+      component={[Function]}
+      name="urls_detailed"
+    />
+    <FieldLabel
+      className="mb-2"
+      extraText=""
+      helpText=""
+      id={null}
+      optional={true}
+      text="Areas of expertise"
+    />
+    <FieldArray
+      component={[Function]}
+      name="areas_of_expertise"
+    />
+    <ButtonToolbar
+      className=""
+      leftJustify={false}
+    >
+      <Link
+        className="btn btn-outline-primary form-cancel-btn"
+        disabled={false}
+        onClick={[Function]}
+        to="/"
+      >
+        Cancel
+      </Link>
+      <ActionButton
+        className=""
+        disabled={false}
+        labels={
+          Object {
+            "default": "Save",
+            "pending": "Saving",
+          }
+        }
+        primary={true}
+        state="default"
+      />
+    </ButtonToolbar>
+  </form>
+</div>
+`;

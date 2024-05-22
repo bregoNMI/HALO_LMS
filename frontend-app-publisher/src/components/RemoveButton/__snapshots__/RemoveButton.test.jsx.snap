@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RemoveButton renders correctly 1`] = `
+<button
+  aria-label="Test Label"
+  className="close float-none d-flex justify-content-center align-items-center"
+  onClick={[Function]}
+  title="Test Label"
+  type="button"
+>
+  <SvgClose
+    id="remove-field"
+  />
+</button>
+`;

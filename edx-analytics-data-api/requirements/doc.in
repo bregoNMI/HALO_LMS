@@ -1,0 +1,7 @@
+# Dependencies for building documentation
+
+-r base.in                          # Core dependencies of edx-analytics-data-api
+
+Sphinx                              # Developer documentation builder
+path
+sphinx-book-theme

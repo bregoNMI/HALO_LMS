@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RenderSelectField renders html for select field 1`] = `
+<div
+  className="pgn__form-group"
+>
+  <FormGroupContextProvider
+    controlId="Test-text-label"
+    isInvalid={false}
+    isValid={false}
+  >
+    <FormLabel
+      isInline={false}
+    >
+      TestLabel
+    </FormLabel>
+    <ForwardRef
+      as="select"
+      autoResize={false}
+      disabled={false}
+      hidden={false}
+      label="TestLabel"
+      name="Test"
+      plaintext={false}
+      required={false}
+    >
+      <option />
+      <option />
+      <option />
+    </ForwardRef>
+  </FormGroupContextProvider>
+</div>
+`;

@@ -1,0 +1,83 @@
+# Python bytecode:
+*.py[co]
+
+# Packaging files:
+*.egg*
+.python
+
+# Sphinx docs:
+build
+_build
+
+# SQLite3 database files:
+*.db
+
+# Logs:
+*.log
+
+# Eclipse
+.project
+.pydevproject
+.settings
+
+# Linux Editors
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.\#*
+*.swp
+*.swo
+
+# Mac
+.DS_Store
+._*
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+.idea/
+assets/
+node_modules/
+analytics_dashboard/static/bower_components/
+analytics_dashboard/static/dist/
+analytics_dashboard/static/bundles/
+.coverage
+nosetests.xml
+reports/
+coverage/
+src/
+
+acceptance_tests.*.png
+
+
+### Internationalization artifacts
+*.mo
+*.po
+*.prob
+!django.po
+!django.mo
+!djangojs.po
+!djangojs.mo
+conf/locale/en/LC_MESSAGES/*.po
+conf/locale/en/LC_MESSAGES/*.mo
+conf/locale/fake*/LC_MESSAGES/*.po
+conf/locale/fake*/LC_MESSAGES/*.mo
+conf/locale/messages.mo
+
+# Unit test / coverage reports
+coverage/
+.coverage
+htmlcov
+.tox
+
+# Webpack
+webpack-stats.json
+
+
+# transifex exe
+tx

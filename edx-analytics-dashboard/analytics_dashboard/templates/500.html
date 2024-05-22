@@ -1,0 +1,12 @@
+{% extends "base-error.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "An Error Occurred" %} {{ block.super }}{% endblock title %}
+
+{% block error-code %}500{% endblock %}
+{% block error-title %}{% trans "An Error Occurred" %}{% endblock %}
+{% block error-copy %}
+  {% trans "Our servers weren't able to complete your request. Please try again by refreshing this page or retracing your steps." %}
+  {{ block.super }}
+{% endblock %}

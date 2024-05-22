@@ -1,0 +1,6 @@
+-c constraints.txt
+
+-r base.txt # Core dependencies of edx-analytics-dashboard
+
+Sphinx
+sphinx-book-theme

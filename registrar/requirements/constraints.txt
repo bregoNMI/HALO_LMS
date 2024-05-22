@@ -1,0 +1,50 @@
+# Version constraints for pip-installation.
+#
+# This file doesn't install any packages. It specifies version constraints
+# that will be applied if a package is needed.
+#
+# When pinning something here, please provide an explanation of why.  Ideally,
+# link to other information that will help people in the future to remove the
+# pin when possible.  Writing an issue against the offending project and
+# linking to it here is good.
+
+# Common constraints for edx repos
+-c common_constraints.txt
+
+# This constraint can be removed once global constraint is updated.
+Django<4.3
+
+# Version 3.2.0 contains bad arabic translations that will cause validation tests to fail
+django-extensions<3.2.0
+
+# django-storages version 1.10.1 is major upgrade.
+django-storages==1.10.1
+
+# From base.in
+celery<6.0  # keeping the version same as edx-platform
+
+
+code-annotations>=0.3.1  # Pinned to avoid pyyaml security alerts. (https://github.com/openedx/registrar/pull/42)
+
+# transifex-client==0.14.2(latest) requires python-slugify<5.0.0 for Python 2.0 support.
+# This can be removed once transifex-client drops support for Python 2.0 and removes the required constraint.
+python-slugify<5.0.0
+
+# From production.in
+boto3>=1.4.4    # https://github.com/openedx/registrar/pull/66
+
+
+# Constraint responses library to be less than 0.18.0 because version 0.18.0 would remove response._is_string() member function.
+# That _is_string() function is used by moto==1.3.8
+responses < 0.18.0
+
+# Requires: Python >=3.6
+newrelic<6.0
+
+# At the time of adding this, the version of deprecated required (1.2.13) requires
+# wrapt > 1.10, <2, (https://github.com/tantale/deprecated/blob/801c558a07ef930f92fc070045d86cb5640397eb/setup.py#L161)
+# but base.in is for some reason compiled to require ==1.14, which conflicts with later requirements.
+wrapt < 1.14.0
+
+# At the time of adding this, the moto version 4.1.9 requires urllib3<1.27,>=1.25.4
+urllib3<1.27,>=1.25.4

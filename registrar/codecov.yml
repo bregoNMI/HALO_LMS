@@ -1,0 +1,11 @@
+comment: off
+coverage:
+  status:
+    patch:
+      default:
+        target: 100
+    project:
+      default:
+        target: 100
+ignore:
+  - "registrar/apps/core/permissions.py"

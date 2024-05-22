@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+      <title><%= (process.env.SITE_NAME && process.env.SITE_NAME != 'null') ? 'Authentication | ' + process.env.SITE_NAME : 'Authentication' %></title>    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="shortcut icon" href="<%=htmlWebpackPlugin.options.FAVICON_URL%>" type="image/x-icon"/>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.9/iframeResizer.contentWindow.min.js"
+              integrity="sha512-mdT/HQRzoRP4laVz49Mndx6rcCGA3IhuyhP3gaY0E9sZPkwbtDk9ttQIq9o8qGCf5VvJv1Xsy3k2yTjfUoczqw=="
+              crossorigin="anonymous"
+              referrerpolicy="no-referrer">
+      </script>
+      <% if (process.env.OPTIMIZELY_URL) { %>
+        <script
+          src="<%= process.env.OPTIMIZELY_URL %>"
+        ></script>
+      <% } else if (process.env.OPTIMIZELY_PROJECT_ID) { %>
+        <script
+          src="<%= process.env.MARKETING_SITE_BASE_URL %>/optimizelyjs/<%= process.env.OPTIMIZELY_PROJECT_ID %>.js"
+        ></script>
+      <% } %>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

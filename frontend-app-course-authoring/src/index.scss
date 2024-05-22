@@ -1,0 +1,53 @@
+@import "~@edx/brand/paragon/fonts";
+@import "~@edx/brand/paragon/variables";
+@import "~@openedx/paragon/scss/core/core";
+@import "~@edx/brand/paragon/overrides";
+@import "~@edx/frontend-component-header/dist/index";
+@import "assets/scss/variables";
+@import "assets/scss/form";
+@import "assets/scss/utilities";
+@import "assets/scss/animations";
+@import "pages-and-resources/discussions/app-list/AppList";
+@import "advanced-settings/scss/AdvancedSettings";
+@import "grading-settings/scss/GradingSettings";
+@import "studio-home/scss/StudioHome";
+@import "generic/styles";
+@import "schedule-and-details/ScheduleAndDetails";
+@import "course-team/CourseTeam";
+@import "course-updates/CourseUpdates";
+@import "export-page/CourseExportPage";
+@import "import-page/CourseImportPage";
+@import "taxonomy";
+@import "files-and-videos";
+@import "content-tags-drawer";
+@import "course-outline/CourseOutline";
+@import "course-unit/CourseUnit";
+@import "course-checklist/CourseChecklist";
+@import "textbooks/Textbooks";
+@import "content-tags-drawer/ContentTagsDropDownSelector";
+@import "content-tags-drawer/ContentTagsCollapsible";
+@import "search-modal/SearchModal";
+@import "certificates/scss/Certificates";
+@import "group-configurations/GroupConfigurations";
+
+// To apply the glow effect to the selected Section/Subsection, in the Course Outline
+div.row:has(> div > div.highlight) {
+  animation: 5s glow;
+  animation-timing-function: cubic-bezier(1, 0, .72, .04);
+}
+
+// To apply the glow effect to the selected xblock, in the Unit Outline
+div.xblock-highlight {
+  animation: 5s glow;
+  animation-timing-function: cubic-bezier(1, 0, .72, .04);
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px 5px $primary-500;
+  }
+
+  100% {
+    box-shadow: unset;
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "extends": [
+    "config:base",
+    ":automergeLinters",
+    ":automergeTesters",
+    ":automergeMinor",
+    ":noUnscheduledUpdates",
+    ":semanticCommits"
+  ],
+  "rebaseStalePrs": true,
+  "schedule": [
+    "every weekday"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": ["node", "npm", "@tinymce/tinymce-react"],
+      "enabled": false
+    },
+    {
+      "matchPackagePatterns": ["@edx", "@openedx"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeSchedule": ["at any time"]
+    }
+  ]
+}

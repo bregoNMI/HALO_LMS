@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Pill renders with a single status 1`] = `
+Array [
+  <span
+    class="ml-2 badge badge-light"
+  >
+    In review
+  </span>,
+  <span
+    class="ml-2"
+  >
+    <i
+      class="fa fa-lock"
+    />
+  </span>,
+]
+`;
+
+exports[`Pill renders with invalid statuses 1`] = `null`;
+
+exports[`Pill renders with multiple statuses 1`] = `
+Array [
+  <span
+    class="ml-2 badge badge-light"
+  >
+    In review
+  </span>,
+  <span
+    class="ml-2"
+  >
+    <i
+      class="fa fa-lock"
+    />
+  </span>,
+  <span
+    class="ml-2 badge badge-success"
+  >
+    Published
+  </span>,
+]
+`;
+
+exports[`Pill renders without any statuses 1`] = `null`;

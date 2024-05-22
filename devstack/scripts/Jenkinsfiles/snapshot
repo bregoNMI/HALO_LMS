@@ -1,0 +1,28 @@
+pipeline {
+    agent { label "devstack-worker" }
+    environment {
+        COMPOSE_HTTP_TIMEOUT = '120'
+        DOCKER_CLIENT_TIMEOUT = '120'
+        USE_TTY = 'false'
+    }
+    options {
+        timestamps()
+        timeout(120)
+    }
+    stages {
+        stage("Build installer") {
+            steps {
+                        sh 'make requirements'
+                        sh 'make dev.clone.https'
+                        sh 'make dev.pull'
+                        sh 'make dev.provision'
+                        sh 'bash  devstack_snapshot.sh'
+		}
+        }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}

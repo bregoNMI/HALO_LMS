@@ -1,0 +1,104 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AlertMessage should default its severity when necessary 1`] = `
+<div>
+  <div
+    class="fade alert-content alert alert-warning show"
+    dialog="Wondrous message!"
+    role="alert"
+  >
+    <div
+      class="pgn__alert-message-wrapper"
+    >
+      <div
+        class="alert-message-content"
+      >
+        Wondrous message!
+      </div>
+      <div
+        class="pgn__alert-actions pgn__action-row"
+      >
+        <span
+          class="pgn__action-row-spacer"
+        />
+        <button
+          class="btn btn-tertiary btn-sm"
+          type="button"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`AlertMessage should render a userMessage element 1`] = `
+<div>
+  <div
+    class="fade alert-content alert alert-warning show"
+    dialog="[object Object]"
+    role="alert"
+  >
+    <div
+      class="pgn__alert-message-wrapper"
+    >
+      <div
+        class="alert-message-content"
+      >
+        <span
+          values="[object Object]"
+        >
+          Wondrous message!
+        </span>
+      </div>
+      <div
+        class="pgn__alert-actions pgn__action-row"
+      >
+        <span
+          class="pgn__action-row-spacer"
+        />
+        <button
+          class="btn btn-tertiary btn-sm"
+          type="button"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`AlertMessage should render a userMessage function 1`] = `
+<div>
+  <div
+    class="fade alert-content alert alert-warning show"
+    dialog="[object Object]"
+    role="alert"
+  >
+    <div
+      class="pgn__alert-message-wrapper"
+    >
+      <div
+        class="alert-message-content"
+      >
+        Wondrous message!
+      </div>
+      <div
+        class="pgn__alert-actions pgn__action-row"
+      >
+        <span
+          class="pgn__action-row-spacer"
+        />
+        <button
+          class="btn btn-tertiary btn-sm"
+          type="button"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;

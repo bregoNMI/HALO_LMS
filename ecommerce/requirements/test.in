@@ -1,0 +1,24 @@
+-c constraints.txt
+-r base.txt
+-r e2e.txt                  # required for quality
+-r tox.txt
+
+coverage
+ddt
+diff-cover
+django-webtest
+edx-i18n-tools              # required for quality
+factory-boy
+freezegun
+isort
+lxml
+mock
+pycodestyle
+pylint
+pytest
+pytest-cov
+pytest-django
+python-memcached==1.59      # required by collectstatic in devstack
+responses
+selenium
+testfixtures                # Provides a LogCapture utility used by several tests

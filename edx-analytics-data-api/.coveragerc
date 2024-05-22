@@ -1,0 +1,20 @@
+[run]
+omit = analyticsdataserver/settings*
+       *wsgi.py
+
+source = analyticsdataserver, analytics_data_api
+branch = True
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+    raise NotImplementedError
+
+[html]
+directory = ${COVERAGE_DIR}/html/
+
+[xml]
+output = ${COVERAGE_DIR}/coverage.xml

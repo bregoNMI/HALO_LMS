@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`redux tests basket reducer should return the default state when appropriate 1`] = `
+Object {
+  "basket": Object {
+    "isBasketProcessing": false,
+    "loaded": false,
+    "loading": true,
+    "products": Array [],
+    "redirect": false,
+    "submitting": false,
+  },
+  "captureKey": Object {
+    "captureKeyId": "",
+    "isCaptureKeyProcessing": false,
+    "microformStatus": "LOADING",
+  },
+  "clientSecret": Object {
+    "clientSecretId": "",
+    "isClientSecretProcessing": false,
+  },
+}
+`;
+
+exports[`redux tests basket reducer should return the default state when appropriate 2`] = `
+Object {
+  "basket": Object {
+    "isBasketProcessing": false,
+    "loaded": false,
+    "loading": true,
+    "products": Array [],
+    "redirect": false,
+    "submitting": false,
+  },
+  "captureKey": Object {
+    "captureKeyId": "",
+    "isCaptureKeyProcessing": false,
+    "microformStatus": "LOADING",
+  },
+  "clientSecret": Object {
+    "clientSecretId": "",
+    "isClientSecretProcessing": false,
+  },
+}
+`;
+
+exports[`redux tests basket reducer should return the default state when appropriate 3`] = `
+Object {
+  "basket": Object {
+    "isBasketProcessing": false,
+    "loaded": false,
+    "loading": true,
+    "products": Array [],
+    "redirect": false,
+    "submitting": false,
+  },
+  "captureKey": Object {
+    "captureKeyId": "",
+    "isCaptureKeyProcessing": false,
+    "microformStatus": "LOADING",
+  },
+  "clientSecret": Object {
+    "clientSecretId": "",
+    "isClientSecretProcessing": false,
+  },
+}
+`;

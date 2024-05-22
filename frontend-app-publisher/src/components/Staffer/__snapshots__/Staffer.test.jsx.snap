@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Staffer renders the staffer 1`] = `
+<Fragment>
+  <div
+    className="staffer-image-wrapper overflow-hidden"
+  >
+    <img
+      alt=""
+      className="rounded-circle w-25"
+      src="/media/people/profile_images/2aba6189-ad7e-45a8-b269-bea071b80391-11df6812f839.png"
+    />
+  </div>
+  <div
+    className="staffer-details"
+  >
+    <button
+      className="btn js-delete-btn mr-1 p-0"
+      disabled={false}
+      onClick={[Function]}
+      type="button"
+    >
+      <SvgDelete
+        className="text-gray-500"
+        id="delete-icon-2aba6189-ad7e-45a8-b269-bea071b80391"
+        screenReaderText="Remove Dave Grohl"
+      />
+    </button>
+    <Link
+      className="btn mr-1 p-0"
+      onClick={[Function]}
+      to="/instructors/2aba6189-ad7e-45a8-b269-bea071b80391"
+    >
+      <SvgEdit
+        className="text-gray-500"
+        id="edit-icon-2aba6189-ad7e-45a8-b269-bea071b80391"
+        screenReaderText="Edit Dave Grohl"
+        title="Edit"
+      />
+    </Link>
+    <span
+      className="name font-weight-bold"
+    >
+      Dave Grohl
+    </span>
+  </div>
+</Fragment>
+`;

@@ -1,0 +1,91 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ReportSection component renders contents when program data is passed in 1`] = `
+<div>
+  <div
+    class="pgn_collapsible shadow collapsible-card is-open"
+  >
+    <div
+      aria-expanded="true"
+      class="collapsible-trigger"
+      role="button"
+      tabindex="0"
+    >
+      <span>
+        Download Reports
+      </span>
+      <span
+        class="collapsible-icon"
+      >
+        <span
+          class="pgn__icon"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            focusable="false"
+            height="24"
+            role="img"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14l-6-6Z"
+              fill="currentColor"
+            />
+          </svg>
+        </span>
+      </span>
+    </div>
+    <div
+      class="pgn-transition-replace-group position-relative"
+    >
+      <div
+        style="padding: .1px 0px;"
+      >
+        <div
+          class="collapsible-body"
+        >
+          <div
+            class="container"
+          >
+            <div
+              class="fade alert-content alert alert-info show"
+              role="alert"
+            >
+              <div
+                class="pgn__alert-message-wrapper"
+              >
+                <div
+                  class="alert-message-content"
+                >
+                  The data contained in these reports reflect enrollments only and are not intended to be used for financial reporting or reconciliation.
+                </div>
+              </div>
+            </div>
+            <div>
+              <a
+                href="example.com/first-report"
+                id="console-report"
+              >
+                first-report
+              </a>
+            </div>
+            <div>
+              <a
+                href="example.com/second-report"
+                id="console-report"
+              >
+                second-report
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ReportSection component renders with the most basic props passed to it 1`] = `<div />`;

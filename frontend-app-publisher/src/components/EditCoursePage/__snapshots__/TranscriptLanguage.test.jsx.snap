@@ -1,0 +1,176 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Transcript Language renders correctly when given fields 1`] = `
+<div
+  className="transcript-languages mb-3"
+  tabIndex="-1"
+>
+  <ul
+    className="list-group p-0 m-0 container-fluid"
+  >
+    <li
+      className="transcript-language list-group-item row d-flex align-items-center px-0 mx-0"
+      key="[object Object]"
+    >
+      <div
+        className="col-11"
+      >
+        <Field
+          component={[Function]}
+          disabled={false}
+          extraInput={
+            Object {
+              "onInvalid": undefined,
+            }
+          }
+          label={
+            <FieldLabel
+              className=""
+              extraText=""
+              helpText=""
+              id={null}
+              optional={false}
+              required={true}
+              text="Transcript language"
+            />
+          }
+          name="[object Object]"
+          options={
+            Array [
+              Object {
+                "label": "Arabic - United Arab Emirates",
+                "value": "ar-ae",
+              },
+            ]
+          }
+          required={true}
+          type="text"
+        />
+      </div>
+      <RemoveButton
+        className="col-1"
+        disabled={false}
+        label="Remove language"
+        onRemove={[Function]}
+        targetFieldNumber={0}
+      />
+    </li>
+  </ul>
+  <button
+    className="btn btn-outline-primary js-add-button mt-2"
+    disabled={false}
+    onClick={[Function]}
+    type="button"
+  >
+    Add language
+  </button>
+</div>
+`;
+
+exports[`Transcript Language renders correctly with an error after failed submission 1`] = `
+<div
+  className="transcript-languages mb-3"
+  tabIndex="-1"
+>
+  <ForwardRef
+    dismissible={false}
+    onClose={[Function]}
+    show={true}
+    stacked={false}
+    transition={
+      Object {
+        "$$typeof": Symbol(react.forward_ref),
+        "defaultProps": Object {
+          "appear": false,
+          "in": false,
+          "mountOnEnter": false,
+          "timeout": 300,
+          "unmountOnExit": false,
+        },
+        "render": [Function],
+      }
+    }
+    variant="danger"
+  >
+    This field is required
+  </ForwardRef>
+  <ul
+    className="list-group p-0 m-0 container-fluid"
+  >
+    <li
+      className="transcript-language list-group-item row d-flex align-items-center px-0 mx-0"
+      key="[object Object]"
+    >
+      <div
+        className="col-11"
+      >
+        <Field
+          component={[Function]}
+          disabled={false}
+          extraInput={
+            Object {
+              "onInvalid": undefined,
+            }
+          }
+          label={
+            <FieldLabel
+              className=""
+              extraText=""
+              helpText=""
+              id={null}
+              optional={false}
+              required={true}
+              text="Transcript language"
+            />
+          }
+          name="[object Object]"
+          options={
+            Array [
+              Object {
+                "label": "Arabic - United Arab Emirates",
+                "value": "ar-ae",
+              },
+            ]
+          }
+          required={true}
+          type="text"
+        />
+      </div>
+      <RemoveButton
+        className="col-1"
+        disabled={false}
+        label="Remove language"
+        onRemove={[Function]}
+        targetFieldNumber={0}
+      />
+    </li>
+  </ul>
+  <button
+    className="btn btn-outline-primary js-add-button mt-2"
+    disabled={false}
+    onClick={[Function]}
+    type="button"
+  >
+    Add language
+  </button>
+</div>
+`;
+
+exports[`Transcript Language renders correctly with no fields 1`] = `
+<div
+  className="transcript-languages mb-3"
+  tabIndex="-1"
+>
+  <ul
+    className="list-group p-0 m-0 container-fluid"
+  />
+  <button
+    className="btn btn-outline-primary js-add-button mt-2"
+    disabled={false}
+    onClick={[Function]}
+    type="button"
+  >
+    Add language
+  </button>
+</div>
+`;

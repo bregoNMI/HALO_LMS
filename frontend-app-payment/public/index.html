@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <% _.forEach(htmlWebpackPlugin.options.preconnect, function(preconnectURL) { %>
+    <link rel="preconnect" href="<%= preconnectURL %>" />
+    <% }); %>
+    <title>Payment | edX</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="<%=htmlWebpackPlugin.options.FAVICON_URL%>" type="image/x-icon" />
+
+    <% _.forEach(htmlWebpackPlugin.files.css, function(file) { %>
+      <% /* NOTE: A future version of html-webpack-plugin will allow us to inject the scripts with
+            htmlWebpackPlugin.tags.headTags instead of our manual looping. */ %>
+    <link href="<%= file %>" rel="stylesheet">
+    <% }); %>
+
+    <% if (htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID) { %>
+    <script src="https://www.edx.org/optimizelyjs/<%= htmlWebpackPlugin.options.OPTIMIZELY_PROJECT_ID %>.js"></script>
+    <% } %>
+  </head>
+  <body>
+    <div id="root">
+      <div class="d-flex p-5 justify-content-center">
+        <div class="spinner-border" role="status"></div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="https://flex.cybersource.com/cybersource/assets/microform/0.11/flex-microform.min.js"></script>
+  </body>
+</html>

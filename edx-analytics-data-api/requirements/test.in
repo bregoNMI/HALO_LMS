@@ -1,0 +1,16 @@
+# Test dependencies go here.
+
+-r base.in                          # Core dependencies of edx-analytics-data-api
+
+coverage
+ddt
+diff-cover
+django-dynamic-fixture
+freezegun
+pycodestyle
+pydocstyle
+pylint
+pytest-cov
+pytest-django
+pytz
+responses

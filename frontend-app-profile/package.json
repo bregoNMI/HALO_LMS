@@ -1,0 +1,78 @@
+{
+  "name": "@edx/frontend-app-profile",
+  "version": "1.0.0-semantically-released",
+  "description": "User profile micro-frontend for Open edX",
+  "author": "edX",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openedx/frontend-app-profile.git"
+  },
+  "scripts": {
+    "build": "fedx-scripts webpack",
+    "i18n_extract": "fedx-scripts formatjs extract",
+    "lint": "fedx-scripts eslint --ext .js --ext .jsx .",
+    "snapshot": "fedx-scripts jest --updateSnapshot",
+    "start": "fedx-scripts webpack-dev-server --progress",
+    "test": "TZ=UTC fedx-scripts jest --coverage --passWithNoTests",
+    "stubs": "pact-stub-service ./src/pacts/frontend-app-profile-edx-platform.json --port 18000"
+  },
+  "bugs": {
+    "url": "https://github.com/openedx/frontend-app-profile/issues"
+  },
+  "homepage": "https://github.com/openedx/frontend-app-profile#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "browserslist": [
+    "extends @edx/browserslist-config"
+  ],
+  "dependencies": {
+    "@edx/brand": "npm:@openedx/brand-openedx@^1.2.2",
+    "@edx/frontend-component-header": "5.3.2",
+    "@edx/frontend-platform": "7.1.4",
+    "@edx/openedx-atlas": "^0.6.0",
+    "@fortawesome/fontawesome-svg-core": "6.5.2",
+    "@fortawesome/free-brands-svg-icons": "6.5.2",
+    "@fortawesome/free-regular-svg-icons": "6.5.2",
+    "@fortawesome/free-solid-svg-icons": "6.5.2",
+    "@fortawesome/react-fontawesome": "0.2.1",
+    "@openedx/frontend-slot-footer": "^1.0.2",
+    "@openedx/paragon": "^22.2.2",
+    "@pact-foundation/pact": "^11.0.2",
+    "@redux-devtools/extension": "3.3.0",
+    "classnames": "2.5.1",
+    "core-js": "3.36.1",
+    "history": "5.3.0",
+    "lodash.camelcase": "4.3.0",
+    "lodash.get": "4.4.2",
+    "lodash.pick": "4.4.0",
+    "lodash.snakecase": "4.1.1",
+    "prop-types": "15.8.1",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-helmet": "6.1.0",
+    "react-redux": "7.2.9",
+    "react-router": "6.22.3",
+    "react-router-dom": "6.22.3",
+    "redux": "4.2.1",
+    "redux-logger": "3.0.6",
+    "redux-saga": "1.3.0",
+    "redux-thunk": "2.4.2",
+    "regenerator-runtime": "0.14.1",
+    "reselect": "4.1.8",
+    "universal-cookie": "4.0.4"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "19.3.0",
+    "@commitlint/config-angular": "19.3.0",
+    "@edx/browserslist-config": "^1.1.1",
+    "@edx/reactifex": "2.2.0",
+    "@openedx/frontend-build": "13.1.4",
+    "@testing-library/jest-dom": "6.4.5",
+    "@testing-library/react": "12.1.5",
+    "glob": "10.3.15",
+    "reactifex": "1.1.1",
+    "redux-mock-store": "1.5.4"
+  }
+}

@@ -1,0 +1,15 @@
+[run]
+data_file = .coverage
+omit =
+    docs/*
+    ecommerce/settings*
+    ecommerce/conf*
+    *wsgi.py
+    *migrations*
+    *admin.py
+    *test*
+    *static*
+    *templates*
+    ecommerce/extensions/checkout/apps.py
+    ecommerce/extensions/dashboard/refunds/config.py
+    ecommerce/extensions/experimentation/utils.py

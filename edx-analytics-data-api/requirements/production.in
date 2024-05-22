@@ -1,0 +1,10 @@
+# Pro-tip: Try not to put anything here. There should be no dependency in
+# production that isn't in development.
+
+-r base.in                          # Core dependencies of edx-analytics-data-api
+mysqlclient                         # GPL License
+PyYAML                              # MIT
+gevent
+gunicorn                            # MIT
+path.py==8.2.1
+newrelic                            # New Relic agent for performance monitoring

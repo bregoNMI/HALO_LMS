@@ -1,0 +1,24 @@
+name: validate
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - '**'
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Nodejs Env
+      run: echo "NODE_VER=`cat .nvmrc`" >> $GITHUB_ENV
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VER }}
+    - run: make validate.ci
+    - name: Upload coverage
+      uses: codecov/codecov-action@v4
+      with:
+        fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}

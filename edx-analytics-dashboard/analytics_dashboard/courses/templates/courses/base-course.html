@@ -1,0 +1,15 @@
+{% extends "base_dashboard.html" %}
+{% load dashboard_extras %}
+
+{% block title %}{{ page_title }} - {{ course_key|format_course_key }} {{ block.super }}{% endblock title %}
+
+{# This is intentionally left blank. Course pages do not need a title block. #}
+{% block header-text %}{% endblock %}
+
+{% block content %}
+  {% block child_content %}
+  {% endblock %}
+  {% block data_messaging %}
+    {% include "courses/_data_last_updated.html" with update_message=update_message data_information_message=data_information_message %}
+  {% endblock %}
+{% endblock %}

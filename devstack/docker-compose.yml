@@ -1,0 +1,880 @@
+# This file contains all of the services for an edX installation. See https://docs.docker.com/compose/compose-file/
+# for the appropriate syntax and definitions.
+#
+# Housekeeping Rules:
+# - Group third-party services, edX services, and edX microfrontends separately
+# - Alphabetize services in the groups
+# - Alphabetize individual configuration options for each service
+# - Every service's container name should be prefixed with "edx.devstack." to avoid conflicts with other containers
+#   that might be running for the same service.
+
+version: "2.1"
+
+services:
+
+  # ================================================
+  # Third-party services
+  # ================================================
+
+  chrome:
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.chrome"
+    hostname: chrome.devstack.edx
+    image: edxops/chrome:${OPENEDX_RELEASE:-latest}
+    shm_size: 2g
+    networks:
+      default:
+        aliases:
+          - edx.devstack.chrome
+    ports:
+      - "15900:5900"
+    volumes:  # for file uploads
+      - ../edx-platform/common/test/data:/edx/app/edxapp/edx-platform/common/test/data
+
+  coursegraph:
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.coursegraph"
+    hostname: coursegraph.devstack.edx
+    # Try to keep this in sync with the NEO4J_VERSION declared within
+    # https://github.com/openedx/configuration/blob/master/playbooks/roles/neo4j
+    image: neo4j:5.15.0
+    networks:
+      default:
+        aliases:
+          - edx.devstack.coursegraph
+    ports:
+      - "7474:7474"  # Expose Web interface at http://localhost:7474.
+      - "7687:7687"  # Expose Bolt interface at bolt://user:password@localhost:7687.
+    volumes:
+      - coursegraph_data:/data
+    stdin_open: true
+    tty: true
+    environment:
+      NEO4J_AUTH: "neo4j/edxedxedx"  # Initial username/password for Neo4j Web interface.
+
+  elasticsearch710:
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.elasticsearch710"
+    hostname: elasticsearch710.devstack.edx
+    image: elasticsearch:7.10.1
+    networks:
+      default:
+        aliases:
+          - edx.devstack.elasticsearch710
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    volumes:
+      - elasticsearch710_data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+  # This is meant to be used to test OS upgrades.
+  opensearch12:
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.opensearch12"
+    hostname: opensearch12.devstack.edx
+    image: opensearchproject/opensearch:1.2.0
+    networks:
+      default:
+        aliases:
+          - edx.devstack.opensearch12
+    ports:
+      - "9202:9200"
+      - "9600:9600"
+    volumes:
+      - opensearch12_data:/usr/share/opensearch/data
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "plugins.security.disabled=true"
+
+  firefox:
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.firefox"
+    hostname: firefox.devstack.edx
+    image: edxops/firefox:${OPENEDX_RELEASE:-latest}
+    shm_size: 2g
+    networks:
+      default:
+        aliases:
+          - edx.devstack.firefox
+    ports:
+      - "25900:5900"
+    volumes:  # for file uploads
+      - ../edx-platform/common/test/data:/edx/app/edxapp/edx-platform/common/test/data
+
+  # Events broker
+  kafka:
+    image: confluentinc/cp-server:6.2.1
+    hostname: kafka.devstack.edx
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.kafka"
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'edx.devstack.zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://edx.devstack.kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://edx.devstack.schema-registry:8081
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: edx.devstack.kafka:29092
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+    networks:
+      default:
+        aliases:
+          - edx.devstack.kafka
+
+  # browser app for monitoring local Kafka cluster. This is quite memory- and CPU-intensive, so it should only be used for local Kafka debugging
+  kafka-control-center:
+    image: confluentinc/cp-enterprise-control-center:6.2.1
+    hostname: kafka-control-center.devstack.edx
+    container_name: edx.${COMPOSE_PROJECT_NAME:-devstack}.kafka-control-center
+    depends_on:
+      - kafka
+      - schema-registry
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: edx.devstack.kafka:29092
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://edx.devstack.schema-registry:8081
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      PORT: 9021
+    networks:
+      default:
+        aliases:
+          - edx.devstack.kafka-control-center
+
+  memcached:
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.memcached"
+    hostname: memcached.devstack.edx
+    image: memcached:1.5.10-alpine
+    networks:
+      default:
+        aliases:
+          - edx.devstack.memcached
+    # ports:
+    #   - "11211:11211"
+
+  mongo:
+    # We use WiredTiger in all environments. In development environments we use small files
+    # to conserve disk space, and disable the journal for a minor performance gain.
+    # See https://docs.mongodb.com/v3.0/reference/program/mongod/#options for complete details.
+    command: mongod --nojournal --storageEngine wiredTiger
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.mongo"
+    hostname: mongo.devstack.edx
+    image: mongo:${MONGO_VERSION:-5.0.24}
+    networks:
+      default:
+        aliases:
+          - edx.devstack.mongo
+    ports:
+     - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - mongo_config_data:/data/configdb
+
+  mysql57:
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.mysql57"
+    hostname: mysql57.devstack.edx
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    image: edxops/mysql:5.7
+    networks:
+      default:
+        aliases:
+          - edx.devstack.mysql57
+    ports:
+      - "3506:3306"
+    volumes:
+      - mysql57_data:/var/lib/mysql
+
+  mysql80:
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.mysql80"
+    hostname: mysql80.devstack.edx
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    # Oracle-packaged version includes a `linux/arm64/v8` version, needed for
+    # machines with Apple Silicon CPUs (Mac M1, M2)
+    image: mysql:8.0.33-oracle
+    networks:
+      default:
+        aliases:
+          - edx.devstack.mysql80
+    ports:
+      - "3406:3306"
+    volumes:
+      - mysql80_data:/var/lib/mysql
+
+  redis:
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.redis"
+    hostname: redis.devstack.edx
+    image: redis:7.2
+    command: redis-server --requirepass password
+    networks:
+      default:
+        aliases:
+          - edx.devstack.redis
+    volumes:
+      - redis_data:/data
+
+  # storage layer for data schemas in Kafka
+  schema-registry:
+    image: confluentinc/cp-schema-registry:6.2.1
+    hostname: schema-registry.devstack.edx
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.schema-registry"
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry.devstack.edx
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'edx.devstack.kafka:29092'
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    networks:
+      default:
+        aliases:
+          - edx.devstack.schema-registry
+
+  # needed by Kafka to keep track of nodes, topics, and messages.
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.2.1
+    hostname: zookeeper.devstack.edx
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.zookeeper"
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      default:
+        aliases:
+          - edx.devstack.zookeeper
+
+
+  # ================================================
+  # edX services
+  # ================================================
+
+  credentials:
+    command: bash -c 'source /edx/app/credentials/credentials_env && while true; do python /edx/app/credentials/credentials/manage.py runserver 0.0.0.0:18150; sleep 2; done'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.credentials"
+    hostname: credentials.devstack.edx
+    depends_on:
+      - lms
+      - memcached
+      - mysql80
+      - mysql57
+    # Allows attachment to the credentials service using 'docker attach <containerID>'.
+    stdin_open: true
+    tty: true
+    environment:
+      CACHE_LOCATION: edx.devstack.memcached:11211
+      DB_HOST: edx.devstack.mysql80
+      SOCIAL_AUTH_EDX_OIDC_URL_ROOT: http://edx.devstack.lms:18000/oauth2
+      ENABLE_DJANGO_TOOLBAR: 1
+      DJANGO_WATCHMAN_TIMEOUT: 30
+    image: edxops/credentials:${OPENEDX_RELEASE:-latest}
+    networks:
+      default:
+        aliases:
+          - edx.devstack.credentials
+    ports:
+      - "18150:18150"
+
+  discovery:
+    command: bash -c 'source /edx/app/discovery/discovery_env && while true; do python /edx/app/discovery/discovery/manage.py runserver 0.0.0.0:18381; sleep 2; done'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.discovery"
+    hostname: discovery.devstack.edx
+    depends_on:
+      - elasticsearch710
+      - memcached
+      - mysql80
+      - mysql57
+      - opensearch12
+      - redis
+    # Allows attachment to the discovery service using 'docker attach <containerID>'.
+    stdin_open: true
+    tty: true
+    environment:
+      # This next DB_MIGRATION_HOST line can be removed once edx/configuration has been updated with this value for
+      # a while and most people have had a chance to do a "make pull" to get the latest images.
+      DB_MIGRATION_HOST: edx.devstack.mysql80
+      TEST_ELASTICSEARCH_URL: "edx.devstack.elasticsearch710"
+      ENABLE_DJANGO_TOOLBAR: 1
+      DJANGO_WATCHMAN_TIMEOUT: 30
+    image: edxops/discovery-dev:${OPENEDX_RELEASE:-latest}
+    networks:
+      default:
+        aliases:
+          - edx.devstack.discovery
+    ports:
+      - "18381:18381"
+    volumes:
+      - discovery_assets:/edx/var/discovery/
+      - ${PWD}/configuration_files/discovery.yml:/edx/etc/discovery.yml
+
+  ecommerce:
+    command: bash -c 'source /edx/app/ecommerce/ecommerce_env && while true; do python /edx/app/ecommerce/ecommerce/manage.py runserver 0.0.0.0:18130; sleep 2; done'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.ecommerce"
+    hostname: ecommerce.devstack.edx
+    depends_on:
+      - discovery
+      - lms
+      - memcached
+      - mysql80
+      - mysql57
+    # Allows attachment to the ecommerce service using 'docker attach <containerID>'.
+    stdin_open: true
+    tty: true
+    environment:
+      DJANGO_WATCHMAN_TIMEOUT: 30
+      ENABLE_DJANGO_TOOLBAR: 1
+    image: edxops/ecommerce-dev:${OPENEDX_RELEASE:-latest}
+    networks:
+      default:
+        aliases:
+          - edx.devstack.ecommerce
+    ports:
+      - "18130:18130"
+    volumes:
+      - ${PWD}/configuration_files/ecommerce.yml:/edx/etc/ecommerce.yml
+
+
+  edx_notes_api:
+    # Sleep as a part of start up to give elasticsearch enough time to start up.
+    command: bash -c 'while true; do python /edx/app/notes/manage.py runserver 0.0.0.0:18120 --settings notesserver.settings.devstack; sleep 4; done'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.edxnotesapi"
+    hostname: edx_notes_api.devstack.edx
+    depends_on:
+      - elasticsearch710
+      - lms
+      - mysql80
+      - mysql57
+    image: openedx/edx-notes-api-dev:${OPENEDX_RELEASE:-latest}
+    networks:
+      default:
+        aliases:
+          - edx.devstack.edxnotesapi
+    ports:
+      - "18120:18120"
+    environment:
+      DB_ENGINE: "django.db.backends.mysql"
+      DB_HOST: "edx.devstack.mysql80"
+      DB_NAME: "notes"
+      DB_PASSWORD: "password"
+      DB_PORT: "3306"
+      DB_USER: "notes001"
+      DJANGO_WATCHMAN_TIMEOUT: 30
+      ENABLE_DJANGO_TOOLBAR: 1
+      ELASTICSEARCH_URL: "http://edx.devstack.elasticsearch710:9200"
+      ELASTICSEARCH_DSL: "http://edx.devstack.elasticsearch710:9200"
+
+  forum:
+    command: bash -c 'source /edx/app/forum/ruby_env && source /edx/app/forum/devstack_forum_env && cd /edx/app/forum/cs_comments_service && bundle install && while true; do ./bin/unicorn -c config/unicorn_tcp.rb -I .; sleep 2; done'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.forum"
+    hostname: forum.devstack.edx
+    depends_on:
+      - memcached
+      - mongo
+      - elasticsearch710
+      - opensearch12
+    image: edxops/forum:${OPENEDX_RELEASE:-latest}
+    stdin_open: true
+    tty: true
+    networks:
+      default:
+        aliases:
+          - edx.devstack.forum
+    ports:
+      - "44567:4567"
+
+  lms:
+    command: bash -c 'source /edx/app/edxapp/edxapp_env && while true; do python /edx/app/edxapp/edx-platform/manage.py lms runserver 0.0.0.0:18000 --settings devstack_docker; sleep 2; done'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.lms"
+    hostname: lms.devstack.edx
+    depends_on:
+      - discovery
+      - elasticsearch710
+      - forum
+      - memcached
+      - mongo
+      - mysql80
+      - mysql57
+    # Allows attachment to the LMS service using 'docker attach <containerID>'.
+    stdin_open: true
+    tty: true
+    environment:
+      FRONTEND_TEST_SERVER_HOSTNAME: edx.devstack.lms
+      FRONTEND_TEST_SERVER_LMS_PORT: 18003
+      FRONTEND_TEST_SERVER_CMS_PORT: 18031
+      EDXAPP_TEST_MONGO_HOST: edx.devstack.mongo
+      NO_PYTHON_UNINSTALL: 1
+      DJANGO_WATCHMAN_TIMEOUT: 30
+      VIRTUAL_ENV: "/edx/app/edxapp/venvs/edxapp"
+      LMS_CFG: "/edx/etc/lms.yml"
+      CMS_CFG: "/edx/etc/studio.yml"
+      PATH: "/edx/app/edxapp/venvs/edxapp/bin:/edx/app/edxapp/nodeenv/bin:/edx/app/edxapp/edx-platform/node_modules/.bin:/edx/app/edxapp/edx-platform/bin:${PATH}"
+      SERVICE_VARIANT: lms
+    image: openedx/lms-dev:${OPENEDX_RELEASE:-latest}
+    networks:
+      default:
+        aliases:
+          - edx.devstack.lms
+          - lms.devstack.edx
+    ports:
+      - "18000:18000"
+      - "19876:19876" # JS test debugging
+      # - "18003:18003"
+      # - "18031:18031"
+    volumes:
+      - edxapp_lms_assets:/edx/var/edxapp/staticfiles/
+
+  insights:
+    command: bash -c 'source /edx/app/insights/insights_env && while true; do python /edx/app/insights/insights/manage.py runserver 0.0.0.0:18110 --settings analytics_dashboard.settings.devstack; sleep 2; done'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.insights"
+    hostname: insights.devstack.edx
+    depends_on:
+      - analyticsapi
+      - mysql80
+      - mysql57
+      - lms
+      - memcached
+    # Allows attachment to the insights service using 'docker attach <containerID>'.
+    stdin_open: true
+    tty: true
+    environment:
+      DB_HOST: edx.devstack.mysql80
+      DB_NAME: dashboard
+      DB_PORT: 3306
+      DB_USER: analytics001
+      DB_PASSWORD: password
+      LMS_HOST: http://localhost:18000
+      DJANGO_SETTINGS_MODULE: analytics_dashboard.settings.devstack
+      ANALYTICS_DASHBOARD_CFG: /edx/etc/insights.yml
+    image: edxops/insights-dev:${OPENEDX_RELEASE:-latest}
+    working_dir: /edx/app/insights/insights
+    networks:
+      default:
+        aliases:
+          - edx.devstack.insights
+    ports:
+      - "18110:18110"
+    volumes:
+      - /edx/var/insights/
+      - ${PWD}/configuration_files/insights.yml:/edx/etc/insights.yml
+
+  analyticsapi:
+    image: edxops/analytics-api-dev:${OPENEDX_RELEASE:-latest}
+    container_name: edx.devstack.analyticsapi
+    hostname: analyticsapi
+    depends_on:
+      - mysql80
+      - mysql57
+      - elasticsearch710
+    command: bash -c 'source /edx/app/analytics_api/analytics_api_env && while true;  do python /edx/app/analytics_api/analytics_api/manage.py runserver 0.0.0.0:19001 --settings analyticsdataserver.settings.devstack; sleep 2; done'
+    stdin_open: true
+    tty: true
+    environment:
+      DB_HOST: edx.devstack.mysql80
+      DB_PORT: 3306
+      DB_USER: analytics001
+      DB_PASSWORD: password
+      ELASTICSEARCH_LEARNERS_HOST: edx.devstack.elasticsearch710
+    working_dir: /edx/app/analytics_api/analytics_api
+    ports:
+      - "19001:19001"
+    volumes:
+      - /edx/var/analyticsapi
+      - ${PWD}/configuration_files/analytics_api.yml:/edx/etc/analytics_api.yml
+
+  registrar:
+    command: bash -c 'while true; do python /edx/app/registrar/manage.py runserver 0.0.0.0:18734; sleep 2; done'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.registrar"
+    hostname: registrar.devstack.edx
+    depends_on:
+      - discovery
+      - lms
+      - mysql80
+      - mysql57
+      - memcached
+      - redis
+      - registrar-worker
+    # Allows attachment to the registrar service using 'docker attach <containerID>'.
+    stdin_open: true
+    tty: true
+    environment:
+      DB_HOST: edx.devstack.mysql80
+      DB_NAME: registrar
+      DB_PORT: 3306
+      DB_USER: registrar001
+      DB_PASSWORD: password
+      LMS_HOST: http://localhost:18000
+      MEMCACHE_HOST: edx.devstack.memcached
+      DJANGO_SETTINGS_MODULE: registrar.settings.devstack
+      CELERY_ALWAYS_EAGER: 'false'
+      CELERY_BROKER_TRANSPORT: redis
+      CELERY_BROKER_HOSTNAME: edx.devstack.redis:6379
+      CELERY_BROKER_VHOST: 10
+      CELERY_BROKER_PASSWORD: password
+      DJANGO_WATCHMAN_TIMEOUT: 30
+      ANALYTICS_DASHBOARD_CFG: /edx/etc/registrar.yml
+    image: edxops/registrar-dev:${OPENEDX_RELEASE:-latest}
+    working_dir: /edx/app/registrar
+    networks:
+      default:
+        aliases:
+          - edx.devstack.registrar
+    ports:
+      - "18734:18734"
+    volumes:
+      - /edx/var/registrar/
+      - ${PWD}/configuration_files/registrar.yml:/edx/etc/registrar.yml
+
+
+  registrar-worker:
+    command: bash -c 'cd /edx/app/registrar && celery -A registrar worker -l debug -c 2'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.registrar-worker"
+    hostname: registrar-worker.devstack.edx
+    depends_on:
+      - lms
+      - mysql80
+      - mysql57
+      - redis
+    stdin_open: true
+    tty: true
+    environment:
+      DB_HOST: edx.devstack.mysql80
+      DB_NAME: registrar
+      DB_PORT: 3306
+      DB_USER: registrar001
+      DB_PASSWORD: password
+      LMS_HOST: http://localhost:18000
+      MEMCACHE_HOST: edx.devstack.memcached
+      DJANGO_SETTINGS_MODULE: registrar.settings.devstack
+      CELERY_BROKER_TRANSPORT: redis
+      CELERY_BROKER_HOSTNAME: edx.devstack.redis:6379
+      CELERY_BROKER_VHOST: 10
+      CELERY_BROKER_PASSWORD: password
+      DJANGO_WATCHMAN_TIMEOUT: 30
+    image: edxops/registrar-dev:${OPENEDX_RELEASE:-latest}
+    networks:
+      default:
+        aliases:
+          - edx.devstack.registrar-worker
+    ports:
+      - "18735:18735"
+    volumes:
+      - /edx/var/registrar/
+
+  cms:
+    command: bash -c 'source /edx/app/edxapp/edxapp_env && while true; do python /edx/app/edxapp/edx-platform/manage.py cms runserver 0.0.0.0:18010 --settings devstack_docker; sleep 2; done'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.cms"
+    hostname: cms.devstack.edx
+    depends_on:
+      - elasticsearch710
+      - lms
+      - memcached
+      - mongo
+      - mysql80
+      - mysql57
+    # Allows attachment to the CMS service using 'docker attach <containerID>'.
+    stdin_open: true
+    tty: true
+    environment:
+      FRONTEND_TEST_SERVER_HOSTNAME: edx.devstack.cms
+      FRONTEND_TEST_SERVER_LMS_PORT: 18103
+      FRONTEND_TEST_SERVER_CMS_PORT: 18131
+      EDXAPP_TEST_MONGO_HOST: edx.devstack.mongo
+      VIRTUAL_ENV: "/edx/app/edxapp/venvs/edxapp"
+      PATH: "/edx/app/edxapp/venvs/edxapp/bin:/edx/app/edxapp/nodeenv/bin:/edx/app/edxapp/edx-platform/node_modules/.bin:/edx/app/edxapp/edx-platform/bin:${PATH}"
+      NO_PYTHON_UNINSTALL: 1
+      DJANGO_WATCHMAN_TIMEOUT: 30
+      LMS_CFG: "/edx/etc/lms.yml"
+      CMS_CFG: "/edx/etc/studio.yml"
+      SERVICE_VARIANT: cms
+    image: openedx/lms-dev:${OPENEDX_RELEASE:-latest}
+    networks:
+      default:
+        aliases:
+          - edx.devstack.cms
+          - cms.devstack.edx
+    ports:
+      - "18010:18010"
+      - "19877:19877" # JS test debugging
+      # - "18103:18103"
+      # - "18131:18131"
+    volumes:
+      - edxapp_cms_assets:/edx/var/edxapp/staticfiles/
+
+  xqueue:
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.xqueue"
+    image: edxops/xqueue-dev:${OPENEDX_RELEASE:-latest}
+    working_dir: /edx/app/xqueue/xqueue
+    command: bash -c 'source /edx/app/xqueue/xqueue_env && while true; do python /edx/app/xqueue/xqueue/manage.py runserver 0.0.0.0:18040 ; sleep 2; done'
+    volumes:
+      - ${DEVSTACK_WORKSPACE}/xqueue:/edx/app/xqueue/xqueue
+      - ${PWD}/configuration_files/xqueue.yml:/edx/etc/xqueue.yml
+    depends_on:
+      - mysql80
+      - mysql57
+    environment:
+      XQUEUE_CFG: "/edx/etc/xqueue.yml"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.xqueue
+    ports:
+      - 18040:18040
+
+  xqueue_consumer:
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.xqueue_consumer"
+    image: edxops/xqueue-dev:${OPENEDX_RELEASE:-latest}
+    working_dir: /edx/app/xqueue/xqueue
+    command: bash -c 'source /edx/app/xqueue/xqueue_env && while true; do python /edx/app/xqueue/xqueue/manage.py run_consumer ; sleep 2; done'
+    volumes:
+      - ${DEVSTACK_WORKSPACE}/xqueue:/edx/app/xqueue/xqueue
+      - ${PWD}/configuration_files/xqueue.yml:/edx/etc/xqueue.yml
+    depends_on:
+      - mysql80
+      - mysql57
+    networks:
+      default:
+        aliases:
+          - edx.devstack.xqueue_consumer
+
+  # ==========================================================================
+  # edX Microfrontends
+  #
+  # TODO: Instead of having an nginx container for every single microfrontend
+  # (there are like 12 now, right?), we should come up with an actual strategy
+  # for micro-frontends in devtack.
+  # ==========================================================================
+
+  frontend-app-account:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-account'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-account"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-account
+    ports:
+      - "1997:1997"
+    depends_on:
+      - lms
+
+  frontend-app-profile:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-profile'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-profile"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-profile
+    ports:
+      - "1995:1995"
+    depends_on:
+      - lms
+
+  frontend-app-authn:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-authn'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-authn"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-authn
+    ports:
+      - "1999:1999"
+    depends_on:
+      - lms
+
+  frontend-app-course-authoring:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-course-authoring'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-course-authoring"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-course-authoring
+    ports:
+      - "2001:2001"
+    depends_on:
+      - cms
+
+  frontend-app-gradebook:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-gradebook'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-gradebook"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-gradebook
+    ports:
+      - "1994:1994"
+    depends_on:
+      - lms
+
+  frontend-app-ora-grading:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-ora-grading'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-ora-grading"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-ora-grading
+    ports:
+      - "1993:1993"
+    depends_on:
+      - lms
+
+  frontend-app-learner-dashboard:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-learner-dashboard'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-learner-dashboard"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-learner-dashboard
+    ports:
+      - "1996:1996"
+    depends_on:
+      - lms
+
+  frontend-app-learner-record:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-learner-record'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-learner-record"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-learner-record
+    ports:
+      - "1990:1990"
+    depends_on:
+      - lms
+
+  frontend-app-learning:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-learning'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-learning"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-learning
+    ports:
+      - "2000:2000"
+    depends_on:
+      - lms
+
+  frontend-app-library-authoring:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-library-authoring'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-library-authoring"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-library-authoring
+    ports:
+      - "3001:3001"
+    depends_on:
+      - lms
+      - cms
+
+  frontend-app-payment:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-payment'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-payment"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-payment
+    ports:
+      - "1998:1998"
+    depends_on:
+      - ecommerce
+
+  frontend-app-program-console:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-program-console'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-program-console"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-program-console
+    ports:
+      - "1976:1976"
+    depends_on:
+      - lms
+      - registrar
+
+  frontend-app-publisher:
+    extends:
+      file: microfrontend.yml
+      service: microfrontend
+    working_dir: '/edx/app/frontend-app-publisher'
+    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.frontend-app-publisher"
+    networks:
+      default:
+        aliases:
+          - edx.devstack.frontend-app-publisher
+    ports:
+      - "18400:18400"
+    depends_on:
+      - lms
+
+volumes:
+  coursegraph_data:
+  discovery_assets:
+  edxapp_lms_assets:
+  edxapp_cms_assets:
+  elasticsearch710_data:
+  mongo_data:
+  mongo_config_data:
+  opensearch12_data:
+  mysql57_data:
+  mysql80_data:
+  redis_data:

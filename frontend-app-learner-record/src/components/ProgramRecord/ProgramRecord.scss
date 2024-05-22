@@ -1,0 +1,73 @@
+.program-record-wrapper {
+    @extend .my-4\.5;
+
+    .back-to-records:hover {
+        background: none;
+    }
+
+    .program-record-nav {
+        @extend .d-flex, .justify-content-between, .mb-3;
+
+        .program-record-actions {
+            @extend .d-flex;
+            gap: 0.5rem;
+        }
+
+        .download-record {
+            @extend .d-flex, .flex-row-reverse;
+        }
+    }
+
+    .program-record {
+
+        .program-record-header {
+
+            .program-headings {
+                @extend .d-flex, .justify-content-between;
+                color: $primary-500;
+
+                h4 {
+                    color: inherit;
+                }
+
+                .program-title {
+                    @extend .d-flex, .flex-column;
+
+                    .heading-label {
+                        text-transform: capitalize;
+                    }
+
+                    h1 {
+                        color: inherit;
+                    }
+                }
+            }
+
+            .program-status {
+                @extend .d-flex, .align-items-center;
+                gap: 0.5rem;
+
+                span.badge {
+                    @extend .d-flex;
+                }
+
+                span.updated {
+                    @extend .small;
+                }
+            }
+
+            .learner-info {
+                @extend .d-flex;
+                gap: 0.25rem;
+            }
+        }
+
+        .program-record-grades {
+            overflow: auto;
+        }
+    }
+
+    .help {
+        color: $primary-500;
+    }
+}

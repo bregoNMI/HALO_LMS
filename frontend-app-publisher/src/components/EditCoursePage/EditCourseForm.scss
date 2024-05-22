@@ -1,0 +1,34 @@
+.edit-course-form {
+  .course-image {
+    .uploaded-image {
+      max: {
+        // These match the 'small' size in course-discovery's model definition for the image field
+        width: 378px;
+        height: 225px;
+      }
+    }
+  }
+
+  .new-run-button {
+    border: 1px dashed silver;
+  }
+
+  .course-skill {
+    border-radius: 15px;
+    padding: 10px;
+    font-size: 0.9rem;
+    margin: {
+      right: 5px;
+      top: 6px;
+    }
+  }
+
+  .react-select-async__menu {
+    z-index: 5;
+  }
+
+  .react-select-async__control {
+    margin-top: 8px;
+  }
+
+}

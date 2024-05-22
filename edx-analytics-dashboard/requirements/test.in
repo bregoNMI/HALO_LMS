@@ -1,0 +1,18 @@
+# Test dependencies go here.
+-c constraints.txt
+
+-r base.txt
+
+astroid
+coverage
+ddt
+django-dynamic-fixture
+httpretty
+pycodestyle
+pydocstyle
+pylint
+edx-lint
+pytest
+pytest-cov
+pytest-django
+testfixtures

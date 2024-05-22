@@ -1,0 +1,185 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RichEditor shows a rich text editor and an error 1`] = `
+<div
+  className="form-group"
+>
+  <div
+    className="mb-2"
+    id="rich-text-editor-test"
+    tabIndex="-1"
+  >
+    Rich Text Editor Test
+  </div>
+  <div
+    aria-labelledby="rich-text-editor-test"
+    className=""
+  >
+    <Editor
+      cloudChannel="5"
+      disabled={false}
+      init={
+        Object {
+          "branding": false,
+          "content_css": false,
+          "content_style": "",
+          "default_link_target": "_blank",
+          "entity_encoding": "raw",
+          "extended_valid_elements": "span[lang|id] -span",
+          "menubar": false,
+          "plugins": "legacyoutput link lists language directionality",
+          "selector": "#rich-text-editor-test",
+          "statusbar": false,
+          "toolbar": "undo redo | bold italic underline | bullist numlist | link | language | ltr rtl",
+        }
+      }
+      initialValue={null}
+      onChange={[Function]}
+      onInit={[Function]}
+      onKeyUp={[Function]}
+    />
+    <span>
+      Recommended character limit (including spaces) is
+      500. 500 characters remaining.
+    </span>
+  </div>
+</div>
+`;
+
+exports[`RichEditor shows a rich text editor with default text value 1`] = `
+<div
+  className="form-group"
+>
+  <div
+    className="mb-2"
+    id="rich-text-editor-test"
+    tabIndex="-1"
+  >
+    <strong>
+      Rich Text Editor Test
+    </strong>
+  </div>
+  <div
+    aria-labelledby="rich-text-editor-test"
+    className=""
+  >
+    <Editor
+      cloudChannel="5"
+      disabled={false}
+      init={
+        Object {
+          "branding": false,
+          "content_css": false,
+          "content_style": "",
+          "default_link_target": "_blank",
+          "entity_encoding": "raw",
+          "extended_valid_elements": "span[lang|id] -span",
+          "menubar": false,
+          "plugins": "legacyoutput link lists language directionality",
+          "selector": "#rich-text-editor-test",
+          "statusbar": false,
+          "toolbar": "undo redo | bold italic underline | bullist numlist | link | language | ltr rtl",
+        }
+      }
+      initialValue="<p>Prior text<p>"
+      onChange={[Function]}
+      onInit={[Function]}
+      onKeyUp={[Function]}
+    />
+    <span>
+      Recommended character limit (including spaces) is
+      2500. 2500 characters remaining.
+    </span>
+  </div>
+</div>
+`;
+
+exports[`RichEditor shows a rich text editor with no default text value 1`] = `
+<div
+  className="form-group"
+>
+  <div
+    className="mb-2"
+    id="rich-text-editor-test"
+    tabIndex="-1"
+  >
+    Rich Text Editor Test
+  </div>
+  <div
+    aria-labelledby="rich-text-editor-test"
+    className=""
+  >
+    <Editor
+      cloudChannel="5"
+      disabled={false}
+      init={
+        Object {
+          "branding": false,
+          "content_css": false,
+          "content_style": "",
+          "default_link_target": "_blank",
+          "entity_encoding": "raw",
+          "extended_valid_elements": "span[lang|id] -span",
+          "menubar": false,
+          "plugins": "legacyoutput link lists language directionality",
+          "selector": "#rich-text-editor-test",
+          "statusbar": false,
+          "toolbar": "undo redo | bold italic underline | bullist numlist | link | language | ltr rtl",
+        }
+      }
+      initialValue={null}
+      onChange={[Function]}
+      onInit={[Function]}
+      onKeyUp={[Function]}
+    />
+    <span>
+      Recommended character limit (including spaces) is
+      500. 500 characters remaining.
+    </span>
+  </div>
+</div>
+`;
+
+exports[`RichEditor shows a rich text editor with no maxChars 1`] = `
+<div
+  className="form-group"
+>
+  <div
+    className="mb-2"
+    id="rich-text-editor-test"
+    tabIndex="-1"
+  >
+    <strong>
+      Rich Text Editor Test
+    </strong>
+  </div>
+  <div
+    aria-labelledby="rich-text-editor-test"
+    className=""
+  >
+    <Editor
+      cloudChannel="5"
+      disabled={false}
+      init={
+        Object {
+          "branding": false,
+          "content_css": false,
+          "content_style": "",
+          "default_link_target": "_blank",
+          "entity_encoding": "raw",
+          "extended_valid_elements": "span[lang|id] -span",
+          "menubar": false,
+          "plugins": "legacyoutput link lists language directionality",
+          "selector": "#rich-text-editor-test",
+          "statusbar": false,
+          "toolbar": "undo redo | bold italic underline | bullist numlist | link | language | ltr rtl",
+        }
+      }
+      initialValue="<p>Prior text<p>"
+      onChange={[Function]}
+      onInit={[Function]}
+      onKeyUp={[Function]}
+    />
+  </div>
+</div>
+`;

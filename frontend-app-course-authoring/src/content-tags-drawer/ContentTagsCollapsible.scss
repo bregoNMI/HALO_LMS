@@ -1,0 +1,66 @@
+.taxonomy-tags-collapsible {
+  flex: 1;
+  border: none !important;
+
+  .collapsible-trigger {
+    border: none !important;
+
+    .pgn__icon {
+      margin-left: -3px;
+    }
+  }
+
+  .tags-tree {
+    font-size: 1rem;
+  }
+}
+
+.taxonomy-tags-selector-menu {
+  button {
+    flex: 1;
+  }
+}
+
+.taxonomy-tags-selector-menu + div {
+  width: 100%;
+}
+
+.taxonomy-tags-selectable-box-set {
+  grid-auto-rows: unset !important;
+  grid-gap: unset !important;
+  overflow-y: scroll;
+  max-height: 20rem;
+}
+
+.pgn__modal-popup__arrow {
+  visibility: hidden;
+}
+
+.add-tags-button:not([disabled]):hover {
+  background-color: transparent;
+  color: $info-900 !important;
+}
+
+.react-select-add-tags__control {
+  border-radius: 0 !important;
+}
+
+.react-select-add-tags__control--is-focused {
+  border-color: black !important;
+  box-shadow: 0 0 0 1px black !important;
+}
+
+.react-select-add-tags__multi-value__remove {
+  padding-right: 7px !important;
+  padding-left: 7px !important;
+  border-radius: 0 3px 3px 0;
+
+  &:hover {
+    background-color: black !important;
+    color: white !important;
+  }
+}
+
+.taxonomy-tags-count-chip > .pgn__chip {
+  background: none;
+}

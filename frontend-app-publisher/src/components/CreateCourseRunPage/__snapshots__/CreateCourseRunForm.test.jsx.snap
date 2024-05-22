@@ -1,0 +1,625 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CreateCourseRunForm renders html correctly 1`] = `
+<div
+  className="create-course-run-form"
+>
+  <h2>
+    Create a new course run
+  </h2>
+  <hr />
+  <FieldLabel
+    className="mb-2"
+    extraText=""
+    helpText=""
+    id={null}
+    optional={false}
+    text="Course"
+  />
+  <div
+    className="mb-3"
+  >
+    <Link
+      to="/courses/00000000-0000-0000-0000-000000000001"
+    >
+      Test Course
+    </Link>
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                Select a run to copy as the starting point for your new studio instance. The newest run is listed first.
+              </p>
+            </div>
+          }
+          id="rerun.label"
+          optional={false}
+          text="Select a run to copy"
+        />
+      }
+      name="rerun"
+      options={Array []}
+      type="text"
+    />
+    <div>
+      <Field
+        component={[Function]}
+        dateLabel="Start date"
+        helpText={
+          <div>
+            <p>
+              Required Format: yyyy/mm/dd
+            </p>
+            <p>
+              Start on a Tuesday, Wednesday, or Thursday.
+            </p>
+            <p>
+              Avoid major holidays.
+            </p>
+            <p>
+              Dates are editable in Studio after the course is created, rounded to the nearest term. If your courses start on January - May 2020, the URL will end in 1T2020.
+            </p>
+            <p>
+              If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31.
+            </p>
+          </div>
+        }
+        maxLength="10"
+        name="start"
+        pattern="20[1-9][0-9]/(0[1-9]|1[012])/(0[1-9]|[12][0-9]|3[01])"
+        placeholder="yyyy/mm/dd"
+        required={true}
+        timeLabel="Start time (GMT)"
+        type="text"
+      />
+      <Field
+        component={[Function]}
+        dateLabel="End date"
+        helpText={
+          <div>
+            <p>
+              Required Format: yyyy/mm/dd
+            </p>
+            <p>
+              If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31.
+            </p>
+          </div>
+        }
+        maxLength="10"
+        name="end"
+        pattern="20[1-9][0-9]/(0[1-9]|1[012])/(0[1-9]|[12][0-9]|3[01])"
+        placeholder="yyyy/mm/dd"
+        required={true}
+        timeLabel="End time (GMT)"
+        type="text"
+      />
+    </div>
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                The enrollment track determines whether a course run offers a paid certificate and what sort of verification is required.
+              </p>
+              <p>
+                <a
+                  href="https://edx.readthedocs.io/projects/edx-partner-course-staff/en/latest/glossary.html#enrollment-track-g"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Learn more.
+                </a>
+              </p>
+            </div>
+          }
+          id="run_type.label"
+          optional={false}
+          required={true}
+          text="Course run enrollment track"
+        />
+      }
+      name="run_type"
+      options={Array []}
+      required={true}
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                Instructor-paced courses include individual assignments that have specific due dates before the course end date.
+              </p>
+              <p>
+                Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date.
+              </p>
+            </div>
+          }
+          id="pacing_type.label"
+          optional={false}
+          text="Course pacing"
+        />
+      }
+      name="pacing_type"
+      options={
+        Array [
+          Object {
+            "label": "Instructor-paced",
+            "value": "instructor_paced",
+          },
+          Object {
+            "label": "Self-paced",
+            "value": "self_paced",
+          },
+        ]
+      }
+      type="text"
+    />
+    <ButtonToolbar
+      className=""
+      leftJustify={false}
+    >
+      <Link
+        to="/courses/00000000-0000-0000-0000-000000000001"
+      >
+        <button
+          className="btn btn-outline-primary"
+          disabled={false}
+          type="button"
+        >
+          Cancel
+        </button>
+      </Link>
+      <ActionButton
+        className=""
+        disabled={true}
+        labels={
+          Object {
+            "default": "Create",
+            "pending": "Creating",
+          }
+        }
+        primary={true}
+        state="default"
+      />
+    </ButtonToolbar>
+  </form>
+</div>
+`;
+
+exports[`CreateCourseRunForm renders html correctly when creating 1`] = `
+<div
+  className="create-course-run-form"
+>
+  <h2>
+    Create a new course run
+  </h2>
+  <hr />
+  <FieldLabel
+    className="mb-2"
+    extraText=""
+    helpText=""
+    id={null}
+    optional={false}
+    text="Course"
+  />
+  <div
+    className="mb-3"
+  >
+    <Link
+      to="/courses/00000000-0000-0000-0000-000000000001"
+    >
+      Test Course
+    </Link>
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                Select a run to copy as the starting point for your new studio instance. The newest run is listed first.
+              </p>
+            </div>
+          }
+          id="rerun.label"
+          optional={false}
+          text="Select a run to copy"
+        />
+      }
+      name="rerun"
+      options={Array []}
+      type="text"
+    />
+    <div>
+      <Field
+        component={[Function]}
+        dateLabel="Start date"
+        helpText={
+          <div>
+            <p>
+              Required Format: yyyy/mm/dd
+            </p>
+            <p>
+              Start on a Tuesday, Wednesday, or Thursday.
+            </p>
+            <p>
+              Avoid major holidays.
+            </p>
+            <p>
+              Dates are editable in Studio after the course is created, rounded to the nearest term. If your courses start on January - May 2020, the URL will end in 1T2020.
+            </p>
+            <p>
+              If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31.
+            </p>
+          </div>
+        }
+        maxLength="10"
+        name="start"
+        pattern="20[1-9][0-9]/(0[1-9]|1[012])/(0[1-9]|[12][0-9]|3[01])"
+        placeholder="yyyy/mm/dd"
+        required={true}
+        timeLabel="Start time (GMT)"
+        type="text"
+      />
+      <Field
+        component={[Function]}
+        dateLabel="End date"
+        helpText={
+          <div>
+            <p>
+              Required Format: yyyy/mm/dd
+            </p>
+            <p>
+              If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31.
+            </p>
+          </div>
+        }
+        maxLength="10"
+        name="end"
+        pattern="20[1-9][0-9]/(0[1-9]|1[012])/(0[1-9]|[12][0-9]|3[01])"
+        placeholder="yyyy/mm/dd"
+        required={true}
+        timeLabel="End time (GMT)"
+        type="text"
+      />
+    </div>
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                The enrollment track determines whether a course run offers a paid certificate and what sort of verification is required.
+              </p>
+              <p>
+                <a
+                  href="https://edx.readthedocs.io/projects/edx-partner-course-staff/en/latest/glossary.html#enrollment-track-g"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Learn more.
+                </a>
+              </p>
+            </div>
+          }
+          id="run_type.label"
+          optional={false}
+          required={true}
+          text="Course run enrollment track"
+        />
+      }
+      name="run_type"
+      options={Array []}
+      required={true}
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                Instructor-paced courses include individual assignments that have specific due dates before the course end date.
+              </p>
+              <p>
+                Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date.
+              </p>
+            </div>
+          }
+          id="pacing_type.label"
+          optional={false}
+          text="Course pacing"
+        />
+      }
+      name="pacing_type"
+      options={
+        Array [
+          Object {
+            "label": "Instructor-paced",
+            "value": "instructor_paced",
+          },
+          Object {
+            "label": "Self-paced",
+            "value": "self_paced",
+          },
+        ]
+      }
+      type="text"
+    />
+    <ButtonToolbar
+      className=""
+      leftJustify={false}
+    >
+      <Link
+        to="/courses/00000000-0000-0000-0000-000000000001"
+      >
+        <button
+          className="btn btn-outline-primary"
+          disabled={true}
+          type="button"
+        >
+          Cancel
+        </button>
+      </Link>
+      <ActionButton
+        className=""
+        disabled={false}
+        labels={
+          Object {
+            "default": "Create",
+            "pending": "Creating",
+          }
+        }
+        primary={true}
+        state="pending"
+      />
+    </ButtonToolbar>
+  </form>
+</div>
+`;
+
+exports[`CreateCourseRunForm renders html correctly with Course Type 1`] = `
+<div
+  className="create-course-run-form"
+>
+  <h2>
+    Create a new course run
+  </h2>
+  <hr />
+  <FieldLabel
+    className="mb-2"
+    extraText=""
+    helpText=""
+    id={null}
+    optional={false}
+    text="Course"
+  />
+  <div
+    className="mb-3"
+  >
+    <Link
+      to="/courses/00000000-0000-0000-0000-000000000001"
+    >
+      Test Course
+    </Link>
+  </div>
+  <form
+    onSubmit={[Function]}
+  >
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                Select a run to copy as the starting point for your new studio instance. The newest run is listed first.
+              </p>
+            </div>
+          }
+          id="rerun.label"
+          optional={false}
+          text="Select a run to copy"
+        />
+      }
+      name="rerun"
+      options={Array []}
+      type="text"
+    />
+    <div>
+      <Field
+        component={[Function]}
+        dateLabel="Start date"
+        helpText={
+          <div>
+            <p>
+              Required Format: yyyy/mm/dd
+            </p>
+            <p>
+              Start on a Tuesday, Wednesday, or Thursday.
+            </p>
+            <p>
+              Avoid major holidays.
+            </p>
+            <p>
+              Dates are editable in Studio after the course is created, rounded to the nearest term. If your courses start on January - May 2020, the URL will end in 1T2020.
+            </p>
+            <p>
+              If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31.
+            </p>
+          </div>
+        }
+        maxLength="10"
+        name="start"
+        pattern="20[1-9][0-9]/(0[1-9]|1[012])/(0[1-9]|[12][0-9]|3[01])"
+        placeholder="yyyy/mm/dd"
+        required={true}
+        timeLabel="Start time (GMT)"
+        type="text"
+      />
+      <Field
+        component={[Function]}
+        dateLabel="End date"
+        helpText={
+          <div>
+            <p>
+              Required Format: yyyy/mm/dd
+            </p>
+            <p>
+              If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31.
+            </p>
+          </div>
+        }
+        maxLength="10"
+        name="end"
+        pattern="20[1-9][0-9]/(0[1-9]|1[012])/(0[1-9]|[12][0-9]|3[01])"
+        placeholder="yyyy/mm/dd"
+        required={true}
+        timeLabel="End time (GMT)"
+        type="text"
+      />
+    </div>
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                The enrollment track determines whether a course run offers a paid certificate and what sort of verification is required.
+              </p>
+              <p>
+                <a
+                  href="https://edx.readthedocs.io/projects/edx-partner-course-staff/en/latest/glossary.html#enrollment-track-g"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Learn more.
+                </a>
+              </p>
+            </div>
+          }
+          id="run_type.label"
+          optional={false}
+          required={true}
+          text="Course run enrollment track"
+        />
+      }
+      name="run_type"
+      options={
+        Array [
+          Object {
+            "label": "Select enrollment track",
+            "value": "",
+          },
+          Object {
+            "label": "Verified and Audit",
+            "value": "4e260c57-24ef-46c1-9a0d-5ec3a30f6b0c",
+          },
+          Object {
+            "label": "Audit Only",
+            "value": "cfacfc62-54bd-4e1b-939a-5a94f12fbd8d",
+          },
+        ]
+      }
+      required={true}
+    />
+    <Field
+      component={[Function]}
+      label={
+        <FieldLabel
+          className=""
+          extraText=""
+          helpText={
+            <div>
+              <p>
+                Instructor-paced courses include individual assignments that have specific due dates before the course end date.
+              </p>
+              <p>
+                Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date.
+              </p>
+            </div>
+          }
+          id="pacing_type.label"
+          optional={false}
+          text="Course pacing"
+        />
+      }
+      name="pacing_type"
+      options={
+        Array [
+          Object {
+            "label": "Instructor-paced",
+            "value": "instructor_paced",
+          },
+          Object {
+            "label": "Self-paced",
+            "value": "self_paced",
+          },
+        ]
+      }
+      type="text"
+    />
+    <ButtonToolbar
+      className=""
+      leftJustify={false}
+    >
+      <Link
+        to="/courses/00000000-0000-0000-0000-000000000001"
+      >
+        <button
+          className="btn btn-outline-primary"
+          disabled={false}
+          type="button"
+        >
+          Cancel
+        </button>
+      </Link>
+      <ActionButton
+        className=""
+        disabled={true}
+        labels={
+          Object {
+            "default": "Create",
+            "pending": "Creating",
+          }
+        }
+        primary={true}
+        state="default"
+      />
+    </ButtonToolbar>
+  </form>
+</div>
+`;

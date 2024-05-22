@@ -1,0 +1,37 @@
+-c constraints.txt
+
+django									# BSD License
+django-appconf
+django-braces							# BSD
+django-countries    					# MIT
+django-model-utils       				# BSD
+django-webpack-loader       			# MIT
+djangorestframework     	       		# BSD
+djangorestframework-csv     			# BSD
+django-lang-pref-middleware
+# Dependency of djangorestframework
+django-crispy-forms     				# MIT
+django-lang-pref-middleware
+django-waffle       					# BSD
+django-soapbox							# BSD
+edx-auth-backends
+edx-ccx-keys
+edx-opaque-keys
+edx-django-release-util
+edx-django-utils
+edx-drf-extensions
+edx-analytics-data-api-client
+edx-i18n-tools
+edx-rest-api-client						# Apache
+edx-toggles
+libsass								# MIT
+logutils        						# BSD
+requests								# Apache 2.0
+stevedore
+pytz
+path.py
+python-slugify
+social-auth-app-django
+
+# Using github hash temporarily until new version of pinax-announcements gets released
+-e git+https://github.com/openedx/pinax-announcements.git@60a3fdf171b520d8593a9b2190d1c01a6614ab59#egg=pinax-announcements

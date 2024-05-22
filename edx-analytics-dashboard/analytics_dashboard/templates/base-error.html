@@ -1,0 +1,55 @@
+{% extends "base_dashboard.html" %}
+
+{% load i18n %}
+{% load dashboard_extras %}
+
+{% block view-name %}view-system{% endblock view-name %}
+
+{# These are intentionally left blank. #}
+{% block header %}{% endblock %}
+{% block lens_navigation %}{% endblock %}
+{% block announcements %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content-outer %}
+  <div class="site-wrapper">
+
+    <div class="site-wrapper-inner">
+
+      <div class="cover-container">
+
+        <div class="masthead clearfix">
+          <div class="inner">
+            {% include 'brand.html' with class_prefix='masthead' %}
+          </div>
+        </div>
+
+        <div class="inner cover">
+          <h1 class="cover-heading">
+            <span class="error-code">{% block error-code %}{% endblock %}</span>
+            <span class="error-title">{% block error-title %}{% endblock %}</span>
+          </h1>
+
+          <p class="lead error-copy">
+              {% block error-copy %}
+              If you continue to see this error, use the link below to contact our support team.
+              {% endblock error-copy %}
+          </p>
+
+          <p class="lead">
+            {% block buttons %}
+              <a href="mailto:{% settings_value 'SUPPORT_EMAIL' %}" class="btn btn-lg btn-primary" data-role="support-email"
+                 title="{% trans 'Use our support tool to ask questions or share feedback.' %}">
+                <span class="ico fa fa-life-ring" aria-hidden="true"></span>
+                {% captureas platform_name %}{% settings_value "PLATFORM_NAME" %}{% endcaptureas %}
+
+                {# Translators: This intention here is that a user clicks a button to contact a support group (e.g. edX Support, or MITx Support). Reorder the placeholder as you see fit. #}
+                {% blocktrans %}Contact {{ platform_name }} Support{% endblocktrans %}
+              </a>
+            {% endblock %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

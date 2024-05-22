@@ -1,0 +1,28 @@
+# Core dependencies go here
+
+-c constraints.txt
+
+edx-api-doc-tools
+boto                                # MIT
+boto3
+coreapi
+Django                              # BSD License
+django-countries                    # MIT
+python-memcached                    # Python Software Foundation License v2
+pymemcache
+djangorestframework                 # BSD
+djangorestframework-csv             # BSD
+django-storages                     # BSD
+html5lib			    # MIT
+ordered-set                         # MIT
+tqdm                                # MIT
+urllib3                             # MIT
+Markdown                            # BSD:markdown is used by swagger for rendering the api docs
+edx-ccx-keys
+edx-django-release-util
+edx-opaque-keys
+edx-django-utils
+edx-rest-api-client                 # Apache 2.0
+edx-drf-extensions
+edx-enterprise-data
+django-cors-headers                 #  Used to allow to configure CORS headers for cross-domain requests

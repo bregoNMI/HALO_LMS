@@ -1,0 +1,217 @@
+FORMAT: 1A
+HOST: http://www.analytics.edx.org
+
+# edX Analytics API
+The edX Analytics API provides access to analytical insights related to an Open edX installation.
+
+# Data Types
+
+## Timestamp
+
+All timestamps are expected to be ISO 8601 formatted: `YYYY-mm-ddTHH:MM:SS.fffZ`. All references to time are UTC. Local timezones are not supported.
+
+# Conventions
+
+## Versioning
+
+All URLs are prefixed with a version number. The version number will be incremented every time a change that is made which is not backwards compatible. Version 0 is the development version that can change arbitrarily without notice.
+
+## Authentication
+
+All requests are expected to be made over an SSL connection and include an `Authorization` header that includes a token that can be used to authenticate the request. The format is:
+
+        Authorization: Token 987ab987987c87d97e9877ff012
+
+# Group Operations
+
+## Status [/api/v0/status]
+
+A very quick check to see if the application server is alive and processing requests. Returns no data, a simple 200 OK status code is sufficient to indicate that the server is alive.
+
+This endpoint is public and does not require an authentication token to access it.
+
+### Get Status [GET]
+
++ Response 200
+
+## Health [/api/v0/health]
+
+A more comprehensive check to see if the system is fully operational.
+
+This endpoint is public and does not require an authentication token to access it.
+
+The returned structure contains the following fields:
+
+- overall_status: Can be either "OK" or "UNAVAILABLE".
+- detailed_status: More detailed information about the status of the system.
+    - database_connection: Status of the database connection. Can be either "OK" or "UNAVAILABLE".
+
+### Check System Health [GET]
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "overall_status": "UNAVAILABLE",
+                "detailed_status": {
+                    "database_connection": "UNAVAILABLE"
+                }
+            }
+
+## Authenticated [/api/v0/authenticated]
+
+Validates provided credentials. Returns no data, a simple 200 OK status code is sufficient to indicate that the credentials are valid.
+
+### Check Authentication [GET]
+
++ Request
+
+    + Headers
+            
+            Authentication: Token 987ab987987c87d97e9877ff012
+
++ Response 200
+
+# Group Course
+
+## Activity [/api/v0/courses/{course_id}/activity_last_week{?label}]
+
+Counts of users who performed various actions at least once in the past week. The default is all users who performed *any* action in the course.
+
+The representation has the following fields:
+
+- course_id: The ID of the course whose activity is described.
+- interval_start: All data from this timestamp up to the `interval_end` was considered when computing this data point.
+- interval_end: All data from `interval_start` up to this timestamp was considered when computing this data point. Note that data produced at exactly this time is **not** included.
+- label: The type of activity requested. Possible values are:
+        - ACTIVE: The number of unique users who visited the course.
+        - PLAYED_VIDEO: The number of unique users who started watching any video in the course.
+        - ATTEMPTED_PROBLEM: The number of unique users who answered any loncapa based question in the course.
+        - POSTED_FORUM: The number of unique users who created a new post, responded to a post, or submitted a comment on any forum in the course.
+- count: The number of users who performed the activity indicated by the `label`.
+
++ Parameters
+    + course_id (string) ... ID of the course.
+
+        This string should uniquely identify the course.
+
+    + label = `ACTIVE` (optional, string) ... The type of activity.
+
+        + Values
+            + `ACTIVE`
+            + `PLAYED_VIDEO`
+            + `ATTEMPTED_PROBLEM`
+            + `POSTED_FORUM`
+
+### User Activity over Time [GET]
+
++ Request
+
+    + Headers
+            
+            Authentication: Token 987ab987987c87d97e9877ff012
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "course_id": "edx/Demo_Course/2014T2",
+                "interval_start": "2014-05-17T00:00:00.000Z",
+                "interval_end": "2014-05-24T00:00:00.000Z",
+                "label": "active",
+                "count": 1024
+            }
+
+# Group Problem
+Data regarding student activity on a particular problem in a course.
+
+## Answer Distribution [/api/v0/problems/{usage_id}/answer_distribution/{attempt}]
+A representation of the answer distribution associated with a problem used in a course.
+
+The representation has the following fields:
+
+- metadata:
+        - id: usage_id of the problem
+        - attempt: "first" or "last".  The attempt for which the answer distribution is computed.
+- distribution:  a JSON object whose top-level keys are the ids of all the *responses* in the problem and whose top-level values
+are JSON objects representing the answer distribution for that *response*.
+
++ Parameters
+  + usage_id (String) ... ID of the problem as used in a course.
+  + attempt (String) ... The attempt for which the answer distribution is computed.  Valid strings are "last" and "first".
+
++ Model (application/json)
+
+    JSON representation of problem answer distribution
+
+    + Body
+    
+            {
+                "metadata": {
+                    "id": "usageid0",
+                    "attempt": "last"
+                },
+                "distribution": {
+                    "response_0": {
+                        "choice_0": {'correct': true, 'count': 15},
+                        "choice_1": {'correct': false, 'count': 52},
+                        "choice_2": {'correct': false, 'count': 27},
+                        "choice_3": {'correct': false, 'count': 81}
+                    },
+                    "response_1": {
+                        "": {'correct': false, 'count': 53},
+                        "choice_0": {'correct': false, 'count': 21},
+                        "choice_1": {'correct': true, 'count': 32},
+                        "choice_0,choice_1": {'correct': false, 'count': 25}
+                    },
+                }
+            }
+
+### Problem Answer Distribution [GET]
+
++ Request
+
+    + Headers
+            
+            Authentication: Token 987ab987987c87d97e9877ff012
+
++ Response 200
+    
+    [Answer Distribution][]
+
+## Attempts Distribution [/api/v0/problems/{usage_id}/attempts_distribution]
+The distribution of the number of attempts on a problem, as used in a course.
+
+The representation has, as keys, strings of integers ascending from 0.
+The values associated with each key *k* are the number of students who made
+exactly *k* attempts on the problem.
+
++ Parameters
+  + usage_id (string) ... ID of the problem as used in a course.
+
++ Model (application/json)
+
+  + Body
+
+            {
+                "0": 235,
+                "1": 2923,
+                "2": 1098,
+                "3": 185
+            }
+
+### Problem Attempts Distribution [GET]
+
++ Request
+
+    + Headers
+            
+            Authentication: Token 987ab987987c87d97e9877ff012
+  
++ Response 200
+
+    [Attempts Distribution][]
+
+

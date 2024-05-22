@@ -1,0 +1,622 @@
+# #-#-#-#-#  django.po (ecommerce)  #-#-#-#-#
+# edX translation file
+# Copyright (C) 2018 edX
+# This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
+#
+# Translators:
+# Translators:
+# Translators:
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-02-22 14:50+0000\n"
+"PO-Revision-Date: 2020-11-24 09:15+0000\n"
+"Last-Translator: Transifex Bot <>\n"
+"Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
+"Language: eo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ecommerce/static/js/models/coupon_model.js
+#: ecommerce/static/js/models/enterprise_coupon_model.js
+msgid "This field is required."
+msgstr "Thïs fïéld ïs réqüïréd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: ecommerce/static/js/models/coupon_model.js
+#: ecommerce/static/js/models/enterprise_coupon_model.js
+msgid "This value must be a number."
+msgstr "Thïs välüé müst ßé ä nümßér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: ecommerce/static/js/models/coupon_model.js
+#: ecommerce/static/js/models/enterprise_coupon_model.js
+msgid "This value must be a date."
+msgstr "Thïs välüé müst ßé ä däté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: ecommerce/static/js/models/coupon_model.js
+msgid "At least one seat type must be selected."
+msgstr ""
+"Àt léäst öné séät týpé müst ßé séléçtéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: ecommerce/static/js/models/coupon_model.js
+msgid "This field must be empty or contain 1-16 alphanumeric characters."
+msgstr ""
+"Thïs fïéld müst ßé émptý ör çöntäïn 1-16 älphänümérïç çhäräçtérs. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: ecommerce/static/js/models/coupon_model.js
+#, javascript-format
+msgid "Email domain {%s} is invalid."
+msgstr "Émäïl dömäïn {%s} ïs ïnvälïd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: ecommerce/static/js/models/coupon_model.js
+msgid "Must occur after start date"
+msgstr "Müst öççür äftér stärt däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: ecommerce/static/js/models/coupon_model.js
+msgid "Max uses for multi-use coupons must be higher than 2."
+msgstr ""
+"Mäx üsés för mültï-üsé çöüpöns müst ßé hïghér thän 2. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σηѕє¢тєтυя α#"
+
+#: ecommerce/static/js/models/coupon_model.js
+msgid "Must occur before end date"
+msgstr "Müst öççür ßéföré énd däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: ecommerce/static/js/models/coupon_model.js
+msgid "A valid course ID is required"
+msgstr "À välïd çöürsé ÌD ïs réqüïréd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: ecommerce/static/js/models/coupon_model.js
+msgid "A valid Program UUID is required."
+msgstr ""
+"À välïd Prögräm ÛÛÌD ïs réqüïréd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: ecommerce/static/js/models/course_model.js
+msgid "You must select a course type."
+msgstr "Ýöü müst séléçt ä çöürsé týpé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: ecommerce/static/js/models/course_model.js
+msgid "You must choose if an honor seat should be created."
+msgstr ""
+"Ýöü müst çhöösé ïf än hönör séät shöüld ßé çréätéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: ecommerce/static/js/models/course_model.js
+msgid "The verification deadline must occur AFTER the upgrade deadline."
+msgstr ""
+"Thé vérïfïçätïön déädlïné müst öççür ÀFTÉR thé üpgrädé déädlïné. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: ecommerce/static/js/models/course_model.js
+msgid "Product validation failed."
+msgstr "Prödüçt välïdätïön fäïléd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: ecommerce/static/js/models/course_model.js
+#: ecommerce/static/js/views/dynamic_catalog_view.js
+msgid "Course ID"
+msgstr "Çöürsé ÌD Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: ecommerce/static/js/models/course_model.js
+msgid "Course Name"
+msgstr "Çöürsé Nämé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: ecommerce/static/js/models/course_model.js
+#: ecommerce/static/js/views/course_list_view.js
+msgid "Course Type"
+msgstr "Çöürsé Týpé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: ecommerce/static/js/models/course_model.js
+msgid "Verification Deadline"
+msgstr "Vérïfïçätïön Déädlïné Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: ecommerce/static/js/models/course_model.js
+msgid "Include Honor Seat"
+msgstr "Ìnçlüdé Hönör Séät Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: ecommerce/static/js/models/course_seats/course_seat.js
+msgid "All course seats must have a price."
+msgstr ""
+"Àll çöürsé séäts müst hävé ä prïçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: ecommerce/static/js/models/course_seats/course_seat.js
+msgid "Verified seats must have an upgrade deadline."
+msgstr ""
+"Vérïfïéd séäts müst hävé än üpgrädé déädlïné. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: ecommerce/static/js/models/course_seats/course_seat.js
+msgid "The upgrade deadline must occur BEFORE the verification deadline."
+msgstr ""
+"Thé üpgrädé déädlïné müst öççür BÉFÖRÉ thé vérïfïçätïön déädlïné. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: ecommerce/static/js/models/course_seats/course_seat.js
+msgid "Verified"
+msgstr "Vérïfïéd Ⱡ'σяєм ιρѕυм ∂#"
+
+#: ecommerce/static/js/models/course_seats/course_seat.js
+#: ecommerce/static/js/views/course_form_view.js
+msgid "Credit"
+msgstr "Çrédït Ⱡ'σяєм ιρѕυ#"
+
+#: ecommerce/static/js/models/course_seats/course_seat.js
+msgid "Professional"
+msgstr "Pröféssïönäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: ecommerce/static/js/models/course_seats/course_seat.js
+msgid "Honor"
+msgstr "Hönör Ⱡ'σяєм ιρѕ#"
+
+#: ecommerce/static/js/models/course_seats/course_seat.js
+msgid "Audit"
+msgstr "Àüdït Ⱡ'σяєм ιρѕ#"
+
+#: ecommerce/static/js/models/course_seats/course_seat.js
+msgid "Verified Certificate"
+msgstr "Vérïfïéd Çértïfïçäté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: ecommerce/static/js/models/course_seats/course_seat.js
+msgid "Professional Certificate"
+msgstr "Pröféssïönäl Çértïfïçäté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: ecommerce/static/js/models/course_seats/course_seat.js
+msgid "Honor Certificate"
+msgstr "Hönör Çértïfïçäté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: ecommerce/static/js/models/course_seats/course_seat.js
+msgid "No Certificate"
+msgstr "Nö Çértïfïçäté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: ecommerce/static/js/models/course_seats/credit_seat.js
+msgid "All credit seats must have a credit provider."
+msgstr ""
+"Àll çrédït séäts müst hävé ä çrédït prövïdér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: ecommerce/static/js/models/course_seats/credit_seat.js
+msgid "Please select a valid credit provider."
+msgstr ""
+"Pléäsé séléçt ä välïd çrédït prövïdér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: ecommerce/static/js/models/course_seats/credit_seat.js
+msgid "All credit seats must designate a number of credit hours."
+msgstr ""
+"Àll çrédït séäts müst désïgnäté ä nümßér öf çrédït höürs. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: ecommerce/static/js/models/enterprise_coupon_model.js
+msgid "This value must be a valid email."
+msgstr ""
+"Thïs välüé müst ßé ä välïd émäïl. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: ecommerce/static/js/pages/basket_page.js
+msgid "Problem occurred during checkout. Please contact support."
+msgstr ""
+"Prößlém öççürréd dürïng çhéçköüt. Pléäsé çöntäçt süppört. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: ecommerce/static/js/pages/basket_page.js
+msgid "This field is required"
+msgstr "Thïs fïéld ïs réqüïréd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: ecommerce/static/js/pages/basket_page.js
+msgid "Invalid card number"
+msgstr "Ìnvälïd çärd nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: ecommerce/static/js/pages/basket_page.js
+msgid "Unsupported card type"
+msgstr "Ûnsüppörtéd çärd týpé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: ecommerce/static/js/pages/basket_page.js
+msgid "Invalid security number"
+msgstr "Ìnvälïd séçürïtý nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: ecommerce/static/js/pages/basket_page.js
+msgid "Invalid month"
+msgstr "Ìnvälïd mönth Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: ecommerce/static/js/pages/basket_page.js
+msgid "Invalid year"
+msgstr "Ìnvälïd ýéär Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: ecommerce/static/js/pages/basket_page.js
+msgid "Card expired"
+msgstr "Çärd éxpïréd Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: ecommerce/static/js/pages/basket_page.js
+msgid "<Choose state/province>"
+msgstr "<Choose state/province> Ⱡ'σяєм#"
+
+#: ecommerce/static/js/pages/basket_page.js
+msgid "State/Province (required)"
+msgstr "Stäté/Prövïnçé (réqüïréd) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: ecommerce/static/js/pages/coupon_create_page.js
+#: ecommerce/static/js/pages/enterprise_coupon_create_page.js
+msgid "Create New Coupon"
+msgstr "Çréäté Néw Çöüpön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: ecommerce/static/js/pages/coupon_detail_page.js
+#: ecommerce/static/js/pages/enterprise_coupon_detail_page.js
+msgid "View Coupon"
+msgstr "Vïéw Çöüpön Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: ecommerce/static/js/pages/coupon_edit_page.js
+#: ecommerce/static/js/pages/enterprise_coupon_edit_page.js
+msgid "Edit Coupon"
+msgstr "Édït Çöüpön Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: ecommerce/static/js/pages/coupon_list_page.js
+msgid "Coupon Codes"
+msgstr "Çöüpön Çödés Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: ecommerce/static/js/pages/course_create_page.js
+msgid "Create New Course"
+msgstr "Çréäté Néw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: ecommerce/static/js/pages/course_detail_page.js
+msgid "View Course"
+msgstr "Vïéw Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: ecommerce/static/js/pages/course_edit_page.js
+msgid "Edit Course"
+msgstr "Édït Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: ecommerce/static/js/pages/course_list_page.js
+msgid "Courses"
+msgstr "Çöürsés Ⱡ'σяєм ιρѕυм #"
+
+#: ecommerce/static/js/pages/enterprise_coupon_list_page.js
+msgid "Enterprise Coupon Codes"
+msgstr "Éntérprïsé Çöüpön Çödés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: ecommerce/static/js/pages/offer_page.js
+msgid "Redeem"
+msgstr "Rédéém Ⱡ'σяєм ιρѕυ#"
+
+#: ecommerce/static/js/pages/receipt_page.js
+msgid ""
+"Caution! Using the back button on this page may cause you to be charged "
+"again."
+msgstr ""
+"Çäütïön! Ûsïng thé ßäçk ßüttön ön thïs pägé mäý çäüsé ýöü tö ßé çhärgéd "
+"ägäïn. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#. Translators: Do not translate "Apple Pay".
+#: ecommerce/static/js/payment_processors/cybersource.js
+msgid ""
+"Apple Pay is not available at this time. Please try another payment method."
+msgstr ""
+"Àpplé Päý ïs nöt äväïläßlé ät thïs tïmé. Pléäsé trý änöthér päýmént méthöd. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: ecommerce/static/js/payment_processors/cybersource.js
+msgid ""
+"An error occurred while processing your payment. You have NOT been charged. "
+"Please try again, or select another payment method."
+msgstr ""
+"Àn érrör öççürréd whïlé pröçéssïng ýöür päýmént. Ýöü hävé NÖT ßéén çhärgéd. "
+"Pléäsé trý ägäïn, ör séléçt änöthér päýmént méthöd. Ⱡ'σяє#"
+
+#: ecommerce/static/js/payment_processors/stripe.js
+msgid ""
+"An error occurred while attempting to process your payment. You have not "
+"been charged. Please check your payment details, and try again."
+msgstr ""
+"Àn érrör öççürréd whïlé ättémptïng tö pröçéss ýöür päýmént. Ýöü hävé nöt "
+"ßéén çhärgéd. Pléäsé çhéçk ýöür päýmént détäïls, änd trý ägäïn. Ⱡ'σяєм ιρѕυм"
+" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσя#"
+
+#: ecommerce/static/js/payment_processors/stripe.js
+msgid "An error occurred while processing your payment. Please try again."
+msgstr ""
+"Àn érrör öççürréd whïlé pröçéssïng ýöür päýmént. Pléäsé trý ägäïn. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: ecommerce/static/js/utils/utils.js
+msgid "Trailing comma not allowed."
+msgstr "Träïlïng çömmä nöt ällöwéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: ecommerce/static/js/views/coupon_detail_view.js
+#: ecommerce/static/js/views/coupon_form_view.js
+#: ecommerce/static/js/views/enterprise_coupon_form_view.js
+msgid "Can be used once by one customer"
+msgstr ""
+"Çän ßé üséd önçé ßý öné çüstömér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: ecommerce/static/js/views/coupon_detail_view.js
+#: ecommerce/static/js/views/coupon_form_view.js
+#: ecommerce/static/js/views/enterprise_coupon_form_view.js
+msgid "Can be used multiple times by multiple customers"
+msgstr ""
+"Çän ßé üséd mültïplé tïmés ßý mültïplé çüstömérs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: ecommerce/static/js/views/coupon_detail_view.js
+#: ecommerce/static/js/views/coupon_form_view.js
+#: ecommerce/static/js/views/enterprise_coupon_form_view.js
+msgid "Can be used once by multiple customers"
+msgstr ""
+"Çän ßé üséd önçé ßý mültïplé çüstömérs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: ecommerce/static/js/views/coupon_form_view.js
+msgid "Enrollment Code"
+msgstr "Énröllmént Çödé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: ecommerce/static/js/views/coupon_form_view.js
+msgid "Discount Code"
+msgstr "Dïsçöünt Çödé Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: ecommerce/static/js/views/coupon_form_view.js
+msgid "Save Changes"
+msgstr "Sävé Çhängés Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: ecommerce/static/js/views/coupon_form_view.js
+msgid "Create Coupon"
+msgstr "Çréäté Çöüpön Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: ecommerce/static/js/views/coupon_list_view.js
+#: ecommerce/static/js/views/enterprise_coupon_list_view.js
+msgid "Name"
+msgstr "Nämé Ⱡ'σяєм ι#"
+
+#: ecommerce/static/js/views/coupon_list_view.js
+#: ecommerce/static/js/views/enterprise_coupon_list_view.js
+msgid "Created"
+msgstr "Çréätéd Ⱡ'σяєм ιρѕυм #"
+
+#: ecommerce/static/js/views/coupon_list_view.js
+msgid "Custom Code"
+msgstr "Çüstöm Çödé Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: ecommerce/static/js/views/coupon_list_view.js
+#: ecommerce/static/js/views/enterprise_coupon_list_view.js
+msgid "Client"
+msgstr "Çlïént Ⱡ'σяєм ιρѕυ#"
+
+#: ecommerce/static/js/views/coupon_list_view.js
+msgid "Category"
+msgstr "Çätégörý Ⱡ'σяєм ιρѕυм ∂#"
+
+#: ecommerce/static/js/views/coupon_list_view.js
+#: ecommerce/static/js/views/enterprise_coupon_list_view.js
+msgid "Coupon Report"
+msgstr "Çöüpön Répört Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: ecommerce/static/js/views/coupon_list_view.js
+#: ecommerce/static/js/views/course_list_view.js
+msgid "Search..."
+msgstr "Séärçh... Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: ecommerce/static/js/views/coupon_list_view.js
+#: ecommerce/static/js/views/course_list_view.js
+msgid "Next"
+msgstr "Néxt Ⱡ'σяєм ι#"
+
+#: ecommerce/static/js/views/coupon_list_view.js
+#: ecommerce/static/js/views/course_list_view.js
+msgid "Previous"
+msgstr "Prévïöüs Ⱡ'σяєм ιρѕυм ∂#"
+
+#. Translators: _START_, _END_, and _TOTAL_ are placeholders. Do NOT translate
+#. them.
+#: ecommerce/static/js/views/coupon_list_view.js
+msgid "Displaying _START_ to _END_ of _TOTAL_ coupons"
+msgstr ""
+"Dïspläýïng _STÀRT_ tö _ÉND_ öf _TÖTÀL_ çöüpöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
+
+#. Translators: _MAX_ is a placeholder. Do NOT translate it.
+#: ecommerce/static/js/views/coupon_list_view.js
+msgid "(filtered from _MAX_ total coupons)"
+msgstr ""
+"(fïltéréd fröm _MÀX_ tötäl çöüpöns) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#. Translators: _MENU_ is a placeholder. Do NOT translate it.
+#: ecommerce/static/js/views/coupon_list_view.js
+msgid "Display _MENU_ coupons"
+msgstr "Dïspläý _MÉNÛ_ çöüpöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: ecommerce/static/js/views/course_form_view.js
+msgid "Free (Audit)"
+msgstr "Fréé (Àüdït) Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: ecommerce/static/js/views/course_form_view.js
+msgid "Free audit track. No certificate."
+msgstr ""
+"Fréé äüdït träçk. Nö çértïfïçäté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: ecommerce/static/js/views/course_form_view.js
+msgid "Verified and Audit"
+msgstr "Vérïfïéd änd Àüdït Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: ecommerce/static/js/views/course_form_view.js
+#: ecommerce/static/js/views/course_form_view.js
+msgid ""
+"Paid certificate track with initial verification and Verified Certificate."
+msgstr ""
+"Päïd çértïfïçäté träçk wïth ïnïtïäl vérïfïçätïön änd Vérïfïéd Çértïfïçäté. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: ecommerce/static/js/views/course_form_view.js
+msgid "Also includes the free audit track."
+msgstr ""
+"Àlsö ïnçlüdés thé fréé äüdït träçk. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: ecommerce/static/js/views/course_form_view.js
+msgid "Verified Only"
+msgstr "Vérïfïéd Önlý Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: ecommerce/static/js/views/course_form_view.js
+msgid "Professional Education"
+msgstr "Pröféssïönäl Édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: ecommerce/static/js/views/course_form_view.js
+msgid ""
+"Paid certificate track with initial verification and Professional Education "
+"Certificate"
+msgstr ""
+"Päïd çértïfïçäté träçk wïth ïnïtïäl vérïfïçätïön änd Pröféssïönäl Édüçätïön "
+"Çértïfïçäté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: ecommerce/static/js/views/course_form_view.js
+msgid ""
+"Paid certificate track with initial verification and Verified Certificate, "
+"and option to purchase credit"
+msgstr ""
+"Päïd çértïfïçäté träçk wïth ïnïtïäl vérïfïçätïön änd Vérïfïéd Çértïfïçäté, "
+"änd öptïön tö pürçhäsé çrédït Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#. Translators: _START_, _END_, and _TOTAL_ are placeholders. Do NOT translate
+#. them.
+#: ecommerce/static/js/views/course_list_view.js
+msgid "Displaying _START_ to _END_ of _TOTAL_ courses"
+msgstr ""
+"Dïspläýïng _STÀRT_ tö _ÉND_ öf _TÖTÀL_ çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
+
+#. Translators: _MAX_ is a placeholder. Do NOT translate it.
+#: ecommerce/static/js/views/course_list_view.js
+msgid "(filtered from _MAX_ total courses)"
+msgstr ""
+"(fïltéréd fröm _MÀX_ tötäl çöürsés) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#. Translators: _MENU_ is a placeholder. Do NOT translate it.
+#: ecommerce/static/js/views/course_list_view.js
+msgid "Display _MENU_ courses"
+msgstr "Dïspläý _MÉNÛ_ çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: ecommerce/static/js/views/course_list_view.js
+msgid "Course"
+msgstr "Çöürsé Ⱡ'σяєм ιρѕυ#"
+
+#: ecommerce/static/js/views/course_list_view.js
+msgid "Last Edited"
+msgstr "Läst Édïtéd Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: ecommerce/static/js/views/dynamic_catalog_view.js
+msgid "Seat title"
+msgstr "Séät tïtlé Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: ecommerce/static/js/views/dynamic_catalog_view.js
+msgid "Seat type"
+msgstr "Séät týpé Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: ecommerce/static/js/views/enterprise_coupon_detail_view.js
+#: ecommerce/static/js/views/enterprise_coupon_form_view.js
+msgid "Can be used multiple times by one customer"
+msgstr ""
+"Çän ßé üséd mültïplé tïmés ßý öné çüstömér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: ecommerce/static/js/views/enterprise_coupon_form_view.js
+msgid "Create and Add More"
+msgstr "Çréäté änd Àdd Möré Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: ecommerce/static/js/views/enterprise_coupon_list_view.js
+msgid "Status"
+msgstr "Stätüs Ⱡ'σяєм ιρѕυ#"
+
+#: ecommerce/static/js/views/enterprise_coupon_list_view.js
+msgid "Enterprise Customer"
+msgstr "Éntérprïsé Çüstömér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: ecommerce/static/js/views/enterprise_coupon_list_view.js
+msgid "Enterprise Customer Catalog"
+msgstr "Éntérprïsé Çüstömér Çätälög Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: ecommerce/static/js/views/form_view.js
+msgid "A course with the specified ID already exists."
+msgstr ""
+"À çöürsé wïth thé spéçïfïéd ÌD älréädý éxïsts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
+
+#: ecommerce/static/js/views/form_view.js
+#: ecommerce/static/js/views/form_view.js
+msgid "Error!"
+msgstr "Érrör! Ⱡ'σяєм ιρѕυ#"
+
+#: ecommerce/static/js/views/form_view.js
+msgid "Saving..."
+msgstr "Sävïng... Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: ecommerce/static/js/views/form_view.js
+msgid "Please complete all required fields."
+msgstr ""
+"Pléäsé çömplété äll réqüïréd fïélds. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: ecommerce/static/js/views/form_view.js
+msgid "An error occurred while saving the data."
+msgstr ""
+"Àn érrör öççürréd whïlé sävïng thé dätä. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: ecommerce/static/js/views/offer_view.js
+msgid "Ellipsis"
+msgstr "Éllïpsïs Ⱡ'σяєм ιρѕυм ∂#"
+
+#: ecommerce/static/js/views/offer_view.js
+msgid "Load the records for page "
+msgstr "Löäd thé réçörds för pägé  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: ecommerce/static/js/views/offer_view.js
+msgid "Load the records for the next page"
+msgstr ""
+"Löäd thé réçörds för thé néxt pägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: ecommerce/static/js/views/offer_view.js
+msgid "Load the records for the previous page"
+msgstr ""
+"Löäd thé réçörds för thé prévïöüs pägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: ecommerce/static/js/views/provider_selection_view.js
+msgid "Select"
+msgstr "Séléçt Ⱡ'σяєм ιρѕυ#"
+
+#: ecommerce/static/js/views/provider_selection_view.js
+msgid "Selected"
+msgstr "Séléçtéd Ⱡ'σяєм ιρѕυм ∂#"
+
+#: ecommerce/static/vendor-extensions/oscar/js/order_actions.js
+msgid "Order %(order_number)s has been fulfilled."
+msgstr ""
+"Ördér %(order_number)s häs ßéén fülfïlléd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢#"
+
+#: ecommerce/static/vendor-extensions/oscar/js/order_actions.js
+msgid "Failed to fulfill order %(order_number)s: %(error)s"
+msgstr ""
+"Fäïléd tö fülfïll ördér %(order_number)s: %(error)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тє#"
+
+#: ecommerce/static/vendor-extensions/oscar/js/refund_list.js
+msgid "Refund #%(refund_id)s has been processed."
+msgstr ""
+"Réfünd #%(refund_id)s häs ßéén pröçésséd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢т#"
+
+#: ecommerce/static/vendor-extensions/oscar/js/refund_list.js
+msgid "Error"
+msgstr "Érrör Ⱡ'σяєм ιρѕ#"
+
+#: ecommerce/static/vendor-extensions/oscar/js/refund_list.js
+msgid ""
+"Failed to process refund #%(refund_id)s: %(error)s. Please try again, or "
+"contact the E-Commerce Development Team."
+msgstr ""
+"Fäïléd tö pröçéss réfünd #%(refund_id)s: %(error)s. Pléäsé trý ägäïn, ör "
+"çöntäçt thé É-Çömmérçé Dévélöpmént Téäm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"

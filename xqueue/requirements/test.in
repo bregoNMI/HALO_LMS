@@ -1,0 +1,8 @@
+# Requirements for test runs.
+-c constraints.txt
+
+-r ../requirements.txt              # Core xqueue production dependencies
+
+pytest                              # Testing framework
+pytest-cov                          # pytest plugin for measuring code coverage
+pytest-django                       # Django support for pytest

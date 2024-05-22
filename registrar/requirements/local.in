@@ -1,0 +1,11 @@
+# Packages required for standalone local development
+-c constraints.txt
+-r github.txt              # Forks and other dependencies not yet on PyPI
+
+-r test.txt
+-r docs.txt
+
+django-debug-toolbar
+edx-i18n-tools
+pywatchman                # More efficient checking for runserver reload trigger events
+ruamel.yaml.cmd

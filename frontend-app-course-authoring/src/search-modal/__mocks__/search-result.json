@@ -1,0 +1,293 @@
+{
+  "comment": "This is a mock of the response from Meilisearch, based on an actual search in Studio.",
+  "results": [
+    {
+      "indexUid": "studio",
+      "hits": [
+        {
+          "type": "course_block",
+          "display_name": "Test HTML Block",
+          "block_id": "test_html",
+          "content": {
+            "html_content": "This is the content of the test HTML block. You can do a keyword search and it will find matches within this text."
+          },
+          "id": "block-v1edxTestCourse24typehtmlblocktest_html-e47ff4c0",
+          "usage_key": "block-v1:edx+TestCourse+24+type@html+block@test_html",
+          "block_type": "html",
+          "context_key": "course-v1:edx+TestCourse+24",
+          "org": "edx",
+          "breadcrumbs": [
+            { "display_name": "TheCourse" },
+            { "display_name": "Section 2", "usage_key": "block-v1:edx+TestCourse+24+type@chapter+block@chapter_2" },
+            {
+              "display_name": "Subsection 3",
+              "usage_key": "block-v1:edx+TestCourse+24+type@sequential+block@sequential_3"
+            },
+            {
+              "display_name": "The Little Unit That Could",
+              "usage_key": "block-v1:edx+TestCourse+24+type@vertical+block@vertical_3_1"
+            }
+          ],
+          "tags": {
+            "taxonomy": [
+              "ESDC Skills and Competencies",
+              "FlatTaxonomy",
+              "TwoLevelTaxonomy"
+            ],
+            "level0": [
+              "ESDC Skills and Competencies > Personal Attributes",
+              "ESDC Skills and Competencies > Work Context",
+              "FlatTaxonomy > flat taxonomy tag 589",
+              "TwoLevelTaxonomy > two level tag 1"
+            ],
+            "level1": [
+              "ESDC Skills and Competencies > Personal Attributes > Self-Improvement",
+              "ESDC Skills and Competencies > Work Context > Physical Work Environment",
+              "TwoLevelTaxonomy > two level tag 1 > two level tag 1.1"
+            ],
+            "level2": [
+              "ESDC Skills and Competencies > Personal Attributes > Self-Improvement > Adjustment",
+              "ESDC Skills and Competencies > Personal Attributes > Self-Improvement > Learning Orientation",
+              "ESDC Skills and Competencies > Work Context > Physical Work Environment > Environmental Conditions"
+            ],
+            "level3": [
+              "ESDC Skills and Competencies > Personal Attributes > Self-Improvement > Adjustment > Adaptability",
+              "ESDC Skills and Competencies > Personal Attributes > Self-Improvement > Learning Orientation > Active Learning",
+              "ESDC Skills and Competencies > Work Context > Physical Work Environment > Environmental Conditions > Biological Agents"
+            ]
+          }
+        },
+        {
+          "display_name": "Library Content",
+          "block_id": "a1fa8bdd-dc67-4976-9bf5-0ea75a9bca3d",
+          "content": {
+            "html_content": " Test "
+          },
+          "id": "lborg1libafter1htmla1fa8bdd-dc67-4976-9bf5-0ea75a9bca3d-8c5b26ce",
+          "usage_key": "lb:org1:libafter1:html:a1fa8bdd-dc67-4976-9bf5-0ea75a9bca3d",
+          "block_type": "html",
+          "context_key": "lib:org1:libafter1",
+          "org": "edx",
+          "breadcrumbs": [
+            {
+              "display_name": "libafter2"
+            }
+          ],
+          "type": "library_block"
+        },
+        {
+          "display_name": "Section 1",
+          "block_id": "c7077c8cafcf420dbc0b440bf27bad04",
+          "content": {},
+          "id": "block-v1sampletaxonomyorg1stc12023_1typechapterblockc7077c8cafcf420dbc0b440bf27bad04-2af9d1ac",
+          "type": "course_block",
+          "breadcrumbs": [
+            {
+              "display_name": "Sample Taxonomy Course"
+            }
+          ],
+          "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@chapter+block@c7077c8cafcf420dbc0b440bf27bad04",
+          "block_type": "chapter",
+          "context_key": "course-v1:SampleTaxonomyOrg1+STC1+2023_1",
+          "org": "SampleTaxonomyOrg1",
+          "access_id": 6,
+          "_formatted": {
+            "display_name": "Section 1",
+            "block_id": "c7077c8cafcf420dbc0b440bf27bad04",
+            "content": {},
+            "id": "block-v1sampletaxonomyorg1stc12023_1typechapterblockc7077c8cafcf420dbc0b440bf27bad04-2af9d1ac",
+            "type": "course_block",
+            "breadcrumbs": [
+              {
+                "display_name": "Sample Taxonomy Course"
+              }
+            ],
+            "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@chapter+block@c7077c8cafcf420dbc0b440bf27bad04",
+            "block_type": "chapter",
+            "context_key": "course-v1:SampleTaxonomyOrg1+STC1+2023_1",
+            "org": "SampleTaxonomyOrg1",
+            "access_id": "6"
+          }
+        },
+        {
+          "display_name": "Subsection 1.1",
+          "block_id": "92e3e9ca156c44fa8a735f0e9e7c854f",
+          "content": {},
+          "id": "block-v1sampletaxonomyorg1stc12023_1typesequentialblock92e3e9ca156c44fa8a735f0e9e7c854f-ec0fb128",
+          "type": "course_block",
+          "breadcrumbs": [
+            {
+              "display_name": "Sample Taxonomy Course"
+            },
+            {
+              "display_name": "Section 1",
+              "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@chapter+block@c7077c8cafcf420dbc0b440bf27bad04"
+            }
+          ],
+          "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@sequential+block@92e3e9ca156c44fa8a735f0e9e7c854f",
+          "block_type": "sequential",
+          "context_key": "course-v1:SampleTaxonomyOrg1+STC1+2023_1",
+          "org": "SampleTaxonomyOrg1",
+          "access_id": 6,
+          "_formatted": {
+            "display_name": "Subsection 1.1",
+            "block_id": "92e3e9ca156c44fa8a735f0e9e7c854f",
+            "content": {},
+            "id": "block-v1sampletaxonomyorg1stc12023_1typesequentialblock92e3e9ca156c44fa8a735f0e9e7c854f-ec0fb128",
+            "type": "course_block",
+            "breadcrumbs": [
+              {
+                "display_name": "Sample Taxonomy Course"
+              },
+              {
+                "display_name": "Section 1",
+                "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@chapter+block@c7077c8cafcf420dbc0b440bf27bad04"
+              }
+            ],
+            "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@sequential+block@92e3e9ca156c44fa8a735f0e9e7c854f",
+            "block_type": "sequential",
+            "context_key": "course-v1:SampleTaxonomyOrg1+STC1+2023_1",
+            "org": "SampleTaxonomyOrg1",
+            "access_id": "6"
+          }
+        },
+        {
+          "display_name": "Unit 1.1.1",
+          "block_id": "aaf8b8eb86b54281aeeab12499d2cb0b",
+          "content": {},
+          "id": "block-v1sampletaxonomyorg1stc12023_1typeverticalblockaaf8b8eb86b54281aeeab12499d2cb0b-afa27c6e",
+          "type": "course_block",
+          "breadcrumbs": [
+            {
+              "display_name": "Sample Taxonomy Course"
+            },
+            {
+              "display_name": "Section 1",
+              "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@chapter+block@c7077c8cafcf420dbc0b440bf27bad04"
+            },
+            {
+              "display_name": "Subsection 1.1",
+              "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@sequential+block@92e3e9ca156c44fa8a735f0e9e7c854f"
+            }
+          ],
+          "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@vertical+block@aaf8b8eb86b54281aeeab12499d2cb0b",
+          "block_type": "vertical",
+          "context_key": "course-v1:SampleTaxonomyOrg1+STC1+2023_1",
+          "org": "SampleTaxonomyOrg1",
+          "access_id": 6,
+          "_formatted": {
+            "display_name": "Unit 1.1.1",
+            "block_id": "aaf8b8eb86b54281aeeab12499d2cb0b",
+            "content": {},
+            "id": "block-v1sampletaxonomyorg1stc12023_1typeverticalblockaaf8b8eb86b54281aeeab12499d2cb0b-afa27c6e",
+            "type": "course_block",
+            "breadcrumbs": [
+              {
+                "display_name": "Sample Taxonomy Course"
+              },
+              {
+                "display_name": "Section 1",
+                "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@chapter+block@c7077c8cafcf420dbc0b440bf27bad04"
+              },
+              {
+                "display_name": "Subsection 1.1",
+                "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@sequential+block@92e3e9ca156c44fa8a735f0e9e7c854f"
+              }
+            ],
+            "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@vertical+block@aaf8b8eb86b54281aeeab12499d2cb0b",
+            "block_type": "vertical",
+            "context_key": "course-v1:SampleTaxonomyOrg1+STC1+2023_1",
+            "org": "SampleTaxonomyOrg1",
+            "access_id": "6"
+          }
+        },
+        {
+          "display_name": "Announcement",
+          "block_id": "0b2d1c0722f742489602b6d8645205f4",
+          "content": {
+            "html_content": "To use this template, replace the example text with your own text. When you add the component, be sure to select Settings to specify a Display Name and other values that apply. Announcement Date Short note that introduces the topic Instructor's name Heading for announcement 1 Announcement 1 text Heading for announcement 2 Announcement 2 text "
+          },
+          "id": "block-v1sampletaxonomyorg1stc12023_1typehtmlblock0b2d1c0722f742489602b6d8645205f4-2db56dce",
+          "type": "course_block",
+          "breadcrumbs": [
+            {
+              "display_name": "Sample Taxonomy Course"
+            },
+            {
+              "display_name": "Section 1",
+              "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@chapter+block@c7077c8cafcf420dbc0b440bf27bad04"
+            },
+            {
+              "display_name": "Subsection 1.1",
+              "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@sequential+block@92e3e9ca156c44fa8a735f0e9e7c854f"
+            },
+            {
+              "display_name": "Unit 1.1.1",
+              "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@vertical+block@aaf8b8eb86b54281aeeab12499d2cb0b"
+            }
+          ],
+          "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@html+block@0b2d1c0722f742489602b6d8645205f4",
+          "block_type": "html",
+          "context_key": "course-v1:SampleTaxonomyOrg1+STC1+2023_1",
+          "org": "SampleTaxonomyOrg1",
+          "access_id": 6,
+          "_formatted": {
+            "display_name": "Announcement",
+            "block_id": "0b2d1c0722f742489602b6d8645205f4",
+            "content": {
+              "html_content": "To use this template, replace the example text with your own text. When you add the component, be sure to…"
+            },
+            "id": "block-v1sampletaxonomyorg1stc12023_1typehtmlblock0b2d1c0722f742489602b6d8645205f4-2db56dce",
+            "type": "course_block",
+            "breadcrumbs": [
+              {
+                "display_name": "Sample Taxonomy Course"
+              },
+              {
+                "display_name": "Section 1",
+                "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@chapter+block@c7077c8cafcf420dbc0b440bf27bad04"
+              },
+              {
+                "display_name": "Subsection 1.1",
+                "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@sequential+block@92e3e9ca156c44fa8a735f0e9e7c854f"
+              },
+              {
+                "display_name": "Unit 1.1.1",
+                "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@vertical+block@aaf8b8eb86b54281aeeab12499d2cb0b"
+              }
+            ],
+            "usage_key": "block-v1:SampleTaxonomyOrg1+STC1+2023_1+type@html+block@0b2d1c0722f742489602b6d8645205f4",
+            "block_type": "html",
+            "context_key": "course-v1:SampleTaxonomyOrg1+STC1+2023_1",
+            "org": "SampleTaxonomyOrg1",
+            "access_id": "6"
+          }
+        }
+      ],
+      "query": "learn",
+      "processingTimeMs": 1,
+      "limit": 6,
+      "offset": 0,
+      "estimatedTotalHits": 6
+    },
+    {
+      "indexUid": "studio",
+      "hits": [],
+      "query": "learn",
+      "processingTimeMs": 1,
+      "limit": 0,
+      "offset": 0,
+      "estimatedTotalHits": 0,
+      "facetDistribution": {
+        "block_type": {
+          "chapter": 1,
+          "html": 2,
+          "problem": 16,
+          "vertical": 2,
+          "video": 1
+        }
+      },
+      "facetStats": {}
+    }
+  ]
+}

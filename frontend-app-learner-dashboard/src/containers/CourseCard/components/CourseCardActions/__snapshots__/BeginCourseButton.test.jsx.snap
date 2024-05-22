@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BeginCourseButton snapshot disabled snapshot 1`] = `
+<ActionButton
+  as="a"
+  disabled={true}
+  href="#"
+  onClick={
+    Object {
+      "trackCourseEvent": Object {
+        "cardId": "cardId",
+        "eventName": [MockFunction segment.enterCourseClicked],
+        "upgradeUrl": "home-urlexec-ed-tracking-path=cardId",
+      },
+    }
+  }
+>
+  Begin Course
+</ActionButton>
+`;
+
+exports[`BeginCourseButton snapshot enabled snapshot 1`] = `
+<ActionButton
+  as="a"
+  disabled={false}
+  href="#"
+  onClick={
+    Object {
+      "trackCourseEvent": Object {
+        "cardId": "cardId",
+        "eventName": [MockFunction segment.enterCourseClicked],
+        "upgradeUrl": "home-urlexec-ed-tracking-path=cardId",
+      },
+    }
+  }
+>
+  Begin Course
+</ActionButton>
+`;

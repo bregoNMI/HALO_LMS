@@ -1,0 +1,73 @@
+{% extends 'edx/base.html' %}
+{% load i18n %}
+{% load offer_tags %}
+{% load static %}
+
+{% block title %}{% trans "Program Offers" as tmsg %}{{ tmsg | force_escape }}{% endblock %}
+
+{% block navbar %}
+  {% include "edx/partials/_staff_navbar.html" %}
+  {% include "edx/partials/_administration_menu.html" %}
+{% endblock navbar %}
+
+{% block content %}
+  <div class="container">
+    <div class="page-header">
+      <h1 class="hd-1 emphasized">
+        {% trans "Program Offers" %}
+        <div class="pull-right">
+          <a href="{% url 'programs:offers:new' %}"
+             class="btn btn-primary btn-small">{% trans "Create Program Offer" as tmsg %}{{ tmsg | force_escape }}</a>
+        </div>
+      </h1>
+    </div>
+
+    <table id="offerTable" class="copy copy-base table table-striped table-bordered" cellspacing="0">
+      <caption class="sr-only">{% trans "Current program offers" as tmsg %}{{ tmsg | force_escape }}</caption>
+      <thead>
+      <tr>
+        <th>{% trans 'Program Title' as tmsg %}{{ tmsg | force_escape }}</th>
+        <th>{% trans 'Program UUID' as tmsg %}{{ tmsg | force_escape }}</th>
+        <th>{% trans 'Type' as tmsg %}{{ tmsg | force_escape }}</th>
+        <th>{% trans 'Value' as tmsg %}{{ tmsg | force_escape }}</th>
+        <th>{% trans 'Start' as tmsg %}{{ tmsg | force_escape }}</th>
+        <th>{% trans 'End' as tmsg %}{{ tmsg | force_escape }}</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for offer in object_list %}
+        <tr>
+          <td><a href="{% url 'programs:offers:edit' pk=offer.pk %}">{{ offer.program.title }}</a></td>
+          <td>{{ offer.program.uuid }}</td>
+          <td>{{ offer.benefit|benefit_type|capfirst }}</td>
+          <td>{{ offer.benefit.value }}</td>
+          <td>{{ offer.start_datetime|default_if_none:'--' }}</td>
+          <td>{{ offer.end_datetime|default_if_none:'--' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 text-right">
+          <em>
+            {% filter force_escape %}
+              {% blocktrans %}
+                {{ platform_name }} Program Offer Administration Tool
+              {% endblocktrans %}
+            {% endfilter %}
+          </em>
+        </div>
+      </div>
+    </div>
+  </footer>
+{% endblock footer %}
+
+{% block javascript %}
+  <script src="{% static 'js/pages/offer_list_page.js' %}"></script>
+{% endblock %}

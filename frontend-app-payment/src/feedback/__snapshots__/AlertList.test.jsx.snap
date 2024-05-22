@@ -1,0 +1,184 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AlertList should be null by default 1`] = `<div />`;
+
+exports[`AlertList should render messages of each type 1`] = `
+<div>
+  <div
+    class="fade alert-content alert alert-warning show"
+    dialog="Boo indeed!"
+    role="alert"
+  >
+    <div
+      class="pgn__alert-message-wrapper"
+    >
+      <div
+        class="alert-message-content"
+      >
+        Boo indeed!
+      </div>
+      <div
+        class="pgn__alert-actions pgn__action-row"
+      >
+        <span
+          class="pgn__action-row-spacer"
+        />
+        <button
+          class="btn btn-tertiary btn-sm"
+          type="button"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    class="fade alert-content alert alert-info show"
+    dialog="Bah!"
+    role="alert"
+  >
+    <div
+      class="pgn__alert-message-wrapper"
+    >
+      <div
+        class="alert-message-content"
+      >
+        Bah!
+      </div>
+      <div
+        class="pgn__alert-actions pgn__action-row"
+      >
+        <span
+          class="pgn__action-row-spacer"
+        />
+        <button
+          class="btn btn-tertiary btn-sm"
+          type="button"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    class="fade alert-content alert alert-success show"
+    dialog="Meh!"
+    role="alert"
+  >
+    <div
+      class="pgn__alert-message-wrapper"
+    >
+      <div
+        class="alert-message-content"
+      >
+        Meh!
+      </div>
+      <div
+        class="pgn__alert-actions pgn__action-row"
+      >
+        <span
+          class="pgn__action-row-spacer"
+        />
+        <button
+          class="btn btn-tertiary btn-sm"
+          type="button"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    class="fade alert-content alert alert-danger show"
+    dialog="Gah!  An error!"
+    role="alert"
+  >
+    <div
+      class="pgn__alert-message-wrapper"
+    >
+      <div
+        class="alert-message-content"
+      >
+        Gah!  An error!
+      </div>
+      <div
+        class="pgn__alert-actions pgn__action-row"
+      >
+        <span
+          class="pgn__action-row-spacer"
+        />
+        <button
+          class="btn btn-tertiary btn-sm"
+          type="button"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    class="fade alert-content alert alert-warning show"
+    dialog="Debug debug"
+    role="alert"
+  >
+    <div
+      class="pgn__alert-message-wrapper"
+    >
+      <div
+        class="alert-message-content"
+      >
+        Debug debug
+      </div>
+      <div
+        class="pgn__alert-actions pgn__action-row"
+      >
+        <span
+          class="pgn__action-row-spacer"
+        />
+        <button
+          class="btn btn-tertiary btn-sm"
+          type="button"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    class="fade alert-content alert alert-danger show"
+    dialog="[object Object]"
+    role="alert"
+  >
+    <div
+      class="pgn__alert-message-wrapper"
+    >
+      <div
+        class="alert-message-content"
+      >
+        There was an unexpected problem. If the problem persists, please 
+        <a
+          class="pgn__hyperlink default-link standalone-link"
+          href="http://localhost:18000/support"
+          target="_self"
+        >
+          contact support
+        </a>
+        .
+      </div>
+      <div
+        class="pgn__alert-actions pgn__action-row"
+      >
+        <span
+          class="pgn__action-row-spacer"
+        />
+        <button
+          class="btn btn-tertiary btn-sm"
+          type="button"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;

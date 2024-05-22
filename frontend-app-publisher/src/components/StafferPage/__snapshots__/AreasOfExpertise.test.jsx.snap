@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Areas Of Expertise renders correctly when given fields 1`] = `
+<div
+  className="areas-of-expertise mb-3"
+>
+  <ul
+    className="list-group p-0 m-0 container-fluid"
+  >
+    <li
+      className="area-of-expertise list-group-item row d-flex align-items-center px-0 mx-0"
+      key="[object Object]"
+    >
+      <div
+        className="col-11"
+      >
+        <Field
+          component={[Function]}
+          label={
+            <FieldLabel
+              className=""
+              extraText=""
+              helpText=""
+              id={null}
+              optional={false}
+              required={true}
+              text="Area of expertise"
+            />
+          }
+          name="[object Object].value"
+          required={true}
+          type="text"
+        />
+      </div>
+      <input
+        name="[object Object].id"
+        type="hidden"
+      />
+      <RemoveButton
+        className="col-1"
+        label="Remove area of expertise"
+        onRemove={[Function]}
+        targetFieldNumber={0}
+      />
+    </li>
+  </ul>
+  <button
+    className="btn btn-outline-primary js-add-button mt-2"
+    onClick={[Function]}
+    type="button"
+  >
+    Add area of expertise
+  </button>
+</div>
+`;
+
+exports[`Areas Of Expertise renders correctly with no fields 1`] = `
+<div
+  className="areas-of-expertise mb-3"
+>
+  <ul
+    className="list-group p-0 m-0 container-fluid"
+  />
+  <button
+    className="btn btn-outline-primary js-add-button mt-2"
+    onClick={[Function]}
+    type="button"
+  >
+    Add area of expertise
+  </button>
+</div>
+`;

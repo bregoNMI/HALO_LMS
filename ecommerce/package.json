@@ -1,0 +1,35 @@
+{
+  "name": "edx-ecommerce",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/openedx/ecommerce"
+  },
+  "dependencies": {
+    "bower": "1.8.8",
+    "jquery": "^3.5.0",
+    "requirejs": "2.3.3"
+  },
+  "devDependencies": {
+    "apple-pay-js-stubs": "1.0.4",
+    "eslint": "3.19.0",
+    "eslint-config-edx-es5": "3.0.0",
+    "geckodriver": "1.6.1",
+    "gulp": "4.0.2",
+    "gulp-eslint": "3.0.1",
+    "jasmine-core": "2.6.1",
+    "jasmine-jquery": "2.1.1",
+    "karma": "1.5.0",
+    "karma-chrome-launcher": "2.2.0",
+    "karma-coverage": "1.1.1",
+    "karma-coverage-allsources": "0.0.4",
+    "karma-firefox-launcher": "1.2.0",
+    "karma-jasmine": "1.1.0",
+    "karma-requirejs": "1.1.0",
+    "karma-selenium-webdriver-launcher": "0.0.4",
+    "karma-sinon": "1.0.5",
+    "karma-spec-reporter": "0.0.26",
+    "selenium-webdriver": "^2.44.0",
+    "sinon": "2.3.8"
+  }
+}

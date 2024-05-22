@@ -1,0 +1,12 @@
+# Pro-tip: Try not to put anything here. There should be no dependency in
+#	production that isn't in development.
+-c constraints.txt
+
+-r base.txt
+
+mysqlclient
+PyYAML										# MIT License
+gunicorn        							# MIT
+python-memcached
+pymemcache
+nodeenv     								# BSD
