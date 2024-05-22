@@ -1,0 +1,147 @@
+{% extends "course_metadata/email/email_base.html" %}
+{% load django_markup %}
+{% block body %}
+
+<p>
+    The data ingestion has been run for product type <strong>{{ product_type }}</strong> and product source <strong>{{ product_source }}</strong>. See below for the ingestion stats.
+</p>
+<div>
+    <table border="2" width="50%" style="padding: 5px;">
+        <tr>
+            <th colspan="2">
+                Ingestion Statistics
+            </th>
+        </tr>
+        <tr>
+            <th>Ingestion Time</th>
+            <td>{{ ingestion_run_time | date:"m/d/Y P" }}</td>
+        </tr>
+        <tr>
+            <th>Total data rows</th>
+            <td>{{ total_products_count }}</td>
+        </tr>
+        <tr>
+            <th>Successful Ingestion</th>
+            <td>{{ success_count }}</td>
+        </tr>
+        <tr>
+            <th>Ingestion with Errors </th>
+            <td>{{ failure_count }}</td>
+        </tr>
+        <tr>
+            <th>New Products</th>
+            <td>{{ created_products_count }}</td>
+        </tr>
+        <tr>
+            <th>Updated Products</th>
+            <td>{{ updated_products_count }}</td>
+        </tr>
+        <tr>
+            <th>Archived Products</th>
+            <td>{{ archived_products_count }}</td>
+        </tr>
+    </table>
+</div>
+
+{% if created_products_count > 0 %}
+<div>
+    <h3>New Products</h3>
+        <ul>
+            {% if product_type != "DEGREES" %}
+                <table border="2" style="padding: 5px;">
+                    <tr>
+                        <th style="padding: 5px;">
+                            Course UUID
+                        </th>
+                        <th style="padding: 5px;">
+                            URL Slug
+                        </th>
+                        <th style="padding: 5px;">
+                            External Course Marketing Type
+                        </th>
+                        <th style="padding: 5px;">
+                            Variant ID
+                        </th>
+                        <th style="padding: 5px;">
+                            Restriction Type
+                        </th>
+                        <th style="padding: 5px;">
+                            Rerun
+                        </th>
+                    </tr>
+            {% endif %}
+            {% for new_product in created_products %}
+                {% if product_type != "DEGREES" %}
+                    <tr>
+                        <td style="padding: 5px;">
+                            <a href='{{publisher_url}}courses/{{new_product.uuid}}'>{{ new_product.uuid }}</a>
+                        </td>
+                        <td style="padding: 5px;">
+                            {{ new_product.url_slug}}
+                        </td>
+                        <td style="padding: 5px;">
+                            {% if new_product.external_course_marketing_type %}
+                                {{ new_product.external_course_marketing_type }}
+                            {% endif %}
+                        </td>
+                        <td style="padding: 5px;">
+                            {% if new_product.course_run_variant_id %}
+                                {{ new_product.course_run_variant_id }}
+                            {% endif %}
+                        </td>
+                        <td style="padding: 5px;">
+                            {% if new_product.restriction_type %}
+                                {{ new_product.restriction_type }}
+                            {% endif %}
+                        </td>
+                        <td style="padding: 5px;">
+                            {% if new_product.rerun %}
+                                Yes
+                            {% else %}
+                                No
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <li>{{ new_product.uuid }}</li>
+                {% endif %}
+            {% endfor %}
+            {% if product_type != "DEGREES" %}
+                </table>
+            {% else %}
+                </ul>
+            {% endif %}
+</div>
+{% endif %}
+
+{% if archived_products_count > 0 %}
+<div>
+    <h3>Archived Products External Identifiers</h3>
+        <ul>
+            {% for archived_product in archived_products %}
+                <li>{{ archived_product }}</li>
+            {% endfor %}
+        </ul>
+</div>
+{% endif %}
+
+{% if failure_count > 0 %}
+<div>
+    <h3>Ingestion Failures</h3>
+        <ul>
+            {% for error_type, error_list in errors.items %}
+                {% for error_message in error_list %}
+                    <li> {{ error_message }} </li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+</div>
+{% endif %}
+
+<p>
+    <strong>Note: Products are ingested in Catalog and currently not published.
+        The changes will be live on http://edx.org once {{marketing_service_name}} build runs.
+        The average turnaround time is between 24 to 48 hours.
+        For queries or comments, reach out to {{ingestion_contact_email}} via email.</strong>
+</p>
+{% endblock body %}

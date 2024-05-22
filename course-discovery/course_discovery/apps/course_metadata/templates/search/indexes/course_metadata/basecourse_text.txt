@@ -1,0 +1,32 @@
+{{ object.uuid }}
+{{ object.title }}
+{{ object.short_description|default:'' }}
+{{ object.full_description|default:'' }}
+{{ object.level_type|default:'' }}
+{{ object.marketing_url|default:'' }}
+
+
+
+{% for expected_learning_item in object.expected_learning_items.all %}
+    {{ expected_learning_item.value }}
+{% endfor %}
+
+{% for organization in object.authoring_organizations.all %}
+    {% include 'search/indexes/course_metadata/partials/organization.txt' %}
+{% endfor %}
+
+{% for organization in object.sponsoring_organizations.all %}
+    {% include 'search/indexes/course_metadata/partials/organization.txt' %}
+{% endfor %}
+
+{% for prerequisite in object.prerequisites.all %}
+    {{ prerequisite.name }}
+{% endfor %}
+
+{% for subject in object.subjects.all %}
+    {{ subject.name }}
+{% endfor %}
+
+{% for program in object.programs.all %}
+    {{ program.title }}
+{% endfor %}

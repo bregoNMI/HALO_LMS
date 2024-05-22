@@ -1,0 +1,789 @@
+import os
+import platform
+from logging.handlers import SysLogHandler
+from os.path import abspath, dirname, join
+from sys import path
+
+from corsheaders.defaults import default_headers as corsheaders_default_headers
+
+here = lambda *x: join(abspath(dirname(__file__)), *x)
+PROJECT_ROOT = here('..')
+root = lambda *x: abspath(join(abspath(PROJECT_ROOT), *x))
+
+path.append(root('apps'))
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('COURSE_DISCOVERY_SECRET_KEY', 'insecure-secret-key')
+
+OPENEXCHANGERATES_API_KEY = None
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
+ALLOWED_HOSTS = []
+
+# Application definition
+
+INSTALLED_APPS = [
+    'dal',
+    'dal_select2',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.sites',
+]
+
+THIRD_PARTY_APPS = [
+    'release_util',
+    'rest_framework',
+    'drf_yasg',
+    'social_django',
+    'waffle',
+    'sortedm2m',
+    'simple_history',
+    'guardian',
+    'dry_rest_permissions',
+    'compressor',
+    'django_filters',
+    'django_fsm',
+    'storages',
+    'django_comments',
+    'django_sites_extensions',
+    'taggit',
+    'taggit_autosuggest',
+    'solo',
+    'webpack_loader',
+    'parler',
+    # edx-drf-extensions
+    'csrf.apps.CsrfAppConfig',  # Enables frontend apps to retrieve CSRF tokens.
+    'corsheaders',
+    'adminsortable2',
+    'xss_utils',
+    'algoliasearch_django',
+    'taxonomy',
+    'django_object_actions',
+    'nested_admin',
+    'openedx_events',
+    'multi_email_field',
+]
+
+ALGOLIA = {
+    'APPLICATION_ID': '',
+    'API_KEY': '',
+    'TAXONOMY_INDEX_NAME': '',
+}
+
+PROJECT_APPS = [
+    'course_discovery.apps.core',
+    'course_discovery.apps.ietf_language_tags',
+    'course_discovery.apps.api',
+    'course_discovery.apps.catalogs',
+    'course_discovery.apps.course_metadata',
+    'course_discovery.apps.edx_elasticsearch_dsl_extensions',
+    'course_discovery.apps.publisher',
+    'course_discovery.apps.publisher_comments',
+    'course_discovery.apps.learner_pathway',
+    'course_discovery.apps.taxonomy_support',
+]
+
+ES_APPS = [
+    'elasticsearch_dsl',
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
+]
+
+INSTALLED_APPS += THIRD_PARTY_APPS
+INSTALLED_APPS += PROJECT_APPS
+INSTALLED_APPS += ES_APPS
+
+MIDDLEWARE = (
+    'corsheaders.middleware.CorsMiddleware',
+    'edx_django_utils.monitoring.CookieMonitoringMiddleware',
+    'edx_django_utils.monitoring.DeploymentMonitoringMiddleware',
+    'edx_django_utils.cache.middleware.RequestCacheMiddleware',
+    'edx_rest_framework_extensions.auth.jwt.middleware.JwtAuthCookieMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.sites.middleware.CurrentSiteMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
+    'waffle.middleware.WaffleMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
+    'edx_django_utils.cache.middleware.TieredCacheMiddleware',
+    'edx_rest_framework_extensions.middleware.RequestMetricsMiddleware',
+    'edx_rest_framework_extensions.auth.jwt.middleware.EnsureJWTAuthSettingsMiddleware',
+)
+
+ROOT_URLCONF = 'course_discovery.urls'
+
+# Python dotted path to the WSGI application used by Django's runserver.
+WSGI_APPLICATION = 'course_discovery.wsgi.application'
+
+# Database
+# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+# Set this value in the environment-specific files (e.g. local.py, production.py, test.py)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.',
+        'NAME': 'discovery',
+        'USER': 'discov001',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': '',  # Set to empty string for default.
+        'ATOMIC_REQUESTS': False,
+    },
+    'read_replica': {
+        'ENGINE': 'django.db.backends.',
+        'NAME': 'discovery',
+        'USER': 'discov001',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '',
+        'ATOMIC_REQUESTS': False,
+    },
+}
+
+# Internationalization
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#language-code
+# http://www.i18nguy.com/unicode/language-identifiers.html
+LANGUAGE_CODE = 'en'
+
+PARLER_DEFAULT_LANGUAGE_CODE = LANGUAGE_CODE
+
+PARLER_LANGUAGES = {
+    1: (
+        {'code': LANGUAGE_CODE, },
+    ),
+    'default': {
+        'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],
+        'hide_untranslated': False,
+    }
+}
+
+# Parler seems to be a bit overeager with its caching of translated models,
+# and so we get a large number of sets, but rarely any gets
+PARLER_ENABLE_CACHING = False
+
+# Determines whether the caching mixin in course_discovery/apps/api/cache.py is used
+USE_API_CACHING = True
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_L10N = True
+
+USE_TZ = True
+
+LOCALE_PATHS = (
+    root('conf', 'locale'),
+)
+
+# MEDIA CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#media-root
+MEDIA_ROOT = root('media')
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#media-url
+MEDIA_URL = '/media/'
+# END MEDIA CONFIGURATION
+
+
+# STATIC FILE CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root
+STATIC_ROOT = root('assets')
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
+STATIC_URL = '/static/'
+
+# Is this a dev environment where static files need to be explicitly added to the URL configuration?
+STATIC_SERVE_EXPLICITLY = False
+
+# See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
+STATICFILES_DIRS = (
+    root('static'),
+)
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
+
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'django_libsass.SassCompiler'),
+)
+
+# Minify CSS
+COMPRESS_CSS_FILTERS = [
+    'compressor.filters.css_default.CssAbsoluteFilter',
+]
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'bundles/',
+        'STATS_FILE': root('..', 'webpack-stats.json'),
+    }
+}
+
+DEFAULT_HASHING_ALGORITHM = 'sha1'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+# TEMPLATE CONFIGURATION
+# See: https://docs.djangoproject.com/en/1.8/ref/settings/#templates
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'DIRS': (
+            root('templates'),
+        ),
+        'OPTIONS': {
+            'context_processors': (
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.template.context_processors.request',
+                'django.contrib.messages.context_processors.messages',
+                'course_discovery.apps.core.context_processors.core',
+            ),
+            'debug': True,  # Django will only display debug pages if the global DEBUG setting is set to True.
+        }
+    },
+]
+# END TEMPLATE CONFIGURATION
+
+
+# COOKIE CONFIGURATION
+# The purpose of customizing the cookie names is to avoid conflicts when
+# multiple Django services are running behind the same hostname.
+# Detailed information at: https://docs.djangoproject.com/en/dev/ref/settings/
+SESSION_COOKIE_NAME = 'course_discovery_sessionid'
+CSRF_COOKIE_NAME = 'course_discovery_csrftoken'
+LANGUAGE_COOKIE_NAME = 'course_discovery_language'
+# END COOKIE CONFIGURATION
+
+# AUTHENTICATION CONFIGURATION
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/logout/'
+
+AUTH_USER_MODEL = 'core.User'
+
+AUTHENTICATION_BACKENDS = (
+    'auth_backends.backends.EdXOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
+)
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = corsheaders_default_headers + (
+    'use-jwt-cookie',
+)
+# CORS_ORIGIN_WHITELIST is empty by default so above is not used unless the whitelist is set elsewhere
+
+# Guardian settings
+ANONYMOUS_USER_NAME = None  # Do not allow anonymous user access
+GUARDIAN_MONKEY_PATCH = False  # Use the mixin on the User model instead of monkey-patching.
+
+ENABLE_AUTO_AUTH = False
+AUTO_AUTH_USERNAME_PREFIX = 'auto_auth_'
+
+SOCIAL_AUTH_STRATEGY = 'auth_backends.strategies.EdxDjangoStrategy'
+
+# Set these to the correct values for your OAuth2 provider (e.g., devstack)
+SOCIAL_AUTH_EDX_OAUTH2_KEY = "discovery-sso-key"
+SOCIAL_AUTH_EDX_OAUTH2_SECRET = "discovery-sso-secret"
+SOCIAL_AUTH_EDX_OAUTH2_ISSUER = "http://127.0.0.1:8000"
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = "http://127.0.0.1:8000"
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://127.0.0.1:8000/logout"
+
+BACKEND_SERVICE_EDX_OAUTH2_KEY = "discovery-backend-service-key"
+BACKEND_SERVICE_EDX_OAUTH2_SECRET = "discovery-backend-service-secret"
+BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "http://127.0.0.1:8000/oauth2"
+
+# OAuth request timeout: either a (connect, read) tuple or a float, in seconds.
+OAUTH_API_TIMEOUT = (3.05, 1)
+
+# Request the user's permissions in the ID token
+EXTRA_SCOPE = ['permissions']
+
+# TODO Set this to another (non-staff, ideally) path.
+LOGIN_REDIRECT_URL = '/admin/'
+# END AUTHENTICATION CONFIGURATION
+
+
+# OPENEDX-SPECIFIC CONFIGURATION
+PLATFORM_NAME = 'Your Platform Name Here'
+# END OPENEDX-SPECIFIC CONFIGURATION
+
+# Set up logging for development use (logging to stdout)
+level = 'DEBUG' if DEBUG else 'INFO'
+hostname = platform.node().split(".")[0]
+
+# Use a different address for Mac OS X
+syslog_address = '/var/run/syslog' if platform.system().lower() == 'darwin' else '/dev/log'
+syslog_format = '[service_variant=discovery][%(name)s] %(levelname)s [{hostname}  %(process)d] ' \
+                '[%(pathname)s:%(lineno)d] - %(message)s'.format(hostname=hostname)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s %(levelname)s %(process)d [%(name)s] %(pathname)s:%(lineno)d - %(message)s',
+        },
+        'syslog_format': {'format': syslog_format},
+    },
+    'handlers': {
+        'console': {
+            'level': level,
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+            'stream': 'ext://sys.stdout',
+        },
+        'local': {
+            'level': level,
+            'class': 'logging.handlers.SysLogHandler',
+            'address': syslog_address,
+            'formatter': 'syslog_format',
+            'facility': SysLogHandler.LOG_LOCAL0,
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'local'],
+            'propagate': True,
+            'level': 'INFO'
+        },
+        'requests': {
+            'handlers': ['console', 'local'],
+            'propagate': True,
+            'level': 'WARNING'
+        },
+        'factory': {
+            'handlers': ['console', 'local'],
+            'propagate': True,
+            'level': 'WARNING'
+        },
+        'elasticsearch': {
+            'handlers': ['console', 'local'],
+            'propagate': True,
+            'level': 'WARNING'
+        },
+        'urllib3': {
+            'handlers': ['console', 'local'],
+            'propagate': True,
+            'level': 'WARNING'
+        },
+        'django.request': {
+            'handlers': ['console', 'local'],
+            'propagate': True,
+            'level': 'WARNING'
+        },
+        '': {
+            'handlers': ['console', 'local'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+    }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'edx_rest_framework_extensions.auth.jwt.authentication.JwtAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'course_discovery.apps.api.pagination.PageNumberPagination',
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.DjangoModelPermissions',
+    ),
+    'PAGE_SIZE': 20,
+    'TEST_REQUEST_RENDERER_CLASSES': (
+        'rest_framework.renderers.MultiPartRenderer',
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'course_discovery.apps.core.throttles.OverridableUserRateThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '100/hour',
+    },
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+}
+
+# http://chibisov.github.io/drf-extensions/docs/
+REST_FRAMEWORK_EXTENSIONS = {
+    'DEFAULT_CACHE_ERRORS': False,
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': None,
+    'DEFAULT_LIST_CACHE_KEY_FUNC': 'course_discovery.apps.api.cache.timestamped_list_key_constructor',
+    'DEFAULT_OBJECT_CACHE_KEY_FUNC': 'course_discovery.apps.api.cache.timestamped_object_key_constructor',
+}
+
+# NOTE (CCB): JWT_SECRET_KEY is intentionally not set here to avoid production releases with a public value.
+# Set a value in a downstream settings file.
+JWT_AUTH = {
+    'JWT_ALGORITHM': 'HS256',
+    'JWT_AUDIENCE': 'course-discovery',
+    'JWT_ISSUER': [
+        {
+            'AUDIENCE': 'SET-ME-PLEASE',
+            'ISSUER': 'http://127.0.0.1:8000/oauth2',
+            'SECRET_KEY': 'SET-ME-PLEASE'
+        }
+    ],
+    'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.auth.jwt.decoder.jwt_decode_handler',
+    'JWT_VERIFY_AUDIENCE': False,
+    'JWT_AUTH_COOKIE': 'edx-jwt-cookie',
+    'JWT_PUBLIC_SIGNING_JWK_SET': None,
+    'JWT_AUTH_COOKIE_HEADER_PAYLOAD': 'edx-jwt-cookie-header-payload',
+    'JWT_AUTH_COOKIE_SIGNATURE': 'edx-jwt-cookie-signature',
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',
+}
+
+SWAGGER_SETTINGS = {
+    'DOC_EXPANSION': 'list',
+}
+
+SYNONYMS_MODULE = 'course_discovery.settings.synonyms'
+
+# Paginate the django queryset used to populate the index with the specified size
+# (by default it uses the database driver's default setting)
+# https://docs.djangoproject.com/en/3.1/ref/models/querysets/#iterator
+# Thus set the 'chunk_size'
+ELASTICSEARCH_DSL_QUERYSET_PAGINATION = 10000
+
+# Defining default pagination for all requests to ElasticSearch,
+# whose parameters 'size' and 'from' are not explicitly set.
+ELASTICSEARCH_DSL_LOAD_PER_QUERY = 10000
+
+MAX_RESULT_WINDOW = 15000
+
+ELASTICSEARCH_DSL = {
+    'default': {'hosts': '127.0.0.1:9200'}
+}
+ELASTICSEARCH_INDEX_NAMES = {
+    'course_discovery.apps.course_metadata.search_indexes.documents.course': 'course',
+    'course_discovery.apps.course_metadata.search_indexes.documents.course_run': 'course_run',
+    'course_discovery.apps.course_metadata.search_indexes.documents.learner_pathway': 'learner_pathway',
+    'course_discovery.apps.course_metadata.search_indexes.documents.person': 'person',
+    'course_discovery.apps.course_metadata.search_indexes.documents.program': 'program',
+}
+ELASTICSEARCH_DSL_INDEX_SETTINGS = {'number_of_shards': 1, 'number_of_replicas': 1}
+
+# We do not use the RealtimeSignalProcessor here to avoid overloading our
+# Elasticsearch instance when running the refresh_course_metadata command
+# If you still want to use please use customized RealTimeSignalProcessor
+# course_discovery.apps.course_metadata.search_indexes.signals.RealTimeSignalProcessor
+ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = 'django_elasticsearch_dsl.signals.BaseSignalProcessor'
+ELASTICSEARCH_DSL_INDEX_RETENTION_LIMIT = 3
+
+# Update Index Settings
+# Make sure the size of the new index does not change by more than this percentage
+INDEX_SIZE_CHANGE_THRESHOLD = .1  # 10%
+
+# Elasticsearch search query facet "size" option to increase from the default value of "100"
+# See  https://www.elastic.co/guide/en/elasticsearch/reference/7.8/search-aggregations-metrics-percentile-aggregation.html
+SEARCH_FACET_LIMIT = 10000
+
+# Precision settings for the elasticsearch cardinality aggregations used to compute distinct hit and facet counts.
+# The elasticsearch cardinality aggregation is not guarenteed to produce accurate results. Accuracy is configurable via
+# an optional precision_threshold setting. Cardinality aggregations for queries that produce fewer results than the
+# precision threshold can be expected to be pretty accurate. Cardinality aggregations for queries that produce more
+# results than the precision_threshold will be less accurate. Setting a higher value for precision_threshold requires
+# a memory tradeoff of rougly precision_threshold * 8 bytes. See the elasticsearch docs for more details:
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-cardinality-aggregation.html
+#
+# We use a higher value for hit precision than for facet precision for two reasons:
+#   1.) The hit count is more visible to users than the facet counts.
+#   2.) The performance penalty for having a higher hit precision is less than the penalty for a higher facet
+#       precision, since the hit count only requires a single aggregation.
+DISTINCT_COUNTS_HIT_PRECISION = 1500
+DISTINCT_COUNTS_FACET_PRECISION = 250
+
+DEFAULT_PARTNER_ID = None
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
+# edx-django-sites-extensions will fallback to this site if we cannot identify the site from the hostname.
+SITE_ID = 1
+
+TAGGIT_CASE_INSENSITIVE = True
+
+# django-solo configuration (https://github.com/lazybird/django-solo#settings)
+SOLO_CACHE = 'default'
+SOLO_CACHE_TIMEOUT = 3600
+
+ENABLE_PUBLISHER = False  # either old (publisher djangoapp) or new (frontend-app-publisher)
+PUBLISHER_FROM_EMAIL = None
+
+LOADER_INGESTION_CONTACT_EMAIL = None
+MARKETING_SERVICE_NAME = None
+
+USERNAME_REPLACEMENT_WORKER = "REPLACE WITH VALID USERNAME"
+
+# If no upgrade deadline is specified for a course run seat, when the course is published the deadline will default to
+# the course run end date minus the specified number of days.
+PUBLISHER_UPGRADE_DEADLINE_DAYS = 10
+
+# Django Debug Toolbar settings
+# http://django-debug-toolbar.readthedocs.org/en/latest/installation.html
+if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
+    INSTALLED_APPS += [
+        'debug_toolbar',
+        'elastic_panel',
+    ]
+
+    MIDDLEWARE += (
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    )
+
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
+    DEBUG_TOOLBAR_PANELS = [
+        'debug_toolbar.panels.versions.VersionsPanel',
+        'debug_toolbar.panels.timer.TimerPanel',
+        'debug_toolbar.panels.settings.SettingsPanel',
+        'debug_toolbar.panels.headers.HeadersPanel',
+        'debug_toolbar.panels.request.RequestPanel',
+        'debug_toolbar.panels.sql.SQLPanel',
+        'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+        'debug_toolbar.panels.templates.TemplatesPanel',
+        'debug_toolbar.panels.cache.CachePanel',
+        'debug_toolbar.panels.signals.SignalsPanel',
+        'debug_toolbar.panels.logging.LoggingPanel',
+        'debug_toolbar.panels.redirects.RedirectsPanel',
+        'elastic_panel.panel.ElasticDebugPanel'
+    ]
+
+AWS_SES_REGION_ENDPOINT = "email.us-east-1.amazonaws.com"
+AWS_SES_REGION_NAME = "us-east-1"
+CORS_ORIGIN_WHITELIST = []
+CSRF_COOKIE_SECURE = False
+ELASTICSEARCH_CLUSTER_URL = "http://127.0.0.1:9200/"
+EMAIL_BACKEND = "django_ses.SESBackend"
+EMAIL_HOST = "localhost"
+EMAIL_HOST_PASSWORD = ""
+EMAIL_HOST_USER = ""
+EMAIL_PORT = 25
+EMAIL_USE_TLS = False
+EXTRA_APPS = []
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+EDX_DRF_EXTENSIONS = {
+    "OAUTH2_USER_INFO_URL": "http://127.0.0.1:8000/oauth2/user_info"
+}
+API_ROOT = None
+MEDIA_STORAGE_BACKEND = {
+    'DEFAULT_FILE_STORAGE': 'django.core.files.storage.FileSystemStorage',
+    'MEDIA_ROOT': MEDIA_ROOT,
+    'MEDIA_URL': MEDIA_URL
+}
+
+
+# Settings related to the taxonomy_support
+TAXONOMY_COURSE_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryCourseMetadataProvider'
+TAXONOMY_COURSE_RUN_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryCourseRunMetadataProvider'
+TAXONOMY_PROGRAM_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryProgramMetadataProvider'
+TAXONOMY_XBLOCK_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryXBlockMetadataProvider'
+TAXONOMY_XBLOCK_SUPPORTED_TYPES = ['video', 'vertical']
+
+SKILLS_VERIFICATION_THRESHOLD = 10  # minimum votes required for a skill to be marked verified
+SKILLS_VERIFICATION_RATIO_THRESHOLD = 0.7 # 70% validation threshold out of total votes
+SKILLS_IGNORED_THRESHOLD = 10 # minimum votes required for skill to be marked ignored
+SKILLS_IGNORED_RATIO_THRESHOLD = 0.7 # 70% ignored threshold out of total votes
+
+# Settings related to the EMSI client
+EMSI_API_ACCESS_TOKEN_URL = 'https://auth.emsicloud.com/connect/token'
+EMSI_API_BASE_URL = 'https://emsiservices.com'
+EMSI_CLIENT_ID = ''
+EMSI_CLIENT_SECRET = ''
+
+# Settings related to Snowflake
+SNOWFLAKE_ACCOUNT = 'edx.us-east-1'
+SNOWFLAKE_DATABASE = 'prod'
+
+
+################################### BEGIN CELERY ###################################
+
+# Message configuration
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_COMPRESSION = 'gzip'
+CELERY_RESULT_COMPRESSION = 'gzip'
+
+# Results configuration
+CELERY_TASK_IGNORE_RESULT = False
+CELERY_TASK_STORE_ERRORS_EVEN_IF_IGNORED = True
+
+# Events configuration
+CELERY_TASK_TRACK_STARTED = True
+CELERY_WORKER_SEND_TASK_EVENTS = True
+CELERY_TASK_SEND_SENT_EVENT = True
+
+# Prevent Celery from removing handlers on the root logger. Allows setting custom logging handlers.
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+
+CELERY_TASK_DEFAULT_EXCHANGE = 'discovery'
+CELERY_TASK_DEFAULT_ROUTING_KEY = 'discovery'
+CELERY_TASK_DEFAULT_QUEUE = 'discovery.default'
+
+# Celery Broker
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', '')
+
+CELERY_TASK_ALWAYS_EAGER = False
+
+################################### END CELERY ###################################
+
+FIRE_UPDATE_COURSE_SKILLS_SIGNAL = False
+
+FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL = False
+
+DISCOVERY_BASE_URL = "http://localhost:18381"
+
+PRODUCT_API_URL = ''
+
+# Required for communicating with Google Service Account
+GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {
+  'TYPE': '',
+  'PROJECT_ID': '',
+  'PRIVATE_KEY_ID': '',
+  'PRIVATE_KEY': '',
+  'CLIENT_EMAIL': '',
+  'CLIENT_ID': '',
+  'AUTH_URI': '',
+  'TOKEN_URI': '',
+  'AUTH_PROVIDER_X509_CERT_URL': '',
+  'CLIENT_X509_CERT_URL': ''
+}
+
+GETSMARTER_CLIENT_CREDENTIALS = {
+    'CLIENT_ID': '',
+    'CLIENT_SECRET': '',
+    'API_URL': '',
+    'PROVIDER_URL': '',
+    'PRODUCTS_DETAILS_URL': '',
+}
+
+PRODUCT_METADATA_MAPPING = {
+    'executive-education-2u': {
+        'ext_source': {
+            'SHEET_ID': '',
+            'INPUT_TAB_ID': '',
+            'ERROR_TAB_ID': '',
+            'EMAIL_NOTIFICATION_LIST': []
+        }
+    },
+    'bootcamp-2u': {
+        'ext_source': {
+            'SHEET_ID': '',
+            'INPUT_TAB_ID': '',
+            'ERROR_TAB_ID': '',
+            'EMAIL_NOTIFICATION_LIST': []
+        }
+    },
+    'DEGREES': {
+        'ext_source': {
+            'SHEET_ID': '',
+            'INPUT_TAB_ID': '',
+            'ERROR_TAB_ID': '',
+            'EMAIL_NOTIFICATION_LIST': []
+        }
+    },
+}
+
+COURSE_URL_SLUGS_PATTERN = {
+    'edx':
+        {'default': {
+            'slug_format': '',
+            'error_msg': '',
+        },
+        'bootcamp-2u': {
+            'slug_format': '',
+            'error_msg': '',
+        }},
+    'ext-source':
+        {'default': {
+            'slug_format': '',
+            'error_msg': '',
+        },
+        'executive-education-2u': {
+            'slug_format': '',
+            'error_msg': '',
+        },
+        'bootcamp-2u': {
+            'slug_format': '',
+            'error_msg': '',
+        }}
+}
+
+
+SUBSCRIPTION_METADATA_MAPPING = {
+    'SHEET_ID': '',
+    'INPUT_TAB_ID': '',
+}
+
+DEFAULT_PRODUCT_SOURCE_NAME = 'edX'
+DEFAULT_PRODUCT_SOURCE_SLUG = 'edx'
+EXTERNAL_PRODUCT_SOURCE_SLUG = ''
+
+CONTENTFUL_SPACE_ID = None
+CONTENTFUL_CONTENT_DELIVERY_API_KEY = None
+CONTENTFUL_ENVIRONMENT = None
+LMS_API_URLS = {
+    'api_access_request': 'api-admin/api/v1/api_access_request/',
+    'blocks': 'api/courses/v1/blocks/',
+    'block_metadata': 'api/courses/v1/block_metadata/',
+}
+
+# Map defining the required data fields against courses types and course's product source.
+# Mapping pattern: course_type_slug -> product_source_slug -> fields list (excluding base fields present in CSV loader).
+CSV_LOADER_TYPE_SOURCE_REQUIRED_FIELDS = {
+    'audit': {
+        'openedx': ['staff']
+    },
+}
+
+EVENT_BUS_PROCESSING_DELAY_SECONDS = 60
+EVENT_BUS_MESSAGE_DELAY_THRESHOLD_SECONDS = 60
+
+ALGOLIA_INDEX_EXCLUDED_SOURCES = []
+
+DEGREE_VARIANTS_FIELD_MAP = {}
+
+JOB_DESCRIPTION_PROMPT = 'Generate a description for {job_name} job role.'
+JOB_TO_JOB_DESCRIPTION_PROMPT = 'How can a {current_job_name} switch to {future_job_name} job role.'
+OPENAI_API_KEY = 'I am an api key'
+
+NOTIFY_SLUG_UPDATE_RECIPIENTS = []
+
+# disable indexing on history_date
+SIMPLE_HISTORY_DATE_INDEX = False
+
+USE_DEPRECATED_PYTZ = True
+ORGANIC_MARKETING_EMAIL = None
+
+CSRF_TRUSTED_ORIGINS = (
+    'http://localhost:8734',  # frontend-app-learner-portal-enterprise
+    'http://localhost:1991',  # frontend-app-admin-portal
+    'http://localhost:18400',  # frontend-app-publisher
+    'http://localhost:18450',  # frontend-app-support-tools
+    'http://localhost:2000',  # frontend-app-learning
+)
+
+ENABLE_COURSE_REVIEWS_ADMIN = False

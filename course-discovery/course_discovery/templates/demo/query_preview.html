@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}
+  Query Preview
+{% endblock title %}
+
+{% block css %}
+  {% render_bundle 'query-preview.style' 'css' %}
+{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+  {% render_bundle 'query-preview' 'js' %}
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h1 class="page-header">Query Preview</h1>
+
+    <div class="intro">
+      <div class="alert alert-warning" role="alert">
+        Please take a moment to review the <a
+          href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html#query-string-syntax"
+          target="_blank" class="alert-link">Elasticsearch query string syntax</a>.
+      </div>
+      <p>This page is a demonstration of the query language that will power dynamic course catalogs use for affiliates
+        and coupons.</p>
+    </div>
+
+    <div class="fields">
+      <h3>Fields</h3>
+      <p>A number of fields can be used to search for courses. A complete list is below.</p>
+      <p></p>
+
+      <table class="table table-striped table-bordered" id="fields">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+        </thead>
+      </table>
+    </div>
+
+    <div class="examples">
+      <h3>Example Queries</h3>
+      <div class="alert alert-info" role="alert">
+        Click an example to populate the query field with the example query.
+      </div>
+
+      <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+          <th>Description</th>
+          <th>Query</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>Courses belonging to a specific organization</td>
+          <td><a class="example">org:(MITx OR HarvardX)</a></td>
+        </tr>
+        <tr>
+          <td>Courses NOT belonging to a specific organization</td>
+          <td><a class="example">org:(-MITx OR -HarvardX)</a></td>
+        </tr>
+        <tr>
+          <td>Courses starting in a specific time period</td>
+          <td><a class="example">start:[2016-01-01 TO 2016-12-31]</a></td>
+        </tr>
+        <tr>
+          <td>All runs of a particular course</td>
+          <td><a class="example">number:6.002x*</a></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="preview">
+      <h3>Preview</h3>
+      <form id="queryForm" class="form-horizontal">
+        <div class="input-group">
+          <input id="query" type="text" class="form-control" placeholder="Query">
+          <span class="input-group-btn">
+              <button class="btn btn-primary" type="submit">Search</button>
+            </span>
+        </div>
+      </form>
+
+      <div class="alert alert-warning alert-dismissible hidden" role="alert" id="alertNoResults">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        The query returned no results.
+      </div>
+
+      <div class="alert alert-danger alert-dismissible hidden" role="alert" id="alertQueryInvalid">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        The query is invalid.
+      </div>
+
+      <hr>
+      <div class="results">
+        <table id="courses" class="table table-striped table-bordered" cellspacing="0">
+          <thead>
+          <tr>
+            <th style="width: 35%">Course Run Key</th>
+            <th>Name</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

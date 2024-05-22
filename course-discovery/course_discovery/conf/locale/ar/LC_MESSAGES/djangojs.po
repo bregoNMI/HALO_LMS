@@ -1,0 +1,32 @@
+# #-#-#-#-#  djangojs.po (course-discovery)  #-#-#-#-#
+# edX translation file
+# Copyright (C) 2018 edX
+# This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
+# 
+# Translators:
+# Translators:
+# Ahmed Gad <ahmed3oss46@gmail.com>, 2016
+# Ahmed Rizk <mr.rizk@gmail.com>, 2019
+# 6e68c7971a89e50e680ae9444d303c8f, 2016
+# e2f_ar r3 <e2f_ar_r3@outlook.com>, 2017
+# e2f_ar t3 <e2f_ar_t3@outlook.com>, 2016
+# Omar Al-Ithawi <omar.al.dolaimy@gmail.com>, 2016
+# Sahbi BG <sahbi.g@gmail.com>, 2017
+# shefaa abu jabel <shefaa.aj@gmail.com>, 2016-2017
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-09-24 20:35+0000\n"
+"PO-Revision-Date: 2016-05-25 15:41+0000\n"
+"Last-Translator: Ahmed Rizk <mr.rizk@gmail.com>, 2019\n"
+"Language-Team: Arabic (http://app.transifex.com/open-edx/edx-platform/language/ar/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#: static/js/catalogs-change-form.js:17
+msgid "Preview"
+msgstr "معاينة"

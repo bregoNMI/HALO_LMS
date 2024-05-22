@@ -1,0 +1,8 @@
+# Used by doc builds (like for edx.readthedocs.io)
+
+-c constraints.txt
+-r github.in              # Forks and other dependencies not yet on PyPI
+
+django-elasticsearch-dsl
+sphinx-book-theme
+Sphinx

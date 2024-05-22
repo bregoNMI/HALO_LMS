@@ -1,0 +1,13 @@
+{
+  "discovery_configuration":{
+        "site_domain": "discovery-dummy-{dns_name}.example.com",
+        "site_partner": "dummy",
+        "partner_data": {
+            "name": "dummy",
+            "studio_url": "https://studio-dummy-{dns_name}.example.com",
+            "courses_api_url": "https://dummy-{dns_name}.example.com/api/courses/v1/",
+            "ecommerce_api_url": "https://ecommerce-dummy-{dns_name}.example.com/",
+            "organizations_api_url": "https://dummy-{dns_name}.example.com/api/organizations/v0/"
+        }
+    }
+}

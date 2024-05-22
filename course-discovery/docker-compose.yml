@@ -1,0 +1,63 @@
+version: "2"
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: db
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_USER: "discov001"
+      MYSQL_PASSWORD: "password"
+      MYSQL_DATABASE: "discovery"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./.dev/volumes/db:/var/lib/mysql
+
+  es:
+    image: elasticsearch:7.17.21
+    container_name: es
+    volumes:
+      - ./.dev/volumes/es/data:/usr/share/elasticsearch/data
+      - ./.dev/volumes/es/logs:/usr/share/elasticsearch/logs
+      - ./.dev/volumes/es/plugins:/usr/share/elasticsearch/plugins
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - http.port=9200
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  memcached:
+    image: memcached:1.6.27
+    container_name: memcached
+
+  course-discovery:
+    # Uncomment this line to use the official course-discovery base image
+    image: edxops/discovery:latest
+
+    # Uncomment the next two lines to build from a local configuration repo
+    # build: ../configuration/docker/build/discovery/
+
+    container_name: course-discovery
+    volumes:
+      - .:/edx/app/discovery/discovery
+      - /edx/app/discovery/discovery/node_modules
+      - ./course_discovery/media:/edx/var/discovery/media
+      - ./course_discovery/assets:/edx/var/discovery/staticfiles
+    command: /edx/app/discovery/devstack.sh start
+    depends_on:
+      - "db"
+      - "es"
+      - "memcached"
+    environment:
+      TEST_ELASTICSEARCH_URL: "http://es:9200"
+      ENABLE_DJANGO_TOOLBAR: 1
+    ports:
+      - "18381:18381"
+      - "8381:8381"
+      - "48381:48381"

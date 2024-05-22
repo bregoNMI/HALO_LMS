@@ -1,0 +1,23 @@
+# Packages required for testing
+
+coverage
+ddt
+edx-lint
+factory-boy
+freezegun
+isort
+mock
+mysqlclient
+pycodestyle
+python-memcached
+pymemcache
+pytest
+pytest-cov
+pytest-django
+pytest-responses
+pytest-xdist
+responses
+semgrep
+selenium
+testfixtures
+tox

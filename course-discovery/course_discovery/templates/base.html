@@ -1,0 +1,29 @@
+{# Base template for edX-specific pages. #}
+
+{% load render_bundle from webpack_loader %}
+
+<!DOCTYPE html>
+<html>
+<head lang="{{ language_code }}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,follow" />
+  <title>{% block title %}{% endblock title %} | {{ platform_name }}</title>
+
+  {% block css %}
+    {% if language_bidi %}
+      {% render_bundle 'base.style-rtl' 'css' %}
+    {% else %}
+      {% render_bundle 'base.style' 'css' %}
+    {% endif %}
+  {% endblock %}
+</head>
+
+<body>
+{% block content %}{% endblock content %}
+
+{% block js %}
+  <script src="{% url 'javascript-catalog' %}"></script>
+{% endblock %}
+</body>
+</html>

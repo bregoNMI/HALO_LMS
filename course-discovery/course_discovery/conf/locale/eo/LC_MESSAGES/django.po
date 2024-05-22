@@ -1,0 +1,2744 @@
+# #-#-#-#-#  django.po (course-discovery)  #-#-#-#-#
+# edX translation file
+# Copyright (C) 2018 edX
+# This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
+#
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-15 20:35+0000\n"
+"PO-Revision-Date: 2016-05-25 15:41+0000\n"
+"Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
+"Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
+"Language: eo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps/api/filters.py
+#, python-brace-format
+msgid "No user with the username [{username}] exists."
+msgstr ""
+"Nö üsér wïth thé üsérnämé [{username}] éxïsts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/api/filters.py
+msgid ""
+"Only staff users are permitted to filter by username. Remove the username "
+"parameter."
+msgstr ""
+"Önlý stäff üsérs äré pérmïttéd tö fïltér ßý üsérnämé. Rémövé thé üsérnämé "
+"pärämétér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/api/serializers.py
+msgid "Number of courses contained in this catalog"
+msgstr ""
+"Nümßér öf çöürsés çöntäïnéd ïn thïs çätälög Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/api/serializers.py
+msgid "Usernames of users with explicit access to view this catalog"
+msgstr ""
+"Ûsérnämés öf üsérs wïth éxplïçït äççéss tö vïéw thïs çätälög Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/serializers.py
+msgid "Start date cannot be after the End date"
+msgstr ""
+"Stärt däté çännöt ßé äftér thé Énd däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/api/serializers.py
+msgid "Term cannot be changed"
+msgstr "Térm çännöt ßé çhängéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/api/serializers.py
+msgid "Language in which the course is administered"
+msgstr ""
+"Längüägé ïn whïçh thé çöürsé ïs ädmïnïstéréd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/api/serializers.py
+msgid "Course cannot be changed for an existing course run"
+msgstr ""
+"Çöürsé çännöt ßé çhängéd för än éxïstïng çöürsé rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/serializers.py
+msgid "Minimum effort cannot be greater than Maximum effort"
+msgstr ""
+"Mïnïmüm éffört çännöt ßé gréätér thän Mäxïmüm éffört Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/serializers.py
+msgid "Minimum effort and Maximum effort cannot be the same"
+msgstr ""
+"Mïnïmüm éffört änd Mäxïmüm éffört çännöt ßé thé sämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/serializers.py
+msgid "Dictionary mapping course run IDs to boolean values"
+msgstr ""
+"Dïçtïönärý mäppïng çöürsé rün ÌDs tö ßööléän välüés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/serializers.py
+msgid "Restriction Type cannot be empty"
+msgstr ""
+"Réstrïçtïön Týpé çännöt ßé émptý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/api/serializers.py
+msgid "Dictionary mapping course IDs to boolean values"
+msgstr ""
+"Dïçtïönärý mäppïng çöürsé ÌDs tö ßööléän välüés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α#"
+
+#: apps/api/serializers.py
+msgid "Languages that course runs in this program are offered in."
+msgstr ""
+"Längüägés thät çöürsé rüns ïn thïs prögräm äré öfféréd ïn. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/serializers.py
+msgid ""
+"Languages that course runs in this program have available transcripts in."
+msgstr ""
+"Längüägés thät çöürsé rüns ïn thïs prögräm hävé äväïläßlé tränsçrïpts ïn. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: apps/api/utils.py
+#, python-brace-format
+msgid ""
+"An error occurred while setting the course run image for [{key}] in studio. "
+"All other fields were successfully saved in Studio."
+msgstr ""
+"Àn érrör öççürréd whïlé séttïng thé çöürsé rün ïmägé för [{key}] ïn stüdïö. "
+"Àll öthér fïélds wéré süççéssfüllý sävéd ïn Stüdïö. Ⱡ'σяєм #"
+
+#: apps/api/v1/exceptions.py
+msgid "Specifying both editable=1 and a q parameter is not supported."
+msgstr ""
+"Spéçïfýïng ßöth édïtäßlé=1 änd ä q pärämétér ïs nöt süppörtéd. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/v1/views/comments.py
+msgid "You must include a course_uuid in your query parameters."
+msgstr ""
+"Ýöü müst ïnçlüdé ä çöürsé_üüïd ïn ýöür qüérý pärämétérs. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/v1/views/comments.py apps/api/v1/views/courses.py
+#, python-brace-format
+msgid "Missing value for: [{name}]. "
+msgstr "Mïssïng välüé för: [{name}].  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/api/v1/views/comments.py apps/api/v1/views/courses.py
+msgid "Incorrect data sent. "
+msgstr "Ìnçörréçt dätä sént.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/api/v1/views/course_runs.py
+msgid "Failed to set course run data: {}"
+msgstr ""
+"Fäïléd tö sét çöürsé rün dätä: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/api/v1/views/course_runs.py
+msgid "Can only update status, ofac restrictions, and ofac comment"
+msgstr ""
+"Çän önlý üpdäté stätüs, öfäç réstrïçtïöns, änd öfäç çömmént Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/v1/views/course_runs.py
+msgid "Course run is in review. Editing disabled."
+msgstr ""
+"Çöürsé rün ïs ïn révïéw. Édïtïng dïsäßléd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/api/v1/views/course_runs.py
+msgid "Invalid parameter"
+msgstr "Ìnvälïd pärämétér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/api/v1/views/courses.py
+msgid "Failed to set data: {}"
+msgstr "Fäïléd tö sét dätä: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid "Organization [{org}] does not exist. "
+msgstr ""
+"Örgänïzätïön [{org}] döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєт#"
+
+#: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid "Course Type [{course_type}] does not exist. "
+msgstr ""
+"Çöürsé Týpé [{course_type}] döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєт#"
+
+#: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid "Product Source [{product_source}] does not exist. "
+msgstr ""
+"Prödüçt Söürçé [{product_source}] döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid "A course with key [{key}] already exists."
+msgstr ""
+"À çöürsé wïth kéý [{key}] älréädý éxïsts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid ""
+"Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
+"already in use. Please update this field and try again."
+msgstr ""
+"Çöürsé çréätïön wäs ünsüççéssfül. Thé çöürsé ÛRL slüg ‘[{url_slug}]’ ïs "
+"älréädý ïn üsé. Pléäsé üpdäté thïs fïéld änd trý ägäïn. Ⱡ'σяєм ιρѕυ#"
+
+#: apps/api/v1/views/courses.py
+msgid ""
+"Switching entitlement types after being reviewed is not supported. Please "
+"reach out to your project coordinator for additional help if necessary."
+msgstr ""
+"Swïtçhïng éntïtlémént týpés äftér ßéïng révïéwéd ïs nöt süppörtéd. Pléäsé "
+"réäçh öüt tö ýöür pröjéçt çöördïnätör för äddïtïönäl hélp ïf néçéssärý. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
+"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
+" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂#"
+
+#: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid ""
+"Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
+"in use. Please update this field and try again."
+msgstr ""
+"Çöürsé édït wäs ünsüççéssfül. Thé çöürsé ÛRL slüg ‘[{url_slug}]’ ïs älréädý "
+"ïn üsé. Pléäsé üpdäté thïs fïéld änd trý ägäïn. Ⱡ'σяєм ιρѕυм ∂σ#"
+
+#: apps/api/views.py
+msgid "You are not permitted to access the API documentation."
+msgstr ""
+"Ýöü äré nöt pérmïttéd tö äççéss thé ÀPÌ döçüméntätïön. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/catalogs/models.py
+msgid "Catalog name"
+msgstr "Çätälög nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/catalogs/models.py
+msgid "Query to retrieve Course Run catalog contents"
+msgstr ""
+"Qüérý tö rétrïévé Çöürsé Rün çätälög çönténts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/catalogs/models.py
+msgid "Query to retrieve Program catalog contents"
+msgstr ""
+"Qüérý tö rétrïévé Prögräm çätälög çönténts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/catalogs/models.py
+msgid "Include archived courses"
+msgstr "Ìnçlüdé ärçhïvéd çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/core/admin.py
+msgid "Personal info"
+msgstr "Pérsönäl ïnfö Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/core/admin.py
+msgid "Permissions"
+msgstr "Pérmïssïöns Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/core/admin.py
+msgid "Important dates"
+msgstr "Ìmpörtänt dätés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/core/admin.py
+msgid "API Configuration"
+msgstr "ÀPÌ Çönfïgürätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/core/admin.py
+msgid "Configure the APIs that will be used to retrieve data."
+msgstr ""
+"Çönfïgüré thé ÀPÌs thät wïll ßé üséd tö rétrïévé dätä. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/core/admin.py
+msgid "Marketing Site Configuration"
+msgstr "Märkétïng Sïté Çönfïgürätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/core/admin.py
+msgid ""
+"Configure the marketing site URLs that will be used to retrieve data and "
+"create URLs."
+msgstr ""
+"Çönfïgüré thé märkétïng sïté ÛRLs thät wïll ßé üséd tö rétrïévé dätä änd "
+"çréäté ÛRLs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/core/admin.py
+msgid "Analytics Configuration"
+msgstr "Ànälýtïçs Çönfïgürätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/core/admin.py
+msgid ""
+"Configure the analytics API that will be used to retrieve enrollment data"
+msgstr ""
+"Çönfïgüré thé änälýtïçs ÀPÌ thät wïll ßé üséd tö rétrïévé énröllmént dätä "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#. Translators: 'period_choices' is a list of possible values, like ('second',
+#. 'minute', 'hour')
+#: apps/core/forms.py
+#, python-brace-format
+msgid "period must be one of {period_choices}."
+msgstr ""
+"pérïöd müst ßé öné öf {period_choices}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/core/forms.py
+msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
+msgstr ""
+"'räté' müst ßé ïn thé förmät défïnéd ßý DRF, süçh äs '100/höür'. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/core/models.py
+msgid "Full Name"
+msgstr "Füll Nämé Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/core/models.py
+msgid "Referral Tracking ID"
+msgstr "Référräl Träçkïng ÌD Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/core/models.py
+msgid ""
+"The rate of requests to limit this user to. The format is specified by "
+"Django Rest Framework (see http://www.django-rest-framework.org/api-"
+"guide/throttling/)."
+msgstr ""
+"Thé räté öf réqüésts tö lïmït thïs üsér tö. Thé förmät ïs spéçïfïéd ßý "
+"Djängö Rést Främéwörk (séé http://www.djängö-rést-främéwörk.örg/äpï-"
+"güïdé/thröttlïng/). Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg "
+"єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт "
+"єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт "
+"αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη "
+"νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт "
+"σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт#"
+
+#: apps/core/models.py
+msgid "Short Code"
+msgstr "Shört Çödé Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: apps/core/models.py
+msgid ""
+"Convenient code/slug used to identify this Partner (e.g. for management "
+"commands.)"
+msgstr ""
+"Çönvénïént çödé/slüg üséd tö ïdéntïfý thïs Pärtnér (é.g. för mänägémént "
+"çömmänds.) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/core/models.py
+msgid "Courses API URL"
+msgstr "Çöürsés ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/core/models.py
+msgid "Course Mode API URL"
+msgstr "Çöürsé Mödé ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/core/models.py
+msgid "E-Commerce API URL"
+msgstr "É-Çömmérçé ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/core/models.py
+msgid "Organizations API URL"
+msgstr "Örgänïzätïöns ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/core/models.py
+msgid "Programs API URL"
+msgstr "Prögräms ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/core/models.py
+msgid "Marketing Site API URL"
+msgstr "Märkétïng Sïté ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/core/models.py
+msgid "Marketing Site URL"
+msgstr "Märkétïng Sïté ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/core/models.py
+msgid "Marketing Site API Username"
+msgstr "Märkétïng Sïté ÀPÌ Ûsérnämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: apps/core/models.py
+msgid "Marketing Site API Password"
+msgstr "Märkétïng Sïté ÀPÌ Pässwörd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: apps/core/models.py
+msgid "Studio URL"
+msgstr "Stüdïö ÛRL Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: apps/core/models.py
+msgid "Publisher URL"
+msgstr "Püßlïshér ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/core/models.py
+msgid ""
+"The base URL of your publisher service, if used. Example: "
+"https://publisher.example.com/"
+msgstr ""
+"Thé ßäsé ÛRL öf ýöür püßlïshér sérvïçé, ïf üséd. Éxämplé: "
+"https://püßlïshér.éxämplé.çöm/ Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: apps/core/models.py
+msgid "LMS URL"
+msgstr "LMS ÛRL Ⱡ'σяєм ιρѕυм #"
+
+#: apps/core/models.py
+msgid "LMS Admin URL"
+msgstr "LMS Àdmïn ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/core/models.py
+msgid ""
+"The public URL of your LMS Django admin. Example: https://lms-"
+"internal.example.com/admin"
+msgstr ""
+"Thé püßlïç ÛRL öf ýöür LMS Djängö ädmïn. Éxämplé: https://lms-"
+"ïntérnäl.éxämplé.çöm/ädmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: apps/core/models.py
+msgid "Analytics API URL"
+msgstr "Ànälýtïçs ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/core/models.py
+msgid "Analytics Access Token"
+msgstr "Ànälýtïçs Àççéss Tökén Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/core/models.py
+msgid "Partner"
+msgstr "Pärtnér Ⱡ'σяєм ιρѕυм #"
+
+#: apps/core/models.py
+msgid "Partners"
+msgstr "Pärtnérs Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/core/models.py
+msgid "Salesforce Username"
+msgstr "Sälésförçé Ûsérnämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/core/models.py
+msgid "Salesforce Password"
+msgstr "Sälésförçé Pässwörd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/core/models.py
+msgid "Salesforce Organization Id"
+msgstr "Sälésförçé Örgänïzätïön Ìd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/core/models.py
+msgid "Salesforce Security Token"
+msgstr "Sälésförçé Séçürïtý Tökén Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/core/models.py
+msgid "Is a Salesforce Sandbox?"
+msgstr "Ìs ä Sälésförçé Sändßöx? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/core/models.py
+msgid "Case Record Type Id"
+msgstr "Çäsé Réçörd Týpé Ìd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/course_metadata/admin.py
+#, python-brace-format
+msgid ""
+"An error occurred while publishing the {model} to the marketing site. Please"
+" try again. If the error persists, please contact the Engineering Team."
+msgstr ""
+"Àn érrör öççürréd whïlé püßlïshïng thé {model} tö thé märkétïng sïté. Pléäsé"
+" trý ägäïn. Ìf thé érrör pérsïsts, pléäsé çöntäçt thé Éngïnéérïng Téäm. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
+"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
+" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕ#"
+
+#: apps/course_metadata/admin.py
+msgid "eligible for one-click purchase"
+msgstr "élïgïßlé för öné-çlïçk pürçhäsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/admin.py
+msgid "Yes"
+msgstr "Ýés Ⱡ'σяєм#"
+
+#: apps/course_metadata/admin.py
+msgid "No"
+msgstr "Nö Ⱡ'σя#"
+
+#: apps/course_metadata/admin.py apps/course_metadata/admin.py
+msgid "Included course runs"
+msgstr "Ìnçlüdéd çöürsé rüns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/admin.py
+msgid "Edit link"
+msgstr "Édït lïnk Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/admin.py
+msgid "Edit course run exclusions"
+msgstr "Édït çöürsé rün éxçlüsïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/admin.py
+msgid "(save and continue editing to create a link)"
+msgstr ""
+"(sävé änd çöntïnüé édïtïng tö çréäté ä lïnk) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/admin.py
+#, python-format
+msgid "Successfully %(status)s %(count)d %(items)s."
+msgstr ""
+"Süççéssfüllý %(status)s %(count)d %(items)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕ#"
+
+#: apps/course_metadata/algolia_models.py
+#: apps/course_metadata/algolia_models.py
+msgid "Available now"
+msgstr "Àväïläßlé nöw Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/algolia_models.py apps/course_metadata/models.py
+msgid "Upcoming"
+msgstr "Ûpçömïng Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/algolia_models.py apps/course_metadata/choices.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid "Archived"
+msgstr "Àrçhïvéd Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/algolia_models.py
+msgid "Available by subscription"
+msgstr "Àväïläßlé ßý süßsçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/choices.py apps/course_metadata/choices.py
+msgid "Unpublished"
+msgstr "Ûnpüßlïshéd Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/course_metadata/choices.py
+msgid "Awaiting Review from Legal"
+msgstr "Àwäïtïng Révïéw fröm Légäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Awaiting Internal Review"
+msgstr "Àwäïtïng Ìntérnäl Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/choices.py
+msgid "Reviewed"
+msgstr "Révïéwéd Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/choices.py apps/course_metadata/choices.py
+msgid "Published"
+msgstr "Püßlïshéd Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#. Translators: Instructor-paced refers to course runs that operate on a
+#. schedule set by the instructor,
+#. similar to a normal university course.
+#: apps/course_metadata/choices.py
+msgid "Instructor-paced"
+msgstr "Ìnstrüçtör-päçéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#. Translators: Self-paced refers to course runs that operate on the student's
+#. schedule.
+#: apps/course_metadata/choices.py
+msgid "Self-paced"
+msgstr "Sélf-päçéd Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: apps/course_metadata/choices.py apps/learner_pathway/choices.py
+msgid "Active"
+msgstr "Àçtïvé Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/choices.py
+msgid "Retired"
+msgstr "Rétïréd Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/choices.py
+msgid "Deleted"
+msgstr "Délétéd Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/choices.py
+msgid "mooc"
+msgstr "mööç Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "spoc"
+msgstr "spöç Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "test"
+msgstr "tést Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "demo"
+msgstr "démö Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "other"
+msgstr "öthér Ⱡ'σяєм ιρѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Honor"
+msgstr "Hönör Ⱡ'σяєм ιρѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Credit"
+msgstr "Çrédït Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/choices.py
+msgid "Verified"
+msgstr "Vérïfïéd Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/choices.py
+msgid "Professional"
+msgstr "Pröféssïönäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Executive Education"
+msgstr "Éxéçütïvé Édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/course_metadata/choices.py
+msgid "Paid Executive Education"
+msgstr "Päïd Éxéçütïvé Édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/choices.py
+msgid "Unpaid Executive Education"
+msgstr "Ûnpäïd Éxéçütïvé Édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Paid Bootcamp"
+msgstr "Päïd Böötçämp Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/choices.py
+msgid "Unpaid Bootcamp"
+msgstr "Ûnpäïd Böötçämp Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/choices.py
+msgid "Platform"
+msgstr "Plätförm Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/choices.py
+msgid "Organization"
+msgstr "Örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Short"
+msgstr "Shört Ⱡ'σяєм ιρѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Medium"
+msgstr "Médïüm Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/choices.py
+msgid "Long"
+msgstr "Löng Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/choices.py
+msgid "Short Course"
+msgstr "Shört Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Sprint"
+msgstr "Sprïnt Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/choices.py
+msgid "Course Stack"
+msgstr "Çöürsé Stäçk Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/data_loaders/course_type.py
+#, python-brace-format
+msgid ""
+"Existing course type {type} for {key} ({id}) doesn't match its own "
+"entitlements."
+msgstr ""
+"Éxïstïng çöürsé týpé {type} för {key} ({id}) döésn't mätçh ïts öwn "
+"éntïtléménts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/data_loaders/course_type.py
+#, python-brace-format
+msgid ""
+"Existing run type {run_type} for {key} ({id}) doesn't match course type "
+"{type}.Skipping type."
+msgstr ""
+"Éxïstïng rün týpé {run_type} för {key} ({id}) döésn't mätçh çöürsé týpé "
+"{type}.Skïppïng týpé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/course_metadata/data_loaders/course_type.py
+#, python-brace-format
+msgid ""
+"Existing run type {run_type} for {key} ({id}) doesn't match its own seats."
+msgstr ""
+"Éxïstïng rün týpé {run_type} för {key} ({id}) döésn't mätçh ïts öwn séäts. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/data_loaders/course_type.py
+#, python-brace-format
+msgid "Course {key} ({id}) matched type {type}"
+msgstr ""
+"Çöürsé {key} ({id}) mätçhéd týpé {type} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тє#"
+
+#: apps/course_metadata/data_loaders/course_type.py
+#, python-brace-format
+msgid "Could not convert course {key} ({id}) to type {type}"
+msgstr ""
+"Çöüld nöt çönvért çöürsé {key} ({id}) tö týpé {type} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid ""
+"Not sending notification email for template {template} because no "
+"organization is defined for course {course}"
+msgstr ""
+"Nöt séndïng nötïfïçätïön émäïl för témpläté {template} ßéçäüsé nö "
+"örgänïzätïön ïs défïnéd för çöürsé {course} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid ""
+"Not sending notification email for template {template} because no project "
+"coordinator is defined for organization {org}"
+msgstr ""
+"Nöt séndïng nötïfïçätïön émäïl för témpläté {template} ßéçäüsé nö pröjéçt "
+"çöördïnätör ïs défïnéd för örgänïzätïön {org} Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid ""
+"Not sending notification email for template {template} because no publisher "
+"URL is defined for partner {partner}"
+msgstr ""
+"Nöt séndïng nötïfïçätïön émäïl för témpläté {template} ßéçäüsé nö püßlïshér "
+"ÛRL ïs défïnéd för pärtnér {partner} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid ""
+"Not sending notification email for template {template} because no studio URL"
+" is defined for partner {partner}"
+msgstr ""
+"Nöt séndïng nötïfïçätïön émäïl för témpläté {template} ßéçäüsé nö stüdïö ÛRL"
+" ïs défïnéd för pärtnér {partner} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/emails.py
+msgid "legal team"
+msgstr "légäl téäm Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: apps/course_metadata/emails.py
+msgid "Project Coordinator team"
+msgstr "Pröjéçt Çöördïnätör téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/emails.py
+msgid "course team"
+msgstr "çöürsé téäm Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid "Legal review requested: {title}"
+msgstr "Légäl révïéw réqüéstéd: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid "Course URL for {title}"
+msgstr "Çöürsé ÛRL för {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid "Review requested: {key} - {title}"
+msgstr "Révïéw réqüéstéd: {key} - {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid "Review complete: {title}"
+msgstr "Révïéw çömplété: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid "Published: {title}"
+msgstr "Püßlïshéd: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid "Published: {key} - {title}"
+msgstr "Püßlïshéd: {key} - {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid "Comment added: {title}"
+msgstr "Çömmént äddéd: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#. Translators: "letters" means latin letters: a-z and A-Z.
+#: apps/course_metadata/fields.py
+msgid ""
+"Enter a valid “slug” consisting of letters, numbers, slashes, underscores or"
+" hyphens."
+msgstr ""
+"Éntér ä välïd “slüg” çönsïstïng öf léttérs, nümßérs, släshés, ündérsçörés ör"
+" hýphéns. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/forms.py
+msgid "Programs can only be activated if they have a banner image."
+msgstr ""
+"Prögräms çän önlý ßé äçtïvätéd ïf théý hävé ä ßännér ïmägé. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py
+msgid "Tag to add to courses"
+msgstr "Täg tö ädd tö çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py
+msgid "UUIDs of courses to tag"
+msgstr "ÛÛÌDs öf çöürsés tö täg Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py
+msgid ""
+"Use arguments from the TagCourseUUIDsConfig model instead of the command "
+"line."
+msgstr ""
+"Ûsé ärgüménts fröm thé TägÇöürséÛÛÌDsÇönfïg mödél ïnstéäd öf thé çömmänd "
+"lïné. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py
+msgid "Missing required arguments"
+msgstr "Mïssïng réqüïréd ärgüménts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "Backpopulate new-style CourseType and CourseRunType where possible."
+msgstr ""
+"Bäçkpöpüläté néw-stýlé ÇöürséTýpé änd ÇöürséRünTýpé whéré pössïßlé. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "CODE"
+msgstr "ÇÖDÉ Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Short code for a partner."
+msgstr "Shört çödé för ä pärtnér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/learner_pathway/models.py
+#: apps/learner_pathway/models.py apps/learner_pathway/models.py
+msgid "UUID"
+msgstr "ÛÛÌD Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "Course to backpopulate."
+msgstr "Çöürsé tö ßäçkpöpüläté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "KEY"
+msgstr "KÉÝ Ⱡ'σяєм#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "Organization to backpopulate."
+msgstr "Örgänïzätïön tö ßäçkpöpüläté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid ""
+"CourseType/CourseRunType mismatches to allow. Specify like course-type-"
+"slug:run-type-slug."
+msgstr ""
+"ÇöürséTýpé/ÇöürséRünTýpé mïsmätçhés tö ällöw. Spéçïfý lïké çöürsé-týpé-"
+"slüg:rün-týpé-slüg. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Actually commit the changes to the database."
+msgstr ""
+"Àçtüällý çömmït thé çhängés tö thé dätäßäsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid ""
+"Use arguments from the BackpopulateCourseTypeConfig model instead of the "
+"command line."
+msgstr ""
+"Ûsé ärgüménts fröm thé BäçkpöpülätéÇöürséTýpéÇönfïg mödél ïnstéäd öf thé "
+"çömmänd lïné. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "You must specify --partner"
+msgstr "Ýöü müst spéçïfý --pärtnér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#, python-brace-format
+msgid "Supplied Course Run Type slug [{rt_slug}] does not exist."
+msgstr ""
+"Süpplïéd Çöürsé Rün Týpé slüg [{rt_slug}] döés nöt éxïst. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#, python-brace-format
+msgid "Supplied Course Type slug [{ct_slug}] does not exist."
+msgstr ""
+"Süpplïéd Çöürsé Týpé slüg [{ct_slug}] döés nöt éxïst. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "No courses found. Did you specify an argument?"
+msgstr ""
+"Nö çöürsés föünd. Dïd ýöü spéçïfý än ärgümént? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#, python-brace-format
+msgid ""
+"Could not backpopulate a course type for the following courses: "
+"{course_keys}"
+msgstr ""
+"Çöüld nöt ßäçkpöpüläté ä çöürsé týpé för thé föllöwïng çöürsés: "
+"{course_keys} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Delete duplicate persons in course_metadata."
+msgstr ""
+"Délété düplïçäté pérsöns ïn çöürsé_métädätä. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "PERSON"
+msgstr "PÉRSÖN Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "People to delete, in UUID:TARGET_UUID form."
+msgstr ""
+"Péöplé tö délété, ïn ÛÛÌD:TÀRGÉT_ÛÛÌD förm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "PARTNER"
+msgstr "PÀRTNÉR Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid ""
+"Use arguments from the DeletePersonDupsConfig model instead of the command "
+"line."
+msgstr ""
+"Ûsé ärgüménts fröm thé DélétéPérsönDüpsÇönfïg mödél ïnstéäd öf thé çömmänd "
+"lïné. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Malformed argument \"{}\", should be in form of UUID:TARGET_UUID"
+msgstr ""
+"Mälförméd ärgümént \"{}\", shöüld ßé ïn förm öf ÛÛÌD:TÀRGÉT_ÛÛÌD Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Malformed argument \"{}\", UUIDs cannot be equal"
+msgstr ""
+"Mälförméd ärgümént \"{}\", ÛÛÌDs çännöt ßé éqüäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Deleting"
+msgstr "Délétïng Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Would delete"
+msgstr "Wöüld délété Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Name"
+msgstr "Nämé Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Endorsements"
+msgstr "Éndörséménts Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Programs"
+msgstr "Prögräms Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Course Runs"
+msgstr "Çöürsé Rüns Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Target"
+msgstr "Tärgét Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "You must specify --partner-code"
+msgstr "Ýöü müst spéçïfý --pärtnér-çödé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "You must specify at least one person"
+msgstr ""
+"Ýöü müst spéçïfý ät léäst öné pérsön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/management/commands/publish_live_course_runs.py
+#, python-brace-format
+msgid "Publishing course run {key}"
+msgstr "Püßlïshïng çöürsé rün {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/management/commands/publish_live_course_runs.py
+#, python-brace-format
+msgid "Failed to publish {key}"
+msgstr "Fäïléd tö püßlïsh {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/management/commands/publish_live_course_runs.py
+#, python-brace-format
+msgid "Successfully published {key}"
+msgstr "Süççéssfüllý püßlïshéd {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/management/commands/publish_live_course_runs.py
+msgid "One or more course runs failed to publish."
+msgstr ""
+"Öné ör möré çöürsé rüns fäïléd tö püßlïsh. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+msgid "Remove all redirects to all courses"
+msgstr ""
+"Rémövé äll rédïréçts tö äll çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+msgid "Redirects to remove"
+msgstr "Rédïréçts tö rémövé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+msgid ""
+"Use arguments from the RemoveRedirectsConfig model instead of the command "
+"line."
+msgstr ""
+"Ûsé ärgüménts fröm thé RémövéRédïréçtsÇönfïg mödél ïnstéäd öf thé çömmänd "
+"lïné. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+msgid "Invalid arguments"
+msgstr "Ìnvälïd ärgüménts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+#, python-brace-format
+msgid "Cannot remove active url_slug {url_slug}"
+msgstr ""
+"Çännöt rémövé äçtïvé ürl_slüg {url_slug} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тє#"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+#, python-brace-format
+msgid "Path /course/{url_slug} not in use, nothing to delete"
+msgstr ""
+"Päth /çöürsé/{url_slug} nöt ïn üsé, nöthïng tö délété Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+#, python-brace-format
+msgid "Path {url_path} not in use, nothing to delete"
+msgstr ""
+"Päth {url_path} nöt ïn üsé, nöthïng tö délété Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/management/commands/unpublish_inactive_runs.py
+msgid "One or more courses failed to unpublish."
+msgstr ""
+"Öné ör möré çöürsés fäïléd tö ünpüßlïsh. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/management/commands/unpublish_inactive_runs.py
+#, python-brace-format
+msgid "Successfully unpublished runs in course {key}"
+msgstr ""
+"Süççéssfüllý ünpüßlïshéd rüns ïn çöürsé {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/unpublish_inactive_runs.py
+#, python-brace-format
+msgid "Failed to unpublish runs in course {key}"
+msgstr ""
+"Fäïléd tö ünpüßlïsh rüns ïn çöürsé {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen. This key will be used in the course's course key."
+msgstr ""
+"Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs öthér thän pérïöd, "
+"ündérsçöré ör hýphén. Thïs kéý wïll ßé üséd ïn thé çöürsé's çöürsé kéý. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
+"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
+" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт #"
+
+#: apps/course_metadata/models.py
+msgid "If populated, this field will overwrite name in platform."
+msgstr ""
+"Ìf pöpülätéd, thïs fïéld wïll övérwrïté nämé ïn plätförm. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Spanish Description"
+msgstr "Spänïsh Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"For seo, this field allows for alternate spanish description to be manually "
+"inputted"
+msgstr ""
+"För séö, thïs fïéld ällöws för ältérnäté spänïsh désçrïptïön tö ßé mänüällý "
+"ïnpüttéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py
+msgid ""
+"Pick a tag from the suggestions. To make a new tag, add a comma after the "
+"tag name."
+msgstr ""
+"Pïçk ä täg fröm thé süggéstïöns. Tö mäké ä néw täg, ädd ä çömmä äftér thé "
+"täg nämé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+msgid "Automatically generate course run keys"
+msgstr ""
+"Àütömätïçällý généräté çöürsé rün kéýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"When this flag is enabled, the key of a new course run will be auto "
+"generated.  When this flag is disabled, the key can be manually set."
+msgstr ""
+"Whén thïs fläg ïs énäßléd, thé kéý öf ä néw çöürsé rün wïll ßé äütö "
+"générätéd.  Whén thïs fläg ïs dïsäßléd, thé kéý çän ßé mänüällý sét. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσя#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This field signifies if any of this org's courses are in the enterprise "
+"subscription catalog"
+msgstr ""
+"Thïs fïéld sïgnïfïés ïf äný öf thïs örg's çöürsés äré ïn thé éntérprïsé "
+"süßsçrïptïön çätälög Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"The 6 character-hex-value of the orgnization theme color,\n"
+"            all related course under same organization will use this color as theme color.\n"
+"            (e.g. \"#ff0000\" which equals red) No need to provide the `#`"
+msgstr ""
+"Thé 6 çhäräçtér-héx-välüé öf thé örgnïzätïön thémé çölör,\n"
+"            äll rélätéd çöürsé ündér sämé örgänïzätïön wïll üsé thïs çölör äs thémé çölör.\n"
+"            (é.g. \"#ff0000\" whïçh éqüäls réd) Nö nééd tö prövïdé thé `#` Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα#"
+
+#: apps/course_metadata/models.py
+msgid "The timestamp of the last time the organization data was modified."
+msgstr ""
+"Thé tïméstämp öf thé läst tïmé thé örgänïzätïön dätä wäs mödïfïéd. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen in the key field."
+msgstr ""
+"Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs öthér thän pérïöd, "
+"ündérsçöré ör hýphén ïn thé kéý fïéld. Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/models.py
+msgid "Corresponding organization code in an external product source"
+msgstr ""
+"Çörréspöndïng örgänïzätïön çödé ïn än éxtérnäl prödüçt söürçé Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "LevelType model translations"
+msgstr "LévélTýpé mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Seat types that qualify for completion of programs of this type. Learners "
+"completing associated courses, but enrolled in other seat types, will NOT "
+"have their completion of the course counted toward the completion of the "
+"program."
+msgstr ""
+"Séät týpés thät qüälïfý för çömplétïön öf prögräms öf thïs týpé. Léärnérs "
+"çömplétïng ässöçïätéd çöürsés, ßüt énrölléd ïn öthér séät týpés, wïll NÖT "
+"hävé théïr çömplétïön öf thé çöürsé çöüntéd töwärd thé çömplétïön öf thé "
+"prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ "
+"єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм"
+" νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα "
+"¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
+" єѕѕє ¢ιłłυм ∂σłσяє є#"
+
+#: apps/course_metadata/models.py
+msgid "Please provide an image file with transparent background"
+msgstr ""
+"Pléäsé prövïdé än ïmägé fïlé wïth tränspärént ßäçkgröünd Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py
+msgid "Leave this field blank to have the value generated automatically."
+msgstr ""
+"Léävé thïs fïéld ßlänk tö hävé thé välüé générätéd äütömätïçällý. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Name of the external source."
+msgstr "Nämé öf thé éxtérnäl söürçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid "Description of the external source."
+msgstr ""
+"Désçrïptïön öf thé éxtérnäl söürçé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid "Programs of these types will be OFAC restricted"
+msgstr ""
+"Prögräms öf thésé týpés wïll ßé ÖFÀÇ réstrïçtéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "ProgramType model translations"
+msgstr "PrögrämTýpé mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+msgid "This mode requires ID verification."
+msgstr ""
+"Thïs mödé réqüïrés ÌD vérïfïçätïön. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid "Completion can grant credit toward an organization’s degree."
+msgstr ""
+"Çömplétïön çän gränt çrédït töwärd än örgänïzätïön’s dégréé. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Certificate type granted if this mode is eligible for a certificate, or "
+"blank if not."
+msgstr ""
+"Çértïfïçäté týpé gräntéd ïf thïs mödé ïs élïgïßlé för ä çértïfïçäté, ör "
+"ßlänk ïf nöt. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Who gets paid for the course? Platform is the site owner, Organization is "
+"the school."
+msgstr ""
+"Whö géts päïd för thé çöürsé? Plätförm ïs thé sïté öwnér, Örgänïzätïön ïs "
+"thé sçhööl. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid "Sets the order for displaying Course Run Types."
+msgstr ""
+"Séts thé ördér för dïspläýïng Çöürsé Rün Týpés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Leave this blank to allow all orgs. Otherwise, specifies which orgs can see "
+"this course type in Publisher."
+msgstr ""
+"Léävé thïs ßlänk tö ällöw äll örgs. Öthérwïsé, spéçïfïés whïçh örgs çän séé "
+"thïs çöürsé týpé ïn Püßlïshér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
+
+#: apps/course_metadata/models.py
+msgid "Subject model translations"
+msgstr "Süßjéçt mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/models.py
+msgid "Topic model translations"
+msgstr "Töpïç mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/models.py
+msgid "SEO Meta tags for Products"
+msgstr "SÉÖ Métä tägs för Prödüçts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"The ID of the Taxi Form (by 2U) that would be rendered in place of the "
+"hubspot capture form"
+msgstr ""
+"Thé ÌD öf thé Täxï Förm (ßý 2Û) thät wöüld ßé réndéréd ïn pläçé öf thé "
+"hüßspöt çäptüré förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"The grouping of the Taxi Form (by 2U) that would be rendered instead of the "
+"hubspot capture form"
+msgstr ""
+"Thé gröüpïng öf thé Täxï Förm (ßý 2Û) thät wöüld ßé réndéréd ïnstéäd öf thé "
+"hüßspöt çäptüré förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/models.py
+msgid "The URL of the paid landing page on external site"
+msgstr ""
+"Thé ÛRL öf thé päïd ländïng pägé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The URL of the organic landing page on external site"
+msgstr ""
+"Thé ÛRL öf thé örgänïç ländïng pägé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The start date of the external course offering for marketing purpose"
+msgstr ""
+"Thé stärt däté öf thé éxtérnäl çöürsé öfférïng för märkétïng pürpösé Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "The ends date of the external course offering for marketing purpose"
+msgstr ""
+"Thé énds däté öf thé éxtérnäl çöürsé öfférïng för märkétïng pürpösé Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "The suggested deadline for enrollment for marketing purpose"
+msgstr ""
+"Thé süggéstéd déädlïné för énröllmént för märkétïng pürpösé Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The identifier for a product variant."
+msgstr ""
+"Thé ïdéntïfïér för ä prödüçt värïänt. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid "Course override"
+msgstr "Çöürsé övérrïdé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/models.py
+msgid "This field allows for override the default course term"
+msgstr ""
+"Thïs fïéld ällöws för övérrïdé thé défäült çöürsé térm Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This field contain external course marketing type specific to product lines"
+msgstr ""
+"Thïs fïéld çöntäïn éxtérnäl çöürsé märkétïng týpé spéçïfïç tö prödüçt lïnés "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Determines weather the course should be displayed on the owning "
+"organization's page"
+msgstr ""
+"Détérmïnés wéäthér thé çöürsé shöüld ßé dïspläýéd ön thé öwnïng "
+"örgänïzätïön's pägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+msgid "A list of major works by this person. Must be valid HTML."
+msgstr ""
+"À lïst öf mäjör wörks ßý thïs pérsön. Müst ßé välïd HTML. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "People"
+msgstr "Péöplé Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Add the collaborator image, please make sure its dimensions are 200x100px"
+msgstr ""
+"Àdd thé çölläßörätör ïmägé, pléäsé mäké süré ïts dïménsïöns äré 200x100px "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/models.py
+msgid "U.S. Value Per Lead"
+msgstr "Û.S. Välüé Pér Léäd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/course_metadata/models.py
+msgid "U.S. value per lead in U.S. dollars."
+msgstr ""
+"Û.S. välüé pér léäd ïn Û.S. döllärs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid "International Value Per Lead"
+msgstr "Ìntérnätïönäl Välüé Pér Léäd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid "International value per lead in U.S. dollars."
+msgstr ""
+"Ìntérnätïönäl välüé pér léäd ïn Û.S. döllärs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "U.S. Value Per Click"
+msgstr "Û.S. Välüé Pér Çlïçk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/models.py
+msgid "U.S. value per click in U.S. dollars."
+msgstr ""
+"Û.S. välüé pér çlïçk ïn Û.S. döllärs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid "International Value Per Click"
+msgstr "Ìntérnätïönäl Välüé Pér Çlïçk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid "International value per click in U.S. dollars."
+msgstr ""
+"Ìntérnätïönäl välüé pér çlïçk ïn Û.S. döllärs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Latitude"
+msgstr "Lätïtüdé Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/models.py
+msgid "Longitude"
+msgstr "Löngïtüdé Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/models.py
+msgid "Allowlist"
+msgstr "Àllöwlïst Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/models.py
+msgid "Blocklist"
+msgstr "Blöçklïst Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"When making reruns for this course, they will use this key instead of the "
+"course key."
+msgstr ""
+"Whén mäkïng rérüns för thïs çöürsé, théý wïll üsé thïs kéý ïnstéäd öf thé "
+"çöürsé kéý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"The actual duration of this course as experienced by learners who complete "
+"it."
+msgstr ""
+"Thé äçtüäl dürätïön öf thïs çöürsé äs éxpérïénçéd ßý léärnérs whö çömplété "
+"ït. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid "Add the course image"
+msgstr "Àdd thé çöürsé ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid "FAQ"
+msgstr "FÀQ Ⱡ'σяєм#"
+
+#: apps/course_metadata/models.py
+msgid "Total number of learners who have enrolled in this course"
+msgstr ""
+"Tötäl nümßér öf léärnérs whö hävé énrölléd ïn thïs çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Total number of learners who have enrolled in this course in the last 6 "
+"months"
+msgstr ""
+"Tötäl nümßér öf léärnérs whö hävé énrölléd ïn thïs çöürsé ïn thé läst 6 "
+"mönths Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
+msgstr ""
+"Çöürsé nümßér förmät é.g ÇS002x, BÌÖ1.1x, BÌÖ1.2x Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Additional Information"
+msgstr "Àddïtïönäl Ìnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/course_metadata/models.py
+msgid "The last time this course was modified in the database."
+msgstr ""
+"Thé läst tïmé thïs çöürsé wäs mödïfïéd ïn thé dätäßäsé. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This field signifies if this course is in the enterprise subscription "
+"catalog"
+msgstr ""
+"Thïs fïéld sïgnïfïés ïf thïs çöürsé ïs ïn thé éntérprïsé süßsçrïptïön "
+"çätälög Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid ""
+"If checked, this item will not be indexed in Algolia and will not show up in"
+" search results."
+msgstr ""
+"Ìf çhéçkéd, thïs ïtém wïll nöt ßé ïndéxéd ïn Àlgölïä änd wïll nöt shöw üp ïn"
+" séärçh résülts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid "If checked, the About Page will have a meta tag with noindex value"
+msgstr ""
+"Ìf çhéçkéd, thé Àßöüt Pägé wïll hävé ä métä täg wïth nöïndéx välüé Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "Watchers"
+msgstr "Wätçhérs Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"The list of email addresses that will be notified if any of the course runs "
+"is published or scheduled."
+msgstr ""
+"Thé lïst öf émäïl äddréssés thät wïll ßé nötïfïéd ïf äný öf thé çöürsé rüns "
+"ïs püßlïshéd ör sçhédüléd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/course_metadata/models.py
+msgid "Future"
+msgstr "Fütüré Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/models.py
+msgid "Past"
+msgstr "Päst Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid "Blocked"
+msgstr "Blöçkéd Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid "Unrestricted"
+msgstr "Ûnréstrïçtéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Title specific for this run of a course. Leave this value blank to default "
+"to the parent course's title."
+msgstr ""
+"Tïtlé spéçïfïç för thïs rün öf ä çöürsé. Léävé thïs välüé ßlänk tö défäült "
+"tö thé pärént çöürsé's tïtlé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Short description specific for this run of a course. Leave this value blank "
+"to default to the parent course's short_description attribute."
+msgstr ""
+"Shört désçrïptïön spéçïfïç för thïs rün öf ä çöürsé. Léävé thïs välüé ßlänk "
+"tö défäült tö thé pärént çöürsé's shört_désçrïptïön ättrïßüté. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Full description specific for this run of a course. Leave this value blank "
+"to default to the parent course's full_description attribute."
+msgstr ""
+"Füll désçrïptïön spéçïfïç för thïs rün öf ä çöürsé. Léävé thïs välüé ßlänk "
+"tö défäült tö thé pärént çöürsé's füll_désçrïptïön ättrïßüté. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσя#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Estimated minimum number of hours per week needed to complete a course run."
+msgstr ""
+"Éstïmätéd mïnïmüm nümßér öf höürs pér wéék néédéd tö çömplété ä çöürsé rün. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Estimated maximum number of hours per week needed to complete a course run."
+msgstr ""
+"Éstïmätéd mäxïmüm nümßér öf höürs pér wéék néédéd tö çömplété ä çöürsé rün. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid "Estimated number of weeks needed to complete this course run."
+msgstr ""
+"Éstïmätéd nümßér öf wééks néédéd tö çömplété thïs çöürsé rün. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Total number of learners who have enrolled in this course run"
+msgstr ""
+"Tötäl nümßér öf léärnérs whö hävé énrölléd ïn thïs çöürsé rün Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Total number of learners who have enrolled in this course run in the last 6 "
+"months"
+msgstr ""
+"Tötäl nümßér öf léärnérs whö hävé énrölléd ïn thïs çöürsé rün ïn thé läst 6 "
+"mönths Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Whether this run should be hidden from API responses.  Do not edit here - "
+"this value will be overwritten by the \"Course Visibility In Catalog\" field"
+" in Studio via Refresh Course Metadata."
+msgstr ""
+"Whéthér thïs rün shöüld ßé hïddén fröm ÀPÌ réspönsés.  Dö nöt édït héré - "
+"thïs välüé wïll ßé övérwrïttén ßý thé \"Çöürsé Vïsïßïlïtý Ìn Çätälög\" fïéld"
+" ïn Stüdïö vïä Réfrésh Çöürsé Métädätä. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт "
+"∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση "
+"υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє "
+"∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
+" ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂#"
+
+#: apps/course_metadata/models.py
+msgid "Indicates whether the course relation has been manually overridden."
+msgstr ""
+"Ìndïçätés whéthér thé çöürsé rélätïön häs ßéén mänüällý övérrïddén. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid ""
+"'What You Will Learn' description for this particular course run. Leave this"
+" value blank to default to the parent course's Outcome attribute."
+msgstr ""
+"'Whät Ýöü Wïll Léärn' désçrïptïön för thïs pärtïçülär çöürsé rün. Léävé thïs"
+" välüé ßlänk tö défäült tö thé pärént çöürsé's Öütçömé ättrïßüté. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт #"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
+msgstr ""
+"Àdd ÖFÀÇ réstrïçtïön téxt tö thé FÀQ séçtïön öf thé Märkétïng sïté Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This calculated field signifies if this course run is in the enterprise "
+"subscription catalog"
+msgstr ""
+"Thïs çälçülätéd fïéld sïgnïfïés ïf thïs çöürsé rün ïs ïn thé éntérprïsé "
+"süßsçrïptïön çätälög Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid "Current"
+msgstr "Çürrént Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/models.py
+msgid "Starting Soon"
+msgstr "Stärtïng Söön Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Switching seat types after being reviewed is not supported. Please reach out"
+" to your project coordinator for additional help if necessary."
+msgstr ""
+"Swïtçhïng séät týpés äftér ßéïng révïéwéd ïs nöt süppörtéd. Pléäsé réäçh öüt"
+" tö ýöür pröjéçt çöördïnätör för äddïtïönäl hélp ïf néçéssärý. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
+
+#: apps/course_metadata/models.py
+msgid "Change careers"
+msgstr "Çhängé çäréérs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: apps/course_metadata/models.py
+msgid "Job advancement"
+msgstr "Jöß ädvänçémént Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/models.py
+msgid "Learn valuable skills"
+msgstr "Léärn välüäßlé skïlls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/models.py
+msgid "Learn for fun"
+msgstr "Léärn för fün Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/models.py
+msgid "FAQs"
+msgstr "FÀQs Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "The user-facing display title for this Program."
+msgstr ""
+"Thé üsér-fäçïng dïspläý tïtlé för thïs Prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "A brief, descriptive subtitle for the Program."
+msgstr ""
+"À ßrïéf, désçrïptïvé süßtïtlé för thé Prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "A brief hook for the marketing website"
+msgstr ""
+"À ßrïéf höök för thé märkétïng wéßsïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/models.py
+msgid "The lifecycle status of this Program."
+msgstr ""
+"Thé lïféçýçlé stätüs öf thïs Prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid "Slug used to generate links to the marketing site"
+msgstr ""
+"Slüg üséd tö généräté lïnks tö thé märkétïng sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"If this box is not checked, courses will be ordered as in the courses select"
+" box above."
+msgstr ""
+"Ìf thïs ßöx ïs nöt çhéçkéd, çöürsés wïll ßé ördéréd äs ïn thé çöürsés séléçt"
+" ßöx äßövé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
+" complete a course run belonging to this program."
+msgstr ""
+"Thïs fïéld ïs nöw dépréçätéd (ÉÇÖM-6021).Éstïmätéd nümßér öf wééks néédéd tö"
+" çömplété ä çöürsé rün ßélöngïng tö thïs prögräm. Ⱡ'σяєм #"
+
+#: apps/course_metadata/models.py
+msgid "DEPRECATED: Use the card image field"
+msgstr ""
+"DÉPRÉÇÀTÉD: Ûsé thé çärd ïmägé fïéld Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This field can be used by API clients to determine the order in which "
+"instructors will be displayed on program pages. Instructors in this list "
+"should appear before all others associated with this programs courses runs."
+msgstr ""
+"Thïs fïéld çän ßé üséd ßý ÀPÌ çlïénts tö détérmïné thé ördér ïn whïçh "
+"ïnstrüçtörs wïll ßé dïspläýéd ön prögräm pägés. Ìnstrüçtörs ïn thïs lïst "
+"shöüld äppéär ßéföré äll öthérs ässöçïätéd wïth thïs prögräms çöürsés rüns. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
+"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
+" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяι#"
+
+#: apps/course_metadata/models.py
+msgid "The description of credit redemption for courses in program"
+msgstr ""
+"Thé désçrïptïön öf çrédït rédémptïön för çöürsés ïn prögräm Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Allow courses in this program to be purchased in a single transaction"
+msgstr ""
+"Àllöw çöürsés ïn thïs prögräm tö ßé pürçhäséd ïn ä sïnglé tränsäçtïön Ⱡ'σяєм"
+" ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Hide program on marketing site landing and search pages. This program MAY "
+"have a detail page."
+msgstr ""
+"Hïdé prögräm ön märkétïng sïté ländïng änd séärçh pägés. Thïs prögräm MÀÝ "
+"hävé ä détäïl pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/course_metadata/models.py
+msgid "Total number of learners who have enrolled in courses this program"
+msgstr ""
+"Tötäl nümßér öf léärnérs whö hävé énrölléd ïn çöürsés thïs prögräm Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Total number of learners who have enrolled in courses in this program in the"
+" last 6 months"
+msgstr ""
+"Tötäl nümßér öf léärnérs whö hävé énrölléd ïn çöürsés ïn thïs prögräm ïn thé"
+" läst 6 mönths Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Number of credits a learner will earn upon successful completion of the "
+"program"
+msgstr ""
+"Nümßér öf çrédïts ä léärnér wïll éärn üpön süççéssfül çömplétïön öf thé "
+"prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This calculated field signifies if all the courses in this program are "
+"included in the enterprise subscription catalog "
+msgstr ""
+"Thïs çälçülätéd fïéld sïgnïfïés ïf äll thé çöürsés ïn thïs prögräm äré "
+"ïnçlüdéd ïn thé éntérprïsé süßsçrïptïön çätälög  Ⱡ'σяєм ιρѕυм#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"A field to override Organization short code alias specific for this program."
+msgstr ""
+"À fïéld tö övérrïdé Örgänïzätïön shört çödé älïäs spéçïfïç för thïs prögräm."
+" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid "A field to override Organization logo specific for this program."
+msgstr ""
+"À fïéld tö övérrïdé Örgänïzätïön lögö spéçïfïç för thïs prögräm. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Primary subject field specific for this program. Useful field in case there "
+"are no courses associated with this program."
+msgstr ""
+"Prïmärý süßjéçt fïéld spéçïfïç för thïs prögräm. Ûséfül fïéld ïn çäsé théré "
+"äré nö çöürsés ässöçïätéd wïth thïs prögräm. Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Level type specific for this program. Useful field in case there are no "
+"courses associated with this program."
+msgstr ""
+"Lévél týpé spéçïfïç för thïs prögräm. Ûséfül fïéld ïn çäsé théré äré nö "
+"çöürsés ässöçïätéd wïth thïs prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Language code specific for this program. Useful field in case there are no "
+"courses associated with this program."
+msgstr ""
+"Längüägé çödé spéçïfïç för thïs prögräm. Ûséfül fïéld ïn çäsé théré äré nö "
+"çöürsés ässöçïätéd wïth thïs prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Useful field to overwrite the duration of a program. It can be a text "
+"describing a period of time, Ex: 6-9 months."
+msgstr ""
+"Ûséfül fïéld tö övérwrïté thé dürätïön öf ä prögräm. Ìt çän ßé ä téxt "
+"désçrïßïng ä pérïöd öf tïmé, Éx: 6-9 mönths. Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Pick a tag/label from the suggestions. To make a new tag, add a comma after "
+"the tag name."
+msgstr ""
+"Pïçk ä täg/läßél fröm thé süggéstïöns. Tö mäké ä néw täg, ädd ä çömmä äftér "
+"thé täg nämé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/models.py
+msgid "The last time this program was modified."
+msgstr ""
+"Thé läst tïmé thïs prögräm wäs mödïfïéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid "ID"
+msgstr "ÌD Ⱡ'σя#"
+
+#: apps/course_metadata/models.py
+msgid "The actual rank number"
+msgstr "Thé äçtüäl ränk nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/course_metadata/models.py
+msgid "What does the rank number mean"
+msgstr "Whät döés thé ränk nümßér méän Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+msgid "From where the rank is obtained"
+msgstr "Fröm whéré thé ränk ïs ößtäïnéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+msgid "Callback URL to partner application flow"
+msgstr ""
+"Çällßäçk ÛRL tö pärtnér äpplïçätïön flöw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/models.py
+msgid "Overall program ranking (e.g. \"#1 in the U.S.\")"
+msgstr ""
+"Övéräll prögräm ränkïng (é.g. \"#1 ïn thé Û.S.\") Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"The 6 character hex value of the color to make the banner borders\n"
+"            (e.g. \"#ff0000\" which equals red) No need to provide the `#`"
+msgstr ""
+"Thé 6 çhäräçtér héx välüé öf thé çölör tö mäké thé ßännér ßördérs\n"
+"            (é.g. \"#ff0000\" whïçh éqüäls réd) Nö nééd tö prövïdé thé `#` Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
+
+#: apps/course_metadata/models.py
+msgid "Provide a campus image for the header of the degree"
+msgstr ""
+"Prövïdé ä çämpüs ïmägé för thé héädér öf thé dégréé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Provide a background image for the title section of the degree"
+msgstr ""
+"Prövïdé ä ßäçkgröünd ïmägé för thé tïtlé séçtïön öf thé dégréé Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The fine print that displays at the Tuition section's bottom"
+msgstr ""
+"Thé fïné prïnt thät dïspläýs ät thé Tüïtïön séçtïön's ßöttöm Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The fine print that displays at the Deadline section's bottom"
+msgstr ""
+"Thé fïné prïnt thät dïspläýs ät thé Déädlïné séçtïön's ßöttöm Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The sailthru email list name to capture leads"
+msgstr ""
+"Thé säïlthrü émäïl lïst nämé tö çäptüré léäds Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "Please provide an image file for the lead capture banner."
+msgstr ""
+"Pléäsé prövïdé än ïmägé fïlé för thé léäd çäptüré ßännér. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The Hubspot form ID for the lead capture form"
+msgstr ""
+"Thé Hüßspöt förm ÌD för thé léäd çäptüré förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "URL to micromasters landing page"
+msgstr ""
+"ÛRL tö mïçrömästérs ländïng pägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/course_metadata/models.py
+msgid "Micromasters verbose title"
+msgstr "Mïçrömästérs vérßösé tïtlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/models.py
+msgid "Micromasters descriptive paragraph"
+msgstr ""
+"Mïçrömästérs désçrïptïvé pärägräph Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid "Customized background image for the MicroMasters section."
+msgstr ""
+"Çüstömïzéd ßäçkgröünd ïmägé för thé MïçröMästérs séçtïön. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Override org name if micromasters program comes from different organization "
+"than Masters program"
+msgstr ""
+"Övérrïdé örg nämé ïf mïçrömästérs prögräm çömés fröm dïfférént örgänïzätïön "
+"thän Mästérs prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/models.py
+msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
+msgstr ""
+"Ränkïng dïspläý för séärçh çärd (é.g. \"#1 ïn thé Û.S.\" Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Cost display for search card (e.g. \"$9,999\""
+msgstr ""
+"Çöst dïspläý för séärçh çärd (é.g. \"$9,999\" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "Number of courses for search card (e.g. \"11 Courses\""
+msgstr ""
+"Nümßér öf çöürsés för séärçh çärd (é.g. \"11 Çöürsés\" Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Designates whether the degree should be displayed on the owning "
+"organization's page"
+msgstr ""
+"Désïgnätés whéthér thé dégréé shöüld ßé dïspläýéd ön thé öwnïng "
+"örgänïzätïön's pägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+msgid "The redirect URL of the degree on external site"
+msgstr ""
+"Thé rédïréçt ÛRL öf thé dégréé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The URL of the landing page on external site"
+msgstr ""
+"Thé ÛRL öf thé ländïng pägé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "Bell"
+msgstr "Béll Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "Certificate"
+msgstr "Çértïfïçäté Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/course_metadata/models.py
+msgid "Checkmark"
+msgstr "Çhéçkmärk Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/models.py
+msgid "Clock"
+msgstr "Çlöçk Ⱡ'σяєм ιρѕ#"
+
+#: apps/course_metadata/models.py
+msgid "Desktop"
+msgstr "Désktöp Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/models.py
+msgid "Info"
+msgstr "Ìnfö Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "Sitemap"
+msgstr "Sïtémäp Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/models.py
+msgid "User"
+msgstr "Ûsér Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "Dollar"
+msgstr "Döllär Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/models.py
+msgid "Book"
+msgstr "Böök Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "Mortar Board"
+msgstr "Mörtär Böärd Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/models.py
+msgid "Star"
+msgstr "Stär Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "Trophy"
+msgstr "Tröphý Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/models.py
+msgid "Icon FA class"
+msgstr "Ìçön FÀ çläss Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/models.py
+msgid "Paired text"
+msgstr "Päïréd téxt Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/course_metadata/models.py
+msgid "Deadline applies for this semester (e.g. Spring 2019"
+msgstr ""
+"Déädlïné äpplïés för thïs séméstér (é.g. Sprïng 2019 Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Describes the deadline (e.g. Early Admission Deadline)"
+msgstr ""
+"Désçrïßés thé déädlïné (é.g. Éärlý Àdmïssïön Déädlïné) Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The date after which the deadline expires (e.g. January 1, 2019)"
+msgstr ""
+"Thé däté äftér whïçh thé déädlïné éxpïrés (é.g. Jänüärý 1, 2019) Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The time after which the deadline expires (e.g. 11:59 PM EST)."
+msgstr ""
+"Thé tïmé äftér whïçh thé déädlïné éxpïrés (é.g. 11:59 PM ÉST). Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Describes what the cost is for (e.g. Tuition)"
+msgstr ""
+"Désçrïßés whät thé çöst ïs för (é.g. Tüïtïön) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "String-based field stating how much the cost is (e.g. $1000)."
+msgstr ""
+"Strïng-ßäséd fïéld stätïng höw müçh thé çöst ïs (é.g. $1000). Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"A high-level overview of the degree's courseware. The \"brief\"\n"
+"            text is the first 750 characters of \"marketing_text\" and must be\n"
+"            valid HTML."
+msgstr ""
+"À hïgh-lévél övérvïéw öf thé dégréé's çöürséwäré. Thé \"ßrïéf\"\n"
+"            téxt ïs thé fïrst 750 çhäräçtérs öf \"märkétïng_téxt\" änd müst ßé\n"
+"            välïd HTML. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕ#"
+
+#: apps/course_metadata/models.py
+msgid "A high-level overview of the degree's courseware."
+msgstr ""
+"À hïgh-lévél övérvïéw öf thé dégréé's çöürséwäré. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Organization name"
+msgstr "Örgänïzätïön nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/course_metadata/models.py
+msgid "These programs are for a different partner than the pathway itself: {}"
+msgstr ""
+"Thésé prögräms äré för ä dïfférént pärtnér thän thé päthwäý ïtsélf: {} "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "Facebook"
+msgstr "Fäçéßöök Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/models.py
+msgid "Twitter"
+msgstr "Twïttér Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/models.py
+msgid "Blog"
+msgstr "Blög Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "Others"
+msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/models.py
+#, python-brace-format
+msgid ""
+"Partner {partner_key} and course partner {course_partner_key} do not match "
+"when attempting to save url slug {url_slug}"
+msgstr ""
+"Pärtnér {partner_key} änd çöürsé pärtnér {course_partner_key} dö nöt mätçh "
+"whén ättémptïng tö sävé ürl slüg {url_slug} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+#, python-brace-format
+msgid ""
+"Partner {partner_key} and course partner {course_partner_key} do not match "
+"when attempting to save url redirect {url_path}"
+msgstr ""
+"Pärtnér {partner_key} änd çöürsé pärtnér {course_partner_key} dö nöt mätçh "
+"whén ättémptïng tö sävé ürl rédïréçt {url_path} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє#"
+
+#: apps/course_metadata/models.py
+msgid "It expects the data will be provided in a csv file format "
+msgstr ""
+"Ìt éxpéçts thé dätä wïll ßé prövïdéd ïn ä çsv fïlé förmät  Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid ""
+"It expects the data will be provided in a csv file format with first row "
+"containing all the headers."
+msgstr ""
+"Ìt éxpéçts thé dätä wïll ßé prövïdéd ïn ä çsv fïlé förmät wïth fïrst röw "
+"çöntäïnïng äll thé héädérs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/course_metadata/models.py
+msgid "Open Courses"
+msgstr "Öpén Çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/models.py
+msgid "2U Executive Education Courses"
+msgstr "2Û Éxéçütïvé Édüçätïön Çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+msgid "Bootcamps"
+msgstr "Böötçämps Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+msgid "Course UUIDs"
+msgstr "Çöürsé ÛÛÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/models.py
+msgid "Course Run IDs"
+msgstr "Çöürsé Rün ÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: apps/course_metadata/models.py
+msgid "Profile Image UUIDs"
+msgstr "Pröfïlé Ìmägé ÛÛÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/course_metadata/models.py
+msgid "Tag"
+msgstr "Täg Ⱡ'σяєм#"
+
+#: apps/course_metadata/models.py
+msgid "Remove All Redirects"
+msgstr "Rémövé Àll Rédïréçts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/models.py
+msgid "Url Paths"
+msgstr "Ûrl Päths Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/models.py
+msgid "Add redirects from all published course url slugs"
+msgstr ""
+"Àdd rédïréçts fröm äll püßlïshéd çöürsé ürl slügs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py apps/taxonomy_support/models.py
+msgid "Course uuids"
+msgstr "Çöürsé üüïds Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/salesforce.py
+msgid "Attempted to query Salesforce with no client for partner={}"
+msgstr ""
+"Àttémptéd tö qüérý Sälésförçé wïth nö çlïént för pärtnér={} Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/salesforce.py
+msgid "Unable to associate a case for comments for {}"
+msgstr ""
+"Ûnäßlé tö ässöçïäté ä çäsé för çömménts för {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/templates/admin/course_metadata/course_run.html
+msgid "Cancel"
+msgstr "Çänçél Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/templates/admin/course_metadata/course_run.html
+msgid "Back to Program"
+msgstr "Bäçk tö Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/templates/admin/course_metadata/course_run.html
+msgid "Save Course Run"
+msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/templates/admin/course_metadata/course_skills.html
+#: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html
+#: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html
+msgid "Home"
+msgstr "Hömé Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/templates/admin/course_metadata/course_skills.html
+msgid "Course Skills"
+msgstr "Çöürsé Skïlls Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html
+#: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html
+msgid "Refresh Course Skills"
+msgstr "Réfrésh Çöürsé Skïlls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html
+#: apps/course_metadata/templates/admin/course_metadata/refresh_program_skills.html
+msgid "Refresh Program Skills"
+msgstr "Réfrésh Prögräm Skïlls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/course_metadata/templates/course_metadata/email/comment.html
+#, python-format
+msgid ""
+"%(user_name)s made the following comment on %(course_name)s on %(date)s at "
+"%(time)s"
+msgstr ""
+"%(user_name)s mädé thé föllöwïng çömmént ön %(course_name)s ön %(date)s ät "
+"%(time)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/templates/course_metadata/email/comment.html
+#: apps/course_metadata/templates/course_metadata/email/comment.txt
+msgid "View comment in Publisher"
+msgstr "Vïéw çömmént ïn Püßlïshér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/templates/course_metadata/email/comment.html
+#: apps/course_metadata/templates/course_metadata/email/comment.txt
+msgid "The edX team"
+msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/templates/course_metadata/email/comment.txt
+#, python-format
+msgid ""
+"%(user_name)s made the following comment on %(course_name)s %(date)s at "
+"%(time)s"
+msgstr ""
+"%(user_name)s mädé thé föllöwïng çömmént ön %(course_name)s %(date)s ät "
+"%(time)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/templates/course_metadata/email/go_live.html
+#: apps/course_metadata/templates/course_metadata/email/go_live.txt
+#: apps/course_metadata/templates/course_metadata/email/internal_review.html
+#: apps/course_metadata/templates/course_metadata/email/internal_review.txt
+#: apps/course_metadata/templates/course_metadata/email/legal_review.html
+#: apps/course_metadata/templates/course_metadata/email/legal_review.txt
+#: apps/course_metadata/templates/course_metadata/email/reviewed.html
+#: apps/course_metadata/templates/course_metadata/email/reviewed.txt
+#, python-format
+msgid "Dear %(recipient_name)s,"
+msgstr "Déär %(recipient_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/templates/course_metadata/email/go_live.html
+#: apps/course_metadata/templates/course_metadata/email/go_live.txt
+#, python-format
+msgid ""
+"The About page for the %(course_run_number)s course run of %(course_name)s "
+"has been published. No further action is necessary."
+msgstr ""
+"Thé Àßöüt pägé för thé %(course_run_number)s çöürsé rün öf %(course_name)s "
+"häs ßéén püßlïshéd. Nö fürthér äçtïön ïs néçéssärý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, #"
+
+#: apps/course_metadata/templates/course_metadata/email/go_live.html
+#, python-brace-format
+msgid "{link_start}{preview_url}{link_middle}View this About page.{link_end}"
+msgstr ""
+"{link_start}{preview_url}{link_middle}Vïéw thïs Àßöüt pägé.{link_end} Ⱡ'σяєм"
+" ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/course_metadata/templates/course_metadata/email/go_live.html
+#: apps/course_metadata/templates/course_metadata/email/legal_review.html
+#: apps/course_metadata/templates/course_metadata/email/reviewed.html
+#, python-brace-format
+msgid ""
+"{link_start}{contact_us_email}{link_middle}{contact_us_email}{link_end}"
+msgstr ""
+"{link_start}{contact_us_email}{link_middle}{contact_us_email}{link_end} "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/templates/course_metadata/email/go_live.txt
+#, python-format
+msgid "View this About page. %(preview_url)s"
+msgstr ""
+"Vïéw thïs Àßöüt pägé. %(preview_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/templates/course_metadata/email/go_live.txt
+#: apps/course_metadata/templates/course_metadata/email/legal_review.txt
+#: apps/course_metadata/templates/course_metadata/email/reviewed.txt
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, please contact your Project Coordinator(s):"
+msgstr ""
+"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
+"çömménts, pléäsé çöntäçt ýöür Pröjéçt Çöördïnätör(s): Ⱡ'σяєм #"
+
+#: apps/course_metadata/templates/course_metadata/email/internal_review.html
+#, python-brace-format
+msgid ""
+"{org_name} has submitted {course_key} for review. "
+"{link_start}{course_page_url}{link_middle}View this course run in "
+"Publisher{link_end} to review the changes and mark it as reviewed."
+msgstr ""
+"{org_name} häs süßmïttéd {course_key} för révïéw. "
+"{link_start}{course_page_url}{link_middle}Vïéw thïs çöürsé rün ïn "
+"Püßlïshér{link_end} tö révïéw thé çhängés änd märk ït äs révïéwéd. Ⱡ'σяєм#"
+
+#: apps/course_metadata/templates/course_metadata/email/internal_review.html
+#, python-brace-format
+msgid ""
+"This is a good time to {link_start}{studio_url}{link_middle}review this "
+"course run in Studio{link_end}."
+msgstr ""
+"Thïs ïs ä gööd tïmé tö {link_start}{studio_url}{link_middle}révïéw thïs "
+"çöürsé rün ïn Stüdïö{link_end}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/templates/course_metadata/email/internal_review.html
+#, python-brace-format
+msgid ""
+"Visit the {link_start}{restricted_admin_url}{link_middle}restricted course "
+"admin page{link_end} to set embargo rules for this course, as needed."
+msgstr ""
+"Vïsït thé {link_start}{restricted_admin_url}{link_middle}réstrïçtéd çöürsé "
+"ädmïn pägé{link_end} tö sét émßärgö rülés för thïs çöürsé, äs néédéd. Ⱡ'σяєм"
+" ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/course_metadata/templates/course_metadata/email/internal_review.txt
+#, python-format
+msgid "%(org_name)s has submitted %(course_key)s for review."
+msgstr ""
+"%(org_name)s häs süßmïttéd %(course_key)s för révïéw. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σηѕє¢тє#"
+
+#: apps/course_metadata/templates/course_metadata/email/internal_review.txt
+#, python-format
+msgid "Publisher page: %(course_page_url)s"
+msgstr "Püßlïshér pägé: %(course_page_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/course_metadata/templates/course_metadata/email/internal_review.txt
+#, python-format
+msgid "Studio page: %(studio_url)s"
+msgstr "Stüdïö pägé: %(studio_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/course_metadata/templates/course_metadata/email/internal_review.txt
+#, python-format
+msgid "Restricted Course admin: %(restricted_admin_url)s"
+msgstr ""
+"Réstrïçtéd Çöürsé ädmïn: %(restricted_admin_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/templates/course_metadata/email/legal_review.html
+#, python-brace-format
+msgid ""
+"{org_name} has submitted {course_name} for review. "
+"{link_start}{course_page_url}{link_middle}View this course run in "
+"Publisher{link_end} to determine OFAC status."
+msgstr ""
+"{org_name} häs süßmïttéd {course_name} för révïéw. "
+"{link_start}{course_page_url}{link_middle}Vïéw thïs çöürsé rün ïn "
+"Püßlïshér{link_end} tö détérmïné ÖFÀÇ stätüs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
+
+#: apps/course_metadata/templates/course_metadata/email/legal_review.txt
+#, python-format
+msgid "%(org_name)s has submitted %(course_name)s for review."
+msgstr ""
+"%(org_name)s häs süßmïttéd %(course_name)s för révïéw. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/course_metadata/templates/course_metadata/email/legal_review.txt
+msgid "View this course run in Publisher above to determine OFAC status."
+msgstr ""
+"Vïéw thïs çöürsé rün ïn Püßlïshér äßövé tö détérmïné ÖFÀÇ stätüs. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/templates/course_metadata/email/reviewed.html
+#, python-brace-format
+msgid ""
+"The {link_start}{course_page_url}{link_middle}{course_run_number} course "
+"run{link_end} of {course_name} has been reviewed and approved by "
+"{platform_name}."
+msgstr ""
+"Thé {link_start}{course_page_url}{link_middle}{course_run_number} çöürsé "
+"rün{link_end} öf {course_name} häs ßéén révïéwéd änd äpprövéd ßý "
+"{platform_name}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/templates/course_metadata/email/reviewed.html
+#: apps/course_metadata/templates/course_metadata/email/reviewed.txt
+#, python-format
+msgid ""
+"The course run about page will be published on %(go_live_date)s, pending no "
+"further edits."
+msgstr ""
+"Thé çöürsé rün äßöüt pägé wïll ßé püßlïshéd ön %(go_live_date)s, péndïng nö "
+"fürthér édïts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/templates/course_metadata/email/reviewed.html
+#: apps/course_metadata/templates/course_metadata/email/reviewed.txt
+msgid "The course run about page is now published."
+msgstr ""
+"Thé çöürsé rün äßöüt pägé ïs nöw püßlïshéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/templates/course_metadata/email/reviewed.txt
+#, python-format
+msgid ""
+"The %(course_run_number)s course run of %(course_name)s has been reviewed "
+"and approved by %(platform_name)s."
+msgstr ""
+"Thé %(course_run_number)s çöürsé rün öf %(course_name)s häs ßéén révïéwéd "
+"änd äpprövéd ßý %(platform_name)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя "
+"α#"
+
+#: apps/course_metadata/templates/course_metadata/email/reviewed.txt
+#, python-format
+msgid "View the course run in Publisher: %(course_page_url)s"
+msgstr ""
+"Vïéw thé çöürsé rün ïn Püßlïshér: %(course_page_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/templates/course_metadata/email/watchers_course_url.html
+#, python-format
+msgid ""
+"\n"
+"        Course '%(course_name)s' has been successfully reviewed by edX and is now published on %(course_publish_date)s. To see live course, go here: <a href=\"%(course_marketing_url)s\">%(course_marketing_url)s</a>\n"
+"    "
+msgstr ""
+"\n"
+"        Çöürsé '%(course_name)s' häs ßéén süççéssfüllý révïéwéd ßý édX änd ïs nöw püßlïshéd ön %(course_publish_date)s. Tö séé lïvé çöürsé, gö héré: <a href=\"%(course_marketing_url)s\">%(course_marketing_url)s</a>\n"
+"     #"
+
+#: apps/course_metadata/templates/course_metadata/email/watchers_course_url.html
+#, python-format
+msgid ""
+"\n"
+"        Course '%(course_name)s' has been successfully reviewed by edX and is now ready for publication. The course will be published on %(course_publish_date)s.\n"
+"        To see a preview of the Course About Page, go here: <a href=\"%(course_marketing_url)s\">%(course_marketing_url)s</a>\n"
+"    "
+msgstr ""
+"\n"
+"        Çöürsé '%(course_name)s' häs ßéén süççéssfüllý révïéwéd ßý édX änd ïs nöw réädý för püßlïçätïön. Thé çöürsé wïll ßé püßlïshéd ön %(course_publish_date)s.\n"
+"        Tö séé ä prévïéw öf thé Çöürsé Àßöüt Pägé, gö héré: <a href=\"%(course_marketing_url)s\">%(course_marketing_url)s</a>\n"
+"     Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт #"
+
+#: apps/course_metadata/templates/course_metadata/email/watchers_course_url.txt
+#, python-format
+msgid ""
+"\n"
+"    Course '%(course_name)s' has been successfully reviewed by edX and is now published on %(course_publish_date)s. To see live course, go here: %(course_marketing_url)s\n"
+msgstr ""
+"\n"
+"    Çöürsé '%(course_name)s' häs ßéén süççéssfüllý révïéwéd ßý édX änd ïs nöw püßlïshéd ön %(course_publish_date)s. Tö séé lïvé çöürsé, gö héré: %(course_marketing_url)s\n"
+" Ⱡ'σяєм ιρѕυм #\n"
+
+#: apps/course_metadata/templates/course_metadata/email/watchers_course_url.txt
+#, python-format
+msgid ""
+"\n"
+"   Course '%(course_name)s' has been successfully reviewed by edX and is now ready for publication. The course will be published on %(course_publish_date)s.\n"
+"    To see a preview of the Course About Page, go here: %(course_preview_url)s\n"
+msgstr ""
+"\n"
+"   Çöürsé '%(course_name)s' häs ßéén süççéssfüllý révïéwéd ßý édX änd ïs nöw réädý för püßlïçätïön. Thé çöürsé wïll ßé püßlïshéd ön %(course_publish_date)s.\n"
+"    Tö séé ä prévïéw öf thé Çöürsé Àßöüt Pägé, gö héré: %(course_preview_url)s\n"
+" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂є#\n"
+
+#: apps/course_metadata/utils.py
+msgid "Special characters not allowed in Course Number."
+msgstr ""
+"Spéçïäl çhäräçtérs nöt ällöwéd ïn Çöürsé Nümßér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/validators.py
+#, python-brace-format
+msgid "Invalid HTML received: {0}"
+msgstr "Ìnvälïd HTML réçéïvéd: {0} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/validators.py
+msgid "Invalid HTML received"
+msgstr "Ìnvälïd HTML réçéïvéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/validators.py apps/course_metadata/validators.py
+#, python-brace-format
+msgid "{0} tag is not allowed"
+msgstr "{0} täg ïs nöt ällöwéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/course_metadata/validators.py
+#, python-brace-format
+msgid "{0} attribute is not allowed on the {1} tag"
+msgstr ""
+"{0} ättrïßüté ïs nöt ällöwéd ön thé {1} täg Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/views.py
+msgid "Update excluded course runs"
+msgstr "Ûpdäté éxçlüdéd çöürsé rüns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
+
+#: apps/course_metadata/views.py
+msgid "The program was changed successfully."
+msgstr ""
+"Thé prögräm wäs çhängéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/views.py
+msgid "The refresh program skills task triggered successfully."
+msgstr ""
+"Thé réfrésh prögräm skïlls täsk trïggéréd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/views.py
+msgid "The refresh course skills task triggered successfully."
+msgstr ""
+"Thé réfrésh çöürsé skïlls täsk trïggéréd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/views.py
+msgid "The course skills were updated successfully."
+msgstr ""
+"Thé çöürsé skïlls wéré üpdätéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/edx_elasticsearch_dsl_extensions/exceptions.py
+msgid ""
+"Request could not be completed due to an incorrect ElasticSearch query "
+"parameters"
+msgstr ""
+"Réqüést çöüld nöt ßé çömplétéd düé tö än ïnçörréçt ÉlästïçSéärçh qüérý "
+"pärämétérs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/ietf_language_tags/models.py
+msgid "Name for translation"
+msgstr "Nämé för tränslätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/ietf_language_tags/models.py
+msgid "LanguageTag model translations"
+msgstr "LängüägéTäg mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/learner_pathway/choices.py
+msgid "Inactive"
+msgstr "Ìnäçtïvé Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/learner_pathway/models.py
+msgid "Title of the learner pathway."
+msgstr "Tïtlé öf thé léärnér päthwäý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/learner_pathway/models.py
+msgid "Course/Program associated pathways also appear in search results"
+msgstr ""
+"Çöürsé/Prögräm ässöçïätéd päthwäýs älsö äppéär ïn séärçh résülts Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/learner_pathway/models.py
+msgid "The active/inactive status of this Pathway."
+msgstr ""
+"Thé äçtïvé/ïnäçtïvé stätüs öf thïs Päthwäý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway"
+msgstr "Léärnér Päthwäý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathways"
+msgstr "Léärnér Päthwäýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/learner_pathway/models.py
+msgid "Minimum number of nodes to complete this step of the pathway"
+msgstr ""
+"Mïnïmüm nümßér öf nödés tö çömplété thïs stép öf thé päthwäý Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Step"
+msgstr "Léärnér Päthwäý Stép Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Steps"
+msgstr "Léärnér Päthwäý Stéps Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Course"
+msgstr "Léärnér Päthwäý Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Courses"
+msgstr "Léärnér Päthwäý Çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Program"
+msgstr "Léärnér Päthwäý Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Programs"
+msgstr "Léärnér Päthwäý Prögräms Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/publisher/models.py
+msgid "Organization Role"
+msgstr "Örgänïzätïön Rölé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py
+msgid "Update the course recommendations based on skills."
+msgstr ""
+"Ûpdäté thé çöürsé réçömméndätïöns ßäséd ön skïlls. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py
+msgid ""
+"Use arguments from the UpdateCourseRecommendationsConfig model instead of "
+"the command line."
+msgstr ""
+"Ûsé ärgüménts fröm thé ÛpdätéÇöürséRéçömméndätïönsÇönfïg mödél ïnstéäd öf "
+"thé çömmänd lïné. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/taxonomy_support/models.py
+msgid "The original course, whose recommendation is stored here."
+msgstr ""
+"Thé örïgïnäl çöürsé, whösé réçömméndätïön ïs störéd héré. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid ""
+"This is the course recommended after learner completes the original course."
+msgstr ""
+"Thïs ïs thé çöürsé réçömméndéd äftér léärnér çömplétés thé örïgïnäl çöürsé. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/taxonomy_support/models.py
+msgid "Ratio of number of common skills and total skill count."
+msgstr ""
+"Rätïö öf nümßér öf çömmön skïlls änd tötäl skïll çöünt. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid ""
+"Count of common skills between the original course and recommended course."
+msgstr ""
+"Çöünt öf çömmön skïlls ßétwéén thé örïgïnäl çöürsé änd réçömméndéd çöürsé. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/taxonomy_support/models.py
+msgid "Ratio of number of common subjects and total subject count."
+msgstr ""
+"Rätïö öf nümßér öf çömmön süßjéçts änd tötäl süßjéçt çöünt. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid ""
+"Count of common subjects between the original course and recommended course."
+msgstr ""
+"Çöünt öf çömmön süßjéçts ßétwéén thé örïgïnäl çöürsé änd réçömméndéd çöürsé."
+" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/taxonomy_support/models.py
+msgid "Course Recommendation"
+msgstr "Çöürsé Réçömméndätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/taxonomy_support/models.py
+msgid "Course Recommendations"
+msgstr "Çöürsé Réçömméndätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/taxonomy_support/models.py
+msgid "Adds recommendations for all published courses"
+msgstr ""
+"Àdds réçömméndätïöns för äll püßlïshéd çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid ""
+"Adds recommendations for courses created or modified in the past num days"
+msgstr ""
+"Àdds réçömméndätïöns för çöürsés çréätéd ör mödïfïéd ïn thé päst nüm däýs "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: apps/taxonomy_support/providers.py
+msgid "No partner object found!"
+msgstr "Nö pärtnér ößjéçt föünd! Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: urls.py
+msgid "Discovery Service Administration"
+msgstr ""
+"Dïsçövérý Sérvïçé Àdmïnïsträtïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
