@@ -1,0 +1,40 @@
+/* Global Colors */
+:root {
+    /* Blues */
+    --primary-blue: #1863dc;
+    --secondary-blue: #60abf9;
+    --accent-blue: #e1eeff;
+    /* Text Colors */
+    --text-color1: #000;
+    --text-color2: #333;
+    --text-color3: #9a9fa5;
+    --text-color4: #798292;
+    /* Background Colors */
+    --bg-color1: #d7d7da;
+    --bg-color2: #ececf1;
+    --bg-color3: #f7f7fa;
+    /* Main Fonts */
+    --primary-font: 'Roboto', sans-serif;
+    /* Font Size */
+    --fs-xxs: 0.4rem;
+    --fs-xs: 0.6rem;
+    --fs-sm: 0.8rem;
+    --fs-med: 1rem;
+    --fs-lg: 1.2rem;
+    --fs-xl: 1.4rem;
+    --fs-xxl: 1.8rem;
+    /* Padding */
+    --pad-xxs: 0.4rem;
+    --pad-xs: 0.6rem;
+    --pad-sm: 0.8rem;
+    --pad-med: 1rem;
+    --pad-lg: 1.2rem;
+    --pad-xl: 1.4rem;
+    /* Margin */
+    --margin-xs: 0.6rem;
+    --margin-sm: 0.8rem;
+    --margin-med: 1rem;
+    --margin-lg: 1.2rem;
+    --margin-xl: 1.4rem;
+    --margin-xxl: 1.6rem;
+}
