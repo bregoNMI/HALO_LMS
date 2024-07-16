@@ -9,10 +9,14 @@
     --text-color2: #333;
     --text-color3: #9a9fa5;
     --text-color4: #798292;
+    --text-color5: #0c0c0c;
     /* Background Colors */
     --bg-color1: #d7d7da;
     --bg-color2: #ececf1;
     --bg-color3: #f7f7fa;
+    --bg-color4: #e3e3e6;
+    --bg-color5: #fbfbfb;
+    --bg-color6: #f3f3f3;
     /* Main Fonts */
     --primary-font: 'Roboto', sans-serif;
     /* Font Size */
@@ -23,13 +27,18 @@
     --fs-lg: 1.2rem;
     --fs-xl: 1.4rem;
     --fs-xxl: 1.8rem;
+    --btn-font: 0.95rem;
+    --sidebar-icon: 1.3rem;
     /* Padding */
+    --pad-xxxs: 0.3rem;
     --pad-xxs: 0.4rem;
     --pad-xs: 0.6rem;
     --pad-sm: 0.8rem;
     --pad-med: 1rem;
     --pad-lg: 1.2rem;
     --pad-xl: 1.4rem;
+    --pad-xxl: 1.6rem;
+    --pad-xxxl: 2rem;
     /* Margin */
     --margin-xs: 0.6rem;
     --margin-sm: 0.8rem;
