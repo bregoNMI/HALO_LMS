@@ -2,8 +2,11 @@ html{
     height: 100%;
 }
 
-.admin-body-container{
+html, body, button{
     font-family: var(--primary-font);
+}
+
+.admin-body-container{
     margin: 0;
     background-color: var(--bg-color6);
     height: 100%;
@@ -142,6 +145,10 @@ html{
     font-size: var(--fs-sm);
 }
 
+.sidebar-body-item i{
+    font-weight: 900;
+}
+
 .collapsible-content {
     max-height: 0;
     overflow: hidden;
@@ -189,6 +196,7 @@ html{
 .collapsible-header .icon-inner-header i{
     width: 1rem;
     font-size: 1.2rem;
+    font-weight: 900;
 }
 
 .collapsible-header i{
@@ -225,7 +233,7 @@ html{
 }
 
 .sidebar-body-item.current-page i{
-    font-weight: 500;
+    font-weight: 900;
 }
 
 /* Admin Inner */
@@ -333,13 +341,53 @@ html{
     box-shadow: inset rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
 }
 
+.table-active-filters{
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.table-active-filters .filter{
+    display: flex;
+    color: white;
+    font-size: 0.85rem;
+    align-items: center;
+}
+
+.edit-filter{
+    background-color: #17a34a;
+    padding: var(--pad-xxxs) var(--pad-xs);
+    border-radius: 10px 0 0 10px;
+    align-self: stretch;
+    cursor: pointer;
+}
+
+.edit-filter:hover{
+    background-color: #0e692f;
+}
+
+.remove-filter{
+    background-color: #17a34a;
+    padding: var(--pad-xxxs) var(--pad-xs);
+    border-radius: 0 10px 10px 0;
+    font-size: var(--fs-sm);
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.remove-filter:hover{
+    background-color: #0e692f;
+}
+
 .search-table-option{
     position: relative;
     display: flex;
     width: 100%;
 }
 
-.search-table-option i{
+.search-table-option .search-icon{
     position: absolute;
     top: 50%;
     left: 12px;
@@ -365,6 +413,26 @@ html{
 
 .search-table-option input[type="text"]:focus-visible{
     outline-color: var(--primary-blue);
+}
+
+.search-all-users-btn{
+    display: flex;
+    padding: var(--pad-xxs);
+    border-radius: 8px;
+    font-size: var(--fs-med);
+    border: 0;
+    cursor: pointer;
+    background-color: var(--primary-blue);
+    position: absolute;
+    right: 0;
+}
+
+.search-all-users-btn:hover{
+    background-color: dodgerblue;
+}
+
+.search-all-users-btn i{
+    color: white;
 }
 
 #activeFilters{
@@ -452,6 +520,11 @@ tr:last-child{
     transition: all 0.3s;
     border-radius: 4px;
 }
+
+.checkmark:hover{
+    border: -webkit-focus-ring-color auto 1px;
+    border-color: var(--primary-blue);
+}
    
 .container input:checked ~ .checkmark {
     background-color: var(--primary-blue);
@@ -460,7 +533,6 @@ tr:last-child{
     animation-direction: alternate;
 }
    
-
 .checkmark:after {
     content: "";
     position: absolute;
@@ -522,8 +594,7 @@ tr:last-child{
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: var(--primary-blue);
-    color: white;
+    font-size: var(--fs-lg);
     border-radius: 8px;
     height: 2.5rem;
     width: 2.5rem;
@@ -578,6 +649,51 @@ tr:last-child{
 
 .options-sidebar-item span{
     font-size: var(--btn-font);
+}
+
+/* Pagination */
+.pagination-row-wrapper{
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    align-items: center;
+}
+
+.pagination{
+    display: flex;
+    gap: 0.2rem;
+}
+
+.pagination .pagination-link{
+    display: flex;
+    height: 1.5rem;
+    width: 1.5rem;
+    border: 1px solid #ececf1;
+    border-radius: 8px;
+    font-size: var(--btn-font);
+    color: var(--text-color8);
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.pagination .pagination-link:hover {
+    background-color: var(--bg-color3);
+}
+
+.pagination .pagination-link.current{
+    color: white;
+    background-color: var(--primary-blue);
+}
+
+.pagination-spacer{
+    display: flex;
+    align-items: flex-end;
+}
+
+.pagination-results{
+    font-size: var(--fs-sm);
+    color: var(--text-color8);
 }
 
 /* Custom Tooltip */

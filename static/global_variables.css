@@ -10,6 +10,9 @@
     --text-color3: #9a9fa5;
     --text-color4: #798292;
     --text-color5: #0c0c0c;
+    --text-color6: #6b6b6b;
+    --text-color7: #41454d;
+    --text-color8: #586370;
     /* Background Colors */
     --bg-color1: #d7d7da;
     --bg-color2: #ececf1;
@@ -28,6 +31,7 @@
     --fs-xl: 1.4rem;
     --fs-xxl: 1.8rem;
     --btn-font: 0.95rem;
+    --close-icon: 1.1rem;
     --sidebar-icon: 1.3rem;
     /* Padding */
     --pad-xxxs: 0.3rem;

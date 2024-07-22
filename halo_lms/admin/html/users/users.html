@@ -1,5 +1,6 @@
 {% extends 'templates/admin/base.html' %}
 {% load static %}
+{% load custom_filters %}
 {% block content %}
     {% include 'templates/admin/admin_header.html' %}
     <div class="admin-body-container-inner">
@@ -19,13 +20,18 @@
                 </div>
             </div>
             <div class="table-container">
-                <div class="table-filter-section">
+                <div class="table-filter-section">           
                     <div class="search-table-option">
-                        <i class="fa-regular fa-magnifying-glass"></i>
-                        <input id="searchTable" type="text" placeholder="Search all users">
+                        <form style="display: flex; width: 100%;" method="get">
+                            <i class="fa-regular fa-magnifying-glass search-icon"></i>                  
+                            <input id="searchTable" name="query" value="{{ active_filters.query }}" type="text" placeholder="Search all users">
+                            <button style="display: none;" id="searchAllUsersBtn" class="search-all-users-btn" type="submit">
+                                <i class="fa-solid fa-paper-plane-top"></i>
+                            </button> 
+                        </form>                   
                     </div>
                     <div class="table-filter-section-right">
-                        <div class="table-filter-item-small tooltip" data-tooltip="Filter">
+                        <div onclick="openPopup('filtersPopup')" class="table-filter-item-small tooltip" data-tooltip="Filter">
                             <span class="tooltiptext"></span>
                             <i class="fa-regular fa-filter"></i>
                         </div>
@@ -37,14 +43,31 @@
                 </div>
                 <div id="activeFilters" class="table-filter-section">
                     <div class="table-filter-section-left">
-                        <div class="table-filter-item">
-                            <span> All </span>
-                        </div>
-                        <div class="table-filter-item">
-                            <span> Active </span>
-                        </div>
-                        <div class="table-filter-item">
-                            <span> Inactive </span>
+                        <!-- Display Active Filters -->
+                        <div class="table-active-filters">
+                            {% if active_filters %}
+                                {% for key, value in active_filters.items %}
+                                    {% if key != 'query' %}
+                                        <div data-key="{{ key }}" data-value="{{ value }}" class="filter">
+                                            <div class="edit-filter">
+                                                <span>{{ key|pretty_name }}: {{ value }}</span>
+                                            </div>
+                                            <div class="remove-filter">
+                                                <i class="fa-light fa-xmark"></i>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div data-key="{{ key }}" data-value="{{ value }}" class="filter">
+                                            <div class="edit-filter">
+                                                <span>Search All: {{ value }}</span>
+                                            </div>
+                                            <div class="remove-filter">
+                                                <i class="fa-light fa-xmark"></i>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
                         </div>
                     </div>
                     <div class="table-filter-section-right">
@@ -65,28 +88,51 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for user in page_obj %}
                         <tr class="table-select-option">
                             <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
-                            <td>Data 1</td>
-                            <td>Data 2</td>
-                            <td>Data 3</td>
-                            <td>Data 4</td>
+                            <td>{{ user.last_name }}</td>
+                            <td>{{ user.first_name }}</td>                 
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
                         </tr>
-                        <tr class="table-select-option">
-                            <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
-                            <td>Data 1</td>
-                            <td>Data 2</td>
-                            <td>Data 3</td>
-                            <td>Data 4</td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
+                <div class="pagination-row-wrapper">
+                    <div class="pagination-info">
+                        <div class="pagination-results">
+                            {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} results
+                        </div>
+                    </div>
+                    <div class="pagination">
+                        {% if page_obj.has_previous %}
+                            <a class="pagination-link" href="?page={{ page_obj.previous_page_number }}"><i class="fa-regular fa-angle-left"></i></a>
+                        {% endif %}
+                
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <span class="current pagination-link">{{ num }}</span>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
+                            {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                                <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
+                            {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                                <span class="pagination-spacer">...</span>
+                            {% endif %}
+                        {% endfor %}
+                
+                        {% if page_obj.has_next %}
+                            <a class="pagination-link" href="?page={{ page_obj.next_page_number }}"><i class="fa-regular fa-angle-right"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
         <div id="optionsSidebar" class="options-sidebar-container">
             <div class="options-sidebar-header">
-                <div class="options-sidebar-icon">
-                    <i class="fa-light fa-sliders"></i>
+                <div class="options-sidebar-icon pastel-yellow">
+                    <i class="fa-regular fa-sliders"></i>
                 </div>
                 <div class="options-sidebar-title">
                     <h6>Table options</h6>
@@ -117,4 +163,5 @@
             </div>
         </div> 
     </div>
+    {% include 'templates/admin/popups/filters_popup.html' %}
 {% endblock content %}

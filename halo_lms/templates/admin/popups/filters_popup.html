@@ -1,0 +1,46 @@
+<div id="filtersPopup" class="popup-background"> 
+    <div class="popup-content">
+        <form id="filtersForm" method="get">
+            <!-- Hidden inputs for current filters -->
+            {% for key, value in active_filters.items %}
+                {% if key != 'query' %}
+                    <input type="hidden" name="filter_{{ key }}" value="{{ value }}">
+                {% endif %}
+            {% endfor %}
+            <div class="popup-header">
+                <h3> Create New Filter </h3>
+                <div onclick="closePopup('filtersPopup')" class="close-popup-icon">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+            </div>
+            <div class="popup-body">
+                <div class="filter-options-row">
+                    <div class="filter-option">
+                        <h5>Field Name</h5>
+                        <div class="custom-select">
+                            <i class="fa-regular fa-angle-down"></i>
+                            <div class="select-selected">Select an option</div>
+                            <div class="select-items">
+                                <div data-name="filter_last_name" data-value="{{ request.GET.filter_last_name }}">Last Name</div>
+                                <div data-name="filter_first_name" data-value="{{ request.GET.filter_first_name }}">First Name</div>
+                                <div data-name="filter_username" data-value="{{ request.GET.filter_username }}">Username</div>
+                                <div data-name="filter_email" data-value="{{ request.GET.filter_email }}">Email Address</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filter-option">
+                        <h5>Value</h5>
+                        <input id="fieldValue" type="text" placeholder="Field Value">
+                    </div>
+                </div>
+            </div>
+            <div class="popup-footer">
+                <div class="spacer"></div>
+                <div class="popup-btns">
+                    <div onclick="closePopup('filtersPopup')" class="close-popup-btn popup-btn">Close</div>
+                    <button id="applyFilterBtn" class="popup-btn"> Apply Filter </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
