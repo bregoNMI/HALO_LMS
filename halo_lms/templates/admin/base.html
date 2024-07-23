@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
@@ -16,4 +17,24 @@
 <body class="admin-body-container">
     {% block content %}{% endblock %}
 </body>
+=======
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <script src="https://kit.fontawesome.com/0bbcd9bc36.js" crossorigin="anonymous"></script>
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon/16x16.png' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HALO LMS Admin</title>
+    <link rel="stylesheet" href="{% static 'global_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'global_variables.css' %}">
+    <link rel="stylesheet" href="{% static 'admin\css\admin.css' %}">
+    <script src="{% static 'admin\javascript\admin.js' %}"></script>
+</head>
+<body class="admin-body-container">
+    {% block content %}{% endblock %}
+</body>
+>>>>>>> origin/main
 </html>

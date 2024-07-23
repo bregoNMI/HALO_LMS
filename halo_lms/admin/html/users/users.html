@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends 'templates/admin/base.html' %}
 {% load static %}
 {% load custom_filters %}
@@ -164,4 +165,172 @@
         </div> 
     </div>
     {% include 'templates/admin/popups/filters_popup.html' %}
+=======
+{% extends 'templates/admin/base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+    {% include 'templates/admin/admin_header.html' %}
+    <div class="admin-body-container-inner">
+        {% include 'templates/admin/admin_sidebar.html' %}
+        <div class="admin-body">
+            <div class="admin-top-row">
+                <div class="admin-top-row-left">
+                    <h2>Users</h2>
+                </div>
+                <div class="admin-top-row-right">
+                    <div class="action-button-secondary">
+                        <span>Import</span>
+                    </div>
+                    <div class="action-button-primary">
+                        <span>Add user</span>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <div class="table-filter-section">           
+                    <div class="search-table-option">
+                        <form style="display: flex; width: 100%;" method="get">
+                            <i class="fa-regular fa-magnifying-glass search-icon"></i>                  
+                            <input id="searchTable" name="query" value="{{ active_filters.query }}" type="text" placeholder="Search all users">
+                            <button style="display: none;" id="searchAllUsersBtn" class="search-all-users-btn" type="submit">
+                                <i class="fa-solid fa-paper-plane-top"></i>
+                            </button> 
+                        </form>                   
+                    </div>
+                    <div class="table-filter-section-right">
+                        <div onclick="openPopup('filtersPopup')" class="table-filter-item-small tooltip" data-tooltip="Filter">
+                            <span class="tooltiptext"></span>
+                            <i class="fa-regular fa-filter"></i>
+                        </div>
+                        <div class="table-filter-item-small tooltip" data-tooltip="Sort">
+                            <span class="tooltiptext"></span>
+                            <i class="fa-regular fa-arrow-up-arrow-down"></i>
+                        </div>
+                    </div>
+                </div>
+                <div id="activeFilters" class="table-filter-section">
+                    <div class="table-filter-section-left">
+                        <!-- Display Active Filters -->
+                        <div class="table-active-filters">
+                            {% if active_filters %}
+                                {% for key, value in active_filters.items %}
+                                    {% if key != 'query' %}
+                                        <div data-key="{{ key }}" data-value="{{ value }}" class="filter">
+                                            <div class="edit-filter">
+                                                <span>{{ key|pretty_name }}: {{ value }}</span>
+                                            </div>
+                                            <div class="remove-filter">
+                                                <i class="fa-light fa-xmark"></i>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div data-key="{{ key }}" data-value="{{ value }}" class="filter">
+                                            <div class="edit-filter">
+                                                <span>Search All: {{ value }}</span>
+                                            </div>
+                                            <div class="remove-filter">
+                                                <i class="fa-light fa-xmark"></i>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="table-filter-section-right">
+                        <div style="display: none;" id="selectedOptionsWrapper" class="selected-options-count">
+                            <span id="selectedOptionsCount"></span>
+                            <span> Selected </span>
+                        </div>
+                    </div>
+                </div>
+                <table>
+                    <thead>      
+                        <tr>
+                            <th><label class="container"><input type="checkbox" class="table-select-all-option"><div class="checkmark"></div></label></th>
+                            <th>Last Name</th>
+                            <th>First Name</th>
+                            <th>Username</th>
+                            <th>Email Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in page_obj %}
+                        <tr class="table-select-option">
+                            <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
+                            <td>{{ user.last_name }}</td>
+                            <td>{{ user.first_name }}</td>                 
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="pagination-row-wrapper">
+                    <div class="pagination-info">
+                        <div class="pagination-results">
+                            {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} results
+                        </div>
+                    </div>
+                    <div class="pagination">
+                        {% if page_obj.has_previous %}
+                            <a class="pagination-link" href="?page={{ page_obj.previous_page_number }}"><i class="fa-regular fa-angle-left"></i></a>
+                        {% endif %}
+                
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <span class="current pagination-link">{{ num }}</span>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
+                            {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                                <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
+                            {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                                <span class="pagination-spacer">...</span>
+                            {% endif %}
+                        {% endfor %}
+                
+                        {% if page_obj.has_next %}
+                            <a class="pagination-link" href="?page={{ page_obj.next_page_number }}"><i class="fa-regular fa-angle-right"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="optionsSidebar" class="options-sidebar-container">
+            <div class="options-sidebar-header">
+                <div class="options-sidebar-icon pastel-yellow">
+                    <i class="fa-regular fa-sliders"></i>
+                </div>
+                <div class="options-sidebar-title">
+                    <h6>Table options</h6>
+                    <span> Select an option below</span>
+                </div>
+            </div>
+            <div class="options-sidebar-body">
+                <div class="options-sidebar-item">
+                    <i class="fa-light fa-user-pen"></i>
+                    <span>Edit user</span>
+                </div>
+                <div class="options-sidebar-item">
+                    <i class="fa-light fa-hand-holding-box"></i>
+                    <span>Enroll user</span>
+                </div>
+                <div class="options-sidebar-item">
+                    <i class="fa-light fa-memo-pad"></i>
+                    <span>View Transcript</span>
+                </div>
+                <div class="options-sidebar-item">
+                    <i class="fa-light fa-masks-theater"></i>
+                    <span>Impersonate</span>
+                </div>
+                <div class="options-sidebar-item">
+                    <i class="fa-light fa-trash"></i>
+                    <span>Delete</span>
+                </div>
+            </div>
+        </div> 
+    </div>
+    {% include 'templates/admin/popups/filters_popup.html' %}
+>>>>>>> origin/main
 {% endblock content %}
