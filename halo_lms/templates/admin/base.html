@@ -14,6 +14,10 @@
     <script src="{% static 'admin\javascript\admin.js' %}"></script>
 </head>
 <body class="admin-body-container">
-    {% block content %}{% endblock %}
+    {% include 'templates/admin/admin_header.html' %}
+    <div class="admin-body-container-inner">
+        {% include 'templates/admin/admin_sidebar.html' %}
+        {% block content %}{% endblock %}
+    </div>   
 </body>
 </html>
