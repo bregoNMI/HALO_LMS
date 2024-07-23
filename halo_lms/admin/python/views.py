@@ -100,5 +100,4 @@ def admin_users(request):
     return render(request, 'admin/html/users/users.html', {
         'page_obj': page_obj,
         'active_filters': active_filters,
->>>>>>> origin/main
     })
