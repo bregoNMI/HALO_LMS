@@ -1,10 +1,10 @@
-{% extends 'templates/admin/base.html' %}
+{% extends 'templates/client_admin/base.html' %}
 {% load static %}
 {% load custom_filters %}
 {% block content %}
-    {% include 'templates/admin/admin_header.html' %}
+    {% include 'templates/client_admin/admin_header.html' %}
     <div class="admin-body-container-inner">
-        {% include 'templates/admin/admin_sidebar.html' %}
+        {% include 'templates/client_admin/admin_sidebar.html' %}
         <div class="admin-body">
             <div class="admin-top-row">
                 <div class="admin-top-row-left">
@@ -163,15 +163,15 @@
             </div>
         </div> 
     </div>
-    {% include 'templates/admin/popups/filters_popup.html' %}
+    {% include 'templates/client_admin/popups/filters_popup.html' %}
 =======
-{% extends 'templates/admin/base.html' %}
+{% extends 'templates/client_admin/base.html' %}
 {% load static %}
 {% load custom_filters %}
 {% block content %}
-    {% include 'templates/admin/admin_header.html' %}
+    {% include 'templates/client_admin/admin_header.html' %}
     <div class="admin-body-container-inner">
-        {% include 'templates/admin/admin_sidebar.html' %}
+        {% include 'templates/client_admin/admin_sidebar.html' %}
         <div class="admin-body">
             <div class="admin-top-row">
                 <div class="admin-top-row-left">
@@ -330,5 +330,5 @@
             </div>
         </div> 
     </div>
-    {% include 'templates/admin/popups/filters_popup.html' %}
+    {% include 'templates/client_admin/popups/filters_popup.html' %}
 {% endblock content %}

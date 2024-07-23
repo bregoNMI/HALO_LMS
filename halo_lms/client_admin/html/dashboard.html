@@ -1,0 +1,9 @@
+{% extends 'templates/client_admin/base.html' %}
+{% load static %}
+{% block content %}
+    {% include 'templates/client_admin/admin_header.html' %}
+    <div class="admin-body-container-inner">
+        {% include 'templates/client_admin/admin_sidebar.html' %}
+        <div class="admin-body">Dashboard</div>
+    </div> 
+{% endblock content %}

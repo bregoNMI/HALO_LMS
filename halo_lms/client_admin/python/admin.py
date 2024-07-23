@@ -1,7 +1,7 @@
 
 print("Loading models...")
 from django.contrib import admin
-from halo_lms.admin.models import Course, Module, Lesson, UserCourse, Quiz, Question, Answer, Profile
+from halo_lms.client_admin.models import Course, Module, Lesson, UserCourse, Quiz, Question, Answer, Profile
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
