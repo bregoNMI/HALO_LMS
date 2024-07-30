@@ -4,10 +4,7 @@
     <div class="bottom-section">
         <div class="bottom-left">
             {% if profile.photoid %}
-                <div class="profile-image">
-                    <i class="fa-regular fa-user-graduate"></i>
-                </div>
-                <!-- <img class="profile-image" src="{{ profile.passportphoto.url }}" alt="Profile Image" /> -->
+                <img class="profile-image" src="{{ profile.passportphoto.url }}" alt="Profile Image" />
             {% else %}
                 <div class="profile-image">
                     <i class="fa-regular fa-user-graduate"></i>

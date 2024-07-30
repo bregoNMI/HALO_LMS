@@ -14,10 +14,7 @@
                         <div class="edit-image">
                             <label class="edit-user-label" for="photoid">Headshot Image</label>
                             {% if profile.photoid %}
-                                <div class="profile-image">
-                                    <i class="fa-regular fa-user-graduate"></i>
-                                </div>
-                                <!-- <img id="photoid" name="photoid" src="{{ profile.photoid.url }}" alt="photoid"> -->
+                                <img id="photoid" name="photoid" src="{{ profile.photoid.url }}" alt="photoid">
                             {% else %}
                                 <div class="profile-image">
                                     <i class="fa-regular fa-user-graduate"></i>
@@ -27,10 +24,7 @@
                         <div class="edit-image">
                             <label class="edit-user-label" for="photoid">Identification Image</label>
                             {% if profile.passportphoto %}
-                                <div class="profile-image">
-                                    <i class="fa-regular fa-user-graduate"></i>
-                                </div>
-                                <!-- <img id="passportphoto" name="passportphoto" src="{{ profile.passportphoto.url }}" alt="passportphoto"> -->
+                                <img id="passportphoto" name="passportphoto" src="{{ profile.passportphoto.url }}" alt="passportphoto">
                             {% else %}
                                 <div class="profile-image">
                                     <i class="fa-regular fa-user-graduate"></i>
