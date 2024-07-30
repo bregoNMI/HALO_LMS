@@ -91,12 +91,18 @@ html, body, button{
 }
 
 .admin-body{
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
     background-color: var(--bg-color6);
     /* border-top-left-radius: 24px; */
     padding: var(--pad-xxxl);
     border-top: 1px solid #ececf1;
     border-left: 1px solid #ececf1;
+    height: calc(100vh - 67.36px);
+    /* Make sure the body height fills the viewport */
+    box-sizing: border-box; /* Include padding and border in height calculation */
+    overflow-y: auto; /* Allow scrolling if content overflows */
 }
 
 .sidebar-body h6{
@@ -113,7 +119,7 @@ html, body, button{
     padding: var(--pad-xs) var(--pad-med);
     margin-left: var(--margin-xxl);
     border-left: 2px solid var(--bg-color2);
-    border-radius: 0px 4px 4px 0;
+    border-radius: 0px 6px 6px 0;
     cursor: pointer;
     transition: all 0.2s linear;
     text-decoration: none;
@@ -153,6 +159,7 @@ html, body, button{
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease-out;
+    padding-bottom: 0.1rem;
 }
 
 .collapsible-header.active + .collapsible-content {
@@ -177,7 +184,7 @@ html, body, button{
 }
 
 .collapsible-header:hover{
-    background-color: var(--accent-blue);
+    background-color: #eceff4;
 }
 
 .collapsible-header.active + .collapsible-content {
@@ -225,11 +232,13 @@ html, body, button{
 }
 
 .collapsible-header.current-page:hover, .sidebar-body-item.current-page:hover{
-    background-color: unset;
+    background-color: var(--accent-blue);
 }
 
 .sidebar-body-item.current-page{
     border-color: var(--primary-blue);
+    background-color: var(--accent-blue);
+    font-weight: 600;
 }
 
 .sidebar-body-item.current-page i{
@@ -517,7 +526,7 @@ tr:last-child{
     height: 0.8em;
     width: 0.8em;
     background-color: white;
-    border: 1px solid #ccc;
+    border: 2px solid #ccc;
     transition: all 0.3s;
     border-radius: 4px;
 }
@@ -545,7 +554,7 @@ tr:last-child{
 }
    
 .container .checkmark:after {
-    left: 0.27em;
+    left: 0.25em;
     top: 0.15em;
     width: 0.15em;
     height: 0.35em;
@@ -772,3 +781,38 @@ tr:last-child{
     opacity: 1;
     transform: translateX(-50%) translateY(-5px);
 }
+
+/* Alert/Message Styling */
+.alert-container.animate-alert-container{
+    right: 2rem;
+}
+
+.alert-container {
+    position: absolute;
+    margin: 20px 0;
+    right: -50rem;
+    transition: all 0.5s ease-in-out;
+}
+
+.alert {
+    display: flex;
+    gap: 0.4rem;
+    padding: var(--pad-sm) var(--pad-med);
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+/* Add other alert styles as needed */

@@ -189,7 +189,7 @@
                 </thead>
                 <tbody>
                     {% for profile in page_obj %}
-                    <tr data-id="{{ profile.id }}" data-details="{% url 'user_details' profile.id %}" class="table-select-option">
+                    <tr data-id="{{ profile.id }}" data-history="{% url 'user_history' profile.id %}" data-details="{% url 'user_details' profile.id %}" data-transcript="{% url 'user_transcript' profile.id %}" class="table-select-option">
                         <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
                         <td>{{ profile.last_name }}</td>
                         <td>{{ profile.first_name }}</td>                 
@@ -231,4 +231,5 @@
     </div>
     {% include 'optionsSidebar/user_options_sidebar.html' %}
     {% include 'popups/filters_popup.html' %}
+    <script src="{% static 'client_admin\javascript\admin.js' %}"></script>
 {% endblock content %}

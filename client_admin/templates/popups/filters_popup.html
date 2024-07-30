@@ -1,10 +1,12 @@
 <div id="filtersPopup" class="popup-background"> 
-    <div class="popup-content">
+    <div class="popup-content max-width-6">
         <form id="filtersForm" method="get">
             <!-- Hidden inputs for current filters -->
             {% for key, value in active_filters.items %}
-                {% if key != 'query' %}
+                {% if key != 'query' and key != 'sort_by' %}
                     <input type="hidden" name="filter_{{ key }}" value="{{ value }}">
+                {% elif key == 'sort_by' %}
+                    <input class="sort-hidden-filters" id="sortByHIddenFilter" type="hidden" name="{{ key }}" value="{{ value }}">
                 {% endif %}
             {% endfor %}
             <div class="popup-header">
@@ -20,11 +22,11 @@
                         <div class="custom-select">
                             <i class="fa-regular fa-angle-down"></i>
                             <div class="select-selected">Select an option</div>
-                            <div class="select-items">
-                                <div data-name="filter_last_name" data-value="{{ request.GET.filter_last_name }}">Last Name</div>
-                                <div data-name="filter_first_name" data-value="{{ request.GET.filter_first_name }}">First Name</div>
-                                <div data-name="filter_username" data-value="{{ request.GET.filter_username }}">Username</div>
-                                <div data-name="filter_email" data-value="{{ request.GET.filter_email }}">Email Address</div>
+                            <div class="select-items scrollable-content">
+                                <div class="select-item" data-name="filter_last_name" data-value="{{ request.GET.filter_last_name }}">Last Name</div>
+                                <div class="select-item" data-name="filter_first_name" data-value="{{ request.GET.filter_first_name }}">First Name</div>
+                                <div class="select-item" data-name="filter_username" data-value="{{ request.GET.filter_username }}">Username</div>
+                                <div class="select-item" data-name="filter_email" data-value="{{ request.GET.filter_email }}">Email Address</div>
                             </div>
                         </div>
                     </div>

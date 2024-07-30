@@ -25,7 +25,7 @@
                     <a href="{% url 'admin_users' %}" class="back-btn">
                         <i class="fa-solid fa-arrow-left"></i>
                     </a>
-                    <h3> User Overview </h3>
+                    <h3> User Transcript </h3>
                 </div>
                 <div class="details-top-row-right">
                     <div class="option-btn-row">
@@ -44,11 +44,11 @@
             </div>
             {% include 'users/user_details_card.html' %}
             <div class="details-nav-menu">
-                <a href="{% url 'user_details' profile.id %}" class="nav-menu-item active">
+                <a href="{% url 'user_details' profile.id %}" class="nav-menu-item">
                     <i class="fa-light fa-globe"></i>
                     <span> Overview </span>
                 </a>
-                <a href="{% url 'user_transcript' profile.id %}" class="nav-menu-item">
+                <a href="{% url 'user_transcript' profile.id %}" class="nav-menu-item active">
                     <i class="fa-light fa-memo-pad"></i>
                     <span> Transcript </span>
                 </a>
@@ -59,38 +59,31 @@
             </div>
             <div class="details-info-section">
                 <div class="details-info-card">
-                    <div class="info-card-header">
+                    <div class="info-card-header collapsable-header">
                         <div class="card-header-left">
-                            <i class="fa-solid fa-chart-simple"></i>
-                            <span> User Progress </span>
+                            <i class="fa-solid fa-award"></i>
+                            <span> Certificates </span>
                         </div>
-                        <div class="spacer"></div>
+                        <div class="card-header-right">
+                            <i class="fa-regular fa-angle-down"></i>
+                        </div>
                     </div>
                     <div class="info-card-body">
                         <div class="info-card-column">
                             <div class="card-body-item">
                                 <div class="card-body-left">
-                                    <i class="fa-light fa-arrow-progress"></i>
+                                    <i class="fa-light fa-award"></i>
                                 </div>
                                 <div class="card-body-right">
                                     <h5> Enrollments in Progress</h5>
                                     <span>10</span>
                                 </div>
                             </div>
-                            <div class="card-body-item">
-                                <div class="card-body-left">
-                                    <i class="fa-light fa-coin"></i>
-                                </div>
-                                <div class="card-body-right">
-                                    <h5>"Talent Bucks" Earned</h5>
-                                    <span>365</span>
-                                </div>
-                            </div>
                         </div>
                         <div class="info-card-column">
                             <div class="card-body-item">
                                 <div class="card-body-left">
-                                    <i class="fa-light fa-box-check"></i>
+                                    <i class="fa-light fa-clipboard-check"></i>
                                 </div>
                                 <div class="card-body-right">
                                     <h5> Enrollments Completed</h5>
@@ -100,55 +93,95 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="details-info-section">
                 <div class="details-info-card">
-                    <div class="info-card-header">
+                    <div class="info-card-header collapsable-header">
                         <div class="card-header-left">
-                            <i class="fa-solid fa-circle-info"></i>
-                            <span> User Info </span>
+                            <i class="fa-solid fa-trophy"></i>
+                            <span> Badges & Tokens </span>
                         </div>
-                        <div class="spacer"></div>
+                        <div class="card-header-right">
+                            <i class="fa-regular fa-angle-down"></i>
+                        </div>
                     </div>
-                    <div class="info-card-body"> 
+                    <div class="info-card-body">
                         <div class="info-card-column">
                             <div class="card-body-item">
                                 <div class="card-body-left">
-                                    <i class="fa-light fa-signature"></i>
+                                    <i class="fa-light fa-treasure-chest"></i>
                                 </div>
                                 <div class="card-body-right">
-                                    <h5> Username</h5>
-                                    <span> {{ profile.username }} </span>
-                                </div>
-                            </div>
-                            <div class="card-body-item">
-                                <div class="card-body-left">
-                                    <i class="fa-light fa-user"></i>
-                                </div>
-                                <div class="card-body-right">
-                                    <h5> Full Name</h5>
-                                    <span> {{ profile.first_name }} {{ profile.last_name }}</span>
+                                    <h5> Badges Earned </h5>
+                                    <span>10</span>
                                 </div>
                             </div>
                         </div>
                         <div class="info-card-column">
                             <div class="card-body-item">
                                 <div class="card-body-left">
-                                    <i class="fa-light fa-envelope"></i>
+                                    <i class="fa-light fa-coin"></i>
                                 </div>
                                 <div class="card-body-right">
-                                    <h5> Email </h5>
-                                    <span> {{ profile.email }}</span>
-                                </div>
-                            </div>
-                            <div class="card-body-item">
-                                <div class="card-body-left">
-                                    <i class="fa-light fa-calendar"></i>
-                                </div>
-                                <div class="card-body-right">
-                                    <h5> Date Joined </h5>
-                                    <span> {{ profile.date_joined }}</span>
+                                    <h5> Tokens Earned </h5>
+                                    <span> 4,000 </span>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="details-info-section">
+                <div class="details-info-card">
+                    <div class="info-card-header collapsable-header">
+                        <div class="card-header-left">
+                            <i class="fa-solid fa-pallet-box"></i>
+                            <span> Enrollments </span>
+                        </div>
+                        <div class="card-header-right">
+                            <i class="fa-regular fa-angle-down"></i>
+                        </div>
+                    </div>
+                    <div style="border: 0;" class="info-card-body padding-0">
+                        <table>
+                            <thead>      
+                                <tr>
+                                    <th>Course Name</th>
+                                    <th style="width: 12%;">Status</th>
+                                    <th>% Complete</th>
+                                    <th>Enrollment Date</th>
+                                    <th>Time Spent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="table-select-option">
+                                    <td>
+                                        <div class="course-type-icon online-course tooltip" data-tooltip="Online Course">
+                                            <span class="tooltiptext"></span>
+                                            <i class="fa-solid fa-signal-bars"></i>         
+                                        </div>
+                                        <span class="course-name">Online Course</span>
+                                    </td>
+                                    <td><span class="status course-active pastel-yellow"> In Progress </span></td>                   
+                                    <td>85%</td>
+                                    <td>{{ profile.birth_date }}</td>
+                                    <td>2d 15m 34s</td>
+                                </tr>
+                                <tr class="table-select-option">
+                                    <td>
+                                        <div class="course-type-icon inperson-course tooltip" data-tooltip="In Person Course">
+                                            <span class="tooltiptext"></span>
+                                            <i class="fa-solid fa-chalkboard-user"></i>                   
+                                        </div>
+                                        <span class="course-name">In Person Course</span>
+                                    </td>
+                                    <td><span class="status course-active pastel-green">Completed</span></td>                 
+                                    <td>85%</td>
+                                    <td>{{ profile.birth_date }}</td>
+                                    <td>2d 15m 34s</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

@@ -2,8 +2,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404, redirect
+from datetime import datetime
+from django.utils.dateparse import parse_date
 from django.contrib import messages
 from client_admin.models import Profile
 
@@ -88,7 +89,7 @@ def admin_users(request):
     })
 
 @login_required
-def user_details(request, user_id):
+def edit_user(request, user_id):
     user = get_object_or_404(Profile, pk=user_id)
 
     if request.method == 'POST':
@@ -96,17 +97,87 @@ def user_details(request, user_id):
         email = request.POST.get('email')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
+        role = request.POST.get('role')
+        archived = request.POST.get('archived') == 'on'  # Check if checkbox is checked
+        country = request.POST.get('country')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        code = request.POST.get('code')
+        citizenship = request.POST.get('citizenship')
+        address_1 = request.POST.get('address_1')
+        birth_date_str = request.POST.get('birth_date')
+        sex = request.POST.get('sex')
+        referral = request.POST.get('referral')
+        associate_school = request.POST.get('associate_school')
+
+        # Parsing and formatting birth_date
+        if birth_date_str:
+            birth_date = parse_date(birth_date_str)
+            if birth_date:
+                user.birth_date = birth_date
 
         user.username = username
         user.email = email
         user.first_name = first_name
         user.last_name = last_name
+        user.role = role
+        user.archived = archived
+        user.country = country
+        user.city = city
+        user.state = state
+        user.code = code
+        user.citizenship = citizenship
+        user.address_1 = address_1
+        user.birth_date = birth_date
+        user.sex = sex
+        user.referral = referral
+        user.associate_school = associate_school
         user.save()
         
-        messages.success(request, 'User information updated successfully.')
-        return redirect('user_details', user_id=user.id)
+        messages.success(request, 'User information updated successfully')
+        # Determine where to redirect
+        referer = request.META.get('HTTP_REFERER')
+        if referer:
+            return redirect(referer)
+        else:
+            # Default redirect
+            return redirect('user_details', user_id=user.id)
+
+    # Determine which template to use
+    referer = request.META.get('HTTP_REFERER', '')
+    if 'transcript' in referer:
+        template = 'users/user_transcript.html'
+    else:
+        template = 'users/user_details.html'
+    
+    context = {
+        'profile': user
+    }
+    return render(request, template, context)
+
+@login_required
+def user_details(request, user_id):
+    user = get_object_or_404(Profile, pk=user_id)
 
     context = {
-        'user': user
+        'profile': user
     }
     return render(request, 'users/user_details.html', context)
+
+@login_required
+def user_transcript(request, user_id):
+    user = get_object_or_404(Profile, pk=user_id)
+
+    context = {
+        'profile': user
+    }
+    return render(request, 'users/user_transcript.html', context)
+
+@login_required
+def user_history(request, user_id):
+    user = get_object_or_404(Profile, pk=user_id)
+
+    context = {
+        'profile': user
+    }
+    return render(request, 'users/user_history.html', context)
