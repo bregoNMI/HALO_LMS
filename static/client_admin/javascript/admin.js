@@ -62,23 +62,39 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedOptionsCount.innerText = checkedOptionsList.length;
         testActiveOptions();
     }
-    function singleOptionsSelect(){
-        // Setting Link on Edit User Option
-        document.getElementById('singleEditUser').addEventListener('click', () => {
-            window.location.href = checkedOptionsList[0].getAttribute('data-details');
-        });
-        // Setting Link on User Transcript Option
-        document.getElementById('singleTranscriptUser').addEventListener('click', () => {
-            window.location.href = checkedOptionsList[0].getAttribute('data-transcript');
-        });
-        // Setting Link on User History
-        document.getElementById('singleHistoryUser').addEventListener('click', () => {
-            window.location.href = checkedOptionsList[0].getAttribute('data-history');
-        });
+    function singleOptionsSelect() {
+        // Assuming checkedOptionsList is an array of selected elements
+        if (checkedOptionsList.length === 0) return; // If no option is selected, exit the function
         
-        document.getElementById('singleOptionsSelect').style.display = 'flex';
-        document.getElementById('multiOptionsSelect').style.display = 'none';
+        const selectedOption = checkedOptionsList[0]; // The currently selected option
+    
+        // Get all sidebar items with class 'options-sidebar-item'
+        const sidebarItems = document.querySelectorAll('.options-sidebar-item');
+    
+        // Iterate over each sidebar item
+        sidebarItems.forEach(item => {
+            // Check if the selected option has a data attribute matching the item's ID
+            const matchingAttribute = selectedOption.getAttribute(`${item.id}`);
+            if (matchingAttribute) {
+                // If there's a match, set the click event to redirect to the matching URL
+                item.addEventListener('click', () => {
+                    window.location.href = matchingAttribute;
+                });
+            }
+        });
+    
+        // Display the single options section and hide the multi options section
+        const singleOptionsSelect = document.getElementById('singleOptionsSelect');
+        if (singleOptionsSelect) {
+            singleOptionsSelect.style.display = 'flex';
+        }
+    
+        const multiOptionsSelect = document.getElementById('multiOptionsSelect');
+        if (multiOptionsSelect) {
+            multiOptionsSelect.style.display = 'none';
+        }
     }
+    
 
     function multiOptionsSelect(){
         document.getElementById('singleOptionsSelect').style.display = 'none';
