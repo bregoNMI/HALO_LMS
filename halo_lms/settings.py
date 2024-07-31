@@ -79,8 +79,12 @@ WSGI_APPLICATION = 'halo_lms.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR + '/db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'HALO_LMS',
+        'USER': 'postgres',
+        'PASSWORD': 'Books555!',
+        'HOST': 'localhost',  # Set to your database host, e.g., '127.0.0.1'
+        'PORT': '5432',       # Set to your database port, default is '5432'
     }
 }
 
