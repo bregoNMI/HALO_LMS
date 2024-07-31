@@ -177,28 +177,35 @@
                     </div>
                 </div>
             </div>
-            <table>
-                <thead>      
-                    <tr>
-                        <th><label class="container"><input type="checkbox" class="table-select-all-option"><div class="checkmark"></div></label></th>
-                        <th>Last Name</th>
-                        <th>First Name</th>
-                        <th>Username</th>
-                        <th>Email Address</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for profile in page_obj %}
-                    <tr data-id="{{ profile.id }}" data-history="{% url 'user_history' profile.id %}" data-details="{% url 'user_details' profile.id %}" data-transcript="{% url 'user_transcript' profile.id %}" class="table-select-option">
-                        <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
-                        <td>{{ profile.last_name }}</td>
-                        <td>{{ profile.first_name }}</td>                 
-                        <td>{{ profile.username }}</td>
-                        <td>{{ profile.email }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% if page_obj %}
+                <table>
+                    <thead>      
+                        <tr>
+                            <th><label class="container"><input type="checkbox" class="table-select-all-option"><div class="checkmark"></div></label></th>
+                            <th>Last Name</th>
+                            <th>First Name</th>
+                            <th>Username</th>
+                            <th>Email Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>     
+                        {% for profile in page_obj %}
+                            <tr data-id="{{ profile.id }}" data-history="{% url 'user_history' profile.id %}" data-details="{% url 'user_details' profile.id %}" data-transcript="{% url 'user_transcript' profile.id %}" class="table-select-option">
+                                <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
+                                <td>{{ profile.last_name }}</td>
+                                <td>{{ profile.first_name }}</td>                 
+                                <td>{{ profile.username }}</td>
+                                <td>{{ profile.email }}</td>
+                            </tr>
+                        {% endfor %}        
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="no-results-found">
+                    <img src="{% static 'client_admin\Images\HALO LMS No Graphic Test-30.png' %}" alt="HALO Graphic">    
+                    <span><b>No Users Found</b></span>          
+                </div>
+            {% endif %}
             <div class="pagination-row-wrapper">
                 <div class="pagination-info">
                     <div class="pagination-results">

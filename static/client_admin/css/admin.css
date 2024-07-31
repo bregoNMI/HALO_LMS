@@ -501,6 +501,21 @@ tr:last-child{
     background-color: var(--bg-color3);
 }
 
+/* No Results Image */
+.no-results-found{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+    padding: var(--pad-xxxl);
+}
+
+.no-results-found img{
+    max-width: 230px;
+}
+
 /* Custom Checkbox */
 .container input {
     position: absolute;

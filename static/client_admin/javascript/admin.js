@@ -25,22 +25,24 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    tableSelectAllOption.addEventListener('click', function() {
-        checkedOptionsList = [];
-        tableOptions.forEach(option => {
-            const checkbox = option.querySelector('input[type="checkbox"]');
-            if(tableSelectAllOption.checked){
-                checkbox.checked = true;
-                option.classList.add('selected-option');
-                checkedOptionsList.push(option);
-            }else {
-                checkbox.checked = false;
-                option.classList.remove('selected-option');
-                checkedOptionsList = checkedOptionsList.filter(item => item !== option);
-            }
-            countSelectedOptions();
+    if(tableSelectAllOption){
+        tableSelectAllOption.addEventListener('click', function() {
+            checkedOptionsList = [];
+            tableOptions.forEach(option => {
+                const checkbox = option.querySelector('input[type="checkbox"]');
+                if(tableSelectAllOption.checked){
+                    checkbox.checked = true;
+                    option.classList.add('selected-option');
+                    checkedOptionsList.push(option);
+                }else {
+                    checkbox.checked = false;
+                    option.classList.remove('selected-option');
+                    checkedOptionsList = checkedOptionsList.filter(item => item !== option);
+                }
+                countSelectedOptions();
+            });
         });
-    });
+    }
 
     const selectedOptionsWrapper = document.getElementById('selectedOptionsWrapper');
     const selectedOptionsCount = document.getElementById('selectedOptionsCount');

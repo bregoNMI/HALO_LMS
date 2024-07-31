@@ -560,4 +560,9 @@
 .toggle-switch input[type="checkbox"]:checked + .toggle-switch-background .toggle-switch-handle {
     transform: translateX(40px);
 }
+
+.tooltip .tooltiptext {
+    text-wrap: nowrap;
+    bottom: -130%;
+}
   
