@@ -1,76 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
-# Define a Course model
-class Course(models.Model):
-    title = models.CharField(max_length=200)
-    description = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.title
-
-# Define a Module model
-class Module(models.Model):
-    course = models.ForeignKey(Course, related_name='modules', on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    order = models.PositiveIntegerField()
-
-    class Meta:
-        ordering = ['order']
-
-    def __str__(self):
-        return self.title
-
-# Update the Lesson model to be associated with a Module
-class Lesson(models.Model):
-    module = models.ForeignKey(Module, related_name='lessons', on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    content = models.TextField()
-    order = models.PositiveIntegerField()
-
-    class Meta:
-        ordering = ['order']
-
-    def __str__(self):
-        return self.title
-
-# Define a UserCourse model to track the courses a user is enrolled in
-class UserCourse(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    progress = models.PositiveIntegerField(default=0)  # percentage of the course completed by the user
-
-    def __str__(self):
-        return f"{self.user.username} - {self.course.title}"
-
-# Define a Quiz model
-class Quiz(models.Model):
-    lesson = models.ForeignKey(Lesson, related_name='quizzes', on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.title
-
-# Define a Question model
-class Question(models.Model):
-    quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
-    text = models.TextField()
-
-    def __str__(self):
-        return self.text
-
-# Define an Answer model
-class Answer(models.Model):
-    question = models.ForeignKey(Question, related_name='answers', on_delete=models.CASCADE)
-    text = models.TextField()
-    is_correct = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.text
+from content.models import Course, Module, Lesson
     
 class ProfileManager(models.Manager):
 
@@ -116,11 +46,27 @@ class Profile(models.Model):
     def __str__(self):
         return f'{self.user.username} Profile'
 
-    def get_departments(self):
-        if self.departments.count() == 0:
-            return "None"
-        else:
-            return ', '.join([dpt.department for dpt in self.departments.all()])
+class UserCourse(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    progress = models.PositiveIntegerField(default=0)  # percentage of the course completed by the user
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    def __str__(self):
+        return f"{self.user.username} - {self.course.title}"
+
+class UserModuleProgress(models.Model):
+    user_course = models.ForeignKey(UserCourse, related_name='module_progresses', on_delete=models.CASCADE)
+    module = models.ForeignKey(Module, on_delete=models.CASCADE)
+    progress = models.PositiveIntegerField(default=0)  # percentage of the module completed by the user
+    completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user_course.user.username} - {self.module.title}"
+
+class UserLessonProgress(models.Model):
+    user_module_progress = models.ForeignKey(UserModuleProgress, related_name='lesson_progresses', on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user_module_progress.user_course.user.username} - {self.lesson.title}"
