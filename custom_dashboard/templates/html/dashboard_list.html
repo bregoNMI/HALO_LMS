@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="admin-body">
+        <div class="admin-top-row">
+            <div class="admin-top-row-left">
+                <h2>My Dashboards</h2>
+            </div>
+            <div class="admin-top-row-right">
+                <div class="action-button-secondary">
+                    <span>Import</span>
+                </div>
+                <a href="{% url 'dashboard_create' %}" class="action-button-primary">
+                    <span>Create dashboard</span>
+                </a>
+            </div>
+        </div>
+        <!-- MAKE SURE TO KEEP THIS INPUT FOR REQUESTS -->
+        <input type="hidden" id="dashboard-id" value="{{ dashboard.id }}">
+        <div class="custom-dashboard-body">
+            <ul>
+                {% for dashboard in dashboards %}
+                <li><a href="{% url 'dashboard_edit' dashboard.id %}">{{ dashboard.name }}</a></li>
+                <button class="set-main-dashboard" data-id="{{ dashboard.id }}">Set as Main</button>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+    <script src="{% static 'custom_dashboard/javascript/dashboard.js' %}"></script>
+{% endblock content %}
+

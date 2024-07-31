@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="custom-dashboard-body">
+    <h1>Dashboard Preview</h1>
+    <div id="dashboard-container">
+        {% for widget in dashboard.widgets.all %}
+            <div class="widget">
+                <!-- Customize based on your widget type and content -->
+                <h2>{{ widget.title }}</h2>
+                <p>{{ widget.content }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+<script src="{% static 'custom_dashboard/javascript/dashboard.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+{% endblock %}
