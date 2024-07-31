@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="admin-body align-center">
+        <div class="max-width-0">
+            <div class="details-top-row">
+                <div class="details-top-row-left">
+                    <a href="{% url 'admin_users' %}" class="back-btn">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                    <h3> User Overview </h3>
+                </div>
+                <div class="details-top-row-right">
+                    <div class="option-btn-row">
+                        <div class="option-btn">
+                            <i class="fa-regular fa-messages"></i>
+                            <span> Message user</span>
+                        </div>
+                    </div>
+                    <div class="option-btn-row">
+                        <div class="option-btn">
+                            <i class="fa-regular fa-hand-holding-box"></i>
+                            <span> Enroll user</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% include 'users/user_details_card.html' %}
+            <div class="details-nav-menu">
+                <a href="{% url 'user_details' profile.id %}" class="nav-menu-item active">
+                    <i class="fa-light fa-globe"></i>
+                    <span> Overview </span>
+                </a>
+                <a href="{% url 'user_transcript' profile.id %}" class="nav-menu-item">
+                    <i class="fa-light fa-memo-pad"></i>
+                    <span> Transcript </span>
+                </a>
+                <a href="{% url 'user_history' profile.id %}" class="nav-menu-item">
+                    <i class="fa-light fa-clock-rotate-left"></i>
+                    <span> History </span>
+                </a>
+            </div>
+            <div class="details-info-section">
+                <div class="details-info-card">
+                    <div class="info-card-header">
+                        <div class="card-header-left">
+                            <i class="fa-solid fa-chart-simple"></i>
+                            <span> User Progress </span>
+                        </div>
+                        <div class="spacer"></div>
+                    </div>
+                    <div class="info-card-body">
+                        <div class="info-card-column">
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-arrow-progress"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5> Enrollments in Progress</h5>
+                                    <span>10</span>
+                                </div>
+                            </div>
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-coin"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5>"Talent Bucks" Earned</h5>
+                                    <span>365</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card-column">
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-box-check"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5> Enrollments Completed</h5>
+                                    <span>4</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="details-info-card">
+                    <div class="info-card-header">
+                        <div class="card-header-left">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span> User Info </span>
+                        </div>
+                        <div class="spacer"></div>
+                    </div>
+                    <div class="info-card-body"> 
+                        <div class="info-card-column">
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-signature"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5> Username</h5>
+                                    <span> {{ profile.username }} </span>
+                                </div>
+                            </div>
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-user"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5> Full Name</h5>
+                                    <span> {{ profile.first_name }} {{ profile.last_name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card-column">
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-envelope"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5> Email </h5>
+                                    <span> {{ profile.email }}</span>
+                                </div>
+                            </div>
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-calendar"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5> Date Joined </h5>
+                                    <span> {{ profile.date_joined }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'popups/edit_user_popup.html' %}
+    <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+{% endblock content %}

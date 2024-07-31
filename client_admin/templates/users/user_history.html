@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="admin-body align-center">
+        <div class="max-width-0">
+            <div class="details-top-row">
+                <div class="details-top-row-left">
+                    <a href="{% url 'admin_users' %}" class="back-btn">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                    <h3> User History </h3>
+                </div>
+                <div class="details-top-row-right">
+                    <div class="option-btn-row">
+                        <div class="option-btn">
+                            <i class="fa-regular fa-messages"></i>
+                            <span> Message user</span>
+                        </div>
+                    </div>
+                    <div class="option-btn-row">
+                        <div class="option-btn">
+                            <i class="fa-regular fa-hand-holding-box"></i>
+                            <span> Enroll user</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% include 'users/user_details_card.html' %}
+            <div class="details-nav-menu">
+                <a href="{% url 'user_details' profile.id %}" class="nav-menu-item">
+                    <i class="fa-light fa-globe"></i>
+                    <span> Overview </span>
+                </a>
+                <a href="{% url 'user_transcript' profile.id %}" class="nav-menu-item">
+                    <i class="fa-light fa-memo-pad"></i>
+                    <span> Transcript </span>
+                </a>
+                <a href="{% url 'user_history' profile.id %}" class="nav-menu-item active">
+                    <i class="fa-light fa-clock-rotate-left"></i>
+                    <span> History </span>
+                </a>
+            </div>
+            <div class="details-info-section">
+                <div class="details-info-card">
+                    <div class="info-card-header collapsable-header">
+                        <div class="card-header-left">
+                            <i class="fa-solid fa-list-tree"></i>
+                            <span> Activity Log </span>
+                        </div>
+                        <div class="card-header-right">
+                            <i class="fa-regular fa-angle-down"></i>
+                        </div>
+                    </div>
+                    <div class="user-history-container info-card-body">
+                        <div class="user-history-wrapper">                      
+                            <div class="user-history-item">
+                                <div class="user-history-header">
+                                    <div class="user-history-left">
+                                        <div class="user-history-icon">
+                                            <i class="fa-light fa-pencil"></i>
+                                        </div>
+                                        <div class="user-history-action">
+                                            <span><b>Evan Ferro</b> edited user information</span>
+                                        </div>
+                                    </div>
+                                    <div class="user-history-right">
+                                        <div class="user-history-date">
+                                            <span> Jul 30</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="user-history-body">
+                                    <div class="user-history-body-item">
+                                        <span> Changed username from eferro to eferro123</span>
+                                    </div>
+                                    <div class="user-history-body-item">
+                                        <span> Changed role from Student to Admin</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="user-history-item">
+                                <div class="user-history-header">
+                                    <div class="user-history-left">
+                                        <div class="user-history-icon">
+                                            <i class="fa-light fa-hand-holding-box"></i>
+                                        </div>
+                                        <div class="user-history-action">
+                                            <span><b>Evan Ferro</b> enrolled user in courses</span>
+                                        </div>
+                                    </div>
+                                    <div class="user-history-right">
+                                        <div class="user-history-date">
+                                            <span> Jul 29</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="user-history-body">
+                                    <div class="user-history-body-item">
+                                        <span> Enrolled user in Advanced Firefighting Revalidation</span>
+                                    </div>
+                                </div>
+                            </div>                         
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'popups/edit_user_popup.html' %}
+    <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+{% endblock content %}
