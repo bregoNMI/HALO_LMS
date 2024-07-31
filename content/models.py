@@ -21,12 +21,26 @@ class StorylineQuizContent(Content):
 class TextContent(Content):
     text = models.TextField()
 
+class Category(models.Model):
+    name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
+
 # Define a Course model
 class Course(models.Model):
+    COURSE_TYPES = [
+        ('bundle', 'Course Bundle'),
+        ('in_person', 'In Person Course'),
+        ('online', 'Online Course'),
+    ]
+
     title = models.CharField(max_length=200)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    category = models.ForeignKey(Category, related_name='courses', on_delete=models.CASCADE)
+    type = models.CharField(max_length=20, choices=COURSE_TYPES)
 
     def __str__(self):
         return self.title
