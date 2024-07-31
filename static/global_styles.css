@@ -1,3 +1,7 @@
+h1,h2,h3,h4,h5,h6{
+    margin: 0;
+}
+
 /* Popup Styling */
 .popup-background {
     position: fixed;
@@ -185,7 +189,7 @@
 }
 
 /* Style for each item */
-.select-items div {
+.select-items .select-item{
     padding: var(--pad-xxs);
     cursor: pointer;
     user-select: none;
@@ -195,8 +199,33 @@
 }
 
 /* Highlight the selected item */
-.select-items div:hover, .same-as-selected {
+.select-items .select-item:hover, .same-as-selected {
     background-color: var(--bg-color6);
+}
+
+/* Webkit-based browsers (Chrome, Safari) */
+.scrollable-content::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+    height: 8px; /* Height of the scrollbar for horizontal scrolling */
+}
+
+.scrollable-content::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Track color */
+    border-radius: 4px;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+    background: #888; /* Scrollbar thumb color */
+    border-radius: 4px;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Scrollbar thumb color on hover */
+}
+
+/* Hide the scrollbar buttons/arrows */
+.scrollable-content::-webkit-scrollbar-button {
+    display: none;
 }
 
 /* Global Colors */
