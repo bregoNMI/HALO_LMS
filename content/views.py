@@ -63,11 +63,16 @@ def admin_courses(request):
         'sort_by': sort_by,
     })
 
+def add_online_courses(request):
+    
+    return render(request, 'courses/add_online_course.html')
+
 @login_required
-def course_details(request, user_id):
-    user = get_object_or_404(Course, pk=user_id)
+def course_details(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
 
     context = {
-        'profile': user
+        'course': course
     }
+
     return render(request, 'courses/course_details.html', context)

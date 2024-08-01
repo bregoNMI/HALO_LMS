@@ -1,0 +1,78 @@
+.course-content-container{
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.course-content-left-column{
+    flex: 7;
+}
+
+.course-content-right-column{
+    flex: 3;
+}
+
+.details-info-card .info-card-body{
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Input Fields */
+.course-content-input {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.course-content-input label {
+    font-size: 0.9rem;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: var(--text-color2);
+}
+
+.course-content-input input {
+    padding: var(--pad-xxs) var(--pad-xs);
+    border: 1px solid #ececf1;
+    border-radius: 8px;
+    font-size: var(--btn-font);
+    color: var(--text-color8);
+    flex: 1;
+}
+
+.course-content-input input:hover {
+    background-color: var(--bg-color3);
+}
+
+.course-content-input input:focus-visible {
+    outline-color: var(--primary-blue);
+}
+
+/* Styling custom test editor */
+.ql-toolbar .ql-bold .ql-stroke {
+    stroke: red; /* Example: Change bold icon color to red */
+}
+.custom-icon-italic {
+    font-style: italic;
+    /* Additional custom styles */
+}
+
+.ql-toolbar.ql-snow {
+    background-color: #f2f2f2;
+    border: 1px solid #ececf1 !important;
+    border-radius: 8px 8px 0 0;
+    box-sizing: border-box;
+    font-family: var(--primary-font);
+    padding: 8px;
+}
+
+.ql-container.ql-snow {
+    border: 1px solid #ececf1 !important;
+    border-radius: 0 0 8px 8px;
+}
+
+.ql-editor {
+    padding: var(--pad-xxs) var(--pad-xs) !important;
+}
