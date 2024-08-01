@@ -50,6 +50,11 @@
     outline-color: var(--primary-blue);
 }
 
+.course-content-input.course-content-row{
+    flex-direction: row;
+    gap: 2rem;
+}
+
 /* Styling custom test editor */
 .ql-toolbar .ql-bold .ql-stroke {
     stroke: red; /* Example: Change bold icon color to red */
@@ -65,7 +70,7 @@
     border-radius: 8px 8px 0 0;
     box-sizing: border-box;
     font-family: var(--primary-font);
-    padding: 8px;
+    padding: 6px !important;
 }
 
 .ql-container.ql-snow {
@@ -74,5 +79,53 @@
 }
 
 .ql-editor {
+    min-height: 5rem;
     padding: var(--pad-xxs) var(--pad-xs) !important;
+}
+
+.ql-snow.ql-toolbar button, .ql-snow .ql-toolbar button {
+    border-radius: 6px;
+}
+
+.ql-snow.ql-toolbar button:hover, .ql-snow .ql-toolbar button:hover, .ql-snow.ql-toolbar button:focus, .ql-snow .ql-toolbar button:focus, .ql-snow.ql-toolbar button.ql-active, .ql-snow .ql-toolbar button.ql-active, .ql-snow.ql-toolbar .ql-picker-label:hover, .ql-snow .ql-toolbar .ql-picker-label:hover, .ql-snow.ql-toolbar .ql-picker-label.ql-active, .ql-snow .ql-toolbar .ql-picker-label.ql-active, .ql-snow.ql-toolbar .ql-picker-item:hover, .ql-snow .ql-toolbar .ql-picker-item:hover, .ql-snow.ql-toolbar .ql-picker-item.ql-selected, .ql-snow .ql-toolbar .ql-picker-item.ql-selected {
+    color: #06c;
+    background-color: var(--bg-color4);
+}
+
+.ql-toolbar.ql-snow .ql-formats {
+    margin-right: 10px !important;
+    padding-left: 10px;
+}
+
+.ql-formats {
+    position: relative;
+}
+
+.ql-toolbar > *:first-child::before {
+    content: none; /* or content: ''; */
+}
+
+.ql-toolbar > *:first-child{
+    padding-left: 0px !important;
+}
+
+.ql-formats::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 2px;
+    height: 80%;
+    width: 3px;
+    background-color: var(--bg-color1);
+    border-radius: 16px;
+    clip-path: inset(0% 0% 0% 0% round 0 0 4px 4px);
+}
+
+.ql-snow .ql-picker.ql-expanded .ql-picker-options {
+    border-radius: 8px;
+}
+
+.ql-snow .ql-picker-options .ql-picker-item {
+    padding: var(--pad-xxs);
+    border-radius: 4px;
 }

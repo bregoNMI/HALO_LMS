@@ -22,7 +22,7 @@ class TextContent(Content):
     text = models.TextField()
 
 class Category(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, blank=True)
 
     def __str__(self):
         return self.name
@@ -35,12 +35,18 @@ class Course(models.Model):
         ('online', 'Online Course'),
     ]
 
+    STATUS_TYPES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    ]
+
     title = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    category = models.ForeignKey(Category, related_name='courses', on_delete=models.CASCADE)
-    type = models.CharField(max_length=20, choices=COURSE_TYPES)
+    category = models.ForeignKey(Category, related_name='courses', on_delete=models.CASCADE, blank=True)
+    type = models.CharField(max_length=20, choices=COURSE_TYPES, default="online", blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_TYPES, default="inactive", blank=True)
 
     def __str__(self):
         return self.title

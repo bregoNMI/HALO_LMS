@@ -7,23 +7,23 @@
             <div class="details-top-row">
                 <div class="details-top-row-left">
                     <a href="/admin/courses/" class="back-btn">
-                        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                        <i class="fa-solid fa-arrow-left"></i>
                     </a>
                     <h3> Create Online Course </h3>
                 </div>
                 <div class="details-top-row-right">
                     <div class="option-btn-row">
                         <div class="option-btn">
-                            <i class="fa-regular fa-messages" aria-hidden="true"></i>
+                            <i class="fa-regular fa-clock-rotate-left"></i>
                             <span> View History </span>
                         </div>
                     </div>
                     <div class="option-btn">
-                        <i class="fa-regular fa-hand-holding-box"></i>
+                        <i class="fa-regular fa-floppy-disk"></i>
                         <span> Save </span>
                     </div>
                     <a href="{% url 'add_online_courses' %}" class="action-button-primary">
-                        <i class="fa-light fa-paper-plane"></i>
+                        <i class="fa-regular fa-paper-plane"></i>
                         <span>Publish</span>
                     </a>
                 </div>
@@ -50,6 +50,30 @@
                             <div class="course-content-input">
                                 <label class="edit-user-label" for="description">Course Description</label>
                                 <div id="editor-container"></div>
+                            </div>
+                            <div class="course-content-input course-content-row">
+                                <div class="edit-user-input">
+                                    <label class="edit-user-label" for="status">Status</label>
+                                    <div class="custom-select margin-0">
+                                        <i class="fa-regular fa-angle-down"></i>     
+                                        <input class="select-selected" type="text" id="status" name="status" value="Inactive" readonly="">
+                                        <div class="select-items scrollable-content" style="display: none;">
+                                            <div class="select-item" data-name="status" data-value="Active">Active</div>
+                                            <div class="select-item" data-name="status" data-value="Inactive">Inactive</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="edit-user-input">
+                                    <label class="edit-user-label" for="status">Category</label>
+                                    <div class="custom-select margin-0">
+                                        <i class="fa-regular fa-angle-down"></i>     
+                                        <input class="select-selected" type="text" id="status" name="status" value="Inactive" readonly="">
+                                        <div class="select-items scrollable-content" style="display: none;">
+                                            <div class="select-item" data-name="status" data-value="Active">Active</div>
+                                            <div class="select-item" data-name="status" data-value="Inactive">Inactive</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>      
                         </div>
                     </div>
@@ -87,6 +111,7 @@
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
     <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
     <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="{% static 'content\javascript\content.js' %}"></script>
