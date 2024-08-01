@@ -44,9 +44,8 @@ class Course(models.Model):
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    category = models.ForeignKey(Category, related_name='courses', on_delete=models.CASCADE, blank=True)
-    type = models.CharField(max_length=20, choices=COURSE_TYPES, default="online", blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_TYPES, default="inactive", blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
+    type = models.CharField(max_length=20, choices=COURSE_TYPES, default='bundle')
 
     def __str__(self):
         return self.title
