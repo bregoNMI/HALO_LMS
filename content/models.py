@@ -39,8 +39,8 @@ class Course(models.Model):
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    category = models.ForeignKey(Category, related_name='courses', on_delete=models.CASCADE)
-    type = models.CharField(max_length=20, choices=COURSE_TYPES)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
+    type = models.CharField(max_length=20, choices=COURSE_TYPES, default='bundle')
 
     def __str__(self):
         return self.title
