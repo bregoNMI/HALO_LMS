@@ -159,7 +159,6 @@ html, body, button{
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease-out;
-    padding-bottom: 0.1rem;
 }
 
 .collapsible-header.active + .collapsible-content {
@@ -281,6 +280,8 @@ html, body, button{
 .action-button-primary{
     background-color: var(--primary-blue);
     color: white;
+    text-decoration: none;
+    gap: 0.5rem;
 }
 
 .action-button-primary:hover{

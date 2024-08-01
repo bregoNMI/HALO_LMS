@@ -13,5 +13,6 @@ urlpatterns = [
     path('users/<int:user_id>/history/', views.user_history, name='user_history'),
     # Courses
     path('courses/', content_views.admin_courses, name='admin_courses'),
-    path('courses/<int:user_id>/', content_views.course_details, name='course_details'),
+    path('courses/online/add/', content_views.add_online_courses, name='add_online_courses'),
+    path('courses/<int:course_id>/', content_views.course_details, name='course_details'),
 ]
