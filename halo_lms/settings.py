@@ -70,14 +70,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'halo_lms.wsgi.application'
 
-
+AWS_ACCESS_KEY_ID = 'AKIA3I6OQJSEEV3M32NU'
+AWS_SECRET_ACCESS_KEY = '4qrWDDcCFAuYy1VKV/E9sZ6PcMFjsf0975qoXy3l'
+AWS_STORAGE_BUCKET_NAME = 'amplify-halolms-dev-40e39-deployment'
+AWS_S3_REGION_NAME = 'us-east-1'  # e.g., 'us-west-2'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None  # Optional: You can set it to 'public-read' if you want public access
+AWS_QUERYSTRING_AUTH = False  # Optional: Generates URLs without query strings
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR + '/db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'HALO_LMS',
+        'USER': 'postgres',
+        'PASSWORD': '!A@S3d4f5g6h7j8k',
+        'HOST': 'localhost',  # Set to your database host, e.g., '127.0.0.1'
+        'PORT': '5432',       # Set to your database port, default is '5432'
     }
 }
 
