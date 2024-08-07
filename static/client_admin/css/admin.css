@@ -832,3 +832,62 @@ tr:last-child{
 }
 
 /* Add other alert styles as needed */
+
+/* Custom Radio Buttons */
+/* Hide the default radio button */
+.custom-radio input[type="radio"] {
+    display: none;
+}
+
+/* Custom radio button */
+.custom-radio {
+    position: relative;
+    padding-left: 25px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Create a custom radio button */
+.custom-radio .custom-radio-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 13px;
+    width: 13px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* On mouse-over, add a grey background color */
+.custom-radio:hover .custom-radio-button {
+    border: 2px solid var(--primary-blue);
+}
+
+/* When the radio button is checked, add a blue background */
+.custom-radio input:checked ~ .custom-radio-button {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.custom-radio .custom-radio-button:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.custom-radio input:checked ~ .custom-radio-button:after {
+    display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.custom-radio .custom-radio-button:after {
+    top: 3px;
+    left: 3px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: white;
+}

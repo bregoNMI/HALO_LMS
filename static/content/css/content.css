@@ -7,6 +7,9 @@
 
 .course-content-left-column{
     flex: 7;
+    display: flex;
+    gap: 2rem;
+    flex-direction: column;
 }
 
 .course-content-right-column{
@@ -26,10 +29,9 @@
     flex-direction: column;
 }
 
-.course-content-input label {
+.course-content-input .edit-user-label{
     font-size: 0.9rem;
     margin-top: 0;
-    margin-bottom: 0.5rem;
     color: var(--text-color2);
 }
 
@@ -55,15 +57,186 @@
     gap: 2rem;
 }
 
-/* Styling custom test editor */
-.ql-toolbar .ql-bold .ql-stroke {
-    stroke: red; /* Example: Change bold icon color to red */
-}
-.custom-icon-italic {
-    font-style: italic;
-    /* Additional custom styles */
+.content-input-options-row{
+    display: flex;
+    gap: 1rem;
 }
 
+.course-content-input-subtext{
+    margin-top: 0.2rem;
+    color: var(--text-color3);
+    font-size: 0.7rem;
+}
+
+/* Course Content/Creating Modules and Lessons */
+#noModulesCreated{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#noModulesCreated .course-graphic{
+    max-width: 100px;
+}
+
+#noModulesCreated h4{
+    font-size: 0.9rem;
+    margin-top: 0;
+    color: var(--text-color2);
+}
+
+#noModulesCreated span{
+    margin-top: 0.3rem;
+    color: var(--text-color3);
+    font-size: 0.9rem;
+}
+
+.main-add-btn{
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: var(--pad-xxxs) var(--pad-sm);
+    border-radius: 6px;
+    font-size: var(--btn-font);
+    cursor: pointer;
+    background-color: var(--primary-blue);
+    color: white;
+    border: 1px solid var(--primary-blue);
+    transition: all 0.2s linear;
+    font-weight: 500;
+}
+
+.main-add-btn:hover{
+    background-color: dodgerblue;
+    border: 1px solid dodgerblue;
+}
+
+.secondary-add-btn{
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: var(--pad-xxxs) var(--pad-sm);
+    border-radius: 6px;
+    font-size: var(--btn-font);
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+    transition: all 0.2s linear;
+    font-weight: 500;
+}
+
+.secondary-add-btn:hover{
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+/* Modules */
+.module-container{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.module-card{
+    background-color: #eceff4;
+    border-radius: 6px;
+    outline: 1px solid #e5e7eb;
+}
+
+.module-card-body{
+    display: flex;
+    padding: 1rem var(--pad-xs);
+    gap: 2rem;
+    flex-direction: column;
+    border-radius: 0 0 6px 6px;
+    background-color: #f5f7f9;
+    transition: all 0.3s ease-in-out;
+}
+
+.module-title{
+    border-radius: 6px;
+    padding: 0.2rem;
+    font-size: 1rem;
+    color: #41454d !important;
+    font-family: var(--primary-font);
+    font-weight: 600;
+    text-rendering: unset;
+    color: unset;
+    letter-spacing: unset;
+    word-spacing: unset;
+    line-height: unset;
+    text-transform: unset;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: unset;
+    appearance: unset;
+    -webkit-rtl-ordering: unset;
+    cursor: text;
+    background-color: transparent;
+    margin: 0em;
+    border-width: unset;
+    border-style: unset;
+    border-color: unset;
+    border-image: unset;
+}
+
+.module-title:hover{
+    background-color: #d8e0ec;
+}
+
+.module-title:focus-visible{
+    outline-color: var(--primary-blue);
+}
+
+.module-header-right{
+    display: flex;
+    gap: 0.5rem;
+}
+
+.module-delete i{
+    font-size: 1.05rem !important;
+    color: var(--text-color4) !important;
+}
+
+.module-dropdown, .module-delete{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    justify-content: center;
+    padding: var(--pad-xxs);
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    color: var(--text-color5);
+    height: 1rem;
+    width: 1rem;
+    cursor: pointer;
+}
+
+.module-delete:hover{
+    background-color: #f8d7da;
+}.module-delete:hover i{ color: #721c24 !important;}
+
+.module-dropdown:hover {
+    background-color: #d8e0ec;
+}
+
+.module-dropdown:hover:active, .module-delete:hover:active{
+    background-color: #c7d1df;
+}
+
+.module-dropdown i, .module-delete i{
+    transition: all 0.3s ease-in-out;
+}
+
+.module-dropdown.active i {
+    transform: rotate(-90deg);
+}
+
+/* Styling custom test editor */
 .ql-toolbar.ql-snow {
     background-color: #f2f2f2;
     border: 1px solid #ececf1 !important;
@@ -128,4 +301,87 @@
 .ql-snow .ql-picker-options .ql-picker-item {
     padding: var(--pad-xxs);
     border-radius: 4px;
+}
+
+.module-drag-icon, .lesson-drag-icon {
+    cursor: grab;
+}
+
+.module-drag-icon:active, .lesson-drag-icon:active {
+    cursor: grabbing;
+}
+
+.sortable-chosen {
+    opacity: 1 !important; /* Ensure the item is fully visible */
+    outline: 2px solid var(--primary-blue); /* Add a solid border */
+}
+
+.sortable-drag {
+    opacity: 1 !important; /* Ensure the item is fully visible while dragging */
+    outline: 2px solid transparent; /* Add a dashed border */
+    width: 295px;
+    background-color: #ced6e4;
+    cursor: grabbing;
+}
+
+/* .sortable-drag .module-card-body {
+   display: none;
+} */
+
+/* Lesson Styling */
+.lesson-container{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 1rem;
+}
+.lesson-card{
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+    border-radius: 4px;
+    padding: var(--pad-xxs) var(--pad-sm);
+    outline: 1px solid #e5e7eb;
+}
+
+.lesson-header-left{
+    display: flex;
+    gap: 0.4rem;
+}
+
+.lesson-header-right{
+    display: flex;
+}
+
+.lesson-edit, .lesson-delete{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    justify-content: center;
+    padding: var(--pad-xxs);
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    color: var(--text-color5);
+    height: 1rem;
+    width: 1rem;
+    cursor: pointer;
+    color: #41454d;
+}
+
+.lesson-edit:hover {
+    background-color: #f2f2f2;
+}
+
+.lesson-delete:hover {
+    background-color: #f8d7da;
+}
+
+.lesson-delete:hover i {
+    color: #721c24 !important;
+}
+
+.lesson-title{
+    font-size: var(--btn-font);
 }

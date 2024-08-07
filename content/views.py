@@ -6,7 +6,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.contrib import messages
-from content.models import Course
+from django.shortcuts import get_object_or_404
+import json
+from django.http import JsonResponse
+from .models import Course, Category, Module, Lesson, TextContent, VideoContent, SCORMContent, StorylineQuizContent
 
 # Courses
 @login_required
@@ -64,8 +67,13 @@ def admin_courses(request):
     })
 
 def add_online_courses(request):
-    
-    return render(request, 'courses/add_online_course.html')
+    category = Category.objects.all()
+
+    context = {
+        'category_list': category
+    }
+
+    return render(request, 'courses/add_online_course.html', context)
 
 @login_required
 def course_details(request, course_id):
@@ -76,3 +84,67 @@ def course_details(request, course_id):
     }
 
     return render(request, 'courses/course_details.html', context)
+
+def create_or_update_course(request):
+    data = json.loads(request.body)
+
+    # Check if it's an update
+    course_id = data.get('id')
+    if course_id:
+        course = get_object_or_404(Course, id=course_id)
+    else:
+        course = Course()
+
+    # Update course fields
+    course.title = data['title']
+    course.description = data['description']
+    course.category = get_object_or_404(Category, id=data['category_id'])
+    course.type = data['type']
+    course.save()
+
+    # Handle modules and lessons
+    for module_data in data['modules']:
+        module_id = module_data.get('id')
+        if module_id:
+            module = get_object_or_404(Module, id=module_id)
+        else:
+            module = Module(course=course)
+
+        module.title = module_data['title']
+        module.description = module_data.get('description', '')
+        module.order = module_data['order']
+        module.save()
+
+        for lesson_data in module_data['lessons']:
+            lesson_id = lesson_data.get('id')
+            if lesson_id:
+                lesson = get_object_or_404(Lesson, id=lesson_id)
+            else:
+                lesson = Lesson(module=module)
+
+            lesson.title = lesson_data['title']
+            lesson.order = lesson_data['order']
+            lesson.save()
+
+            content_data = lesson_data['content']
+            content_type = lesson_data['content_type']
+
+            if content_type == 'TextContent':
+                content = get_object_or_404(TextContent, id=content_data.get('id')) if lesson_id else TextContent()
+                content.text = content_data['text']
+            elif content_type == 'VideoContent':
+                content = get_object_or_404(VideoContent, id=content_data.get('id')) if lesson_id else VideoContent()
+                content.video_url = content_data['video_url']
+            elif content_type == 'SCORMContent':
+                content = get_object_or_404(SCORMContent, id=content_data.get('id')) if lesson_id else SCORMContent()
+                content.file = content_data['file']
+            elif content_type == 'StorylineQuizContent':
+                content = get_object_or_404(StorylineQuizContent, id=content_data.get('id')) if lesson_id else StorylineQuizContent()
+                content.file = content_data['file']
+
+            content.save()
+
+            lesson.content_object = content
+            lesson.save()
+
+    return JsonResponse({'status': 'success'})
