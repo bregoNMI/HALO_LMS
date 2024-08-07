@@ -15,6 +15,7 @@ from django.shortcuts import get_object_or_404
 import json
 from django.http import JsonResponse
 from .models import Course, Category, Module, Lesson, TextContent, VideoContent, SCORMContent, StorylineQuizContent
+from django.views.decorators.csrf import csrf_exempt
 
 # Courses
 @login_required
@@ -154,26 +155,19 @@ def create_or_update_course(request):
 
     return JsonResponse({'status': 'success'})
 
+@csrf_exempt
 @login_required
 def file_upload(request):
     if request.method == 'POST':
-        form = FileUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            file_instance = form.save(commit=False)
-            file_instance.user = request.user
+        try:
+            uploaded_file = request.FILES['file']
+            file_instance = File(
+                user=request.user,
+                file=uploaded_file,
+                title=uploaded_file.name
+            )
             file_instance.save()
-            return redirect('file_list')
-    else:
-        form = FileUploadForm()
-    return render(request, 'file_upload.html', {'form': form})
-
-@login_required
-def file_list(request):
-    files = File.objects.filter(user=request.user)
-    return render(request, 'file_list.html', {'files': files})
-
-@login_required
-def delete_file(request, file_id):
-    file = File.objects.get(id=file_id, user=request.user)
-    file.delete()
-    return redirect('file_list')
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})

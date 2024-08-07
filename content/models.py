@@ -29,10 +29,9 @@ class Category(models.Model):
         return self.name
     
 class File(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='files')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     file = models.FileField(upload_to='user_files/')
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
+    title = models.CharField(max_length=255, default='Untitled')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
