@@ -502,6 +502,10 @@ tr:last-child{
     background-color: var(--bg-color3);
 }
 
+.table-select-option:hover .checkmark{
+    border-color: var(--primary-blue);
+}
+
 /* No Results Image */
 .no-results-found{
     display: flex;

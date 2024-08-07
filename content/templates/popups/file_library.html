@@ -1,0 +1,67 @@
+{% load static %}
+<div id="fileLibrary" class="popup-background" style="display: flex;">
+    <div class="popup-content max-width-extend-1" style="opacity: 1;">
+        <div class="popup-header file-library-header">
+            <h3>File Library</h3>
+            <div class="library-search-input">
+                <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                <input type="text" id="librarySearch" name="librarySearch" placeholder="Search Files">
+            </div>
+            <div onclick="closePopup('fileLibrary')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="file-library-body">
+            <div class="file-library-filters">
+                <span>File Type</span>
+                <div class="library-filter-options">
+                    <label class="container"><input type="checkbox"><div class="checkmark"></div> <span>PDF</span></label>
+                </div>
+            </div>
+            <div class="popup-body">
+                <div class="file-library-top-row">
+                    <h3>Uploads</h3>
+                    <div onclick="openFileUpload()" class="action-button-primary">
+                        <i class="fa-regular fa-upload"></i>
+                        <span>Upload</span>
+                    </div>
+                </div>
+                <table>
+                    <thead>      
+                        <tr>
+                            <th></th>
+                            <th>File Name</th>
+                            <th style="width: 12%;">Type</th>
+                            <th>Date Uploaded</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-select-option">
+                            <td><label class="custom-radio"><input type="radio" name="file_library_select"><span class="custom-radio-button"></span></label></td>
+                            <td>Fake Upload File</td>
+                            <td>PDF</td>                   
+                            <td>08-7-2024</td>
+                        </tr>
+                        <tr class="table-select-option">
+                            <td><label class="custom-radio"><input type="radio" name="file_library_select"><span class="custom-radio-button"></span></label></td>
+                            <td>Fake Upload File</td>
+                            <td>PDF</td>                   
+                            <td>08-7-2024</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="file-library-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button onclick="closePopup('fileLibrary')" class="popup-btn close-library-btn">Cancel</button>
+                <button id="selectFileBtn" onclick="selectFile()" class="popup-btn disabled" disabled>Select File</button>   
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'popups/file_upload.html' %}
+<link rel="stylesheet" href="{% static 'content\css\file_library.css' %}">
+<script src="{% static 'content\javascript\file_library.js' %}"></script>
