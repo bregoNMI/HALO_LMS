@@ -7,23 +7,23 @@
             <div class="details-top-row">
                 <div class="details-top-row-left">
                     <a href="/admin/courses/" class="back-btn">
-                        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                        <i class="fa-solid fa-arrow-left"></i>
                     </a>
                     <h3> Create Online Course </h3>
                 </div>
                 <div class="details-top-row-right">
                     <div class="option-btn-row">
                         <div class="option-btn">
-                            <i class="fa-regular fa-messages" aria-hidden="true"></i>
+                            <i class="fa-regular fa-clock-rotate-left"></i>
                             <span> View History </span>
                         </div>
                     </div>
                     <div class="option-btn">
-                        <i class="fa-regular fa-hand-holding-box"></i>
+                        <i class="fa-regular fa-floppy-disk"></i>
                         <span> Save </span>
                     </div>
                     <a href="{% url 'add_online_courses' %}" class="action-button-primary">
-                        <i class="fa-light fa-paper-plane"></i>
+                        <i class="fa-regular fa-paper-plane"></i>
                         <span>Publish</span>
                     </a>
                 </div>
@@ -50,7 +50,159 @@
                             <div class="course-content-input">
                                 <label class="edit-user-label" for="description">Course Description</label>
                                 <div id="editor-container"></div>
+                            </div>
+                            <div class="course-content-input course-content-row">
+                                <div class="edit-user-input">
+                                    <label class="edit-user-label" for="status">Status</label>
+                                    <div class="custom-select margin-0">
+                                        <i class="fa-regular fa-angle-down"></i>     
+                                        <input class="select-selected" type="text" id="status" name="status" value="Inactive" readonly="">
+                                        <div class="select-items scrollable-content" style="display: none;">
+                                            <div class="select-item" data-name="status" data-value="Active">Active</div>
+                                            <div class="select-item" data-name="status" data-value="Inactive">Inactive</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="edit-user-input">
+                                    <label class="edit-user-label" for="category">Category</label>
+                                    <div class="custom-select margin-0">
+                                        <i class="fa-regular fa-angle-down"></i>     
+                                        <input class="select-selected" type="text" id="category" name="category" value="" readonly="" placeholder="Select a category">
+                                        <div class="select-items scrollable-content" style="display: none;">
+                                            {% for category in category_list %}
+                                                <div class="select-item" data-name="category" data-value="{{ category }}">{{ category }}</div>                                         
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>      
+                        </div>
+                    </div>
+                    <!-- Syllabus -->
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-newspaper"></i>
+                                <span> Syllabus </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">
+                            <div class="course-content-input">
+                                <label class="edit-user-label">Must Complete</label>
+                                <div class="content-input-options-row">
+                                    <label class="custom-radio">
+                                        <input type="radio" name="must_complete" value="must_complete1" checked>
+                                        <span class="custom-radio-button"></span>
+                                        All lessons, in any order
+                                    </label>
+                                    <label class="custom-radio">
+                                        <input type="radio" name="must_complete" value="must_complete2">
+                                        <span class="custom-radio-button"></span>
+                                        All lessons, in order by chapter
+                                    </label>
+                                </div>  
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="terms">Terms & Conditions</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="terms" name="terms">
+                                    <div class="toggle-switch-background">
+                                      <div class="toggle-switch-handle"></div>
+                                    </div>
+                                </label>
+                                <span class="course-content-input-subtext"> User must accept Terms & Conditions to gain access to the course.</span>
+                            </div>     
+                        </div>
+                    </div>
+                    <!-- Course Content -->
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-book-open-cover"></i>
+                                <span> Course Content </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">
+                            <!-- List of current Modules -->
+                            <div class="course-module-container">
+                                <!-- Individual Module -->
+                                <div id="moduleContainer" class="module-container">
+                                    <div class="module-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-light fa-grip-dots-vertical module-drag-icon"></i>
+                                                <input class="module-title" type="text" placeholder="New Module">
+                                            </div>
+                                            <div class="module-header-right">
+                                                <div onclick="openPopup('moduleDeleteConfirmation', 'deleteModule', this)" id="deleteModule" class="module-delete tooltip" data-tooltip="Delete Module">
+                                                    <span class="tooltiptext">Delete Module</span>
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </div>
+                                                <div class="module-dropdown">
+                                                    <i class="fa-regular fa-angle-down"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="module-card-body">
+                                            <!-- Lessons -->
+                                            <div class="lesson-container">
+                                                <div class="lesson-card">
+                                                    <div class="lesson-header-left">
+                                                        <i class="fa-light fa-grip-dots-vertical lesson-drag-icon"></i>
+                                                        <span class="lesson-title"> Lesson 1: </span>
+                                                    </div>
+                                                    <div class="lesson-header-right">
+                                                        <div class="lesson-edit tooltip" data-tooltip="Edit Lesson">
+                                                            <span class="tooltiptext">Edit Lesson</span>
+                                                            <i class="fa-regular fa-pencil"></i>
+                                                        </div>
+                                                        <div class="lesson-delete tooltip" data-tooltip="Delete Lesson">
+                                                            <span class="tooltiptext">Delete Lesson</span>
+                                                            <i class="fa-regular fa-trash-can"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="lesson-card">
+                                                    <div class="lesson-header-left">
+                                                        <i class="fa-light fa-grip-dots-vertical lesson-drag-icon"></i>
+                                                        <span class="lesson-title"> Lesson 2: </span>
+                                                    </div>
+                                                    <div class="lesson-header-right">
+                                                        <div class="lesson-edit tooltip" data-tooltip="Edit Lesson">
+                                                            <span class="tooltiptext">Edit Lesson</span>
+                                                            <i class="fa-regular fa-pencil"></i>
+                                                        </div>
+                                                        <div class="lesson-delete tooltip" data-tooltip="Delete Lesson">
+                                                            <span class="tooltiptext">Delete Lesson</span>
+                                                            <i class="fa-regular fa-trash-can"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div onclick="openPopup('lessonCreationPopup', 'createLesson', { title: '', description: '' })" id="addLesson" class="secondary-add-btn">
+                                                <i class="fa-regular fa-plus"></i>
+                                                <span> Add Lesson </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="noModulesCreated">
+                                    <img class="course-graphic" src="{% static 'client_admin\Images\HALO LMS No Graphic Test-27.png' %}" alt="HALO Graphic">   
+                                    <h4>No Modules created</h4>
+                                    <span>Add a module to your course content to start creating your masterpiece</span>
+                                </div>
+                            </div>    
+                            <div id="addModule" class="main-add-btn">
+                                <i class="fa-regular fa-plus"></i>
+                                <span> Add Module </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -84,10 +236,15 @@
             </div>
         </div>
     </div>
+    {% include 'popups/file_library.html' %}
+    {% include 'popups/create_new_lesson.html' %}
+    {% include 'popups/module_delete_confirmation.html' %}
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
     <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
     <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
     <script src="{% static 'content\javascript\content.js' %}"></script>
 {% endblock content %}

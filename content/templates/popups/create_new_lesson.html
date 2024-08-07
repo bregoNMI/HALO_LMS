@@ -1,0 +1,23 @@
+<div id="lessonCreationPopup" class="popup-background">
+    <div class="popup-content max-width-6">
+        <div class="popup-header">
+            <h3>Create New Lesson</h3>
+            <div onclick="closePopup('lessonCreationPopup')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <!-- Add your form or content for creating a lesson here -->
+            <input id="lessonTitle" type="text" placeholder="Lesson Title">
+            <textarea id="lessonDescription" placeholder="Lesson Description"></textarea>
+            <input id="lessonFile" type="file">
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button onclick="closePopup('lessonCreationPopup')" class="popup-btn close-popup-btn">Cancel</button>
+                <button onclick="createLesson()" class="popup-btn">Create Lesson</button>   
+            </div>
+        </div>
+    </div>
+</div>

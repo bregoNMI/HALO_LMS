@@ -11,6 +11,10 @@ from django.http import JsonResponse
 from .models import File
 from .forms import FileUploadForm
 import json
+from django.shortcuts import get_object_or_404
+import json
+from django.http import JsonResponse
+from .models import Course, Category, Module, Lesson, TextContent, VideoContent, SCORMContent, StorylineQuizContent
 
 # Courses
 @login_required
@@ -68,8 +72,13 @@ def admin_courses(request):
     })
 
 def add_online_courses(request):
-    
-    return render(request, 'courses/add_online_course.html')
+    category = Category.objects.all()
+
+    context = {
+        'category_list': category
+    }
+
+    return render(request, 'courses/add_online_course.html', context)
 
 @login_required
 def course_details(request, course_id):

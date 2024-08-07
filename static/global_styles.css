@@ -2,6 +2,13 @@ h1,h2,h3,h4,h5,h6{
     margin: 0;
 }
 
+.disabled{
+    cursor: not-allowed !important;
+    opacity: 0.5;
+}.disabled.popup-btn:hover{
+    background-color: var(--primary-blue) !important;
+}
+
 /* Popup Styling */
 .popup-background {
     position: fixed;
