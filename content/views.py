@@ -9,7 +9,6 @@ from django.contrib import messages
 from content.models import Course
 from django.http import JsonResponse
 from .models import File
-from django.shortcuts import get_object_or_404
 import json
 from django.views.decorators.csrf import csrf_exempt
 
