@@ -9,12 +9,8 @@ from django.contrib import messages
 from content.models import Course
 from django.http import JsonResponse
 from .models import File
-from .forms import FileUploadForm
-import json
 from django.shortcuts import get_object_or_404
 import json
-from django.http import JsonResponse
-from .models import Course, Category, Module, Lesson, TextContent, VideoContent, SCORMContent, StorylineQuizContent
 from django.views.decorators.csrf import csrf_exempt
 
 # Courses
