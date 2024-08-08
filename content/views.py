@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Course, Category, Module, Lesson, TextContent, VideoContent, SCORMContent, StorylineQuizContent
+from .models import Course, Category, Module, Lesson, TextContent, VideoContent, SCORMContent, StorylineQuizContent
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from .models import File
 import json
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.dateformat import DateFormat
 
 # Courses
 @login_required
@@ -69,9 +70,11 @@ def admin_courses(request):
 
 def add_online_courses(request):
     category = Category.objects.all()
+    file = File.objects.all()
 
     context = {
-        'category_list': category
+        'category_list': category,
+        'file_list': file
     }
 
     return render(request, 'courses/add_online_course.html', context)
@@ -150,7 +153,6 @@ def create_or_update_course(request):
 
     return JsonResponse({'status': 'success'})
 
-@csrf_exempt
 @login_required
 def file_upload(request):
     if request.method == 'POST':
@@ -162,7 +164,17 @@ def file_upload(request):
                 title=uploaded_file.name
             )
             file_instance.save()
-            return JsonResponse({'success': True})
+
+            # Format the uploaded_at date
+            uploaded_at_formatted = DateFormat(file_instance.uploaded_at).format('Y-m-d H:i:s')
+
+            return JsonResponse({
+                'success': True,
+                'file': {
+                    'title': file_instance.title,
+                    'uploaded_at': uploaded_at_formatted,
+                }
+            })
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Invalid request method'})

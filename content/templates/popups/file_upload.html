@@ -7,14 +7,27 @@
             </div>
         </div>
         <form id="fileUploadForm" enctype="multipart/form-data">
-            <div class="popup-body">          
-                <input type="file" id="fileInput" name="file">                  
+            <div class="popup-body">
+                <div class="file-upload-inner">
+                    <h5>Please select a file you would like to upload</h5>
+                    <label for="fileInput" class="custom-file-upload-container">
+                        <div class="custom-file-upload">
+                            <input type="file" id="fileInput" name="file" style="display: none;">
+                            <i class="fa-solid fa-upload"></i> Choose File
+                        </div>
+                        <div class="custom-file-title">
+                            <span id="fileNameDisplay" class="file-name-display">No file selected</span>
+                        </div>
+                        
+                        <!-- <input type="file" id="fileInput" name="file">               -->   
+                    </label> 
+                </div>
             </div>
             <div class="popup-footer">
                 <div class="spacer"></div>
                 <div class="popup-btns">
-                    <button onclick="closeFileUpload()" class="popup-btn close-popup-btn">Cancel</button>
-                    <button type="submit" class="popup-btn">Save</button>
+                    <div onclick="closeFileUpload()" class="popup-btn close-popup-btn">Cancel</div>
+                    <button id="fileUploadSubmit" type="submit" class="popup-btn disabled" disabled>Upload</button>
                 </div>
             </div>
         </form>

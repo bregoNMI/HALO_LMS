@@ -26,6 +26,7 @@
 .file-library-body{
     display: flex;
     flex: 1;
+    overflow: hidden;
 }
 
 .file-library-body .popup-body{
@@ -33,6 +34,8 @@
     flex: 8.5;
     padding: var(--pad-xxxl);
     padding-bottom: 4rem;
+    max-height: 34rem;
+    overflow: auto;
 }
 
 .file-library-body .file-library-filters{
@@ -161,4 +164,60 @@
     transform: translate(-50%, -50%);
     color: gray;
     font-size: 0.8rem;
+}
+
+/* Custom File Upload */
+.custom-file-upload-container{
+    display: flex;
+    align-items: center;
+}
+
+.custom-file-upload {
+    display: inline-block;
+    padding: 7px 14px;
+    cursor: pointer;
+    background-color: var(--primary-blue);
+    color: #fff;
+    border-radius: 4px 0 0 4px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.custom-file-upload:hover {
+    background-color: dodgerblue;
+}
+
+.custom-file-upload i {
+    margin-right: 8px;
+}
+
+.custom-file-title{
+    flex: 1;
+    border: 1px solid #ececf1;
+    padding: 6px 9px;
+    border-radius: 0 4px 4px 0;
+    overflow: hidden;
+    max-height: 1.2rem;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+}
+
+.custom-file-title:hover {
+    background-color: var(--bg-color3);
+}
+
+.file-name-display {
+    font-size: 14px;
+    color: #555;
+}
+
+.file-upload-inner{
+    padding: 1rem 0;
+}
+
+.file-upload-inner h5{
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: var(--text-color2);
+    font-size: 0.9rem;
 }

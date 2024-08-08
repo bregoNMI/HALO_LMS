@@ -1,5 +1,5 @@
 from django.contrib import admin
-from content.models import Course, Module, Lesson, SCORMContent, VideoContent, StorylineQuizContent, TextContent, Category
+from content.models import Course, Module, Lesson, SCORMContent, VideoContent, StorylineQuizContent, TextContent, Category, File
 
 # Register Course, Module, Lesson, and content types
 admin.site.register(Category)
@@ -10,3 +10,4 @@ admin.site.register(SCORMContent)
 admin.site.register(VideoContent)
 admin.site.register(StorylineQuizContent)
 admin.site.register(TextContent)
+admin.site.register(File)

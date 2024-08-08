@@ -35,19 +35,19 @@
                             <th>Date Uploaded</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr class="table-select-option">
-                            <td><label class="custom-radio"><input type="radio" name="file_library_select"><span class="custom-radio-button"></span></label></td>
-                            <td>Fake Upload File</td>
-                            <td>PDF</td>                   
-                            <td>08-7-2024</td>
-                        </tr>
-                        <tr class="table-select-option">
-                            <td><label class="custom-radio"><input type="radio" name="file_library_select"><span class="custom-radio-button"></span></label></td>
-                            <td>Fake Upload File</td>
-                            <td>PDF</td>                   
-                            <td>08-7-2024</td>
-                        </tr>
+                    <tbody id="fileList">
+                        {% if file_list %}
+                            {% for file in file_list %}    
+                                <tr class="table-select-option">
+                                    <td><label class="custom-radio"><input type="radio" name="file_library_select"><span class="custom-radio-button"></span></label></td>
+                                    <td>{{ file.title }}</td>
+                                    <td>PDF</td>                   
+                                    <td>{{ file.uploaded_at }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <span> You currently have 0 files.</span>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
