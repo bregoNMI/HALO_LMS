@@ -3,25 +3,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
-class Content(models.Model):
-    title = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        abstract = True
-
-class SCORMContent(Content):
-    file = models.FileField(upload_to='scorm/')
-
-class VideoContent(Content):
-    video_url = models.URLField()
-
-class StorylineQuizContent(Content):
-    file = models.FileField(upload_to='storyline_quizzes/')
-
-class TextContent(Content):
-    text = models.TextField()
-
 class Category(models.Model):
     name = models.CharField(max_length=200, blank=True)
 
@@ -79,9 +60,7 @@ class Lesson(models.Model):
     title = models.CharField(max_length=200)
     order = models.PositiveIntegerField()
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    file = models.ForeignKey(File, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         ordering = ['order']
