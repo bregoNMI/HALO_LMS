@@ -1,12 +1,11 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Course, Category, Module, Lesson, TextContent, VideoContent, SCORMContent, StorylineQuizContent
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.contrib import messages
-from content.models import Course
+from content.models import File, Course, Module, Lesson, Category
 from django.http import JsonResponse
 from .models import File
 import json
@@ -127,25 +126,14 @@ def create_or_update_course(request):
             lesson.order = lesson_data['order']
             lesson.save()
 
-            content_data = lesson_data['content']
-            content_type = lesson_data['content_type']
+            # Handle associated file
+            file_id = lesson_data.get('file_id')
+            if file_id:
+                file = get_object_or_404(File, id=file_id)
+                lesson.file = file
+            else:
+                lesson.file = None
 
-            if content_type == 'TextContent':
-                content = get_object_or_404(TextContent, id=content_data.get('id')) if lesson_id else TextContent()
-                content.text = content_data['text']
-            elif content_type == 'VideoContent':
-                content = get_object_or_404(VideoContent, id=content_data.get('id')) if lesson_id else VideoContent()
-                content.video_url = content_data['video_url']
-            elif content_type == 'SCORMContent':
-                content = get_object_or_404(SCORMContent, id=content_data.get('id')) if lesson_id else SCORMContent()
-                content.file = content_data['file']
-            elif content_type == 'StorylineQuizContent':
-                content = get_object_or_404(StorylineQuizContent, id=content_data.get('id')) if lesson_id else StorylineQuizContent()
-                content.file = content_data['file']
-            
-            content.save()
-
-            lesson.content_object = content
             lesson.save()
 
     return JsonResponse({'status': 'success'})
