@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -10,13 +11,41 @@ class Category(models.Model):
         return self.name
     
 class File(models.Model):
+    FILE_TYPE_CHOICES = [
+        ('image', 'Image'),
+        ('document', 'Document'),
+        ('video', 'Video'),
+        ('audio', 'Audio'),
+        ('other', 'Other'),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     file = models.FileField(upload_to='user_files/')
     title = models.CharField(max_length=255, default='Untitled')
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    file_type = models.CharField(max_length=50, choices=FILE_TYPE_CHOICES, default='other')
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.file_type or self.file_type == 'other':
+            self.file_type = self.determine_file_type()
+        super().save(*args, **kwargs)
+
+    def determine_file_type(self):
+        # Automatically determine the file type based on the file extension
+        ext = os.path.splitext(self.file.name)[1].lower()
+        if ext in ['.jpg', '.jpeg', '.png', '.gif']:
+            return 'image'
+        elif ext in ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.txt']:
+            return 'document'
+        elif ext in ['.mp4', '.mkv', '.mov']:
+            return 'video'
+        elif ext in ['.mp3', '.wav']:
+            return 'audio'
+        else:
+            return 'other'
 
 # Define a Course model
 class Course(models.Model):
