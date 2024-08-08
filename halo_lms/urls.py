@@ -16,12 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from halo_lms.main.python import views
 
 urlpatterns = [
     path('django-admin/', admin.site.urls),
     path('admin/', include('client_admin.python.urls')),
-    path('login/', views.login, name='login'),
-    path('login_view/', views.login_view, name='login_view'),
+    path('login/', include('authentication.python.urls'))
+    #path('login_view/', views.login_view, name='login_view'),
 ]
 

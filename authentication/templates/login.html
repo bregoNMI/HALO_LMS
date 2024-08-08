@@ -15,8 +15,8 @@
                 <form id="loginForm" class="form-field" method="post" action="{% url 'login_view' %}">
                     {% csrf_token %}
                     <div class="login-form-field">
-                        <label for="id_username">Username:</label>
-                        <input type="text" id="id_username" name="username" required>
+                        <label for="username_or_email">Username or Email:</label>
+                        <input type="text" id="id_username_or_email" name="username_or_email" required>
                     </div>
                     <div class="login-form-field">
                         <label for="id_password">Password:</label>
@@ -24,6 +24,9 @@
                     </div>
                     <button type="submit" class="scale-button">Login</button>
                 </form>
+                <div class="button-container">
+                    <a href="{% url 'register_view' %}" class="scale-button">Register</a>
+                </div>
             </div>
         </div>
     </div>
