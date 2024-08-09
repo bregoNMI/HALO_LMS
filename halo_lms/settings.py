@@ -10,11 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import environ
 import os
+
+print(os.environ.get('AWS_ACCESS_KEY_ID'))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+env = environ.Env()
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -74,11 +80,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'halo_lms.wsgi.application'
 
-AWS_ACCESS_KEY_ID = 'AKIA3I6OQJSEERDCVT43'
 COGNITO_USER_POOL_ID = 'us-east-1_fD9eJjrhN'
 COGNITO_CLIENT_ID = '1j41n9nibiaeimpl8aent2kioo'
-COGNITO_CLIENT_SECRET = '1ifbakep3l1h74jmbaiingagpndt1f1ksn6qiju40s9u15d62792'
-AWS_SECRET_ACCESS_KEY = 'eOnAtFV3YvgOpUF9NUDq7jOXWMWosBBRiXw9EJjq'
 AWS_STORAGE_BUCKET_NAME = 'halolmstestbucket'
 AWS_S3_REGION_NAME = 'us-east-1'  # e.g., 'us-west-2'
 AWS_REGION = 'us-east-1'
