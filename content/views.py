@@ -11,6 +11,7 @@ from .models import File
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.dateformat import DateFormat
+from django.core.exceptions import ValidationError
 
 # Courses
 @login_required
@@ -146,6 +147,8 @@ def file_upload(request):
     if request.method == 'POST':
         try:
             uploaded_file = request.FILES['file']
+            
+            # Create a file instance
             file_instance = File(
                 user=request.user,
                 file=uploaded_file,
@@ -156,13 +159,18 @@ def file_upload(request):
             # Format the uploaded_at date
             uploaded_at_formatted = DateFormat(file_instance.uploaded_at).format('Y-m-d H:i:s')
 
+            # Respond with success and file details
             return JsonResponse({
                 'success': True,
                 'file': {
                     'title': file_instance.title,
                     'uploaded_at': uploaded_at_formatted,
+                    'file_type': file_instance.file_type,
+                    'size': file_instance.file.size,
                 }
             })
+        except ValidationError as ve:
+            return JsonResponse({'success': False, 'error': str(ve)})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
