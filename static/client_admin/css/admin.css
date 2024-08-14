@@ -518,7 +518,7 @@ tr:last-child{
 }
 
 .no-results-found img{
-    max-width: 230px;
+    max-width: 170px;
 }
 
 /* Custom Checkbox */
@@ -812,6 +812,7 @@ tr:last-child{
     margin: 20px 0;
     right: -50rem;
     transition: all 0.5s ease-in-out;
+    z-index: 10;
 }
 
 .alert {

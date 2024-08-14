@@ -229,6 +229,7 @@
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    flex: 1;
 }
 
 .card-header-right{

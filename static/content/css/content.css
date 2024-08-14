@@ -182,6 +182,7 @@
     border-style: unset;
     border-color: unset;
     border-image: unset;
+    flex: 1;
 }
 
 .module-title:hover{
@@ -384,4 +385,107 @@
 
 .lesson-title{
     font-size: var(--btn-font);
+}
+
+.lesson-selection-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 2rem 1rem;
+}
+
+.lesson-selection-item{
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--pad-sm);
+    border-radius: 8px;
+    background-color: white;
+    transition: all 0.3s linear;
+    cursor: pointer;
+    outline: 2px solid transparent;
+}
+
+.lesson-selection-item:hover{
+    background-color: #f2f2f7;
+}
+
+.lesson-selection-item:hover .lesson-selection-icon{
+    /* background-color: white; */
+}
+
+.lesson-selection-icon{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 1.5rem;
+    width: 1.5rem;
+    padding: 0.7rem;
+    /* border: 2px solid #ececf1; */
+    border-radius: 8px;
+    font-size: var(--fs-xl);
+    margin-bottom: 1rem;
+    /* background-color: white; */
+    transition: all 0.3s linear;
+}
+
+.lesson-selection-item span{
+    color: #6b6b6b;
+    font-size: var(--btn-font);
+    margin-top: 0.1rem;
+}
+
+.no-lessons-container {
+    display: inline-block;
+    border-radius: 4px;
+    padding: var(--pad-xs) var(--pad-sm);
+    border: 1px dashed #bdbbc4;
+    background: #fff;
+    text-align: center;
+}
+
+.no-lessons-container span {
+    display: inline-block;
+    color: #c4c1cb;
+}
+
+/* Style the label when its input is checked */
+.lesson-selection-item:has(input[type="radio"]:checked).orange {
+    outline-color: #ef955a;
+    background-color: #ffedda;
+}.lesson-selection-item:has(input[type="radio"]:checked).purple {
+    outline-color: blueviolet;
+    background-color: #f8f0ff;
+}.lesson-selection-item:has(input[type="radio"]:checked).blue {
+    outline-color: var(--primary-blue);
+    background-color: #f2f6ff;
+}
+
+.selected-lesson-type{
+    position: absolute;
+    right: 4rem;
+    font-size: var(--fs-sm);
+    padding: var(--pad-xxxs) var(--pad-xs);
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.choose-file-wrapper{
+    padding: 1rem 0;
+}
+
+.popup-content-header{
+    margin-top: 0;
+    margin-bottom: 0.7rem;
+    color: var(--text-color2);
+    font-size: 0.9rem;
+}
+
+.required-asterisk {
+    color: red;
+    font-size: 0.9rem;
+    margin-left: 5px;
 }

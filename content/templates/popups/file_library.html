@@ -1,22 +1,33 @@
 {% load static %}
-<div id="fileLibrary" class="popup-background" style="display: flex;">
-    <div class="popup-content max-width-extend-1" style="opacity: 1;">
+<div data-next-page="{{ next_page|default:1 }}" id="fileLibrary" class="popup-background">
+    <div class="popup-content max-width-extend-1">
         <div class="popup-header file-library-header">
             <h3>File Library</h3>
             <div class="library-search-input">
                 <i class="fa-regular fa-magnifying-glass search-icon"></i>
                 <input type="text" id="librarySearch" name="librarySearch" placeholder="Search Files">
             </div>
-            <div onclick="closePopup('fileLibrary')" class="close-popup-icon">
+            <div id="closeFileLibrary" onclick="closeFileLibrary()" class="close-popup-icon">
                 <i class="fa-solid fa-xmark"></i>
             </div>
         </div>
         <div class="file-library-body">
+            <!-- Message Wrapper -->
+            <div id="upload-message-container" class="alert-container" style="display: none;">   
+                <div id="upload-message-inner">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span id="upload-message"></span>
+                </div>
+            </div>
             <div class="file-library-filters">
                 <span>File Type</span>
                 <div class="library-filter-options">
-                    <label class="container"><input type="checkbox"><div class="checkmark"></div> <span>PDF</span></label>
-                </div>
+                    <label class="container"><input type="checkbox" class="filter" data-type="image"><div class="checkmark"></div> <span>Image</span></label>
+                    <label class="container"><input type="checkbox" class="filter" data-type="document"><div class="checkmark"></div> <span>Document</span></label>
+                    <label class="container"><input type="checkbox" class="filter" data-type="video"><div class="checkmark"></div> <span>Video</span></label>
+                    <label class="container"><input type="checkbox" class="filter" data-type="audio"><div class="checkmark"></div> <span>Audio</span></label>
+                    <label class="container"><input type="checkbox" class="filter" data-type="other"><div class="checkmark"></div> <span>Other</span></label>
+                </div>                
             </div>
             <div class="popup-body">
                 <div class="file-library-top-row">
@@ -36,27 +47,17 @@
                         </tr>
                     </thead>
                     <tbody id="fileList">
-                        {% if file_list %}
-                            {% for file in file_list %}    
-                                <tr class="table-select-option">
-                                    <td><label class="custom-radio"><input type="radio" name="file_library_select"><span class="custom-radio-button"></span></label></td>
-                                    <td>{{ file.title }}</td>
-                                    <td>PDF</td>                   
-                                    <td>{{ file.uploaded_at }}</td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                            <span> You currently have 0 files.</span>
-                        {% endif %}
-                    </tbody>
+                        
+                    </tbody> 
                 </table>
+                <div id="sentinel"></div> <!-- Sentinel for infinite scrolling -->
             </div>
         </div>
         
         <div class="file-library-footer">
             <div class="spacer"></div>
             <div class="popup-btns">
-                <button onclick="closePopup('fileLibrary')" class="popup-btn close-library-btn">Cancel</button>
+                <button id="closeFileLibraryBtn" onclick="closeFileLibrary()" class="popup-btn close-library-btn">Cancel</button>
                 <button id="selectFileBtn" onclick="selectFile()" class="popup-btn disabled" disabled>Select File</button>   
             </div>
         </div>

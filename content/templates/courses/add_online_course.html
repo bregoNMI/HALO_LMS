@@ -22,10 +22,10 @@
                         <i class="fa-regular fa-floppy-disk"></i>
                         <span> Save </span>
                     </div>
-                    <a href="{% url 'add_online_courses' %}" class="action-button-primary">
+                    <div onclick="generateCourseData()" class="action-button-primary">
                         <i class="fa-regular fa-paper-plane"></i>
                         <span>Publish</span>
-                    </a>
+                    </div>
                 </div>
             </div>
             <!-- Beginning of option sections -->
@@ -45,11 +45,11 @@
                         <div class="info-card-body">
                             <div class="course-content-input">
                                 <label class="edit-user-label" for="title">Course Title</label>
-                                <input type="text" id="title" name="title" placeholder="Course Title">
+                                <input type="text" id="title" name="title" placeholder="Course Title (Required)">
                             </div>
                             <div class="course-content-input">
                                 <label class="edit-user-label" for="description">Course Description</label>
-                                <div id="editor-container"></div>
+                                <div class="editor-container" id="courseDescription"></div>
                             </div>
                             <div class="course-content-input course-content-row">
                                 <div class="edit-user-input">
@@ -70,7 +70,7 @@
                                         <input class="select-selected" type="text" id="category" name="category" value="" readonly="" placeholder="Select a category">
                                         <div class="select-items scrollable-content" style="display: none;">
                                             {% for category in category_list %}
-                                                <div class="select-item" data-name="category" data-value="{{ category }}">{{ category }}</div>                                         
+                                                <div class="select-item" data-id="{{ category.id }}" data-name="category" data-value="{{ category }}">{{ category }}</div>                                         
                                             {% endfor %}
                                         </div>
                                     </div>
@@ -133,64 +133,7 @@
                             <div class="course-module-container">
                                 <!-- Individual Module -->
                                 <div id="moduleContainer" class="module-container">
-                                    <div class="module-card">
-                                        <div class="info-card-header collapsable-header">
-                                            <div class="card-header-left">
-                                                <i class="fa-light fa-grip-dots-vertical module-drag-icon"></i>
-                                                <input class="module-title" type="text" placeholder="New Module">
-                                            </div>
-                                            <div class="module-header-right">
-                                                <div onclick="openPopup('moduleDeleteConfirmation', 'deleteModule', this)" id="deleteModule" class="module-delete tooltip" data-tooltip="Delete Module">
-                                                    <span class="tooltiptext">Delete Module</span>
-                                                    <i class="fa-regular fa-trash-can"></i>
-                                                </div>
-                                                <div class="module-dropdown">
-                                                    <i class="fa-regular fa-angle-down"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="module-card-body">
-                                            <!-- Lessons -->
-                                            <div class="lesson-container">
-                                                <div class="lesson-card">
-                                                    <div class="lesson-header-left">
-                                                        <i class="fa-light fa-grip-dots-vertical lesson-drag-icon"></i>
-                                                        <span class="lesson-title"> Lesson 1: </span>
-                                                    </div>
-                                                    <div class="lesson-header-right">
-                                                        <div class="lesson-edit tooltip" data-tooltip="Edit Lesson">
-                                                            <span class="tooltiptext">Edit Lesson</span>
-                                                            <i class="fa-regular fa-pencil"></i>
-                                                        </div>
-                                                        <div class="lesson-delete tooltip" data-tooltip="Delete Lesson">
-                                                            <span class="tooltiptext">Delete Lesson</span>
-                                                            <i class="fa-regular fa-trash-can"></i>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="lesson-card">
-                                                    <div class="lesson-header-left">
-                                                        <i class="fa-light fa-grip-dots-vertical lesson-drag-icon"></i>
-                                                        <span class="lesson-title"> Lesson 2: </span>
-                                                    </div>
-                                                    <div class="lesson-header-right">
-                                                        <div class="lesson-edit tooltip" data-tooltip="Edit Lesson">
-                                                            <span class="tooltiptext">Edit Lesson</span>
-                                                            <i class="fa-regular fa-pencil"></i>
-                                                        </div>
-                                                        <div class="lesson-delete tooltip" data-tooltip="Delete Lesson">
-                                                            <span class="tooltiptext">Delete Lesson</span>
-                                                            <i class="fa-regular fa-trash-can"></i>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div onclick="openPopup('lessonCreationPopup', 'createLesson', { title: '', description: '' })" id="addLesson" class="secondary-add-btn">
-                                                <i class="fa-regular fa-plus"></i>
-                                                <span> Add Lesson </span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    
                                 </div>
 
                                 <div id="noModulesCreated">
@@ -238,7 +181,12 @@
     </div>
     {% include 'popups/file_library.html' %}
     {% include 'popups/create_new_lesson.html' %}
+    {% include 'popups/create_scorm1.2_lesson.html' %}
+    {% include 'popups/create_scorm2004_lesson.html' %}
     {% include 'popups/module_delete_confirmation.html' %}
+    {% include 'popups/lesson_delete_confirmation.html' %}
+    {% include 'popups/edit_lesson.html' %}
+    {% include 'popups/select_lesson_type.html' %}
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
     <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
     <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">

@@ -30,6 +30,7 @@
 }
 
 .file-library-body .popup-body{
+    position: relative;
     background-color: var(--bg-color6);
     flex: 8.5;
     padding: var(--pad-xxxl);
@@ -79,6 +80,7 @@
     background-color: #ced3d9;
     color: #252d39;
     font-size: var(--btn-font);
+    padding: 10px;
 }
 
 .file-library-body td{
@@ -98,6 +100,9 @@
 }
 
 .library-filter-options{
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
     margin-top: 0.8rem;
 }
 
@@ -217,7 +222,7 @@
 
 .file-upload-inner h5{
     margin-top: 0;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.7rem;
     color: var(--text-color2);
     font-size: 0.9rem;
 }

@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
@@ -11,6 +11,7 @@ from .models import File
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.dateformat import DateFormat
+from django.core.exceptions import ValidationError
 
 # Courses
 @login_required
@@ -69,11 +70,18 @@ def admin_courses(request):
 
 def add_online_courses(request):
     category = Category.objects.all()
-    file = File.objects.all()
+    page = 1  # Initially load the first page
+    per_page = 15  # Number of items per page
+
+    files = File.objects.all().order_by('-uploaded_at')
+    paginator = Paginator(files, per_page)
+    paginated_files = paginator.page(page)
 
     context = {
         'category_list': category,
-        'file_list': file
+        'file_list': paginated_files.object_list,  # Pass only the files for the first page
+        'has_next': paginated_files.has_next(),
+        'next_page': page + 1 if paginated_files.has_next() else None,
     }
 
     return render(request, 'courses/add_online_course.html', context)
@@ -143,6 +151,7 @@ def create_or_update_course(request):
 
 @login_required
 def file_upload(request):
+    # Uploading Files
     if request.method == 'POST':
         try:
             uploaded_file = request.FILES['file']
@@ -154,15 +163,73 @@ def file_upload(request):
             file_instance.save()
 
             # Format the uploaded_at date
-            uploaded_at_formatted = DateFormat(file_instance.uploaded_at).format('Y-m-d H:i:s')
+            uploaded_at_formatted = file_instance.uploaded_at.strftime('%b %d, %Y %I:%M')
+            uploaded_at_formatted += ' ' + ('p.m.' if file_instance.uploaded_at.hour >= 12 else 'a.m.')
 
             return JsonResponse({
                 'success': True,
+                'message': 'File uploaded successfully.',
                 'file': {
                     'title': file_instance.title,
+                    'file_type': file_instance.file_type,
                     'uploaded_at': uploaded_at_formatted,
                 }
             })
+
+        except ValidationError as ve:
+            return JsonResponse({'success': False, 'message': 'Validation error: ' + str(ve)})
+
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+            return JsonResponse({'success': False, 'message': 'An error occurred: ' + str(e)})
+    # Searching Files
+    elif request.method == 'GET':
+        search_query = request.GET.get('q', '')
+        filters = request.GET.get('filters', '').split(',')
+        page = int(request.GET.get('page', 1))  # Current page number
+        per_page = 15  # Number of items per page
+
+        # Build the query
+        filter_conditions = Q(user=request.user)
+
+        # Apply search query if present
+        if search_query:
+            filter_conditions &= Q(title__icontains=search_query)
+
+        # Apply filters if present and valid
+        valid_filters = [f for f in filters if f]
+        if valid_filters:
+            filter_conditions &= Q(file_type__in=valid_filters)
+
+        files = File.objects.filter(filter_conditions).order_by('-uploaded_at')
+
+        # Apply pagination
+        paginator = Paginator(files, per_page)
+        try:
+            paginated_files = paginator.page(page)
+        except EmptyPage:
+            return JsonResponse({
+                'success': True,
+                'files': [],
+                'has_next': False,
+                'next_page': None
+            })
+
+        # Prepare the response data
+        file_list = []
+        for file in paginated_files:
+            uploaded_at_formatted = file.uploaded_at.strftime('%b %d, %Y %I:%M')
+            uploaded_at_formatted += ' ' + ('p.m.' if file.uploaded_at.hour >= 12 else 'a.m.')
+
+            file_list.append({
+                'title': file.title,
+                'file_url': file.file.url,
+                'file_type': file.file_type,
+                'uploaded_at': uploaded_at_formatted,
+            })
+
+        return JsonResponse({
+            'success': True,
+            'files': file_list,
+            'has_next': paginated_files.has_next(),
+            'next_page': page + 1 if paginated_files.has_next() else None
+        })

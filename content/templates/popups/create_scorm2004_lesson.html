@@ -1,0 +1,43 @@
+<div id="scorm2004Popup" class="popup-background">
+    <div class="popup-content max-width-6">
+        <div class="popup-header">
+            <h3>Create New Lesson</h3>
+            <span class="selected-lesson-type pastel-blue">SCORM 2004</span>
+            <div onclick="closeCreateLessonPopup('scorm2004Popup')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <div class="course-content-input">
+                <label class="edit-user-label" for="SCORM2004lessonTitle">Lesson Title</label>
+                <input type="text" id="SCORM2004lessonTitle" name="SCORM2004lessonTitle" placeholder="Lesson Title (Required)">
+            </div>
+            <div class="course-content-input padding-top-2 padding-bottom-1">
+                <label class="edit-user-label" for="SCORM2004lessonDescription">Lesson Description</label>
+                <div class="editor-container" id="SCORM2004lessonDescription"></div>
+            </div>
+            <div class="choose-file-wrapper">
+                <h5 class="popup-content-header">Upload Lesson File</h5>
+                <label for="SCORM2004fileInput" class="custom-file-upload-container">
+                    <div class="custom-file-upload">
+                        <input type="file" id="SCORM2004fileInput" name="file" style="display: none;" accept=".zip">
+                        <i class="fa-solid fa-upload"></i> Choose File
+                    </div>
+                    <div class="custom-file-title">
+                        <span id="SCORM2004fileNameDisplay" class="file-name-display">No file selected</span>
+                    </div>
+                    
+                    <!-- <input type="file" id="fileInput" name="file">               -->   
+                </label> 
+            </div>
+            <input type="hidden" id="SCORM2004fileURLInput" name="fileURL" accept=".zip">
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button onclick="closeCreateLessonPopup('scorm2004Popup')" class="popup-btn close-popup-btn">Back</button>
+                <button id="create2004LessonBtn" onclick="createLesson('SCORM2004')" class="popup-btn disabled" disabled>Create Lesson</button>   
+            </div>
+        </div>
+    </div>
+</div>

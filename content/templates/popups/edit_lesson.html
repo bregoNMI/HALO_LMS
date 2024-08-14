@@ -1,0 +1,43 @@
+<div id="editLesson" class="popup-background">
+    <div class="popup-content max-width-6">
+        <div class="popup-header">
+            <h3>Edit Lesson</h3>
+            <span id="editLessonType" class="selected-lesson-type">File</span>
+            <div onclick="closePopup('editLesson')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <div class="course-content-input">
+                <label class="edit-user-label" for="editLessonTitle">Lesson Title</label>
+                <input type="text" id="editLessonTitle" name="editLessonTitle" placeholder="Lesson Title (Required)">
+            </div>
+            <div class="course-content-input padding-top-2 padding-bottom-1">
+                <label class="edit-user-label" for="editLessonDescription">Lesson Description</label>
+                <div class="editor-container" id="editLessonDescription"></div>
+            </div>
+            <div class="choose-file-wrapper">
+                <h5 class="popup-content-header">Choose File</h5>
+                <div id="editFileUploadSection">
+                    <!-- <div id="lessonFileUploadBtn" for="lessonFile" class="custom-file-upload-container">
+                        <div class="custom-file-upload">
+                            <input type="file" id="lessonFile" name="file" style="display: none;" readonly>
+                            <i class="fa-solid fa-upload"></i> Choose File
+                        </div>
+                        <div class="custom-file-title">
+                            <span id="editLessonFileDisplay" class="file-name-display">No file selected</span>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+            <input type="hidden" id="editFileURLInput" name="fileURL">
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button onclick="closePopup('editLesson')" class="popup-btn close-popup-btn">Back</button>
+                <button id="editLessonBtn" class="popup-btn">Save Lesson</button>   
+            </div>
+        </div>
+    </div>
+</div>
