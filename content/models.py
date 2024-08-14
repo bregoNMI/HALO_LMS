@@ -1,21 +1,23 @@
 import os
+import zipfile
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.exceptions import ValidationError
 
 class Category(models.Model):
     name = models.CharField(max_length=200, blank=True)
 
     def __str__(self):
         return self.name
-    
 class File(models.Model):
     FILE_TYPE_CHOICES = [
         ('image', 'Image'),
         ('document', 'Document'),
         ('video', 'Video'),
         ('audio', 'Audio'),
+        ('scorm', 'SCORM'),
         ('other', 'Other'),
     ]
 
@@ -44,8 +46,40 @@ class File(models.Model):
             return 'video'
         elif ext in ['.mp3', '.wav']:
             return 'audio'
-        else:
-            return 'other'
+        elif ext == '.zip':
+            if self.is_scorm_package():
+                return 'scorm'
+        return 'other'
+    
+    def is_scorm_package(self):
+        # Check if the ZIP file contains SCORM-specific files
+        if not self.file:
+            return False
+
+        # Extract the ZIP file to a temporary location
+        temp_dir = os.path.join('/tmp', 'scorm_temp')
+        os.makedirs(temp_dir, exist_ok=True)
+        with zipfile.ZipFile(self.file, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+        
+        # Check for SCORM-specific file
+        imsmanifest_path = os.path.join(temp_dir, 'imsmanifest.xml')
+        is_scorm = os.path.isfile(imsmanifest_path)
+
+        # Clean up
+        for root, dirs, files in os.walk(temp_dir, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+        os.rmdir(temp_dir)
+
+        return is_scorm
+    
+    def clean(self):
+        # Ensure that SCORM files are validated
+        if self.file_type == 'scorm' and not self.is_scorm_package():
+            raise ValidationError("The uploaded file is not a valid SCORM package.")
 
 # Define a Course model
 class Course(models.Model):

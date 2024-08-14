@@ -1,6 +1,31 @@
 from django.db import models
 from django.contrib.auth.models import User
 from content.models import Course, Module, Lesson
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
+
+def resize_image(image_field, size=(300, 300)):
+    # Check if the image field has a file
+    if image_field and image_field.file:
+        # Open the image from the file
+        image = Image.open(image_field.file)
+        
+        # Define the format to use
+        image_format = image.format or 'JPEG'  # Default to JPEG if format is unknown
+        
+        # Resize the image
+        image = image.resize(size, Image.LANCZOS)  # Use Image.LANCZOS for high-quality resizing
+
+        # Save the resized image to a BytesIO object
+        buffer = BytesIO()
+        image.save(buffer, format=image_format)  # Use the defined format
+        buffer.seek(0)
+
+        # Update the file field with the resized image
+        image_field.save(image_field.name, ContentFile(buffer.read()), save=False)
     
 class ProfileManager(models.Manager):
 
@@ -15,7 +40,7 @@ class ProfileManager(models.Manager):
     
 # Combined Applicant and Profile
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     username = models.CharField(('Username'), max_length=30, blank=True)
     email = models.EmailField(('email address'), unique=True)
     first_name = models.CharField(('first name'), max_length=30, blank=True)
@@ -45,6 +70,14 @@ class Profile(models.Model):
 
     def __str__(self):
         return f'{self.user.username} Profile'
+    
+@receiver(post_save, sender=Profile)
+def resize_images(sender, instance, **kwargs):
+    # Resize images only if they have been changed
+    if instance.photoid:
+        resize_image(instance.photoid)
+    if instance.passportphoto:
+        resize_image(instance.passportphoto)
 
 class UserCourse(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -90,58 +90,54 @@ def admin_users(request):
 
 @login_required
 def edit_user(request, user_id):
-    user = get_object_or_404(Profile, pk=user_id)
+    profile = get_object_or_404(Profile, pk=user_id)
+    user = profile.user
 
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        role = request.POST.get('role')
-        archived = request.POST.get('archived') == 'on'  # Check if checkbox is checked
-        country = request.POST.get('country')
-        city = request.POST.get('city')
-        state = request.POST.get('state')
-        code = request.POST.get('code')
-        citizenship = request.POST.get('citizenship')
-        address_1 = request.POST.get('address_1')
+        # Update User fields
+        user.username = request.POST.get('username')
+        user.email = request.POST.get('email')
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.save()  # Save User model
+
+        # Update Profile fields
+        profile.role = request.POST.get('role')
+        profile.archived = request.POST.get('archived') == 'on'  # Checkbox handling
+        profile.country = request.POST.get('country')
+        profile.city = request.POST.get('city')
+        profile.state = request.POST.get('state')
+        profile.code = request.POST.get('code')
+        profile.citizenship = request.POST.get('citizenship')
+        profile.address_1 = request.POST.get('address_1')
         birth_date_str = request.POST.get('birth_date')
-        sex = request.POST.get('sex')
-        referral = request.POST.get('referral')
-        associate_school = request.POST.get('associate_school')
+        profile.sex = request.POST.get('sex')
+        profile.referral = request.POST.get('referral')
+        profile.associate_school = request.POST.get('associate_school')
 
         # Parsing and formatting birth_date
         if birth_date_str:
             birth_date = parse_date(birth_date_str)
             if birth_date:
-                user.birth_date = birth_date
+                profile.birth_date = birth_date
 
-        user.username = username
-        user.email = email
-        user.first_name = first_name
-        user.last_name = last_name
-        user.role = role
-        user.archived = archived
-        user.country = country
-        user.city = city
-        user.state = state
-        user.code = code
-        user.citizenship = citizenship
-        user.address_1 = address_1
-        user.birth_date = birth_date
-        user.sex = sex
-        user.referral = referral
-        user.associate_school = associate_school
-        user.save()
-        
+        # Handle file uploads
+        if 'photoid' in request.FILES:
+            profile.photoid = request.FILES['photoid']
+        if 'passportphoto' in request.FILES:
+            profile.passportphoto = request.FILES['passportphoto']
+
+        profile.save()  # Save Profile model
+
         messages.success(request, 'User information updated successfully')
+
         # Determine where to redirect
         referer = request.META.get('HTTP_REFERER')
         if referer:
             return redirect(referer)
         else:
             # Default redirect
-            return redirect('user_details', user_id=user.id)
+            return redirect('user_details', user_id=profile.id)
 
     # Determine which template to use
     referer = request.META.get('HTTP_REFERER', '')
@@ -149,9 +145,9 @@ def edit_user(request, user_id):
         template = 'users/user_transcript.html'
     else:
         template = 'users/user_details.html'
-    
+
     context = {
-        'profile': user
+        'profile': profile
     }
     return render(request, template, context)
 

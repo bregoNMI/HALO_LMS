@@ -155,6 +155,8 @@ def file_upload(request):
     if request.method == 'POST':
         try:
             uploaded_file = request.FILES['file']
+            
+            # Create a file instance
             file_instance = File(
                 user=request.user,
                 file=uploaded_file,
@@ -166,6 +168,7 @@ def file_upload(request):
             uploaded_at_formatted = file_instance.uploaded_at.strftime('%b %d, %Y %I:%M')
             uploaded_at_formatted += ' ' + ('p.m.' if file_instance.uploaded_at.hour >= 12 else 'a.m.')
 
+            # Respond with success and file details
             return JsonResponse({
                 'success': True,
                 'message': 'File uploaded successfully.',
@@ -173,12 +176,12 @@ def file_upload(request):
                     'title': file_instance.title,
                     'file_type': file_instance.file_type,
                     'uploaded_at': uploaded_at_formatted,
+                    'file_type': file_instance.file_type,
+                    'size': file_instance.file.size,
                 }
             })
-
         except ValidationError as ve:
-            return JsonResponse({'success': False, 'message': 'Validation error: ' + str(ve)})
-
+            return JsonResponse({'success': False, 'error': str(ve)})
         except Exception as e:
             return JsonResponse({'success': False, 'message': 'An error occurred: ' + str(e)})
     # Searching Files

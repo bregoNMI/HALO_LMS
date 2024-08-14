@@ -1,6 +1,6 @@
 <div id="editUserPopup" class="popup-background"> 
     <div class="popup-content max-width-3">
-        <form id="editUserForm" method="post" action="{% url 'edit_user' profile.id %}">
+        <form id="editUserForm" method="post" action="{% url 'edit_user' profile.id %}" enctype="multipart/form-data">
             {% csrf_token %}
             <div style="border-bottom: 1px solid var(--bg-color2);" class="popup-header">
                 <h3> Edit User Information </h3>
@@ -14,22 +14,24 @@
                         <div class="edit-image">
                             <label class="edit-user-label" for="photoid">Headshot Image</label>
                             {% if profile.photoid %}
-                                <img id="photoid" name="photoid" src="{{ profile.photoid.url }}" alt="photoid">
+                                <img id="photoidPreview" src="{{ profile.photoid.url }}" alt="photoid">
                             {% else %}
                                 <div class="profile-image">
                                     <i class="fa-regular fa-user-graduate"></i>
                                 </div>
                             {% endif %}
+                            <input type="file" id="photoid" name="photoid" accept="image/*" onchange="previewImage('photoid', 'photoidPreview')">
                         </div>
                         <div class="edit-image">
-                            <label class="edit-user-label" for="photoid">Identification Image</label>
+                            <label class="edit-user-label" for="passportphoto">Identification Image</label>
                             {% if profile.passportphoto %}
-                                <img id="passportphoto" name="passportphoto" src="{{ profile.passportphoto.url }}" alt="passportphoto">
+                                <img id="passportphotoPreview" src="{{ profile.passportphoto.url }}" alt="passportphoto">
                             {% else %}
                                 <div class="profile-image">
                                     <i class="fa-regular fa-user-graduate"></i>
                                 </div>
                             {% endif %}
+                            <input type="file" id="passportphoto" name="passportphoto" accept="image/*" onchange="previewImage('passportphoto', 'passportphotoPreview')">
                         </div>
                     </div>
                 </div>
