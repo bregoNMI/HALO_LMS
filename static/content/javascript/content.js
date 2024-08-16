@@ -8,7 +8,52 @@ document.addEventListener("DOMContentLoaded", function() {
     assignDeleteHandlers();
     assignEditHandlers();
     selectLessonType();
+    initializeTopRowNav(); 
+    initializeToggleOptions();
+    initializeRadioOptions();
+    initializeThumbnailPreview();
 });
+
+function initializeTopRowNav(){
+    const detailsTopRow = document.getElementById('mainNavBar');
+
+    // IntersectionObserver callback
+    const observerCallback = (entries) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) {
+                document.getElementById('stickyNavBar').style.display = 'flex';
+            } else {
+                document.getElementById('stickyNavBar').style.display = 'none';
+            }
+        });
+    };
+
+    // Create a new IntersectionObserver instance
+    const observer = new IntersectionObserver(observerCallback, {
+        threshold: [0]  // Trigger the callback when 0% of the element is visible
+    });
+
+    // Observe the target element
+    observer.observe(detailsTopRow);
+}
+
+function syncNavBarWidth() {
+    const adminBody = document.querySelector('.admin-body');
+    const stickyNavBar = document.querySelector('#stickyNavBar');
+    const sidebarContainer = document.querySelector('.admin-sidebar-container');
+
+    if (adminBody && stickyNavBar && sidebarContainer) {
+        // Set the width of #stickyNavBar to match .admin-body
+        stickyNavBar.style.width = `${adminBody.clientWidth}px` - (50 + 'px');
+        
+        // Set the margin-left of #stickyNavBar to the width of .admin-sidebar-container
+        stickyNavBar.style.marginLeft = `${sidebarContainer.clientWidth}px`;
+    }
+}
+
+// Sync widths on page load and window resize
+window.addEventListener('load', syncNavBarWidth);
+window.addEventListener('resize', syncNavBarWidth);
 
 // Declare quillEditors as a global variable to store all Quill instances
 let quillEditors = [];
@@ -288,6 +333,7 @@ function createLesson(lessonType) {
         title = document.getElementById('lessonTitle').value;
         description = getEditorContent('lessonDescription');
         fileURLInput = document.getElementById('fileURLInput').value;
+        fileName = document.getElementById('lessonFileDisplay').innerText;  
         popupToClose = 'lessonCreationPopup';
     } else if (lessonType === 'SCORM1.2' && window.closestLessonContainer) {
         title = document.getElementById('SCORM1.2lessonTitle').value;
@@ -345,18 +391,27 @@ function clearFileLessonInputs(){
     document.querySelector('#lessonDescription .ql-editor p').innerHTML = '';
     document.getElementById('fileURLInput').value = '';
     document.getElementById('lessonFileDisplay').innerText = 'No file selected';
+    // Resetting Create BTN
+    createFileLessonBtn.classList.add('disabled');
+    createFileLessonBtn.setAttribute('disabled', true);
 }
 function clearSCORM12LessonInputs(){
     document.getElementById('SCORM1.2lessonTitle').value = '';
     document.querySelector('#SCORM12lessonDescription .ql-editor p').innerHTML = '';
     document.getElementById('SCORM1.2fileInput').value = '';
     document.getElementById('SCORM1.2fileNameDisplay').innerText = 'No file selected';
+    // Resetting Create BTN
+    createFileLessonBtn.classList.add('disabled');
+    createFileLessonBtn.setAttribute('disabled', true);
 }
 function clearSCORM2004LessonInputs(){
     document.getElementById('SCORM2004lessonTitle').value = '';
     document.querySelector('#SCORM2004lessonDescription .ql-editor p').innerHTML = '';
     document.getElementById('SCORM2004fileInput').value = '';
     document.getElementById('SCORM2004fileNameDisplay').innerText = 'No file selected';
+    // Resetting Create BTN
+    createFileLessonBtn.classList.add('disabled');
+    createFileLessonBtn.setAttribute('disabled', true);
 }
 
 function createAndAppendLessonCard(index, title, description, fileURL, fileName, lessonType) {
@@ -366,7 +421,7 @@ function createAndAppendLessonCard(index, title, description, fileURL, fileName,
         <input class="lesson-file-name" type="hidden" value="${fileName}">
         <input class="lesson-type" type="hidden" value="${lessonType}">
         <input class="lesson-file" type="hidden" value="${fileURL}">
-        <input class="lesson-description" type="hidden" value="${description}">
+        <input class="lesson-description" type="hidden" value='${description}'>
 
         <div class="lesson-header-left">
             <i class="fa-light fa-grip-dots-vertical lesson-drag-icon"></i>
@@ -394,7 +449,6 @@ function selectLessonType(){
 
     lessonTypeOptions.forEach(button => {
         button.addEventListener('click', function () {
-            console.log(button.id);
             selectLessonType.setAttribute('onclick', `openPopup("${button.id}", "selectType", this)`);
         });
     });
@@ -797,4 +851,135 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+function initializeToggleOptions(){
+    // Get all toggle-option checkboxes
+    const toggleOptions = document.querySelectorAll('.toggle-option');
+    
+    // Add change event listener to each checkbox
+    toggleOptions.forEach(function(toggleOption) {
+        toggleOption.addEventListener('change', function() {
+            // Find the closest .course-content-input container
+            const courseContentInput = toggleOption.closest('.course-content-input');
+            
+            if (courseContentInput) {
+                // Find the next .toggle-option-details sibling
+                const toggleOptionDetails = courseContentInput.nextElementSibling;
+                
+                if (toggleOptionDetails && toggleOptionDetails.classList.contains('toggle-option-details')) {
+                    // Add or remove the 'show' class based on checkbox state
+                    if (toggleOption.checked) {
+                        toggleOptionDetails.classList.add('show-toggle-option-details');
+                    } else {
+                        toggleOptionDetails.classList.remove('show-toggle-option-details');
+                    }
+                }
+            }
+        });
+    });
+}
+
+function initializeRadioOptions() {
+    // Get all radio buttons with the class radio-option
+    const showOptionRadios = document.querySelectorAll('.radio-option');
+
+    // Add change event listener to each radio button
+    showOptionRadios.forEach(function(showOptionRadio) {
+        showOptionRadio.addEventListener('change', function() {
+            // Get the value of the data-target attribute
+            const targetId = showOptionRadio.getAttribute('data-target');
+            
+            // Find the closest .course-content-input container (which contains the radio buttons)
+            const contentInputContainer = showOptionRadio.closest('.course-content-input');
+
+            if (contentInputContainer) {
+                // Find all radio buttons within this .course-content-input container
+                const relatedRadioButtons = contentInputContainer.querySelectorAll('.radio-option[data-target]');
+                
+                // Hide only the associated .toggle-option-details for the current group of radio buttons
+                relatedRadioButtons.forEach(function(radio) {
+                    const relatedId = radio.getAttribute('data-target');
+                    const relatedDetailsElement = document.getElementById(relatedId);
+                    if (relatedDetailsElement) {
+                        relatedDetailsElement.classList.remove('show-toggle-option-details');
+                    }
+                });
+
+                // Show the relevant .toggle-option-details if this radio is checked
+                if (targetId && showOptionRadio.checked) {
+                    const relatedDetailsElement = document.getElementById(targetId);
+                    if (relatedDetailsElement) {
+                        relatedDetailsElement.classList.add('show-toggle-option-details');
+                    }
+                }
+            }
+        });
+    });
+}
+
+function initializeThumbnailPreview(){
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const thumbnailDelete = document.getElementById('thumbnailDelete');
+
+    // Open file dialog when dropzone is clicked
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    // Remove Current Thumbnail
+    thumbnailDelete.addEventListener('click', (e) => {
+        e.preventDefault();
+        imagePreview.style.display = "none";
+        thumbnailDelete.style.display = "none";
+        const ThumbnailImagePreview = document.getElementById('ThumbnailImagePreview');
+        ThumbnailImagePreview.src = ''; // Clear the image
+    });
+
+    // Handle file selection
+    fileInput.addEventListener('change', handleFile);
+
+    // Handle drag over event
+    dropzone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        dropzone.classList.add('dragging');
+    });
+
+    // Handle drag leave event
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragging');
+    });
+
+    // Handle file drop
+    dropzone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dropzone.classList.remove('dragging');
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+            handleFile({ target: { files } });
+        }
+    });
+
+    function handleFile(event) {
+        const file = event.target.files[0];
+
+        // Only process if a file is selected
+        if (file) {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const ThumbnailImagePreview = document.getElementById('ThumbnailImagePreview');
+                    ThumbnailImagePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+                imagePreview.style.display = "flex";
+                thumbnailDelete.style.display = "flex";
+            } else {
+                alert('Please select a valid image file.');
+            }
+        } else {
+            // Do nothing if no file is selected (e.g., the user clicked "Cancel")
+            console.log('No file selected');
+        }
+    }
 }

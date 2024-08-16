@@ -54,7 +54,14 @@ function selectFile(popupId) {
             const editLessonFileDisplay = document.getElementById('editLessonFileDisplay');
             editFileURLInput.value = selectedFileURL;
             editLessonFileDisplay.innerText = selectedFileTitle;
-            closeFileLibrary('editLesson');
+            closeFileLibrary('editLesson'); 
+        }else if(popupId == 'certificateSource'){
+            // Display the selected file title in the designated area
+            const certificateURLInput = document.getElementById('certificateURLInput');
+            const certificateSourceDisplay = document.getElementById('certificateSourceDisplay');
+            certificateURLInput.value = selectedFileURL;
+            certificateSourceDisplay.innerText = selectedFileTitle;
+            closePopup('fileLibrary');
         }else{         
             // Display the selected file title in the designated area
             const fileURLInput = document.getElementById('fileURLInput');
@@ -111,13 +118,17 @@ function openFileLibrary(popupId){
     if(popupId == 'editLesson'){
         closeFileLibraryBtn.setAttribute('onclick', 'closeFileLibrary("editLesson")');
         closeFileLibrary.setAttribute('onclick', 'closeFileLibrary("editLesson")');
-        console.log('2');
         // Hide Edit Lesson Popup
         const lessonEditPopup = document.getElementById('editLesson');
         const popupContent = lessonEditPopup.querySelector('.popup-content');
         popupContent.classList.remove('animate-popup-content');
         lessonEditPopup.style.display = "none";
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("editLesson")');
+    }else if(popupId == 'certificateSource'){
+        closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
+        closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
+        // Add selected file to correct field
+        document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("certificateSource")');
     }else{
         closeFileLibraryBtn.setAttribute('onclick', 'closeFileLibrary()');
         closeFileLibrary.setAttribute('onclick', 'closeFileLibrary()');

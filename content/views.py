@@ -96,6 +96,7 @@ def course_details(request, course_id):
 
     return render(request, 'courses/course_details.html', context)
 
+@login_required
 def create_or_update_course(request):
     data = json.loads(request.body)
 

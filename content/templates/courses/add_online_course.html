@@ -2,9 +2,35 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
+    <div id="stickyNavBar" style="display: none;">
+        <div class="details-top-row max-width-extend-1">
+            <div class="details-top-row-left">
+                <a href="/admin/courses/" class="back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <h3> Create Online Course </h3>
+            </div>
+            <div class="details-top-row-right">
+                <div class="option-btn-row">
+                    <div class="option-btn">
+                        <i class="fa-regular fa-clock-rotate-left"></i>
+                        <span> View History </span>
+                    </div>
+                </div>
+                <div class="option-btn">
+                    <i class="fa-regular fa-floppy-disk"></i>
+                    <span> Save </span>
+                </div>
+                <div onclick="generateCourseData()" class="action-button-primary">
+                    <i class="fa-regular fa-paper-plane"></i>
+                    <span>Publish</span>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="admin-body align-center">
         <div class="max-width-extend-1">
-            <div class="details-top-row">
+            <div id="mainNavBar" class="details-top-row">
                 <div class="details-top-row-left">
                     <a href="/admin/courses/" class="back-btn">
                         <i class="fa-solid fa-arrow-left"></i>
@@ -113,7 +139,7 @@
                                       <div class="toggle-switch-handle"></div>
                                     </div>
                                 </label>
-                                <span class="course-content-input-subtext"> User must accept Terms & Conditions to gain access to the course.</span>
+                                <span class="course-content-input-subtext"> Learners must accept Terms & Conditions to gain access to the course.</span>
                             </div>     
                         </div>
                     </div>
@@ -151,11 +177,310 @@
                 </div>
                 <!-- Right Column -->
                 <div class="course-content-right-column">
+                    <!-- Credentials -->
                     <div class="details-info-card">
                         <div class="info-card-header collapsable-header">
                             <div class="card-header-left">
-                                <i class="fa-regular fa-gears"></i>
-                                <span> Additional Settings </span>
+                                <!-- <i class="fa-regular fa-book-sparkles"></i> -->
+                                <i class="fa-regular fa-ranking-star"></i>
+                                <span> Credentials </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body right-column-card-body">
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="certificate">Certificate</label>
+                                <label class="toggle-switch">
+                                    <input class="toggle-option" type="checkbox" id="certificate" name="certificate">
+                                    <div class="toggle-switch-background">
+                                      <div class="toggle-switch-handle"></div>
+                                    </div>
+                                </label>
+                                <span class="course-content-input-subtext"> Learners receive certificate upon course completion. </span>
+                            </div>
+                            <!-- Certificate -->
+                            <div class="toggle-option-details">
+                                <div class="right-column-file-wrapper">
+                                    <h5 class="right-column-option-header">Certificate Source</h5>
+                                    <div onclick="openFileLibrary('certificateSource')" for="certificateSource" class="custom-file-upload-container">
+                                        <div class="custom-file-upload">
+                                            <input type="file" id="certificateSource" name="certificateSource" style="display: none;" readonly="">
+                                            <i class="fa-regular fa-folder-open"></i> Choose File
+                                        </div>
+                                        <div class="custom-file-title">
+                                            <span id="certificateSourceDisplay" class="file-name-display">No file selected</span>
+                                        </div>
+                                        <!-- This is where the Certificate File Lives -->
+                                        <input type="hidden" id="certificateURLInput" name="certificateURL">
+                                    </div>
+                                </div>
+                                <div class="course-content-input">
+                                    <label class="edit-user-label" for="certTitle">Certificate Title</label>
+                                    <input type="text" id="certTitle" name="certTitle" placeholder="Certificate Title (Optional)">
+                                </div>
+                            </div>       
+                        </div>
+                    </div>
+                    <!-- Course Credits (future) -->
+                    <!-- Event Dates -->
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-alarm-clock"></i>
+                                <span> Event Dates </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <!-- Start Date -->
+                        <div class="info-card-body right-column-card-body">
+                            <!-- Start Date -->
+                            <div class="course-content-input">
+                                <label class="edit-user-label">Start Date</label>
+                                <div class="content-input-options-row">
+                                    <label class="custom-radio">
+                                        <input class="radio-option" type="radio" name="start_date" value="start_date1" checked="">
+                                        <span class="custom-radio-button"></span>
+                                        None
+                                    </label>
+                                    <label class="custom-radio">
+                                        <input class="show-option-details radio-option" data-target="startDateDetails" type="radio" name="start_date" value="start_date2">
+                                        <span class="custom-radio-button"></span>
+                                        Select Date
+                                    </label>
+                                </div>  
+                            </div>
+                            <div id="startDateDetails" class="toggle-option-details">
+                                <div class="right-column-file-wrapper">
+                                    <label class="edit-user-label" for="start_date">Start Date</label>
+                                    <div class="date-options-container">
+                                        <div class="edit-user-input">
+                                            <input type="text" id="start_date" name="start_date" class="date-picker" placeholder="Select Date">
+                                            <span class="input-group-addon">
+                                                <i class="fa-regular fa-calendar-lines"></i>
+                                            </span>
+                                        </div>
+                                        <div class="edit-user-input">
+                                            <input type="text" id="start_date" name="start_date" class="time-picker" placeholder="Select Time (Optional)">
+                                            <span class="input-group-addon">
+                                                <i class="fa-regular fa-clock"></i>
+                                            </span>
+                                        </div>
+                                    </div>   
+                                </div>
+                            </div>      
+                            <!-- Expiration Date -->
+                            <div class="course-content-input">
+                                <label class="edit-user-label">Expiration Date</label>
+                                <div class="content-input-options-row">
+                                    <label class="custom-radio">
+                                        <input class="radio-option" type="radio" name="expiration_date" value="expiration_date1" checked="">
+                                        <span class="custom-radio-button"></span>
+                                        None
+                                    </label>
+                                    <label class="custom-radio">
+                                        <input class="radio-option" type="radio" name="expiration_date" data-target="timeFromEnrollmentDetails" value="expiration_date2">
+                                        <span class="custom-radio-button"></span>
+                                        Time From Enrollment
+                                    </label>
+                                    <label class="custom-radio">
+                                        <input class="radio-option" type="radio" name="expiration_date" data-target="selectDateDetails" value="expiration_date3">
+                                        <span class="custom-radio-button"></span>
+                                        Select Date
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- Time From Enrollment -->
+                            <div id="timeFromEnrollmentDetails" class="toggle-option-details">
+                                <div class="right-column-file-wrapper">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="expiration_date">Course Expires In</label>
+                                        <div class="date-options-container">
+                                            <div class="edit-user-input">
+                                                <input type="text" id="expiration_year" name="expiration_year" class="icon-field" placeholder="Years">
+                                                <span class="input-group-addon">
+                                                    <i class="fa-regular fa-calendar"></i>
+                                                </span>
+                                            </div>
+                                            <div class="edit-user-input">
+                                                <input type="text" id="expiration_months" name="expiration_months" class="icon-field" placeholder="Months">
+                                                <span class="input-group-addon">
+                                                    <i class="fa-regular fa-calendar-week"></i>
+                                                </span>
+                                            </div>
+                                            <div class="edit-user-input">
+                                                <input type="text" id="expiration_days" name="expiration_days" class="icon-field" placeholder="Days">
+                                                <span class="input-group-addon">
+                                                    <i class="fa-regular fa-calendar-day"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Select Date -->
+                            <div id="selectDateDetails" class="toggle-option-details">
+                                <div class="right-column-file-wrapper">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="expiration_date">Expires On</label>
+                                        <div class="date-options-container">
+                                            <div class="edit-user-input">
+                                                <input type="text" id="expires_on_date" name="expires_on_date" class="date-picker" placeholder="Select Date">
+                                                <span class="input-group-addon">
+                                                    <i class="fa-regular fa-calendar-lines"></i>
+                                                </span>
+                                            </div>
+                                            <div class="edit-user-input">
+                                                <input type="text" id="expires_on_time" name="expires_on_time" class="time-picker" placeholder="Select Time (Optional)">
+                                                <span class="input-group-addon">
+                                                    <i class="fa-regular fa-clock"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Due Date -->
+                            <div class="course-content-input">
+                                <label class="edit-user-label">Due Date</label>
+                                <div class="content-input-options-row">
+                                    <label class="custom-radio">
+                                        <input class="radio-option" type="radio" name="due_date" value="due_date1" checked="">
+                                        <span class="custom-radio-button"></span>
+                                        None
+                                    </label>
+                                    <label class="custom-radio">
+                                        <input class="radio-option" type="radio" name="due_date" data-target="timeFromEnrollmentDueDate" value="due_date2">
+                                        <span class="custom-radio-button"></span>
+                                        Time From Enrollment
+                                    </label>
+                                    <label class="custom-radio">
+                                        <input class="radio-option" type="radio" name="due_date" data-target="selectDateDueDate" value="due_date3">
+                                        <span class="custom-radio-button"></span>
+                                        Select Date
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- Time From Enrollment -->
+                            <div id="timeFromEnrollmentDueDate" class="toggle-option-details">
+                                <div class="right-column-file-wrapper">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="due_date">Course Due In</label>
+                                        <div class="date-options-container">
+                                            <div class="edit-user-input">
+                                                <input type="text" id="due_year" name="due_year" class="icon-field" placeholder="Years">
+                                                <span class="input-group-addon">
+                                                    <i class="fa-regular fa-calendar"></i>
+                                                </span>
+                                            </div>
+                                            <div class="edit-user-input">
+                                                <input type="text" id="due_months" name="due_months" class="icon-field" placeholder="Months">
+                                                <span class="input-group-addon">
+                                                    <i class="fa-regular fa-calendar-week"></i>
+                                                </span>
+                                            </div>
+                                            <div class="edit-user-input">
+                                                <input type="text" id="due_days" name="due_days" class="icon-field" placeholder="Days">
+                                                <span class="input-group-addon">
+                                                    <i class="fa-regular fa-calendar-day"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Select Date -->
+                            <div id="selectDateDueDate" class="toggle-option-details">
+                                <div class="right-column-file-wrapper">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="due_date">Due On</label>
+                                        <div class="date-options-container">
+                                            <div class="edit-user-input">
+                                                <input type="text" id="due_on_date" name="due_on_date" class="date-picker" placeholder="Select Date">
+                                                <span class="input-group-addon">
+                                                    <i class="fa-regular fa-calendar-lines"></i>
+                                                </span>
+                                            </div>
+                                            <div class="edit-user-input">
+                                                <input type="text" id="due_on_time" name="due_on_time" class="time-picker" placeholder="Select Time (Optional)">
+                                                <span class="input-group-addon">
+                                                    <i class="fa-regular fa-clock"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+
+                        </div>
+                    </div>
+                    <!-- Course Thumbnail -->
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-image"></i>
+                                <span> Media </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <!-- Course Thumbnail -->
+                        <div class="info-card-body right-column-card-body">         
+                            <div class="course-thumbnail-wrapper">
+                                <label class="edit-user-label" for="thumbnail">Course Thumbnail</label>
+                                <div class="thumbnail-inner-thumbnail">
+                                    <div class="dropzone" id="dropzone">
+                                        <i class="fa-regular fa-panorama"></i>
+                                        <p>Drag & drop an image here, or click to select one</p>
+                                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                                        <!-- Thumbnail Display -->
+                                        <div id="imagePreview" class="image-preview">
+                                            <img alt="Course Thumbnail" id="ThumbnailImagePreview">
+                                        </div>
+                                    </div>
+                                    <div style="display: none;" id="thumbnailDelete" class="table-filter-item-small thumbnail-delete">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </div>
+                                </div>
+                            </div>       
+                        </div>
+                    </div>
+                    <!-- Resources -->
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-cubes"></i>
+                                <span> Resources </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">
+                            <div class="info-card-column">
+                                <div class="card-body-item">
+                                    <div class="card-body-left">
+                                        <i class="fa-light fa-award"></i>
+                                    </div>
+                                    <div class="card-body-right">
+                                        <h5> Enrollments in Progress</h5>
+                                        <span>10</span>
+                                    </div>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+                    <!-- Uploads -->
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-cloud-arrow-up"></i>
+                                <span> Uploads </span>
                             </div>
                             <div class="card-header-right">
                                 <i class="fa-regular fa-angle-down"></i>

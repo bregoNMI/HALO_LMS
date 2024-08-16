@@ -88,9 +88,11 @@ html, body, button{
 .admin-sidebar-container{
     padding: var(--pad-sm);
     background-color: white;
+    z-index: 2;
 }
 
 .admin-body{
+    position: relative;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -850,6 +852,7 @@ tr:last-child{
     padding-left: 25px;
     cursor: pointer;
     user-select: none;
+    font-size: 0.95rem;
 }
 
 /* Create a custom radio button */
