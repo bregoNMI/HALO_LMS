@@ -5,6 +5,7 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 1rem;
+    flex: 1;
 }
 
 .details-top-row-right{
@@ -106,6 +107,12 @@
     color: gray;
     margin-top: -1.2rem;
     flex: none;
+    object-fit: cover;
+    /* width: 100%; */
+    /* height: auto; */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
 }
 
 .bottom-left .profile-image i{
@@ -218,6 +225,7 @@
 .info-card-header span{
     color: #41454d;
     font-weight: 600;
+    text-wrap: nowrap;
 }
 
 .info-card-header i{
@@ -305,6 +313,8 @@
 .edit-images-row{
     display: flex;
     justify-content: space-between;
+    gap: 3rem;
+    flex-wrap: wrap;
 }
 
 .edit-image{
@@ -313,10 +323,27 @@
     flex-direction: column;
 }
 
+.edit-image img{
+    height: 150px;
+    width: 150px;
+    max-width: 200px;
+    object-fit: cover;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast; /* WebKit-based browsers */
+    image-rendering: -moz-crisp-edges; /* Firefox */
+    image-rendering: crisp-edges; /* Standard syntax */
+    border-radius: 8px;
+}
+
 .edit-user-label{
-    font-size: var(--fs-med);
+    font-size: 0.9rem;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-bottom: 0.4rem;
+    color: var(--text-color2);
     font-weight: 600;
-    margin-bottom: 0.4rem;
 }
 
 .edit-user-header{
@@ -391,11 +418,23 @@
     top: 2rem;
 }
 
+.edit-user-input .date-picker, .edit-user-input .time-picker, .edit-user-input .icon-field{
+    padding-left: 2.6rem;
+}
+
 .input-group-addon{
     position: absolute;
-    right: 0;
+    left: 0;
     bottom: 0;
     padding: var(--pad-xxs) var(--pad-xs);
+    border-radius: 6px 0 0 6px;
+    color: white;
+    background-color: #1863dc;
+    cursor: pointer;
+}
+
+.input-group-addon:hover{
+    background-color: dodgerblue;
 }
 
 /* Course Type Icon */
@@ -503,6 +542,7 @@
     width: 64px;
     height: 23px;
     cursor: pointer;
+    padding-bottom: 0.05rem !important;
 }
   
 .toggle-switch input[type="checkbox"] {
@@ -569,4 +609,61 @@
     text-wrap: nowrap;
     bottom: -130%;
 }
-  
+
+
+/* Custom File Upload */
+.custom-file-upload-container{
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.custom-file-upload {
+    display: inline-block;
+    padding: 7px 14px;
+    cursor: pointer;
+    background-color: var(--primary-blue);
+    color: #fff;
+    border-radius: 4px 0 0 4px;
+    font-size: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.custom-file-upload:hover {
+    background-color: dodgerblue;
+}
+
+.custom-file-upload i {
+    margin-right: 8px;
+}
+
+.custom-file-title{
+    flex: 1;
+    border: 1px solid #ececf1;
+    padding: 5.5px 9px;
+    border-radius: 0 4px 4px 0;
+    overflow: hidden;
+    max-height: 1.2rem;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+}
+
+.custom-file-title:hover {
+    background-color: var(--bg-color3);
+}
+
+.file-name-display {
+    font-size: 14px;
+    color: #555;
+}
+
+.file-upload-inner{
+    padding: 1rem 0;
+}
+
+.file-upload-inner h5{
+    margin-top: 0;
+    margin-bottom: 0.7rem;
+    color: var(--text-color2);
+    font-size: 0.9rem;
+}
