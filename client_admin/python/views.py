@@ -6,7 +6,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.contrib import messages
-from client_admin.models import Profile
+from client_admin.models import Profile, User
+from .forms import UserRegistrationForm, ProfileForm
+#from models import Profile
+#from authentication.python import views
 
 @login_required
 def admin_dashboard(request):
@@ -181,3 +184,55 @@ def user_history(request, user_id):
         'profile': user
     }
     return render(request, 'users/user_history.html', context)
+
+def add_user(request):
+    if request.method == 'POST':
+        user_form = UserRegistrationForm(request.POST)
+        profile_form = ProfileForm(request.POST, request.FILES)
+        if user_form.is_valid():
+            print('user_form valid')
+
+        if profile_form.is_valid():
+            print('profile form is valid')
+
+        if user_form.is_valid() and profile_form.is_valid():
+            # Extract the cleaned data from the form
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            role = request.POST.get('role')
+            archived = request.POST.get('archived') == 'on'  # Check if checkbox is checked
+            country = request.POST.get('country')
+            city = request.POST.get('city')
+            state = request.POST.get('state')
+            code = request.POST.get('code')
+            citizenship = request.POST.get('citizenship')
+            address_1 = request.POST.get('address_1')
+            birth_date_str = request.POST.get('birth_date')
+            sex = request.POST.get('sex')
+            referral = request.POST.get('referral')
+            associate_school = request.POST.get('associate_school')
+            # Create a new user
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+            )
+            print('before ')
+            profile = profile_form.save(commit=False)
+            profile.user = user  # Link profile to user
+            profile.save()
+            print('here')
+
+            messages.success(request, 'User created successfully.')
+            return redirect('test')  # Redirect to a success page or list view
+
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        user_form = UserRegistrationForm()
+        profile_form = ProfileForm()
+
+    return render(request, 'users/add_user.html', {'user_form': user_form, 'profile_form': profile_form})
