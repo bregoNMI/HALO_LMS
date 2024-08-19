@@ -10,11 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import environ
 import os
+
+print(os.environ.get('AWS_ACCESS_KEY_ID'))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+env = environ.Env()
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -41,6 +47,7 @@ INSTALLED_APPS = [
     'halo_lms',
     'content',
     'storages',
+    'authentication'
 ]
 
 MIDDLEWARE = [
@@ -58,7 +65,7 @@ ROOT_URLCONF = 'halo_lms.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'client_admin', 'templates'),],
+        'DIRS': [os.path.join(BASE_DIR, 'client_admin', 'authentication', 'templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -73,10 +80,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'halo_lms.wsgi.application'
 
-AWS_ACCESS_KEY_ID = 'AKIA3I6OQJSEEV3M32NU'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'amplify-halolms-dev-40e39-deployment'
+COGNITO_USER_POOL_ID = 'us-east-1_fD9eJjrhN'
+COGNITO_CLIENT_ID = '1j41n9nibiaeimpl8aent2kioo'
+AWS_STORAGE_BUCKET_NAME = 'halolmstestbucket'
 AWS_S3_REGION_NAME = 'us-east-1'  # e.g., 'us-west-2'
+AWS_REGION = 'us-east-1'
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None  # Optional: You can set it to 'public-read' if you want public access
@@ -89,11 +97,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'HALO_LMS',
         'USER': 'postgres',
-<<<<<<< HEAD
         'PASSWORD': '!A@S3d4f5g6h7j8k',
-=======
-        'PASSWORD': 'Books555!',
->>>>>>> 1483b1206972c1d40adb468a15d8cde84f5c8f39
         'HOST': 'localhost',  # Set to your database host, e.g., '127.0.0.1'
         'PORT': '5432',       # Set to your database port, default is '5432'
     }
@@ -148,12 +152,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-AWS_ACCESS_KEY_ID = 'your-aws-access-key-id'
-AWS_SECRET_ACCESS_KEY = 'your-aws-secret-access-key'
-AWS_STORAGE_BUCKET_NAME = 'your-bucket-name'
-AWS_S3_REGION_NAME = 'your-region'  # e.g., 'us-west-2'
-AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None  # Optional: You can set it to 'public-read' if you want public access
-AWS_QUERYSTRING_AUTH = False  # Optional: Generates URLs without query strings

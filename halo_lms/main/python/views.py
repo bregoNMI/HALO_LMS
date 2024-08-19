@@ -7,7 +7,7 @@ from django.http import JsonResponse
 
 @login_required
 def login(request):
-    return render(request, 'main/html/login.html')
+    return render(request, 'halo_lms/main/html/login.html')
 
 def get_cognito_public_keys(region, user_pool_id):
     keys_url = f'https://cognito-idp.{region}.amazonaws.com/{user_pool_id}/.well-known/jwks.json'

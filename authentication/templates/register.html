@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="body-content">
+        <div class="register-container">
+            <div class="registerForm">
+                <h1>Register</h1>
+                <form id="registerForm" method="post" action="{% url 'register_view' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="register-form-field">
+                        <label for="id_username">Username:</label>
+                        <input type="text" id="id_username" name="username" required>
+                    </div>
+                    <div class="register-form-field">
+                        <label for="id_password">Password:</label>
+                        <input type="password" id="id_password" name="password" required>
+                    </div>
+                    <div class="register-form-field">
+                        <label for="id_email">Email:</label>
+                        <input type="email" id="id_email" name="email" required>
+                    </div>
+                    <div class="register-form-field">
+                        <label for="id_given_name">First Name:</label>
+                        <input type="text" id="id_given_name" name="given_name" required>
+                    </div>
+                    <div class="register-form-field">
+                        <label for="id_family_name">Last Name:</label>
+                        <input type="text" id="id_family_name" name="family_name" required>
+                    </div>
+                    <div class="register-form-field">
+                        <label for="id_birthdate">Birth Date (YYYY-MM-DD):</label>
+                        <input type="text" id="id_birthdate" name="birthdate" required>
+                    </div>
+                    <div class="register-form-field">
+                        <label for="id_id_photo">Upload ID Photo:</label>
+                        <input type="file" id="id_id_photo" name="id_photo" accept=".jpg,.jpeg,.png" required>
+                    </div>
+                    <div class="register-form-field">
+                        <label for="id_reg_photo">Upload Registration Photo:</label>
+                        <input type="file" id="id_reg_photo" name="reg_photo" accept=".jpg,.jpeg,.png" required>
+                    </div>
+                    <button type="submit" class="scale-button">Register</button>
+                </form>
+                <script>
+                    document.getElementById('registerForm').addEventListener('submit', function(event) {
+                        var idPhoto = document.getElementById('id_id_photo').files[0];
+                        var regPhoto = document.getElementById('id_reg_photo').files[0];
+                        
+                        if (idPhoto && !['image/jpeg', 'image/png'].includes(idPhoto.type)) {
+                            alert('ID Photo must be a JPEG or PNG image.');
+                            event.preventDefault();
+                        }
+                        
+                        if (regPhoto && !['image/jpeg', 'image/png'].includes(regPhoto.type)) {
+                            alert('Registration Photo must be a JPEG or PNG image.');
+                            event.preventDefault();
+                        }
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
