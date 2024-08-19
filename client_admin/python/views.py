@@ -8,6 +8,8 @@ from django.utils.dateparse import parse_date
 from django.contrib import messages
 from client_admin.models import Profile, User
 from .forms import UserRegistrationForm, ProfileForm
+from django.contrib.auth import update_session_auth_hash
+from authentication.python.views import addUserCognito
 #from models import Profile
 #from authentication.python import views
 
@@ -97,6 +99,8 @@ def edit_user(request, user_id):
 
     if request.method == 'POST':
         username = request.POST.get('username')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
         email = request.POST.get('email')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
@@ -113,11 +117,25 @@ def edit_user(request, user_id):
         referral = request.POST.get('referral')
         associate_school = request.POST.get('associate_school')
 
-        # Parsing and formatting birth_date
+        # Initialize birth_date with None or an existing value from the user
+        birth_date = user.birth_date if hasattr(user, 'birth_date') else None
+        
+        # Parse and format birth_date
         if birth_date_str:
-            birth_date = parse_date(birth_date_str)
-            if birth_date:
+            parsed_birth_date = parse_date(birth_date_str)
+            if parsed_birth_date:
+                birth_date = parsed_birth_date
                 user.birth_date = birth_date
+
+        # Handle password change
+        if password and confirm_password:
+            if password == confirm_password:
+                user.user.set_password(password)  # Assuming 'user' is a Profile object with a related User
+                user.user.save()
+                update_session_auth_hash(request, user.user)  # Keeps the user logged in after password change
+                messages.success(request, 'Password updated successfully.')
+            else:
+                messages.error(request, 'Passwords do not match.')
 
         user.username = username
         user.email = email
@@ -198,6 +216,7 @@ def add_user(request):
         if user_form.is_valid() and profile_form.is_valid():
             # Extract the cleaned data from the form
             username = request.POST.get('username')
+            password = request.POST.get('password')
             email = request.POST.get('email')
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
@@ -216,18 +235,19 @@ def add_user(request):
             # Create a new user
             user = User.objects.create_user(
                 username=username,
+                password=password,
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
             )
-            print('before ')
+
             profile = profile_form.save(commit=False)
             profile.user = user  # Link profile to user
             profile.save()
-            print('here')
 
+            addUserCognito(request)
             messages.success(request, 'User created successfully.')
-            return redirect('test')  # Redirect to a success page or list view
+            return redirect('dashboard/')  # Redirect to a success page or list view
 
         else:
             messages.error(request, 'Please correct the errors below.')

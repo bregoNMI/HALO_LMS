@@ -286,3 +286,71 @@ def verification_success(request):
 def login_success_view(request):
     # Add any logic you need for after verification
     return render(request, 'login_success.html')
+
+def addUserCognito(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        email = request.POST.get('email')
+        given_name = request.POST.get('first_name')
+        family_name = request.POST.get('last_name')
+        birthdate = request.POST.get('birth_date')
+        id_photo = request.FILES.get('photoid') 
+        reg_photo = request.FILES.get('passportphoto') 
+
+        try:
+            # Upload the photo to S3
+            id_photo_name = id_photo.name
+            reg_photo_name = reg_photo.name
+            s3_bucket = settings.AWS_STORAGE_BUCKET_NAME
+            s3_key = f"users/{username}/id_photo/{id_photo_name}"  # S3 path for the photo
+
+            s3_client.upload_fileobj(id_photo, s3_bucket, s3_key)
+
+            # Generate S3 URL
+            id_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_key}"
+
+            s3_key = f"users/{username}/reg_photo/{reg_photo_name}"  # S3 path for the photo
+
+            s3_client.upload_fileobj(reg_photo, s3_bucket, s3_key)
+
+            # Generate S3 URL
+            reg_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_key}"
+
+            # Generate SECRET_HASH
+            client_id = settings.COGNITO_CLIENT_ID
+            client_secret = COGNITO_CLIENT_SECRET
+            secret_hash = generate_secret_hash(client_id, client_secret, username)
+
+            response = cognito_client.sign_up(
+                ClientId=settings.COGNITO_CLIENT_ID,
+                Username=username,
+                Password=password,
+                UserAttributes=[
+                    {'Name': 'email', 'Value': email},
+                    {'Name': 'given_name', 'Value': given_name},
+                    {'Name': 'family_name', 'Value': family_name},
+                    {'Name': 'custom:id_photo', 'Value': id_photo_url},
+                    {'Name': 'custom:reg_photo', 'Value': reg_photo_url}
+                ],
+                SecretHash=secret_hash
+            )
+
+            # Add the user to a group
+            group_name = 'Test'  # Replace with your desired group name
+            cognito_client.admin_add_user_to_group(
+                UserPoolId=settings.COGNITO_USER_POOL_ID,
+                Username=username,
+                GroupName=group_name
+            )
+
+            messages.success(request, 'Registration successful. Please check your email to confirm your account.')
+            return redirect('dashboard/')
+        except cognito_client.exceptions.UsernameExistsException:
+            messages.error(request, 'Username already exists.')
+        except cognito_client.exceptions.InvalidParameterException as e:
+            messages.error(request, f'Invalid parameters provided: {e}')
+        except Exception as e:
+            messages.error(request, f'An error occurred: {e}')
+    
+    return render(request, 'register.html')
