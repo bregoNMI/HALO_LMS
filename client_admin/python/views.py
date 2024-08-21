@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+from django.shortcuts import render
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
@@ -9,7 +10,7 @@ from django.contrib import messages
 from client_admin.models import Profile, User
 from .forms import UserRegistrationForm, ProfileForm
 from django.contrib.auth import update_session_auth_hash
-from authentication.python.views import addUserCognito
+from authentication.python.views import addUserCognito, modifyCognito
 #from models import Profile
 #from authentication.python import views
 
@@ -153,6 +154,7 @@ def edit_user(request, user_id):
         user.sex = sex
         user.referral = referral
         user.associate_school = associate_school
+        modifyCognito(request)
         user.save()
         
         messages.success(request, 'User information updated successfully')
@@ -203,6 +205,7 @@ def user_history(request, user_id):
     }
     return render(request, 'users/user_history.html', context)
 
+@login_required
 def add_user(request):
     if request.method == 'POST':
         user_form = UserRegistrationForm(request.POST)
