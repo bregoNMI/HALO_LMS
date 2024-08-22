@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
     initializeThumbnailPreview();
     assignReferenceHeaderListeners();
     assignUploadHeaderListeners();
+    testErrorFields();
 });
 
 function initializeTopRowNav(){
@@ -1117,9 +1118,8 @@ function generateCourseData() {
     const errors = validateCourseData();
     if (errors.length > 0) {
         console.log("Validation Errors:", errors);
-        // Optionally display errors on the page
-        // displayErrors(errors); 
-        return; // Stop execution if there are validation errors
+        // Errors are being displayed from validateCourseData
+        return;
     }
 
     const formData = new FormData(); // Create FormData object
@@ -1320,73 +1320,152 @@ function generateCourseData() {
     });
 }
 
+const validationMessageContainer = document.getElementById('validation-message-container');
+const validationMessageInner = document.getElementById('validation-message-inner');
+const validationMessage = document.getElementById('validation-message');
+
+function displayValidationMessage(message, isSuccess) {
+    validationMessage.textContent = message;
+    validationMessageContainer.style.display = 'flex';
+    setTimeout(() => {
+        validationMessageContainer.className = isSuccess ? 'alert-container animate-alert-container' : 'alert-container animate-alert-container';
+    }, 100);
+    validationMessageInner.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
+    setTimeout(() => {
+        validationMessageContainer.classList.remove('animate-alert-container');
+    }, 10000);
+}
 
 // Checking to Ensure that all the required fields and filled in
 function validateCourseData() {
     const errors = [];
 
     // Validate Course Title 
-    const title = document.getElementById('title').value.trim();
-    if(!title) {
-        errors.push('Course Title is required.');
+    const title = document.getElementById('title');
+    if(!title.value.trim()) {
+        displayValidationMessage('Course Title is required', false);
+        errors.push('Course Title is required');
+        title.classList.add('form-error-field');
     }
 
     // Validate start_date - Select Date
     const startDate = document.querySelector('input[name="start_date"]:checked').value;
     if (startDate === 'start_date2' || startDate === 'start_date3') {
-        const startDateValue = document.getElementById('start_date').value.trim();
-        if (!startDateValue) {
-            errors.push('Start date is required.');
+        const startDateValue = document.getElementById('start_date');
+        if (!startDateValue.value.trim()) {
+            displayValidationMessage('Start date is required', false);
+            errors.push('Start date is required');
+            highlightErrorFields(startDateValue);
         }
     }
 
     // Validate expiration_date - Select Date
     const expirationStartDate = document.querySelector('input[name="expiration_date"]:checked').value;
     if (expirationStartDate === 'expiration_date3') {
-        const expirationStartDateValue = document.getElementById('expires_on_date').value.trim();
-        if (!expirationStartDateValue) {
-            errors.push('Expiration date is required.');
+        const expirationStartDateValue = document.getElementById('expires_on_date');
+        if (!expirationStartDateValue.value.trim()) {
+            displayValidationMessage('Expiration date is required', false);
+            errors.push('Expiration date is required');
+            highlightErrorFields(expirationStartDateValue);
         }
     }
 
     // Validate due_date - Select Date
     const dueStartDate = document.querySelector('input[name="due_date"]:checked').value;
     if (dueStartDate === 'due_date3') {
-        const dueStartDateValue = document.getElementById('due_on_date').value.trim();
-        if (!dueStartDateValue) {
+        const dueStartDateValue = document.getElementById('due_on_date');
+        if (!dueStartDateValue.value.trim()) {
+            displayValidationMessage('Due date is required', false);
             errors.push('Due date is required.');
+            highlightErrorFields(dueStartDateValue);
         }
     }
 
     // Validate expires_on_date
     const expiresOnDateOption = document.querySelector('input[name="expiration_date"]:checked').value;
     if (expiresOnDateOption === 'expiration_date2') {
-        const expiresYears = document.getElementById('expiration_year').value.trim();
+        const expiresYears = document.getElementById('expiration_year');
         const expiresMonths = document.getElementById('expiration_months').value.trim();
         const expiresDays = document.getElementById('expiration_days').value.trim();
-        if (!expiresYears && !expiresMonths && !expiresDays) {
-            errors.push('At least one enrollment field for Expiration Date is required.');
+        if (!expiresYears.value.trim() && !expiresMonths && !expiresDays) {
+            displayValidationMessage('At least one field for Expiration Date is required', false);
+            errors.push('At least one field for Expiration Date is required');
+            highlightErrorFields(expiresYears);
         }
-        if (expiresYears < 0 || expiresMonths < 0 || expiresDays < 0) {
-            errors.push('Expiration Date may not be a negative number.');
+        if (expiresYears.value.trim() < 0 || expiresMonths < 0 || expiresDays < 0) {
+            displayValidationMessage('Expiration Date may not be a negative number', false);
+            errors.push('Expiration Date may not be a negative number');
+            highlightErrorFields(expiresYears);
         }
     }
 
     // Validate due_on_date
     const dueOnDateOption = document.querySelector('input[name="due_date"]:checked').value;
     if (dueOnDateOption === 'due_date2') {
-        const dueYears = document.getElementById('due_years').value.trim();
+        const dueYears = document.getElementById('due_years');
         const dueMonths = document.getElementById('due_months').value.trim();
         const dueDays = document.getElementById('due_days').value.trim();
-        if (!dueYears && !dueMonths && !dueDays) {
-            errors.push('At least one enrollment field for Due Date is required.');
+        if (!dueYears.value.trim() && !dueMonths && !dueDays) {
+            displayValidationMessage('At least one field for Due Date is required', false);
+            errors.push('At least one field for Due Date is required');
+            highlightErrorFields(dueYears);
         }
-        if (dueYears < 0 || dueMonths < 0 || dueDays < 0) {
-            errors.push('Due Date may not be a negative number.');
+        if (dueYears.value.trim() < 0 || dueMonths < 0 || dueDays < 0) {
+            displayValidationMessage('Due Date may not be a negative number', false);
+            errors.push('Due Date may not be a negative number');
+            highlightErrorFields(dueYears);
         }
     }
 
+    if(errors.length > 1){displayValidationMessage('Please correct the highlighted errors below', false);}
+
+    testErrorFields();
     return errors;
+}
+
+function highlightErrorFields(field){
+    // Add error classes
+    const errorField = field.closest('.edit-user-input');
+    if (errorField) {
+        errorField.querySelector('.form-control').classList.add('form-error-field');
+        errorField.closest('.toggle-option-details').classList.add('form-error-section');
+        
+        // Target the correct span for the error icon
+        const errorIcon = errorField.querySelector('.input-group-addon');
+        if (errorIcon) {
+            errorIcon.classList.add('form-error-icon');
+        }
+    }
+}
+
+function testErrorFields() {
+    // Select all elements with the class 'form-error-field'
+    const formErrorFields = document.querySelectorAll('.form-error-field');
+
+    // Iterate through each element
+    formErrorFields.forEach(field => {
+        // Add event listeners to cover different types of input changes
+        field.addEventListener('input', handleInputChange);
+        field.addEventListener('change', handleInputChange);
+        field.addEventListener('paste', handleInputChange);
+        field.addEventListener('focus', handleInputChange);
+        field.addEventListener('mousedown', handleInputChange);
+
+        function handleInputChange() {
+            // Check the length of the field's value
+            if (field.value.trim().length > 0) {
+                // Remove the 'form-error-field' class if length is greater than zero
+                field.classList.remove('form-error-field');
+                field.closest('.toggle-option-details').classList.remove('form-error-section');
+                field.nextElementSibling.classList.remove('form-error-icon');
+            } else {
+                // Keep the class if length is zero
+                field.classList.add('form-error-field');
+                field.closest('.toggle-option-details').classList.add('form-error-section');
+                field.nextElementSibling.classList.add('form-error-icon');
+            }
+        }
+    });
 }
 
 // Function to convert base64 string to Blob

@@ -2,6 +2,13 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
+    <!-- Message Wrapper -->
+    <div id="validation-message-container" class="alert-container" style="display: none;">   
+        <div id="validation-message-inner">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="validation-message"></span>
+        </div>
+    </div>
     <div id="stickyNavBar" style="display: none;">
         <div class="details-top-row max-width-extend-1">
             <div class="details-top-row-left">
@@ -300,19 +307,19 @@
                                         <label class="edit-user-label" for="expiration_date">Course Expires In</label>
                                         <div class="date-options-container">
                                             <div class="edit-user-input">
-                                                <input type="number" id="expiration_year" name="expiration_year" class="icon-field" placeholder="Years" min="0">
+                                                <input type="number" id="expiration_year" name="expiration_year" class="icon-field form-control" placeholder="Years" min="0">
                                                 <span class="input-group-addon">
                                                     <i class="fa-regular fa-calendar"></i>
                                                 </span>
                                             </div>
                                             <div class="edit-user-input">
-                                                <input type="number" id="expiration_months" name="expiration_months" class="icon-field" placeholder="Months" min="0">
+                                                <input type="number" id="expiration_months" name="expiration_months" class="icon-field form-control" placeholder="Months" min="0">
                                                 <span class="input-group-addon">
                                                     <i class="fa-regular fa-calendar-week"></i>
                                                 </span>
                                             </div>
                                             <div class="edit-user-input">
-                                                <input type="number" id="expiration_days" name="expiration_days" class="icon-field" placeholder="Days" min="0">
+                                                <input type="number" id="expiration_days" name="expiration_days" class="icon-field form-control" placeholder="Days" min="0">
                                                 <span class="input-group-addon">
                                                     <i class="fa-regular fa-calendar-day"></i>
                                                 </span>
@@ -372,19 +379,19 @@
                                         <label class="edit-user-label" for="due_date">Course Due In</label>
                                         <div class="date-options-container">
                                             <div class="edit-user-input">
-                                                <input type="number" id="due_years" name="due_years" class="icon-field" placeholder="Years" min="0">
+                                                <input type="number" id="due_years" name="due_years" class="icon-field form-control" placeholder="Years" min="0">
                                                 <span class="input-group-addon">
                                                     <i class="fa-regular fa-calendar"></i>
                                                 </span>
                                             </div>
                                             <div class="edit-user-input">
-                                                <input type="number" id="due_months" name="due_months" class="icon-field" placeholder="Months" min="0">
+                                                <input type="number" id="due_months" name="due_months" class="icon-field form-control" placeholder="Months" min="0">
                                                 <span class="input-group-addon">
                                                     <i class="fa-regular fa-calendar-week"></i>
                                                 </span>
                                             </div>
                                             <div class="edit-user-input">
-                                                <input type="number" id="due_days" name="due_days" class="icon-field" placeholder="Days" min="0">
+                                                <input type="number" id="due_days" name="due_days" class="icon-field form-control" placeholder="Days" min="0">
                                                 <span class="input-group-addon">
                                                     <i class="fa-regular fa-calendar-day"></i>
                                                 </span>

@@ -824,11 +824,22 @@ tr.selected-option th, tr.selected-option td{
 
 .alert {
     display: flex;
-    gap: 0.4rem;
+    gap: 0.6rem;
     padding: var(--pad-sm) var(--pad-med);
     margin-bottom: 20px;
     border: 1px solid transparent;
     border-radius: 8px;
+    align-items: center;
+}
+
+.alert-error i{
+    font-size: var(--fs-lg);
+    color: #f14858;
+}
+
+.alert span{
+    font-size: var(--btn-font);
+    font-weight: 500;
 }
 
 .alert-success {

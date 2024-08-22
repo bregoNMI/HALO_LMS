@@ -1030,3 +1030,18 @@ input[type="text"], input[type="number"]{
 .selectedUsers .remove-user {
     cursor: pointer;
 }
+
+/* Error Form Field */
+.form-error-field{
+    outline-color: #f14858 !important;
+    outline: -webkit-focus-ring-color auto 1px;
+    outline-offset: 0px;
+}
+
+.edit-user-input .form-error-icon{
+    background-color: #f14858;
+}
+
+.form-error-section.form-error-section{
+    border-left: 2px solid #f14858;
+}

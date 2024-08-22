@@ -40,6 +40,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+// Function to check if the URL points to an image
+function isImage(url) {
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+    const extension = url.split('.').pop().toLowerCase();
+    return imageExtensions.includes(extension);
+}
+
 // Selecting a file to be updated into a lesson
 function selectFile(popupId, referenceId = null) {
     const selectedOption = document.querySelector('.table-select-option input[type="radio"]:checked');
@@ -58,15 +65,23 @@ function selectFile(popupId, referenceId = null) {
         } else if (popupId === 'certificateSource') {
             const certificateURLInput = document.getElementById('certificateURLInput');
             const certificateSourceDisplay = document.getElementById('certificateSourceDisplay');
-            certificateURLInput.value = selectedFileURL;
-            certificateSourceDisplay.innerText = selectedFileTitle;
-            closePopup('fileLibrary');
+            if (isImage(selectedFileURL)) {
+                certificateURLInput.value = selectedFileURL;
+                certificateSourceDisplay.innerText = selectedFileTitle;
+                closePopup('fileLibrary');
+            } else {
+                displayMessage('Please Select an Image for Certificate Source', false);
+            }
         } else if (popupId === 'thumbnail') {
             const ThumbnailImagePreview = document.getElementById('ThumbnailImagePreview');
-            ThumbnailImagePreview.src = selectedFileURL;
-            imagePreview.style.display = "flex";
-            thumbnailDelete.style.display = "flex";
-            closePopup('fileLibrary');
+            if (isImage(selectedFileURL)) {
+                ThumbnailImagePreview.src = selectedFileURL;
+                imagePreview.style.display = "flex";
+                thumbnailDelete.style.display = "flex";
+                closePopup('fileLibrary');
+            } else {
+                displayMessage('Please Select an Image for Course Thumbnail', false);
+            }
         } else if (popupId === 'referenceSource' && referenceId !== null) {
             const referenceURLInput = document.querySelector(`#referenceURLInput-${referenceId}`);
             const referenceSourceDisplay = document.querySelector(`#referenceSourceDisplay-${referenceId}`);
@@ -236,7 +251,7 @@ function displayMessage(message, isSuccess) {
     setTimeout(() => {
         uploadMessageContainer.className = isSuccess ? 'alert-container animate-alert-container' : 'alert-container animate-alert-container';
     }, 100);
-    uploadMessageInner.className = isSuccess ? 'alert alert-success' : 'alert alert-danger';
+    uploadMessageInner.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
     setTimeout(() => {
         uploadMessageContainer.classList.remove('animate-alert-container');
     }, 8000);
