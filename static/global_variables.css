@@ -4,6 +4,8 @@
     --primary-blue: #1863dc;
     --secondary-blue: #60abf9;
     --accent-blue: #e1eeff;
+    /* Item Selected Blue */
+    --item-selected-blue: #e3ecf9;
     /* Text Colors */
     --text-color1: #000;
     --text-color2: #333;

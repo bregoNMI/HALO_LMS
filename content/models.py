@@ -11,6 +11,7 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+    
 class File(models.Model):
     FILE_TYPE_CHOICES = [
         ('image', 'Image'),
@@ -103,6 +104,49 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+# New Credential model for managing course credentials like certificates
+class Credential(models.Model):
+    CREDENTIAL_TYPES = [
+        ('certificate', 'Certificate'),
+        # Add more types as needed
+    ]
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='credentials')
+    type = models.CharField(max_length=20, choices=CREDENTIAL_TYPES)
+    title = models.CharField(max_length=200, blank=True)  # Title for the credential
+    source = models.URLField(max_length=500, blank=True)  # URL or file path to the credential
+
+    def __str__(self):
+        return f'{self.get_type_display()} for {self.course.title}'
+    
+class EventDate(models.Model):
+    EVENT_TYPES = [
+        ('start_date', 'Start Date'),
+        ('expiration_date', 'Expiration Date'),
+        ('due_date', 'Due Date'),
+    ]
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='event_dates')
+    type = models.CharField(max_length=20, choices=EVENT_TYPES)
+    date = models.DateField(blank=True, null=True)  # Use DateField for actual dates
+    time = models.TimeField(blank=True, null=True)  # Use TimeField for optional times
+    from_enrollment = models.JSONField(blank=True, null=True)  # Store enrollment offset in years, months, days
+
+    def __str__(self):
+        return f'{self.get_type_display()} for {self.course.title}'
+    
+class Media(models.Model):
+    MEDIA_TYPES = [
+        ('thumbnail', 'Thumbnail'),
+        # Add more types as needed
+    ]
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='media')
+    thumbnail_link = models.URLField(max_length=500, blank=True)  # For storing a URL to the image
+    thumbnail_image = models.ImageField(upload_to='thumbnails/', blank=True)  # For storing the uploaded image
+
+    def __str__(self):
+        return f'Media for {self.course.title}'
 
 # Define a Module model
 class Module(models.Model):

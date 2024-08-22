@@ -1,3 +1,7 @@
+input[type="text"], input[type="number"]{
+    text-overflow: ellipsis;
+}
+
 .course-content-container{
     display: flex;
     gap: 2rem;
@@ -13,15 +17,7 @@
 .course-content-right-column{
     flex: 3;
     display: block;
-    max-width: 410px;
     min-width: 395px;
-}
-
-@media(max-width: 1069px){
-    .course-content-right-column{
-        max-width: unset;
-        min-width: unset;
-    }
 }
 
 .details-info-card:first-child{
@@ -43,7 +39,7 @@
     position: fixed;
     right: 0px;
     left: 0px;
-    z-index: 1;
+    z-index: 3;
     justify-content: center;
     background-color: rgba(255, 255, 255, 0.8); /* Make the background slightly transparent */
     backdrop-filter: blur(10px); /* Apply the blur effect */
@@ -96,7 +92,7 @@
 .course-content-input-subtext{
     margin-top: 0.2rem;
     color: var(--text-color3);
-    font-size: 0.7rem;
+    font-size: 0.7rem !important;
 }
 
 /* Course Content/Creating Modules and Lessons */
@@ -214,6 +210,7 @@
     border-color: unset;
     border-image: unset;
     flex: 1;
+    text-overflow: ellipsis;
 }
 
 .module-title:hover{
@@ -339,17 +336,17 @@
     border-radius: 4px;
 }
 
-.module-drag-icon, .lesson-drag-icon {
+.module-drag-icon, .lesson-drag-icon, .reference-drag-icon, .upload-drag-icon {
     cursor: grab;
 }
 
-.module-drag-icon:active, .lesson-drag-icon:active {
+.module-drag-icon:active, .lesson-drag-icon:active, .reference-drag-icon:active, .upload-drag-icon:active {
     cursor: grabbing;
 }
 
 .sortable-chosen {
     opacity: 1 !important; /* Ensure the item is fully visible */
-    outline: 2px solid var(--primary-blue); /* Add a solid border */
+    outline: 1px solid var(--primary-blue) !important; /* Add a solid border */
 }
 
 .sortable-drag {
@@ -420,6 +417,7 @@
 
 .lesson-title{
     font-size: var(--btn-font);
+    text-overflow: ellipsis;
 }
 
 .lesson-selection-container{
@@ -555,7 +553,6 @@
     margin-top: 0;
     color: var(--text-color2);
     font-weight: 600;
-    margin-bottom: 0.4rem;
 }
 
 .right-column-file-wrapper{
@@ -650,4 +647,386 @@
 .thumbnail-delete:hover{
     background-color: #f8d7da;
     color: #721c24 !important;
+}
+
+.label-header-row{
+    display: flex;
+    justify-content: space-between;
+}
+
+.label-action-item{
+    display: flex;
+    padding: 0.25rem var(--pad-sm);
+    border-radius: 6px;
+    font-size: var(--btn-font);
+    cursor: pointer;
+    color: white;
+    text-decoration: none;
+    gap: 0.5rem;
+    background-color: var(--primary-blue);
+    margin-top: -0.3rem;
+    height: 16px;
+}
+
+.label-action-item:hover {
+    background-color: dodgerblue;
+}
+
+.label-action-item span{
+    font-size: 0.85rem;
+}
+
+.label-action-item i{
+    font-size: 0.9rem;
+}
+
+
+/* Reference Materials */
+.course-references-container{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.course-references-wrapper{
+    display: flex;
+    flex: 1;
+}
+
+.reference-card{
+    background-color: #eceff4;
+    border-radius: 6px;
+    outline: 1px solid #e5e7eb;
+}
+
+.reference-card-body{
+    display: flex;
+    padding: 1rem var(--pad-xs);
+    gap: 1rem;
+    flex-direction: column;
+    border-radius: 0 0 6px 6px;
+    background-color: #ffffff;
+    transition: all 0.3s ease-in-out;
+}
+
+.reference-title{
+    border-radius: 6px;
+    padding: 0.2rem;
+    font-size: 0.9rem;
+    color: #41454d !important;
+    font-family: var(--primary-font);
+    font-weight: 600;
+    text-rendering: unset;
+    color: unset;
+    letter-spacing: unset;
+    word-spacing: unset;
+    line-height: unset;
+    text-transform: unset;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: unset;
+    appearance: unset;
+    -webkit-rtl-ordering: unset;
+    cursor: text;
+    background-color: transparent;
+    margin: 0em;
+    border-width: unset;
+    border-style: unset;
+    border-color: unset;
+    border-image: unset;
+    flex: 1;
+    text-overflow: ellipsis;
+}
+
+.reference-title:hover{
+    background-color: #d8e0ec;
+}
+
+.reference-title:focus-visible{
+    outline-color: var(--primary-blue);
+}
+
+.reference-dropdown, .reference-delete{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    justify-content: center;
+    padding: var(--pad-xxs);
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    color: var(--text-color5);
+    height: 1rem;
+    width: 1rem;
+    cursor: pointer;
+}
+
+.reference-delete:hover{
+    background-color: #f8d7da;
+}.reference-delete:hover i{ color: #721c24 !important;}
+
+.reference-dropdown:hover {
+    background-color: #d8e0ec;
+}
+
+.reference-dropdown:hover:active, .reference-delete:hover:active{
+    background-color: #c7d1df;
+}
+
+.reference-dropdown i, .reference-delete i{
+    transition: all 0.3s ease-in-out;
+}
+
+.reference-dropdown.active i {
+    transform: rotate(-90deg);
+}
+
+.reference-header-right{
+    display: flex;
+    gap: 0.5rem;
+}
+
+.reference-delete i {
+    font-size: 1.05rem !important;
+    color: var(--text-color4) !important;
+}
+
+.reference-card-content{
+    display: flex;
+    flex-direction: column;
+}
+
+.right-column-card-body .no-lessons-container{
+    padding: var(--pad-xxs) var(--pad-sm);
+    flex: 1;
+}
+
+.course-references-container span{
+    font-size: 0.9rem;
+}
+
+/* Course Uploads */
+.course-uploads-container{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.course-uploads-wrapper{
+    display: flex;
+    flex: 1;
+}
+
+.upload-card{
+    background-color: #eceff4;
+    border-radius: 6px;
+    outline: 1px solid #e5e7eb;
+}
+
+.upload-card-body{
+    display: flex;
+    padding: 1rem var(--pad-xs);
+    gap: 1rem;
+    flex-direction: column;
+    border-radius: 0 0 6px 6px;
+    background-color: #ffffff;
+    transition: all 0.3s ease-in-out;
+}
+
+.upload-title{
+    border-radius: 6px;
+    padding: 0.2rem;
+    font-size: 0.9rem;
+    color: #41454d !important;
+    font-family: var(--primary-font);
+    font-weight: 600;
+    text-rendering: unset;
+    color: unset;
+    letter-spacing: unset;
+    word-spacing: unset;
+    line-height: unset;
+    text-transform: unset;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: unset;
+    appearance: unset;
+    -webkit-rtl-ordering: unset;
+    cursor: text;
+    background-color: transparent;
+    margin: 0em;
+    border-width: unset;
+    border-style: unset;
+    border-color: unset;
+    border-image: unset;
+    flex: 1;
+    text-overflow: ellipsis;
+}
+
+.upload-title:hover{
+    background-color: #d8e0ec;
+}
+
+.upload-title:focus-visible{
+    outline-color: var(--primary-blue);
+}
+
+.upload-dropdown, .upload-delete{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    justify-content: center;
+    padding: var(--pad-xxs);
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    color: var(--text-color5);
+    height: 1rem;
+    width: 1rem;
+    cursor: pointer;
+}
+
+.upload-delete:hover{
+    background-color: #f8d7da;
+}.upload-delete:hover i{ color: #721c24 !important;}
+
+.upload-dropdown:hover {
+    background-color: #d8e0ec;
+}
+
+.upload-dropdown:hover:active, .upload-delete:hover:active{
+    background-color: #c7d1df;
+}
+
+.upload-dropdown i, .upload-delete i{
+    transition: all 0.3s ease-in-out;
+}
+
+.upload-dropdown.active i {
+    transform: rotate(-90deg);
+}
+
+.upload-header-right{
+    display: flex;
+    gap: 0.5rem;
+}
+
+.upload-delete i {
+    font-size: 1.05rem !important;
+    color: var(--text-color4) !important;
+}
+
+.upload-card-content{
+    display: flex;
+    flex-direction: column;
+}
+
+.right-column-card-body .no-lessons-container{
+    padding: var(--pad-xxs) var(--pad-sm);
+    flex: 1;
+}
+
+.course-uploads-container span{
+    font-size: 0.9rem;
+}
+
+/*Searchable User dropdown menu */
+.user-dropdown{
+    position: relative;
+    gap: 1rem;
+}
+
+.user-dropdown .search-icon{
+    position: absolute;
+    right: 0.6rem;
+    top: 0.65rem;
+    color: gray;
+    font-size: 0.8rem;
+}
+
+.user-dropdown input{
+    padding-right: 2rem;
+    text-overflow: ellipsis;
+}
+
+.user-dropdown input:focus-visible{
+    outline: none;
+    border-bottom: 2px solid #c7c7db;
+}
+
+.userList {
+    display: none;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #fff;
+    position: absolute;
+    width: 100%;
+    z-index: 2;
+    box-sizing: border-box;
+    top: 2.06rem;
+    border-radius: 2px 2px 8px 8px;
+    margin-bottom: 1rem;
+    border: 2px solid #c7c7db;
+    border-top: 0px;
+}
+
+.userList .dropdown-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #ececf1;
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+}
+
+.dropdown-item .dropdown-item-inner{
+    display: flex;
+    flex-direction: column;
+}
+
+.userList .dropdown-item:hover{
+    background-color: var(--bg-color3);
+}
+
+.userList .dropdown-item:hover .checkmark{
+    border-color: var(--primary-blue);
+}
+
+.userList .dropdown-item.selected {
+    background-color: var(--item-selected-blue);
+    border-bottom: 1px solid #ffffff;
+}
+
+.userList .dropdown-item:last-child, .userList .dropdown-item.selected:last-child{
+    border: none;
+}
+
+.no-results {
+    padding: 8px;
+    color: #999;
+}
+
+.selectedUsers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.selectedUsers .selected-user {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 8px;
+    background-color: #eceff4;
+    border-radius: 6px;
+    outline: 1px solid #e5e7eb;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.selected-user-details {
+    font-weight: 600;
+    color: #41454d;
+}
+
+.selectedUsers .remove-user {
+    cursor: pointer;
 }

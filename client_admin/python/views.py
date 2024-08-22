@@ -7,10 +7,21 @@ from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.contrib import messages
 from client_admin.models import Profile
+from django.template.response import TemplateResponse
 
 @login_required
 def admin_dashboard(request):
     return render(request, 'dashboard.html')
+
+@login_required
+def custom_admin_header(request):
+    context = {
+        'first_name': request.user.first_name,
+        'last_name': request.user.last_name,
+        'email': request.user.email,
+    }
+    print(context)
+    return TemplateResponse(request, 'base.html', context)
 
 # Users
 @login_required

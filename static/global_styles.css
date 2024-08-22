@@ -182,74 +182,75 @@ h1,h2,h3,h4,h5,h6{
 
 /* Style for the items in the dropdown */
 .select-items {
-    position: absolute;
-    background-color: white;
-    padding: var(--pad-xxs) var(--pad-xs);
-    border: 1px solid #ececf1;
-    border-radius: 8px;
-    z-index: 99;
-    width: 90%;
-    display: none;
-    max-height: 200px;
-    overflow-y: auto;
+  position: absolute;
+  background-color: white;
+  padding: var(--pad-xxs) var(--pad-xs);
+  border: 1px solid #ececf1;
+  border-radius: 8px;
+  z-index: 2;
+  width: 100%;
+  box-sizing: border-box;
+  display: none;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 /* Style for each item */
 .select-items .select-item{
-    padding: var(--pad-xxs);
-    cursor: pointer;
-    user-select: none;
-    border-radius: 8px;
-    font-size: var(--btn-font);
-    color: var(--text-color8);
+  padding: var(--pad-xxs);
+  cursor: pointer;
+  user-select: none;
+  border-radius: 8px;
+  font-size: var(--btn-font);
+  color: var(--text-color8);
 }
 
 /* Highlight the selected item */
 .select-items .select-item:hover, .same-as-selected {
-    background-color: var(--bg-color6);
+  background-color: var(--bg-color6);
 }
 
 /* Webkit-based browsers (Chrome, Safari) */
 .scrollable-content::-webkit-scrollbar {
-    width: 8px; /* Width of the scrollbar */
-    height: 8px; /* Height of the scrollbar for horizontal scrolling */
+  width: 8px; /* Width of the scrollbar */
+  height: 8px; /* Height of the scrollbar for horizontal scrolling */
 }
 
 .scrollable-content::-webkit-scrollbar-track {
-    background: #f1f1f1; /* Track color */
-    border-radius: 4px;
+  background: #f1f1f1; /* Track color */
+  border-radius: 4px;
 }
 
 .scrollable-content::-webkit-scrollbar-thumb {
-    background: #888; /* Scrollbar thumb color */
-    border-radius: 4px;
+  background: #888; /* Scrollbar thumb color */
+  border-radius: 4px;
 }
 
 .scrollable-content::-webkit-scrollbar-thumb:hover {
-    background: #555; /* Scrollbar thumb color on hover */
+  background: #555; /* Scrollbar thumb color on hover */
 }
 
 /* Hide the scrollbar buttons/arrows */
 .scrollable-content::-webkit-scrollbar-button {
-    display: none;
+  display: none;
 }
 
 /* Global Colors */
 .pastel-yellow{
-    background-color: #ffd281;
-    color: #a66c01;
+  background-color: #ffd281;
+  color: #a66c01;
 }.pastel-green{
-    background-color: #dcfce7;
-    color: #17a34a;
+  background-color: #dcfce7;
+  color: #17a34a;
 }.pastel-purple{
-    background-color: #e5caff;
-    color: blueviolet;
+  background-color: #e5caff;
+  color: blueviolet;
 }.pastel-orange {
-    background-color: #ffbf7c;
-    color: #dc6618;
+  background-color: #ffbf7c;
+  color: #dc6618;
 }.pastel-blue {
-    background-color: #d0e0ff;
-    color: var(--primary-blue);
+  background-color: #d0e0ff;
+  color: var(--primary-blue);
 }
 
 /* Max Width */

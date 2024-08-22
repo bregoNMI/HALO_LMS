@@ -3,15 +3,17 @@ from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
-from django.utils.dateparse import parse_date
+from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
-from content.models import File, Course, Module, Lesson, Category
+from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media
 from django.http import JsonResponse
 from .models import File
+from django.contrib.auth.models import User
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.dateformat import DateFormat
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 
 # Courses
 @login_required
@@ -98,57 +100,155 @@ def course_details(request, course_id):
 
 @login_required
 def create_or_update_course(request):
-    data = json.loads(request.body)
+    def normalize_time(time_str):
+        """ Normalize various time formats to HH:MM[:ss[.uuuuuu]] """
+        if not time_str:
+            return None
 
-    # Check if it's an update
-    course_id = data.get('id')
-    if course_id:
-        course = get_object_or_404(Course, id=course_id)
-    else:
-        course = Course()
+        # Attempt to parse 12-hour format
+        try:
+            time_obj = datetime.strptime(time_str, "%I:%M %p")
+            return time_obj.strftime("%H:%M")
+        except ValueError:
+            pass
 
-    # Update course fields
-    course.title = data['title']
-    course.description = data['description']
-    course.category = get_object_or_404(Category, id=data['category_id'])
-    course.type = data['type']
-    course.save()
+        # Attempt to parse 24-hour format
+        try:
+            time_obj = datetime.strptime(time_str, "%H:%M")
+            return time_obj.strftime("%H:%M")
+        except ValueError:
+            pass
 
-    # Handle modules and lessons
-    for module_data in data['modules']:
-        module_id = module_data.get('id')
-        if module_id:
-            module = get_object_or_404(Module, id=module_id)
-        else:
-            module = Module(course=course)
+        return None
 
-        module.title = module_data['title']
-        module.description = module_data.get('description', '')
-        module.order = module_data['order']
-        module.save()
+    def handle_credentials(course, credentials):
+        """ Handle credentials for the course """
+        for credential_data in credentials:
+            if credential_data.get('type') == 'certificate':
+                Credential.objects.update_or_create(
+                    course=course,
+                    type='certificate',
+                    defaults={
+                        'source': credential_data.get('source', ''),
+                        'title': credential_data.get('title', '')
+                    }
+                )
 
-        for lesson_data in module_data['lessons']:
-            lesson_id = lesson_data.get('id')
-            if lesson_id:
-                lesson = get_object_or_404(Lesson, id=lesson_id)
-            else:
-                lesson = Lesson(module=module)
+    def handle_event_dates(course, event_dates):
+        """ Handle event dates for the course """
+        for event_date_data in event_dates:
+            event_date_type = event_date_data.get('type')
+            date_value = event_date_data.get('date')
+            time_value = event_date_data.get('time', '')
+            from_enrollment = event_date_data.get('from_enrollment', {})
 
-            lesson.title = lesson_data['title']
-            lesson.order = lesson_data['order']
-            lesson.save()
+            # Normalize and validate time format if provided
+            normalized_time = normalize_time(time_value)
+            if normalized_time is None and time_value:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f"Invalid time format for {event_date_type}. It must be in HH:MM[:ss[.uuuuuu]] format."
+                }, status=400)
 
-            # Handle associated file
-            file_id = lesson_data.get('file_id')
-            if file_id:
-                file = get_object_or_404(File, id=file_id)
-                lesson.file = file
-            else:
-                lesson.file = None
+            EventDate.objects.update_or_create(
+                course=course,
+                type=event_date_type,
+                defaults={
+                    'date': date_value,
+                    'time': normalized_time,
+                    'from_enrollment': from_enrollment,
+                }
+            )
 
-            lesson.save()
+    def handle_modules_and_lessons(course, modules):
+        for module_data in modules:
+            print(f"Processing module data: {module_data}")
+            module_id = module_data.get('id')
+            module = get_object_or_404(Module, id=module_id) if module_id else Module(course=course)
+            module.title = module_data.get('title', 'Untitled Module')
+            module.description = module_data.get('description', '')
+            module.order = module_data.get('order', 0)
+            module.save()
+            print(f"Module '{module.title}' saved with ID: {module.id}")
 
-    return JsonResponse({'status': 'success'})
+            for lesson_data in module_data.get('lessons', []):
+                lesson_id = lesson_data.get('id')
+                lesson = get_object_or_404(Lesson, id=lesson_id) if lesson_id else Lesson(module=module)
+                lesson.title = lesson_data.get('title', '')
+                lesson.order = lesson_data.get('order', 0)
+                lesson.save()
+                print(f"Lesson '{lesson.title}' saved with ID: {lesson.id}")
+
+                if 'file' in lesson_data:
+                    lesson_file = lesson_data['file']
+                    if lesson_file:
+                        file_instance = File(
+                            user=request.user,
+                            file=lesson_file,
+                            title=lesson_file.name,
+                            file_type='other'
+                        )
+                        file_instance.save()
+                        lesson.file = file_instance
+                        lesson.save()
+                        print(f"File '{file_instance.title}' saved for lesson ID: {lesson.id}")
+
+    def handle_media(course, media_data, request_files):
+        """ Handle media for the course """
+
+        for media in media_data:
+            if media.get('type') == 'thumbnail':
+                thumbnail_link = media.get('thumbnail_link', '')
+
+                # Access file directly from request.FILES using a known key
+                thumbnail_image_file = request.FILES.get('media[0][thumbnail_image]', None)
+
+                print(f"Handling media: {thumbnail_link}, {thumbnail_image_file}")  # Check if this is printing
+
+                Media.objects.create(
+                    course=course,
+                    thumbnail_link=thumbnail_link,
+                    thumbnail_image=thumbnail_image_file  # Use the file object
+                )
+
+    try:
+        if request.method == 'POST':
+            # Extract data from request
+            data = request.POST
+            files = request.FILES
+
+            # Check if it's an update
+            course_id = data.get('id')
+            course = get_object_or_404(Course, id=course_id) if course_id else Course()
+
+            # Update course fields
+            course.title = data.get('title', '')
+            course.description = data.get('description', '')
+            course.category = get_object_or_404(Category, id=data.get('category_id', 1))
+            course.type = data.get('type', 'bundle')
+            course.save()
+
+            # Handle credentials
+            credentials = json.loads(data.get('credentials', '[]'))
+            handle_credentials(course, credentials)
+
+            # Handle event dates
+            event_dates = json.loads(data.get('event_dates', '[]'))
+            handle_event_dates(course, event_dates)
+
+            # Handle modules and lessons
+            modules = json.loads(data.get('modules', '[]'))
+            print(f"Modules received: {modules}")  # Check what modules are being received
+            handle_modules_and_lessons(course, modules)
+
+            # Handle media
+            media_data = json.loads(data.get('media', '[]'))
+            handle_media(course, media_data, files)
+
+            return JsonResponse({'status': 'success'})
+
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 @login_required
 def file_upload(request):
@@ -237,3 +337,30 @@ def file_upload(request):
             'has_next': paginated_files.has_next(),
             'next_page': page + 1 if paginated_files.has_next() else None
         })
+    
+def get_users(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        # Get the current page from the request
+        page = int(request.GET.get('page', 1))
+        per_page = 10
+        offset = (page - 1) * per_page
+
+        # Fetch the users from the database
+        search_query = request.GET.get('search', '')
+        users = User.objects.filter(username__icontains=search_query)[offset:offset + per_page]
+        
+        # Prepare the data
+        user_data = [{
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+        } for user in users]
+
+        return JsonResponse({
+            'users': user_data,
+            'has_more': User.objects.filter(username__icontains=search_query).count() > offset + per_page
+        })
+    else:
+        return JsonResponse({'error': 'This view only accepts AJAX requests.'}, status=400)

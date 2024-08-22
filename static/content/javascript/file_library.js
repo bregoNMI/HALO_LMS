@@ -41,36 +41,46 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Selecting a file to be updated into a lesson
-function selectFile(popupId) {
+function selectFile(popupId, referenceId = null) {
     const selectedOption = document.querySelector('.table-select-option input[type="radio"]:checked');
     
     if (selectedOption) {
         const selectedRow = selectedOption.closest('.table-select-option');
         const selectedFileURL = selectedRow.getAttribute('data-file-url');
         const selectedFileTitle = selectedRow.querySelector('.file-title').textContent;
-        if(popupId == 'editLesson'){
-            // Display the selected file title in the designated area
+
+        if (popupId === 'editLesson') {
             const editFileURLInput = document.getElementById('editFileURLInput');
             const editLessonFileDisplay = document.getElementById('editLessonFileDisplay');
             editFileURLInput.value = selectedFileURL;
             editLessonFileDisplay.innerText = selectedFileTitle;
             closeFileLibrary('editLesson'); 
-        }else if(popupId == 'certificateSource'){
-            // Display the selected file title in the designated area
+        } else if (popupId === 'certificateSource') {
             const certificateURLInput = document.getElementById('certificateURLInput');
             const certificateSourceDisplay = document.getElementById('certificateSourceDisplay');
             certificateURLInput.value = selectedFileURL;
             certificateSourceDisplay.innerText = selectedFileTitle;
             closePopup('fileLibrary');
-        }else{         
-            // Display the selected file title in the designated area
+        } else if (popupId === 'thumbnail') {
+            const ThumbnailImagePreview = document.getElementById('ThumbnailImagePreview');
+            ThumbnailImagePreview.src = selectedFileURL;
+            imagePreview.style.display = "flex";
+            thumbnailDelete.style.display = "flex";
+            closePopup('fileLibrary');
+        } else if (popupId === 'referenceSource' && referenceId !== null) {
+            const referenceURLInput = document.querySelector(`#referenceURLInput-${referenceId}`);
+            const referenceSourceDisplay = document.querySelector(`#referenceSourceDisplay-${referenceId}`);
+            referenceURLInput.value = selectedFileURL;
+            referenceSourceDisplay.innerText = selectedFileTitle;
+            closePopup('fileLibrary');
+        } else {         
             const fileURLInput = document.getElementById('fileURLInput');
             const lessonFileDisplay = document.getElementById('lessonFileDisplay');
             fileURLInput.value = selectedFileURL;
             lessonFileDisplay.innerText = selectedFileTitle;
             closeFileLibrary();
         }
-        
+
         console.log('Selected File URL:', selectedFileURL);
         console.log('Selected File Title:', selectedFileTitle);      
     } else {
@@ -108,44 +118,79 @@ function closeFileUpload(){
     }, 100);
 }
 
-function openFileLibrary(popupId){
-    // Bottom Row Close Button and top row X
+function openFileLibrary(popupId, referenceId = null) {
     const closeFileLibraryBtn = document.getElementById('closeFileLibraryBtn');
     const closeFileLibrary = document.getElementById('closeFileLibrary');
-    console.log(popupId);
-    // Changing the Select File Destination
+
     document.getElementById('selectFileBtn').setAttribute('onclick', '');
-    if(popupId == 'editLesson'){
+    // uncheckLibraryFilters();
+
+    if (popupId === 'editLesson') {
         closeFileLibraryBtn.setAttribute('onclick', 'closeFileLibrary("editLesson")');
         closeFileLibrary.setAttribute('onclick', 'closeFileLibrary("editLesson")');
-        // Hide Edit Lesson Popup
         const lessonEditPopup = document.getElementById('editLesson');
         const popupContent = lessonEditPopup.querySelector('.popup-content');
         popupContent.classList.remove('animate-popup-content');
         lessonEditPopup.style.display = "none";
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("editLesson")');
-    }else if(popupId == 'certificateSource'){
+    } else if (popupId === 'certificateSource') {
+        const checkbox = document.querySelector('.container .filter[data-type="image"]');
+        if (checkbox && !checkbox.checked) {
+            const container = checkbox.closest('.container');
+            if (container) {
+                container.click();
+                console.log('The container has been clicked because the checkbox was not checked');
+            }
+        }
         closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
-        // Add selected file to correct field
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("certificateSource")');
-    }else{
+    } else if (popupId === 'thumbnail') {
+        const checkbox = document.querySelector('.container .filter[data-type="image"]');
+        if (checkbox && !checkbox.checked) {
+            const container = checkbox.closest('.container');
+            if (container) {
+                container.click();
+                console.log('The container has been clicked because the checkbox was not checked');
+            }
+        }
+        closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
+        closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
+        document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("thumbnail")');
+    } else if (popupId === 'referenceSource' && referenceId !== null) {
+        uncheckLibraryFilters();
+        closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
+        closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
+        document.getElementById('selectFileBtn').setAttribute('onclick', `selectFile("referenceSource", "${referenceId}")`);
+    } else {
         closeFileLibraryBtn.setAttribute('onclick', 'closeFileLibrary()');
         closeFileLibrary.setAttribute('onclick', 'closeFileLibrary()');
-        // Hide File Upload 
         const lessonCreationPopup = document.getElementById('lessonCreationPopup');
         const popupContent = lessonCreationPopup.querySelector('.popup-content');
         popupContent.classList.remove('animate-popup-content');
         lessonCreationPopup.style.display = "none";
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile()');
     }
-    // Show File Library
+
     const fileLibrary = document.getElementById('fileLibrary');
     const popupContent2 = fileLibrary.querySelector('.popup-content');
     fileLibrary.style.display = "flex";
     setTimeout(() => {
         popupContent2.classList.add('animate-popup-content');
     }, 100);
+}
+
+function uncheckLibraryFilters(){
+    const checkbox = document.querySelectorAll('.container .filter');
+
+    checkbox.forEach(item => {
+        if (item && item.checked) {
+            const container = item.closest('.container');
+            if (container) {
+                container.click();
+            }
+        }
+    })
 }
 
 function closeFileLibrary(popupId){

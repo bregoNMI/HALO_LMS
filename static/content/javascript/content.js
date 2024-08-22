@@ -2,9 +2,12 @@ document.addEventListener("DOMContentLoaded", function() {
     initializeQuill();
     initializeModuleDragAndDrop();
     initializeLessonDragAndDrop();
+    initializeReferenceDragAndDrop();
+    initializeUploadDragAndDrop();
     testModuleCount();
     assignModuleHeaderListeners();
     addDeleteEventListeners();
+    addReferenceDeleteEventListeners();
     assignDeleteHandlers();
     assignEditHandlers();
     selectLessonType();
@@ -12,6 +15,8 @@ document.addEventListener("DOMContentLoaded", function() {
     initializeToggleOptions();
     initializeRadioOptions();
     initializeThumbnailPreview();
+    assignReferenceHeaderListeners();
+    assignUploadHeaderListeners();
 });
 
 function initializeTopRowNav(){
@@ -69,29 +74,33 @@ function initializeQuill() {
     // Select all elements with a specific class that should have a Quill editor
     const editors = document.querySelectorAll('.editor-container');
 
-    // Clear the quillEditors array to remove previous references
-    quillEditors = [];
-
-    // Initialize a new Quill editor for each editor container and store the instance
+    // Iterate over each editor container
     editors.forEach(function(editor) {
-        const quill = new Quill(editor, {
-            theme: 'snow',
-            modules: {
-                toolbar: {
-                    container: [
-                        [{ 'header': [1, 2, 3, false] }],
-                        ['bold', 'italic', 'underline'],
-                        ['link', 'image']
-                    ],
-                    handlers: {
-                        // Add custom handlers here
+        // Check if the editor container has already been initialized
+        if (!editor.classList.contains('quill-initialized')) {
+            // Initialize a new Quill editor for this container
+            const quill = new Quill(editor, {
+                theme: 'snow',
+                modules: {
+                    toolbar: {
+                        container: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline'],
+                            ['link', 'image']
+                        ],
+                        handlers: {
+                            // Add custom handlers here
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        // Push the instance to the quillEditors array
-        quillEditors.push(quill);
+            // Mark this container as initialized
+            editor.classList.add('quill-initialized');
+
+            // Push the instance to the quillEditors array
+            quillEditors.push(quill);
+        }
     });
 }
 
@@ -110,14 +119,123 @@ function testModuleCount() {
     }
 }
 
+function testReferenceCount() {
+    const referenceCards = document.querySelectorAll('.reference-card');
+    if (referenceCards.length >= 1) {
+        hidenoReferencesCreated();
+    } else {
+        shownoReferencesCreated();
+    }
+}
+
+function testUploadCount() {
+    const referenceCards = document.querySelectorAll('.upload-card');
+    if (referenceCards.length >= 1) {
+        hidenoUploadsCreated();
+    } else {
+        shownoUploadsCreated();
+    }
+}
+
 function hidenoModulesCreated() {
     const noModulesCreated = document.getElementById('noModulesCreated');
     noModulesCreated.style.display = "none";
 }
-
 function shownoModulesCreated() {
     const noModulesCreated = document.getElementById('noModulesCreated');
     noModulesCreated.style.display = "flex";
+}
+
+function hidenoReferencesCreated() {
+    const noReferencesCreated = document.getElementById('noReferencesCreated');
+    noReferencesCreated.style.display = "none";
+}
+function shownoReferencesCreated() {
+    const noReferencesCreated = document.getElementById('noReferencesCreated');
+    noReferencesCreated.style.display = "inline-block";
+}
+
+function hidenoUploadsCreated() {
+    const noUploadsCreated = document.getElementById('noUploadsCreated');
+    noUploadsCreated.style.display = "none";
+}
+function shownoUploadsCreated() {
+    const noUploadsCreated = document.getElementById('noUploadsCreated');
+    noUploadsCreated.style.display = "inline-block";
+}
+
+// Function to initialize reference drag and drop
+function initializeReferenceDragAndDrop() {
+    Sortable.create(document.querySelector('.reference-container'), {
+        animation: 200, // Optional: animation duration in ms
+        handle: '.reference-drag-icon',
+        ghostClass: 'sortable-ghost', // Optional: class for the ghost element
+
+        onStart: function (evt) {
+            // Remove the sortable-drag class from all elements
+            document.querySelectorAll('.reference-card').forEach(item => {
+                item.classList.remove('sortable-drag');
+            });
+        },
+
+        onEnd: function (evt) {
+            // Remove the class after dragging ends
+            document.querySelectorAll('.reference-card').forEach(item => {
+                item.classList.remove('sortable-chosen');
+            });
+        },
+
+        onChoose: function (evt) {
+            // Ensure the class is not added to the reference-card
+            if (evt.item.classList.contains('reference-card')) {
+                evt.item.classList.remove('sortable-drag');
+            } else {
+                evt.item.classList.add('sortable-drag');
+            }
+        },
+
+        onUnchoose: function (evt) {
+            // Ensure the class is removed when the item is no longer chosen
+            evt.item.classList.remove('sortable-drag');
+        }
+    });
+}
+
+// Function to initialize upload drag and drop
+function initializeUploadDragAndDrop() {
+    Sortable.create(document.querySelector('.upload-container'), {
+        animation: 200, // Optional: animation duration in ms
+        handle: '.upload-drag-icon',
+        ghostClass: 'sortable-ghost', // Optional: class for the ghost element
+
+        onStart: function (evt) {
+            // Remove the sortable-drag class from all elements
+            document.querySelectorAll('.upload-card').forEach(item => {
+                item.classList.remove('sortable-drag');
+            });
+        },
+
+        onEnd: function (evt) {
+            // Remove the class after dragging ends
+            document.querySelectorAll('.upload-card').forEach(item => {
+                item.classList.remove('sortable-chosen');
+            });
+        },
+
+        onChoose: function (evt) {
+            // Ensure the class is not added to the upload-card
+            if (evt.item.classList.contains('upload-card')) {
+                evt.item.classList.remove('sortable-drag');
+            } else {
+                evt.item.classList.add('sortable-drag');
+            }
+        },
+
+        onUnchoose: function (evt) {
+            // Ensure the class is removed when the item is no longer chosen
+            evt.item.classList.remove('sortable-drag');
+        }
+    });
 }
 
 // Function to initialize module drag and drop
@@ -223,7 +341,7 @@ function createNewModule() {
             <div class="module-header-right">
                 <div onclick="openPopup('moduleDeleteConfirmation', 'deleteModule', this)" id="deleteModule" class="module-delete tooltip" data-tooltip="Delete Module">
                     <span class="tooltiptext">Delete Module</span>
-                    <i class="fa-regular fa-trash-can"></i>
+                    <i class="fa-regular fa-trash"></i>
                 </div>
                 <div class="module-dropdown">
                     <i class="fa-regular fa-angle-down"></i>
@@ -251,6 +369,146 @@ function createNewModule() {
     addCreateLessonEventListeners();
     assignDeleteHandlers();
     assignEditHandlers();
+}
+
+function createNewReference() {
+    const referenceContainer = document.getElementById('referenceContainer');
+    const referenceCards = referenceContainer.querySelectorAll('.reference-card');
+    const newReferenceId = referenceCards.length + 1; // Generate a new unique ID based on the number of existing references
+
+    const newReferenceCard = `
+    <div class="reference-card" id="referenceCard-${newReferenceId}">
+        <div class="info-card-header collapsable-header">
+            <div class="card-header-left">
+                <i class="fa-light fa-grip-dots-vertical reference-drag-icon"></i>
+                <input class="reference-title" type="text" placeholder="New Reference">
+            </div>
+            <div class="reference-header-right">
+                <div onclick="openPopup('referenceDeleteConfirmation', 'deleteReference', this)" id="deleteReference" class="reference-delete tooltip" data-tooltip="Delete Reference">
+                    <span class="tooltiptext">Delete Reference</span>
+                    <i class="fa-regular fa-trash"></i>
+                </div>
+                <div class="reference-dropdown">
+                    <i class="fa-regular fa-angle-down"></i>
+                </div>
+            </div>
+        </div>
+        <div class="reference-card-body">
+            <div class="right-column-file-wrapper">
+                <h5 class="right-column-option-header">Reference Source</h5>
+                <div onclick="openFileLibrary('referenceSource', '${newReferenceId}')" class="custom-file-upload-container">
+                    <div class="custom-file-upload">
+                        <input type="file" id="referenceSource-${newReferenceId}" name="referenceSource" style="display: none;" readonly="">
+                        <i class="fa-regular fa-folder-open" aria-hidden="true"></i> Choose File
+                    </div>
+                    <div class="custom-file-title">
+                        <span id="referenceSourceDisplay-${newReferenceId}" class="file-name-display">No file selected</span>
+                    </div>
+                    <input type="hidden" id="referenceURLInput-${newReferenceId}" name="referenceURL">
+                </div>
+            </div>
+            <div class="reference-card-content">
+                <label class="edit-user-label" for="referenceDescription-${newReferenceId}">Reference Description</label>
+                <div class="editor-container" id="referenceDescription-${newReferenceId}"></div>
+            </div>
+        </div>
+    </div>`;
+
+    referenceContainer.insertAdjacentHTML('beforeend', newReferenceCard);
+
+    // Reassign event listeners to include the new reference card
+    assignReferenceHeaderListeners();
+    testReferenceCount();
+    initializeQuill(); // Initialize Quill for the new reference description editor
+}
+
+function createNewUpload(){
+    const uploadContainer = document.getElementById('uploadContainer');
+    const uploadCards = uploadContainer.querySelectorAll('.upload-card');
+    const newUploadId = uploadCards.length + 1; // Generate a new unique ID based on the number of existing references
+
+    const newUploadCard = `
+    <div class="upload-card">
+        <div class="info-card-header collapsable-header">
+            <div class="card-header-left">
+                <i class="fa-light fa-grip-dots-vertical upload-drag-icon"></i>
+                <input class="upload-title" type="text" placeholder="New Upload">
+            </div>
+            <div class="upload-header-right">
+                <div onclick="openPopup('uploadDeleteConfirmation', 'deleteUpload', this)" id="deleteUpload" class="upload-delete tooltip" data-tooltip="Delete Upload">
+                    <span class="tooltiptext">Delete Upload</span>
+                    <i class="fa-regular fa-trash"></i>
+                </div>
+                <div class="upload-dropdown">
+                    <i class="fa-regular fa-angle-down"></i>
+                </div>
+            </div>
+        </div>
+        <div class="upload-card-body">
+
+            <div class="course-content-input">
+                <label class="edit-user-label">Upload Approval</label>
+                <div class="content-input-options-row">
+                    <label class="custom-radio">
+                        <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalNone${newUploadId}" value="upload_approval1" checked="">
+                        <span class="custom-radio-button"></span>
+                        None
+                    </label>
+                    <label class="custom-radio">
+                        <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalInstructor${newUploadId}" value="upload_approval2">
+                        <span class="custom-radio-button"></span>
+                        Instructor
+                    </label>
+                    <label class="custom-radio">
+                        <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalAdmin${newUploadId}" value="upload_approval3">
+                        <span class="custom-radio-button"></span>
+                        Admin
+                    </label>
+                    <label class="custom-radio">
+                        <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalOther${newUploadId}" value="upload_approval4">
+                        <span class="custom-radio-button"></span>
+                        Other
+                    </label>
+                </div>
+            </div>
+            <!-- None Approval -->
+            <div id="uploadApprovalNone${newUploadId}" class="toggle-option-details show-toggle-option-details">
+                <span class="course-content-input-subtext"> No approval is required for the course upload. </span>
+            </div>
+            <!-- Instructor Approval -->
+            <div id="uploadApprovalInstructor${newUploadId}" class="toggle-option-details">
+                <span class="course-content-input-subtext"> An Instructor must approve the course upload. </span>
+            </div>
+            <!-- Admin Approval -->
+            <div id="uploadApprovalAdmin${newUploadId}" class="toggle-option-details">
+                <span class="course-content-input-subtext"> An Admin must approve the course upload. </span>
+            </div>
+            <!-- Other Approval -->
+            <div id="uploadApprovalOther${newUploadId}" class="toggle-option-details">
+                <span class="course-content-input-subtext"> Please select the User(s) who will approve the course upload. </span>
+                <div class="right-column-file-wrapper">
+                    <div id="userDropdownupload_approval${newUploadId}" class="user-dropdown course-content-input">
+                        <input type="text" class="userSearch" placeholder="Search users...">
+                        <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                        <div class="userList scrollable-content"></div>
+                        <div class="loadingIndicator" style="display:none;">Loading...</div>
+                        <div class="selectedUsers"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+
+    uploadContainer.insertAdjacentHTML('beforeend', newUploadCard);
+
+    // Reassign event listeners to include the new reference card
+    assignUploadHeaderListeners();
+    testUploadCount();
+    initializeRadioOptions();
+    // Initialize dropdown for all containers on the page
+    document.querySelectorAll('.user-dropdown').forEach(dropdown => {
+        initializeUserDropdown(dropdown.id);
+    });
 }
 
 // Function to open the popup
@@ -282,6 +540,10 @@ function openPopup(popupId, action = null, context = null) {
         case 'createLesson':
             window.lessonContext = context;
             break;
+        case 'deleteReference':
+            window.referenceToDelete = context.closest('.reference-card');
+        case 'deleteUpload':
+            window.uploadToDelete = context.closest('.upload-card');
         // Add more cases as needed
     }
 }
@@ -303,6 +565,8 @@ function closeCreateLessonPopup(popupId){
 // Function to close the popup
 function closePopup(popupId) {
     if(popupId === 'moduleDeleteConfirmation'){window.moduleToDelete = null};
+    if(popupId === 'referenceDeleteConfirmation'){window.referenceToDelete = null};
+    if(popupId === 'uploadDeleteConfirmation'){window.uploadToDelete = null};
     const currentPopup = document.getElementById(popupId);
     const popupContent = currentPopup.querySelector('.popup-content');
     popupContent.classList.remove('animate-popup-content');
@@ -319,6 +583,24 @@ function confirmDelete() {
         testModuleCount();
     }
     closePopup('moduleDeleteConfirmation');
+}
+
+function confirmReferenceDelete(){
+    if (window.referenceToDelete) {
+        window.referenceToDelete.remove();
+        window.referenceToDelete = null;
+        testReferenceCount();
+    }
+    closePopup('referenceDeleteConfirmation');
+}
+
+function confirmUploadDelete(){
+    if (window.uploadToDelete) {
+        window.uploadToDelete.remove();
+        window.uploadToDelete = null;
+        testUploadCount();
+    }
+    closePopup('uploadDeleteConfirmation');
 }
 
 // Function to handle creating a lesson
@@ -434,7 +716,7 @@ function createAndAppendLessonCard(index, title, description, fileURL, fileName,
             </div>
             <div class="lesson-delete tooltip" data-tooltip="Delete Lesson">
                 <span class="tooltiptext">Delete Lesson</span>
-                <i class="fa-regular fa-trash-can"></i>
+                <i class="fa-regular fa-trash"></i>
             </div>
         </div>
     `;
@@ -465,6 +747,26 @@ function addDeleteEventListeners() {
     });
 }
 
+function addReferenceDeleteEventListeners() {
+    const deleteButtons = document.querySelectorAll('.reference-delete');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            openPopup('referenceDeleteConfirmation', 'deleteReference', button);
+        });
+    });
+}
+
+function addUploadDeleteEventListeners() {
+    const deleteButtons = document.querySelectorAll('.upload-delete');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            openPopup('uploadDeleteConfirmation', 'deleteUpload', button);
+        });
+    });
+}
+
 // Add event listeners for create lesson buttons
 function addCreateLessonEventListeners() {
     const createLessonButtons = document.querySelectorAll('.create-lesson-button');
@@ -475,10 +777,47 @@ function addCreateLessonEventListeners() {
                 title: 'New Lesson',
                 description: 'Lesson Description'
             });
-            console.log(button);
         });
     });
 
+}
+
+// Function to assign event listeners to upload headers
+function assignUploadHeaderListeners() {
+    const uploadHeaders = document.querySelectorAll('.upload-dropdown');
+    uploadHeaders.forEach(reference => {
+        reference.removeEventListener('click', toggleUpload); // Remove existing listeners to prevent duplication
+        reference.addEventListener('click', toggleUpload); // Add event listener
+    });
+}
+
+// Function to assign event listeners to reference headers
+function assignReferenceHeaderListeners() {
+    const referenceHeaders = document.querySelectorAll('.reference-dropdown');
+    referenceHeaders.forEach(reference => {
+        reference.removeEventListener('click', toggleReference); // Remove existing listeners to prevent duplication
+        reference.addEventListener('click', toggleReference); // Add event listener
+    });
+}
+
+// Function to toggle upload visibility
+function toggleUpload(event) {
+    const reference = event.currentTarget;
+    reference.classList.toggle('active');
+    const cardBody = reference.closest('.upload-card').querySelector('.upload-card-body');
+    if (cardBody) {
+        cardBody.classList.toggle('hidden');
+    }
+}
+
+// Function to toggle module visibility
+function toggleReference(event) {
+    const reference = event.currentTarget;
+    reference.classList.toggle('active');
+    const cardBody = reference.closest('.reference-card').querySelector('.reference-card-body');
+    if (cardBody) {
+        cardBody.classList.toggle('hidden');
+    }
 }
 
 // Function to assign event listeners to module headers
@@ -514,6 +853,12 @@ function addDeleteEventListeners() {
 
 // Event listener for the "Add Module" button
 document.getElementById('addModule').addEventListener('click', createNewModule);
+
+// Event listener for the "Add Reference" button
+document.getElementById('addReference').addEventListener('click', createNewReference);
+
+// Event listener for the "Add Upload" button
+document.getElementById('addUpload').addEventListener('click', createNewUpload);
 
 // Lessons
 function assignDeleteHandlers() {
@@ -768,63 +1113,201 @@ document.getElementById('editLessonTitle').addEventListener('keyup', function() 
 
 
 function generateCourseData() {
+    // Validate data
+    const errors = validateCourseData();
+    if (errors.length > 0) {
+        console.log("Validation Errors:", errors);
+        // Optionally display errors on the page
+        // displayErrors(errors); 
+        return; // Stop execution if there are validation errors
+    }
+
+    const formData = new FormData(); // Create FormData object
+
+    // Initialize courseData
     const courseData = {
         title: document.getElementById('title').value,
         description: getEditorContent('courseDescription'),
-        category_id: 1,
-        type: "online",
-        modules: []
+        category_id: 1, // Adjust as needed
+        type: 'online', // Adjust as needed
+        modules: [],
+        credentials: [],
+        event_dates: [],
+        media: [],
+        resources: [],
+        uploads: [],
     };
 
+    // Append basic course data to FormData
+    formData.append('title', courseData.title);
+    formData.append('description', courseData.description);
+    formData.append('category_id', courseData.category_id);
+    formData.append('type', courseData.type);
+
+    // Handle certificate credentials
+    const certificateCheckbox = document.getElementById('certificate');
+    if (certificateCheckbox && certificateCheckbox.checked) {
+        const certificateData = {
+            type: 'certificate',
+            source: document.getElementById('certificateURLInput').value,
+            title: document.getElementById('certTitle').value.trim(),
+        };
+        courseData.credentials.push(certificateData);
+        formData.append('credentials', JSON.stringify(courseData.credentials));
+    }
+
+    // Handle Event Dates
+    const eventDateSections = [
+        {
+            name: 'start_date',
+            detailsId: 'startDateDetails',
+            dateField: 'start_date',
+            timeField: 'start_time',
+        },
+        {
+            name: 'expiration_date',
+            detailsId: 'selectDateDetails',
+            dateField: 'expires_on_date',
+            timeField: 'expires_on_time',
+            enrollmentFields: {
+                years: 'expiration_year',
+                months: 'expiration_months',
+                days: 'expiration_days',
+            }
+        },
+        {
+            name: 'due_date',
+            detailsId: 'selectDateDueDate',
+            dateField: 'due_on_date',
+            timeField: 'due_on_time',
+            enrollmentFields: {
+                years: 'due_years',
+                months: 'due_months',
+                days: 'due_days',
+            }
+        }
+    ];
+
+    eventDateSections.forEach((section) => {
+        const selectedOption = document.querySelector(`input[name="${section.name}"]:checked`);
+        if (selectedOption) {
+            const selectedValue = selectedOption.value;
+
+            // Handle "Time From Enrollment" option
+            if (section.enrollmentFields && selectedValue === `${section.name}2`) {
+                const years = document.getElementById(section.enrollmentFields.years)?.value || 0;
+                const months = document.getElementById(section.enrollmentFields.months)?.value || 0;
+                const days = document.getElementById(section.enrollmentFields.days)?.value || 0;
+
+                courseData.event_dates.push({
+                    type: section.name,
+                    from_enrollment: { years, months, days },
+                });
+
+                formData.append('event_dates', JSON.stringify(courseData.event_dates));
+            }
+
+            // Handle "Select Date" option
+            if (selectedValue === `${section.name}3` || selectedValue === `${section.name}2` && section.name === 'start_date') {
+                const date = document.getElementById(section.dateField)?.value || '';
+                const time = document.getElementById(section.timeField)?.value || '';
+
+                if (date) {  // Only push if the date is provided
+                    courseData.event_dates.push({
+                        type: section.name,
+                        date: date,
+                        time: time,
+                    });
+
+                    formData.append('event_dates', JSON.stringify(courseData.event_dates));
+                }
+            }
+        }
+    });
+
+    // Handle modules and lessons
     const moduleContainers = document.querySelectorAll('.module-card');
+
     moduleContainers.forEach((moduleContainer, moduleIndex) => {
-        // Ensure .module-title is correctly selected
-        const moduleTitleElement = moduleContainer.querySelector('.module-title');
-        const moduleTitle = moduleTitleElement ? moduleTitleElement.value : 'Untitled Module';
-
-        const moduleDescriptionElement = moduleContainer.querySelector('.module-description');
-        const moduleDescription = moduleDescriptionElement ? moduleDescriptionElement.value : '';
-
         const moduleData = {
-            title: moduleTitle,
-            description: moduleDescription,
+            title: moduleContainer.querySelector('.module-title')?.value || 'Untitled Module',
+            description: moduleContainer.querySelector('.module-description')?.value || '',
             order: moduleIndex + 1,
-            lessons: []
+            lessons: [],
         };
 
         const lessonCards = moduleContainer.querySelectorAll('.lesson-card');
         lessonCards.forEach((lessonCard, lessonIndex) => {
-            const lessonTitle = lessonCard.querySelector('.lesson-title').textContent.trim();
-            const lessonType = lessonCard.querySelector('.lesson-type').value;
-            const lessonFile = lessonCard.querySelector('.lesson-file').value;
-            const lessonDescription = lessonCard.querySelector('.lesson-description').value;
-
             const lessonData = {
-                title: lessonTitle,
-                description: lessonDescription,
+                title: lessonCard.querySelector('.lesson-title')?.textContent.trim(),
+                description: lessonCard.querySelector('.lesson-description')?.value || '',
                 order: lessonIndex + 1,
-                content_type: lessonType,
-                content: {
-                    file: lessonFile
-                }
+                content_type: lessonCard.querySelector('.lesson-type')?.value || '',
             };
+
+            const lessonFileInput = lessonCard.querySelector('.lesson-file');
+            const lessonType = lessonCard.querySelector('.lesson-type');
+            // Test if it it Type File or SCORM
+            if(lessonType.value === 'file'){
+                formData.append(`lessons[${lessonIndex}][file_link]`, lessonFileInput.value);
+            }else{
+                if (lessonFileInput) {
+                    const base64String = lessonFileInput.value;
+                    if (base64String) {
+                        const mimeType = 'application/x-zip-compressed'; // Adjust MIME type if needed
+                        const blob = base64ToBlob(base64String, mimeType);
+                        formData.append(`lessons[${lessonIndex}][file]`, blob, `lesson_${lessonIndex}_file.zip`);
+                    }
+                }
+            }
+            
 
             moduleData.lessons.push(lessonData);
         });
 
-        courseData.modules.push(moduleData);
+        courseData.modules.push(moduleData); // Add moduleData to courseData.modules array
     });
 
-    console.log(JSON.stringify(courseData, null, 2));
+    // formData.append('courseData', JSON.stringify(courseData));
+    formData.append('modules', JSON.stringify(courseData.modules));
 
-    // Send courseData to Django view
+    // Handle Media (Thumbnail)
+    const thumbnailInput = document.getElementById('fileInput'); // Assuming this is an <input type="file">
+    const ThumbnailImagePreview = document.getElementById('ThumbnailImagePreview');
+
+    if (ThumbnailImagePreview.src.startsWith('https://')) {
+        courseData.media.push({
+            type: 'thumbnail',
+            thumbnail_link: ThumbnailImagePreview.src,
+            thumbnail_image: '' // Leave empty if using link
+        });
+    } else if (thumbnailInput && thumbnailInput.files.length > 0) {
+        // Append thumbnail_image file separately
+        formData.append('media[0][type]', 'thumbnail');
+        formData.append('media[0][thumbnail_image]', thumbnailInput.files[0]);
+
+        // Adjust courseData to reflect the presence of the file
+        courseData.media.push({
+            type: 'thumbnail',
+            thumbnail_link: '',
+            thumbnail_image: 'thumbnail_image' // Placeholder, will be handled in view
+        });
+    }
+
+    formData.append('media', JSON.stringify(courseData.media));
+
+    // Log FormData contents
+    for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+    }
+
+    // Send FormData to Django view
     fetch('/requests/modify-course/', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')  // Include CSRF token for security
         },
-        body: JSON.stringify(courseData)
+        body: formData // Send FormData object
     })
     .then(response => response.json())
     .then(data => {
@@ -835,6 +1318,86 @@ function generateCourseData() {
         console.error('Error:', error);
         // Handle error
     });
+}
+
+
+// Checking to Ensure that all the required fields and filled in
+function validateCourseData() {
+    const errors = [];
+
+    // Validate Course Title 
+    const title = document.getElementById('title').value.trim();
+    if(!title) {
+        errors.push('Course Title is required.');
+    }
+
+    // Validate start_date - Select Date
+    const startDate = document.querySelector('input[name="start_date"]:checked').value;
+    if (startDate === 'start_date2' || startDate === 'start_date3') {
+        const startDateValue = document.getElementById('start_date').value.trim();
+        if (!startDateValue) {
+            errors.push('Start date is required.');
+        }
+    }
+
+    // Validate expiration_date - Select Date
+    const expirationStartDate = document.querySelector('input[name="expiration_date"]:checked').value;
+    if (expirationStartDate === 'expiration_date3') {
+        const expirationStartDateValue = document.getElementById('expires_on_date').value.trim();
+        if (!expirationStartDateValue) {
+            errors.push('Expiration date is required.');
+        }
+    }
+
+    // Validate due_date - Select Date
+    const dueStartDate = document.querySelector('input[name="due_date"]:checked').value;
+    if (dueStartDate === 'due_date3') {
+        const dueStartDateValue = document.getElementById('due_on_date').value.trim();
+        if (!dueStartDateValue) {
+            errors.push('Due date is required.');
+        }
+    }
+
+    // Validate expires_on_date
+    const expiresOnDateOption = document.querySelector('input[name="expiration_date"]:checked').value;
+    if (expiresOnDateOption === 'expiration_date2') {
+        const expiresYears = document.getElementById('expiration_year').value.trim();
+        const expiresMonths = document.getElementById('expiration_months').value.trim();
+        const expiresDays = document.getElementById('expiration_days').value.trim();
+        if (!expiresYears && !expiresMonths && !expiresDays) {
+            errors.push('At least one enrollment field for Expiration Date is required.');
+        }
+        if (expiresYears < 0 || expiresMonths < 0 || expiresDays < 0) {
+            errors.push('Expiration Date may not be a negative number.');
+        }
+    }
+
+    // Validate due_on_date
+    const dueOnDateOption = document.querySelector('input[name="due_date"]:checked').value;
+    if (dueOnDateOption === 'due_date2') {
+        const dueYears = document.getElementById('due_years').value.trim();
+        const dueMonths = document.getElementById('due_months').value.trim();
+        const dueDays = document.getElementById('due_days').value.trim();
+        if (!dueYears && !dueMonths && !dueDays) {
+            errors.push('At least one enrollment field for Due Date is required.');
+        }
+        if (dueYears < 0 || dueMonths < 0 || dueDays < 0) {
+            errors.push('Due Date may not be a negative number.');
+        }
+    }
+
+    return errors;
+}
+
+// Function to convert base64 string to Blob
+function base64ToBlob(base64String, mimeType) {
+    const byteCharacters = atob(base64String.split(',')[1]); // Remove the data URL prefix
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
 }
 
 // Helper function to get CSRF token from cookies
@@ -874,6 +1437,12 @@ function initializeToggleOptions(){
                     } else {
                         toggleOptionDetails.classList.remove('show-toggle-option-details');
                     }
+                }
+                // Hiding and showing Edit Instructions Button for Course Uploads
+                if(toggleOption.id === 'courseUploads' && toggleOption.checked){
+                    document.getElementById('editUploadInstructionBtn').style.display = 'flex';
+                }else{
+                    document.getElementById('editUploadInstructionBtn').style.display = 'none';
                 }
             }
         });
@@ -934,6 +1503,7 @@ function initializeThumbnailPreview(){
         thumbnailDelete.style.display = "none";
         const ThumbnailImagePreview = document.getElementById('ThumbnailImagePreview');
         ThumbnailImagePreview.src = ''; // Clear the image
+        fileInput.value = ''; // This clears the selected file
     });
 
     // Handle file selection
@@ -983,3 +1553,182 @@ function initializeThumbnailPreview(){
         }
     }
 }
+
+
+function initializeUserDropdown(containerId) {
+    const container = document.getElementById(containerId);
+    const userSearchInput = container.querySelector('.userSearch');
+    const userList = container.querySelector('.userList');
+    const loadingIndicator = container.querySelector('.loadingIndicator');
+    const selectedUsersList = container.querySelector('.selectedUsers');
+
+    let page = 1;
+    let isLoading = false;
+    let hasMoreUsers = true;
+
+    // Function to fetch users from the backend
+    function fetchUsers(searchTerm = '', resetList = false) {
+        if (isLoading || !hasMoreUsers) return;
+    
+        isLoading = true;
+        loadingIndicator.style.display = 'block';
+    
+        fetch(`/requests/get-users/?page=${page}&search=${searchTerm}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (resetList) {
+                    userList.innerHTML = '';
+                    page = 1;
+                }
+    
+                // Append users to the dropdown list
+                data.users.forEach(user => {
+                    const userItem = document.createElement('div');
+                    userItem.classList.add('dropdown-item');
+                    userItem.innerHTML = `
+                        <div class="dropdown-item-inner">
+                            <h5>${user.first_name} ${user.last_name}</h5><span>${user.username} (${user.email})</span>
+                        </div>
+                    `;
+                    userItem.dataset.userId = user.id;
+    
+                    // Create the checkbox with the proper structure
+                    const checkboxWrapper = document.createElement('div');
+                    checkboxWrapper.innerHTML = `
+                        <label class="container">
+                            <input value="${user.id}" class="user-checkbox" type="checkbox">
+                            <div class="checkmark"></div>
+                        </label>
+                    `;
+    
+                    userItem.prepend(checkboxWrapper);
+                    userList.appendChild(userItem);
+    
+                    const checkbox = checkboxWrapper.querySelector('.user-checkbox');
+    
+                    // Check if the user is already selected and mark the checkbox
+                    if (selectedUsersList.querySelector(`[data-user-id="${user.id}"]`)) {
+                        userItem.classList.add('selected');
+                        checkbox.checked = true; // Ensure the checkbox is checked
+                    }
+    
+                    // Click event for the entire item
+                    userItem.addEventListener('click', function (event) {
+                        if (checkbox.checked) {
+                            removeSelectedUser(user.id);
+                            checkbox.checked = false;
+                            userItem.classList.remove('selected');
+                        } else {
+                            appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
+                            checkbox.checked = true;
+                            userItem.classList.add('selected');
+                        }
+                    });
+    
+                    // Ensure checkbox triggers parent item click
+                    checkbox.addEventListener('click', function (event) {
+                        event.stopPropagation();  // Prevent checkbox click from triggering twice
+                        userItem.click();  // Trigger the parent item click
+                    });
+                });
+    
+                if (data.users.length === 0 && resetList) {
+                    userList.innerHTML = '<div class="no-results">No results found</div>';
+                }
+    
+                hasMoreUsers = data.has_more;
+                isLoading = false;
+                loadingIndicator.style.display = 'none';
+                page += 1;
+            })
+            .catch(error => {
+                console.error('Error fetching users:', error);
+                isLoading = false;
+                loadingIndicator.style.display = 'none';
+            });
+    }
+
+    // Function to append selected user to the list
+    function appendSelectedUser(username, email, userId, first_name, last_name) {
+        const userItem = document.createElement('div');
+        userItem.classList.add('selected-user');
+        userItem.dataset.userId = userId;
+        if(first_name){
+            userItem.innerHTML = `<span class="selected-user-details">${first_name} ${last_name}</span>`;
+        }else{
+            userItem.innerHTML = `<span class="selected-user-details">${username} (${email})</span>`;
+        }
+
+        const removeButton = document.createElement('div');
+        removeButton.classList.add('remove-user');
+        removeButton.innerHTML = `
+        <div class="upload-delete tooltip" data-tooltip="Remove User">
+            <span class="tooltiptext">Remove User</span>
+            <i class="fa-regular fa-trash"></i>
+        </div>
+        `;
+        removeButton.addEventListener('click', function () {
+            removeSelectedUser(userId);
+        });
+
+        userItem.appendChild(removeButton);
+        selectedUsersList.appendChild(userItem);
+    }
+
+    // Function to remove selected user from the list
+    function removeSelectedUser(userId) {
+        const userItem = selectedUsersList.querySelector(`[data-user-id="${userId}"]`);
+        if (userItem) {
+            userItem.remove();
+        }
+
+        // Uncheck the corresponding item in the dropdown
+        const dropdownItem = userList.querySelector(`[data-user-id="${userId}"]`);
+        if (dropdownItem) {
+            dropdownItem.classList.remove('selected');
+            dropdownItem.querySelector('.user-checkbox').checked = false;
+        }
+    }
+
+    // Event listener for scrolling in the dropdown list (infinite scroll)
+    userList.addEventListener('scroll', function () {
+        if (userList.scrollTop + userList.clientHeight >= userList.scrollHeight) {
+            fetchUsers(userSearchInput.value);
+        }
+    });
+
+    // Event listener for the search input
+    userSearchInput.addEventListener('input', function () {
+        page = 1;
+        hasMoreUsers = true;
+        fetchUsers(userSearchInput.value, true);
+    });
+
+    // Event listener to display the dropdown list when focusing the search input
+    userSearchInput.addEventListener('focus', function () {
+        userSearchInput.style.borderRadius = '8px 8px 0 0';
+        userList.style.display = 'block';
+        userSearchInput.style.border = '2px solid #c7c7db';
+    });
+
+    // Hide the dropdown list when clicking outside
+    document.addEventListener('click', function (event) {
+        if (!container.contains(event.target)) {
+            userList.style.display = 'none';
+            userSearchInput.style.borderRadius = '8px';
+            userSearchInput.style.border = '1px solid #ececf1';
+        }
+    });
+
+    // Initial load
+    fetchUsers();
+}
+
+// Initialize dropdown for all containers on the page
+document.querySelectorAll('.user-dropdown').forEach(dropdown => {
+    initializeUserDropdown(dropdown.id);
+});

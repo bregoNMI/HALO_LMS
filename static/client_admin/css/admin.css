@@ -105,6 +105,7 @@ html, body, button{
     /* Make sure the body height fills the viewport */
     box-sizing: border-box; /* Include padding and border in height calculation */
     overflow-y: auto; /* Allow scrolling if content overflows */
+    outline: none;
 }
 
 .sidebar-body h6{
@@ -479,8 +480,8 @@ table {
     border-collapse: collapse;
 }
 th, td {
-    border-top: 1px solid #dddddd;
-    border-bottom: 1px solid #dddddd;
+    border-top: 1px solid #ececf1;
+    border-bottom: 1px solid #ececf1;
     text-align: left;
     padding: 8px;
     font-size: var(--fs-sm);
@@ -492,7 +493,7 @@ th {
 td:first-child, th:first-child{
     padding: var(--pad-xs);
 }
-tr:hover td{
+tr:hover{
     cursor: pointer;
     background-color: var(--bg-color3);
 }
@@ -500,8 +501,12 @@ tr:last-child{
     border-radius: 8px;
 }
 
-.selected-option{
-    background-color: var(--bg-color3);
+tr.selected-option{
+    background-color: var(--item-selected-blue);
+}
+
+tr.selected-option th, tr.selected-option td{
+    border-color: #ffffff;
 }
 
 .table-select-option:hover .checkmark{
