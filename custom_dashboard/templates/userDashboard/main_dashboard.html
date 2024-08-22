@@ -1,0 +1,11 @@
+<h1>{{ dashboard.title }}</h1>
+    <p>{{ dashboard.description }}</p>
+    
+    <div id="widgets-container">
+        {% for widget in dashboard.widgets.all %}
+            <div class="widget">
+                <h3>{{ widget.title }}</h3>
+                <p>{{ widget.content }}</p>
+            </div>
+        {% endfor %}
+    </div>

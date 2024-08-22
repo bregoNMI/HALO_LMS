@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from content import views as content_views
+from custom_dashboard import views as custom_dashboard_views
 
 urlpatterns = [
     # Dashboard
@@ -15,4 +16,16 @@ urlpatterns = [
     path('courses/', content_views.admin_courses, name='admin_courses'),
     path('courses/online/add/', content_views.add_online_courses, name='add_online_courses'),
     path('courses/<int:course_id>/', content_views.course_details, name='course_details'),
+
+    #Custom User Dashboard
+    path('templates/dashboards/', custom_dashboard_views.dashboard_list, name='dashboard_list'),
+    path('templates/dashboards/create/', custom_dashboard_views.dashboard_create, name='dashboard_create'),
+    path('templates/dashboards/<int:dashboard_id>/edit/', custom_dashboard_views.dashboard_edit, name='dashboard_edit'),
+    path('templates/widgets/add/<int:dashboard_id>/', custom_dashboard_views.widget_add, name='widget_add'),
+    path('templates/widgets/update/', custom_dashboard_views.widget_update, name='widget_update'),
+    path('templates/widgets/reorder/', custom_dashboard_views.widget_reorder, name='widget_reorder'),
+    path('templates/dashboards/<int:dashboard_id>/preview/', custom_dashboard_views.dashboard_preview, name='dashboard_preview'),
+    # Main Dashboard
+    path('templates/dashboard/set_main/<int:dashboard_id>/', custom_dashboard_views.set_main_dashboard, name='set_main_dashboard'),
+    path('user-dashboard/', custom_dashboard_views.main_dashboard, name='main_dashboard'),
 ]

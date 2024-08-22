@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="custom-dashboard-body">
+    <h1>Edit Dashboard</h1>
+    <a href="{% url 'dashboard_preview' dashboard.id %}" target="_blank"> Preview</a>
+    <form method="post">
+        {% csrf_token %}
+        <label class="edit-user-label" for="name">Name</label>
+        <input type="text" id="name" name="name" value="{{ dashboard.name }}">
+        <label class="edit-user-label" for="description">description</label>
+        <input type="text" id="description" name="description" value="{{ dashboard.description }}">
+        <button type="submit">Save</button>
+    </form>
+    <input type="hidden" id="dashboard-id" value="{{ dashboard.id }}">
+    <h2>Widgets</h2>
+    <div id="widgets-container">
+        {% for widget in dashboard.widgets.all %}
+        <div class="widget" data-id="{{ widget.id }}">
+            <h3>{{ widget.title }}</h3>
+            <p>{{ widget.content }}</p>
+            <button class="edit-widget" data-id="{{ widget.id }}">Edit</button>
+        </div>
+        {% endfor %}
+    </div>
+    <button id="add-widget">Add Widget</button>
+</div>
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+<script src="{% static 'custom_dashboard/javascript/dashboard.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+{% endblock %}
