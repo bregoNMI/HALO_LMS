@@ -10,7 +10,7 @@ from django.contrib import messages
 from client_admin.models import Profile, User
 from .forms import UserRegistrationForm, ProfileForm
 from django.contrib.auth import update_session_auth_hash
-from authentication.python.views import addUserCognito, modifyCognito
+from authentication.python.views import addUserCognito, modifyCognito, register_view
 #from models import Profile
 #from authentication.python import views
 

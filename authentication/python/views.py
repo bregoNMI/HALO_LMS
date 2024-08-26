@@ -180,8 +180,8 @@ def login_view(request):
         return JsonResponse({'message': 'Method not allowed'}, status=405)
     
 cognito_client = boto3.client('cognito-idp', region_name=settings.AWS_REGION)
-s3_client = boto3.client('s3')
 logger = logging.getLogger(__name__)
+
 s3_client = boto3.client(
     's3',
     aws_access_key_id=AWS_ACCESS_KEY_ID,
@@ -312,30 +312,26 @@ def addUserCognito(request):
         email = request.POST.get('email')
         given_name = request.POST.get('first_name')
         family_name = request.POST.get('last_name')
-        birthdate = request.POST.get('birth_date')
         id_photo = request.FILES.get('photoid') 
         reg_photo = request.FILES.get('passportphoto') 
 
         try:
             # Define S3 bucket and folder paths
             s3_bucket = settings.AWS_STORAGE_BUCKET_NAME
-            user_folder = f"users/{username}"
 
-            # Upload ID photo to S3
-            if id_photo:
-                id_photo_name = id_photo.name
-                id_photo_key = f"{user_folder}/id_photo/{id_photo_name}"
-                s3_client.upload_fileobj(id_photo, s3_bucket, id_photo_key)
-                id_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{id_photo_key}"
-                print(f"ID photo uploaded to: {id_photo_url}")  # Debugging line
+            # Upload the ID photo to S3
+            id_photo_name = id_photo.name
+            s3_key_id_photo = f"users/{username}/id_photo/{id_photo_name}"
+            id_photo.seek(0)  # Reset pointer to the beginning of the file
+            s3_client.upload_fileobj(id_photo, s3_bucket, s3_key_id_photo)
+            id_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_key_id_photo}"
 
-            # Upload registration photo to S3
-            if reg_photo:
-                reg_photo_name = reg_photo.name
-                reg_photo_key = f"{user_folder}/reg_photo/{reg_photo_name}"
-                s3_client.upload_fileobj(reg_photo, s3_bucket, reg_photo_key)
-                reg_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{reg_photo_key}"
-                print(f"Registration photo uploaded to: {reg_photo_url}")  # Debugging line
+            # Upload the registration photo to S3
+            reg_photo_name = reg_photo.name
+            s3_key_reg_photo = f"users/{username}/reg_photo/{reg_photo_name}"
+            reg_photo.seek(0)  # Reset pointer to the beginning of the file
+            s3_client.upload_fileobj(reg_photo, s3_bucket, s3_key_reg_photo)
+            reg_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_key_reg_photo}"
 
             # Generate SECRET_HASH
             client_id = settings.COGNITO_CLIENT_ID
