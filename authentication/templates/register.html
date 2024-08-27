@@ -30,6 +30,10 @@
                         <input type="password" id="id_password" name="password" required>
                     </div>
                     <div class="register-form-field">
+                        <label for="id_confirm_password">Confirm Password:</label>
+                        <input type="password" id="id_confirm_password" name="confirm_password" required>
+                    </div>
+                    <div class="register-form-field">
                         <label for="id_email">Email:</label>
                         <input type="email" id="id_email" name="email" required>
                     </div>
@@ -57,12 +61,21 @@
                 </form>
                 <script>
                     document.getElementById('registerForm').addEventListener('submit', function(event) {
+                        var password = document.getElementById('id_password').value;
+                        var confirmPassword = document.getElementById('id_confirm_password').value;
                         var idPhoto = document.getElementById('id_id_photo').files[0];
                         var regPhoto = document.getElementById('id_reg_photo').files[0];
                         
+                        if (password !== confirmPassword) {
+                            alert('Passwords do not match.');
+                            event.preventDefault();
+                            return;
+                        }
+
                         if (idPhoto && !['image/jpeg', 'image/png'].includes(idPhoto.type)) {
                             alert('ID Photo must be a JPEG or PNG image.');
                             event.preventDefault();
+                            return;
                         }
                         
                         if (regPhoto && !['image/jpeg', 'image/png'].includes(regPhoto.type)) {

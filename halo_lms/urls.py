@@ -20,7 +20,8 @@ from django.urls import path, include
 urlpatterns = [
     path('django-admin/', admin.site.urls),
     path('admin/', include('client_admin.python.urls')),
-    path('login/', include('authentication.python.urls'))
+    path('login/', include('authentication.python.urls')),
+    path('client_admin/', include('client_admin.python.urls')),
     #path('login_view/', views.login_view, name='login_view'),
 ]
 
