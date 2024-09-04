@@ -60,6 +60,9 @@ input[type="text"], input[type="number"]{
     font-size: 0.9rem;
     margin-top: 0;
     color: var(--text-color2);
+    margin-bottom: 0;
+    padding-bottom: 0.4rem;
+    font-weight: 600;
 }
 
 .course-content-input input {
@@ -495,6 +498,12 @@ input[type="text"], input[type="number"]{
 }.lesson-selection-item:has(input[type="radio"]:checked).blue {
     outline-color: var(--primary-blue);
     background-color: #f2f6ff;
+}.lesson-selection-item:has(input[type="radio"]:checked).green {
+    outline-color: #17a34a;
+    background-color: #f0fff5;
+}.lesson-selection-item:has(input[type="radio"]:checked).pink {
+    outline-color: #e03a59;
+    background-color: #ffeaee;
 }
 
 .selected-lesson-type{

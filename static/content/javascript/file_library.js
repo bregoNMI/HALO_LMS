@@ -82,6 +82,16 @@ function selectFile(popupId, referenceId = null) {
             } else {
                 displayMessage('Please Select an Image for Course Thumbnail', false);
             }
+        }else if(popupId=== 'dashboardHeader'){
+            const dashboardURLInput = document.getElementById('dashboardURLInput');
+            const dashboardSourceDisplay = document.getElementById('headerEditBackgroundImageDisplay');
+            if (isImage(selectedFileURL)) {
+                dashboardURLInput.value = selectedFileURL;
+                dashboardSourceDisplay.innerText = selectedFileTitle;
+                closePopup('fileLibrary');
+            } else {
+                displayMessage('Please Select an Image for Banner', false);
+            }
         } else if (popupId === 'referenceSource' && referenceId !== null) {
             const referenceURLInput = document.querySelector(`#referenceURLInput-${referenceId}`);
             const referenceSourceDisplay = document.querySelector(`#referenceSourceDisplay-${referenceId}`);
@@ -177,7 +187,19 @@ function openFileLibrary(popupId, referenceId = null) {
         closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
         document.getElementById('selectFileBtn').setAttribute('onclick', `selectFile("referenceSource", "${referenceId}")`);
-    } else {
+    } else if (popupId === 'dashboardHeader') {
+        const checkbox = document.querySelector('.container .filter[data-type="image"]');
+        if (checkbox && !checkbox.checked) {
+            const container = checkbox.closest('.container');
+            if (container) {
+                container.click();
+                console.log('The container has been clicked because the checkbox was not checked');
+            }
+        }
+        closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
+        closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
+        document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("dashboardHeader")');
+    }else{
         closeFileLibraryBtn.setAttribute('onclick', 'closeFileLibrary()');
         closeFileLibrary.setAttribute('onclick', 'closeFileLibrary()');
         const lessonCreationPopup = document.getElementById('lessonCreationPopup');

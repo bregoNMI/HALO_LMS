@@ -1,127 +1,8 @@
+document.addEventListener("DOMContentLoaded", function() {
+    
+});
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle adding widgets
-    const addWidgetButton = document.getElementById('add-widget');
-    if (addWidgetButton) {
-        addWidgetButton.addEventListener('click', function() {
-            const dashboardIdInput = document.getElementById('dashboard-id');
-            if (dashboardIdInput) {
-                const dashboardId = dashboardIdInput.value;
-                const title = prompt('Enter widget title:');
-                const content = prompt('Enter widget content:');
-                
-                if (title && content) {
-                    fetch(`/admin/templates/widgets/add/${dashboardId}/`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-CSRFToken': getCookie('csrftoken'),
-                        },
-                        body: new URLSearchParams({
-                            'title': title,
-                            'content': content
-                        }),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Add widget to the DOM
-                            const widgetsContainer = document.getElementById('widgets-container');
-                            if (widgetsContainer) {
-                                const widgetDiv = document.createElement('div');
-                                widgetDiv.className = 'widget';
-                                widgetDiv.dataset.id = data.widget_id;
-                                widgetDiv.innerHTML = `
-                                    <h3>${title}</h3>
-                                    <p>${content}</p>
-                                    <button class="edit-widget" data-id="${data.widget_id}">Edit</button>
-                                `;
-                                widgetsContainer.appendChild(widgetDiv);
-                            }
-                        } else {
-                            console.error('Failed to add widget:', data.error);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Fetch error:', error);
-                    });
-                }
-            }
-        });
-    }
-
-    // Handle editing widgets
-    const widgetsContainer = document.getElementById('widgets-container');
-    if (widgetsContainer) {
-        widgetsContainer.addEventListener('click', function(event) {
-            if (event.target.classList.contains('edit-widget')) {
-                const widgetId = event.target.dataset.id;
-                // Need to change these prompts to editable fields
-                const title = prompt('Enter new widget title:');
-                const content = prompt('Enter new widget content:');
-                
-                if (title && content) {
-                    fetch('/admin/templates/widgets/update/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-CSRFToken': getCookie('csrftoken'),
-                        },
-                        body: new URLSearchParams({
-                            'widget_id': widgetId,
-                            'title': title,
-                            'content': content
-                        }),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Update widget in the DOM
-                            const widgetDiv = document.querySelector(`.widget[data-id="${widgetId}"]`);
-                            if (widgetDiv) {
-                                widgetDiv.querySelector('h3').textContent = title;
-                                widgetDiv.querySelector('p').textContent = content;
-                            }
-                        } else {
-                            console.error('Failed to update widget:', data.error);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Fetch error:', error);
-                    });
-                }
-            }
-        });
-    }
-
-    // Handle widget reordering
-    const sortable = document.getElementById('widgets-container');
-    if (sortable) {
-        Sortable.create(sortable, {
-            onEnd: function(event) {
-                const widgetIds = Array.from(sortable.children).map(widget => widget.dataset.id);
-                fetch('/admin/templates/widgets/reorder/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken'),
-                    },
-                    body: JSON.stringify({
-                        'widget_ids': widgetIds
-                    }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        console.error('Failed to reorder widgets:', data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetch error:', error);
-                });
-            }
-        });
-    }
-
     // Add event listener for setting the main dashboard
     document.querySelectorAll('.set-main-dashboard').forEach(button => {
         button.addEventListener('click', function(event) {
@@ -167,3 +48,205 @@ document.addEventListener('DOMContentLoaded', function() {
         return cookieValue;
     }
 });
+
+document.getElementById('create-dashboard-btn').addEventListener('click', function() {
+    const name = document.getElementById('dashboard-name').value;
+    const layout = document.querySelector('input[name="lesson-selection"]:checked').id;  // Get selected layout ID
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    if (name) {
+        fetch('/admin/templates/dashboards/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                name: name,
+                layout: layout
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = `/admin/templates/dashboards/${data.dashboard_id}/edit/`;  // Redirect to dashboard edit page
+            } else {
+                console.error('Failed to create dashboard:', data.error);
+                alert('Failed to create dashboard. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            alert('An error occurred. Please try again.');
+        });
+    } else {
+        alert('Title is required.');
+    }
+});
+
+// Clearing disabled status on create template button
+document.getElementById('dashboard-name').addEventListener('keyup', function() {
+    const createDashboardBtn = document.getElementById('create-dashboard-btn');
+    if(this.value.length >= 1){
+        createDashboardBtn.classList.remove('disabled');
+        createDashboardBtn.removeAttribute('disabled');
+    }else{
+        createDashboardBtn.classList.add('disabled');
+        createDashboardBtn.setAttribute('disabled', true);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.template-card .card-item-options').forEach(optionButton => {
+        optionButton.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent the default action of the link
+            event.stopPropagation(); // Stop the click from bubbling up to the anchor
+        });
+    });
+
+    document.querySelectorAll('.card-item-options').forEach(optionButton => {
+        optionButton.addEventListener('click', function(event) {
+            // Prevent the click event from bubbling up to parent elements
+            event.stopPropagation();
+            
+            // Toggle the dropdown menu
+            const dropdownMenu = this.querySelector('.options-dropdown-menu');
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+        });
+    });
+    
+    // Close the dropdown menu if the user clicks outside of it
+    document.addEventListener('click', function(event) {
+        document.querySelectorAll('.options-dropdown-menu').forEach(menu => {
+            if (!menu.contains(event.target)) {
+                menu.style.display = 'none';
+            }
+        });
+    });
+
+    const confirmDelete = document.getElementById('confirmDelete');
+    let currentDashboardId = null; // To keep track of the dashboard ID to delete
+
+    // Function to open the modal
+    function openDeleteModal(dashboardId) {
+        currentDashboardId = dashboardId;
+        openPopup('confirmDashboardDeletePopup')
+    }
+
+    // Handle delete button click
+    document.querySelectorAll('.delete-dashboard').forEach(button => {
+        button.addEventListener('click', function () {
+            const dashboardId = this.dataset.id;
+            openDeleteModal(dashboardId);
+        });
+    });
+
+    // Confirm delete
+    confirmDelete.addEventListener('click', function () {
+        if (currentDashboardId) {
+            fetch(`/admin/templates/dashboards/${currentDashboardId}/delete/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Optionally, remove the dashboard element from the DOM
+                    document.querySelector(`[data-id="${currentDashboardId}"]`).closest('a').remove();
+                    closePopup('confirmDashboardDeletePopup');
+                } else {
+                    alert('Failed to delete dashboard.');
+                }
+            });
+        }
+    });
+
+    // Variables for the edit title modal and buttons
+    const confirmEditTitleButton = document.getElementById('confirm-edit-title');
+    const editTitleInput = document.getElementById('edit-title-input');
+
+    let currentEditDashboardId = null; // To keep track of the dashboard ID being edited
+    let currentEditLayout = null;      // To keep track of the layout associated with the dashboard
+
+    // Function to open the edit title modal
+    function openEditTitleModal(dashboardId, title, layout) {
+        currentEditDashboardId = dashboardId;
+        currentEditLayout = layout;
+        if (editTitleInput) {
+            editTitleInput.value = title; // Set value for input field in the popup
+        }
+        openPopup('editDashboardTitle'); // Open the popup
+    }
+
+    // Handle edit dashboard button click
+    document.querySelectorAll('.edit-dashboard').forEach(button => {
+        button.addEventListener('click', function () {
+            const dashboardId = this.dataset.id;
+            const titleElement = document.querySelector(`.edit-dashboard-title[data-id="${dashboardId}"]`);
+            const title = titleElement ? titleElement.innerText : ''; // Use innerText to get the text content
+            const layout = titleElement ? titleElement.dataset.layout : '';
+
+            openEditTitleModal(dashboardId, title, layout);
+        });
+    });
+
+    // Confirm edit title
+    confirmEditTitleButton.addEventListener('click', function () {
+        if (currentEditDashboardId) {
+            const newTitle = editTitleInput ? editTitleInput.value : ''; // Check if editTitleInput is not null
+
+            fetch(`/admin/templates/dashboards/${currentEditDashboardId}/edit/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({ name: newTitle, layout: currentEditLayout })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Failed to update title:', response);
+                    throw new Error('Failed to update title.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update the title on the page
+                    const titleElement = document.querySelector(`.edit-dashboard-title[data-id="${currentEditDashboardId}"]`);
+                    if (titleElement) {
+                        titleElement.innerText = newTitle; // Update the text content
+                    }
+                    closePopup('editDashboardTitle');
+                } else {
+                    console.error('Form errors:', data.errors);  // Debugging line
+                    alert('Failed to update title.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error.message);  // Debugging line
+                alert(error.message);
+            });
+        }
+    });
+
+    
+});
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}

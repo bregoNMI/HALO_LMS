@@ -1,0 +1,39 @@
+html{
+    height: 100%;
+}
+
+html, body, button{
+    font-family: var(--primary-font);
+}
+
+.learner-body-container{
+    margin: 0;
+    background-color: var(--bg-color6);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Learner Inner */
+.learner-body-container-inner{
+    display: flex;
+    flex: 1;
+}
+
+.learner-body{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    background-color: var(--bg-color6);
+    /* border-top-left-radius: 24px; */
+    padding: var(--pad-xxxl);
+    border-top: 1px solid #ececf1;
+    border-left: 1px solid #ececf1;
+    height: calc(100vh - 67.36px);
+    /* Make sure the body height fills the viewport */
+    box-sizing: border-box; /* Include padding and border in height calculation */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+    outline: none;
+}

@@ -1,0 +1,71 @@
+{% extends 'learner_base.html' %}
+{% load static %}
+{% block content %}
+<div class="learner-body align-center scrollable-content">
+    <div class="custom-dashboard-body max-width-extend-1">
+
+        <input type="hidden" id="dashboard-id" value="{{ dashboard.id }}">
+        <div id="headerImage" class="dashboard-header-container image-section" style="background-image: url('{{ dashboard.header_background_image }}'); background-position: {{ dashboard.header_background_image_position }};">
+            <div class="dashboard-header-inner">
+                <div class="dashboard-header-inner-left">
+                    <div id="headerIcon" class="icon-wrapper" style="background-color: {{ dashboard.header_icon_background_color }};">
+                        <i class="{{ dashboard.header_icon }}" style="color: {{ dashboard.header_icon_color }};"></i>
+                    </div>
+                    <div class="text-wrapper">
+                        <h3 id="headerTitle" style="color: {{ dashboard.header_text_color }};"> {{ dashboard.header_title }} </h3>
+                        <span id="headerSubtext" style="color: {{ dashboard.header_subtext_color }};"> {{ dashboard.header_subtext }} </span>
+                    </div>
+                </div>
+                <div class="dashboard-header-inner-right"></div>
+            </div>
+        </div>
+        <div id="widgets-container">
+            {% for widget in dashboard.widgets.all %}
+                {% if widget.type == 'resumeCourses' %}
+                    <div class="widget resume-course" data-id="{{ widget.id }}">
+                        <div class="widget-top">
+                            <div class="widget-inner-wrapper">
+                                <div style="background-color: {{ widget.widget_icon_background_color }};" class="widget-icon pastel-purple">
+                                    <i style="color: {{ widget.widget_icon_color }};" class="{{ widget.widget_icon }}"></i>
+                                </div>
+                                <div class="widget-inner-right">
+                                    <h3 style="color: {{ widget.widget_title_color }};"> {{ widget.widget_title }} </h3>
+                                    <div style="display: flex; gap: 0.3rem; align-items: baseline; color: {{ widget.widget_subtext_color }};">
+                                        <span style="color: {{ widget.widget_subtext_color }};" id="resumeSubtext"> {{ widget.widget_subtext }} </span><i id="resumeIcon" class="fa-solid fa-angle-right"></i>
+                                    </div>
+                                    <p hidden>{{ widget.type }}</p>
+                                </div>   
+                            </div>
+                        </div>
+                        <div class="widget-bottom">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 30%;"></div>
+                            </div>
+                            <span>30%</span>
+                        </div>          
+                    </div>
+                {% else %}
+                    <div class="widget my-courses" data-id="{{ widget.id }}">
+                        <div class="widget-top">
+                            <div class="widget-inner-wrapper">
+                                <div style="background-color: {{ widget.widget_icon_background_color }};" class="widget-icon pastel-orange">
+                                    <i style="color: {{ widget.widget_icon_color }};" class="{{ widget.widget_icon }}"></i>
+                                </div>
+                                <div class="widget-inner-right">
+                                    <h3 style="color: {{ widget.widget_title_color }};"> {{ widget.widget_title }} </h3>
+                                    <span style="color: {{ widget.widget_subtext_color }};" id="resumeSubtext"> {{ widget.widget_subtext }} </span>
+                                    <p hidden>{{ widget.type }}</p>
+                                </div>   
+                            </div>
+                        </div>          
+                    </div>   
+                {% endif %}  
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+{% endblock %}

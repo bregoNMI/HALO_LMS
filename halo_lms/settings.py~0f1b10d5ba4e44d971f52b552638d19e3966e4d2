@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'client_admin',
     'halo_lms',
-    'custom_dashboard',
+    'custom_templates',
 ]
 
 MIDDLEWARE = [

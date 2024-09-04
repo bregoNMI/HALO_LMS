@@ -1246,10 +1246,11 @@ function generateCourseData() {
             };
 
             const lessonFileInput = lessonCard.querySelector('.lesson-file');
+            const lessonFileName = lessonCard.querySelector('.lesson-file-name');
             const lessonType = lessonCard.querySelector('.lesson-type');
             // Test if it it Type File or SCORM
             if(lessonType.value === 'file'){
-                formData.append(`lessons[${lessonIndex}][file_link]`, lessonFileInput.value);
+                formData.append(`lessons[${lessonIndex}][file_link]`, lessonFileName.value);
             }else{
                 if (lessonFileInput) {
                     const base64String = lessonFileInput.value;

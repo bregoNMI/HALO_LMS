@@ -86,7 +86,7 @@ html, body, button{
 
 /* Admin Sidebar */
 .admin-sidebar-container{
-    padding: var(--pad-sm);
+    padding: var(--pad-xs);
     background-color: white;
     z-index: 2;
 }
@@ -259,6 +259,8 @@ html, body, button{
     justify-content: space-between;
     align-items: center;
     padding-bottom: var(--pad-lg);
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .admin-top-row-left h2{
@@ -278,12 +280,12 @@ html, body, button{
     border-radius: 6px;
     font-size: var(--btn-font);
     cursor: pointer;
+    text-decoration: none;
 }
 
 .action-button-primary{
     background-color: var(--primary-blue);
     color: white;
-    text-decoration: none;
     gap: 0.5rem;
 }
 
@@ -293,6 +295,7 @@ html, body, button{
 
 .action-button-secondary{
     background-color: var(--bg-color4);
+    color: var(--text-color5);
 }
 
 .action-button-secondary:hover{
@@ -609,14 +612,16 @@ tr.selected-option th, tr.selected-option td{
     background-color: white;
     box-shadow: 0px 7px 18px 2px #dddddd;
     /* box-shadow: -3px 0px 18px 0px #dddddd; */
-    border-radius: 20px 0px 0px 20px;
     width: 15rem;
     margin-right: -15rem;
     transition: all 0.4s ease-out;
+    height: calc(100vh - 67.36px);
+    box-sizing: border-box;
+    overflow-y: hidden;
 }
 
 .show-options-sidebar{
-    margin-right: 0rem;
+    margin-right: 0rem !important;
 }
 
 .options-sidebar-header{

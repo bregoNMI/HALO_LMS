@@ -53,12 +53,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-document.getElementById('passportphoto').addEventListener('change', function(event) {
-    const fileName = event.target.files[0] ? event.target.files[0].name : 'No file selected';
-    document.getElementById('passportphotoNameDisplay').textContent = fileName;
-});
+const passportPhoto = document.getElementById('passportphoto');
+if(passportPhoto){
+    passportPhoto.addEventListener('change', function(event) {
+        const fileName = event.target.files[0] ? event.target.files[0].name : 'No file selected';
+        document.getElementById('passportphotoNameDisplay').textContent = fileName;
+    });
+}
 
-document.getElementById('photoid').addEventListener('change', function(event) {
-    const fileName = event.target.files[0] ? event.target.files[0].name : 'No file selected';
-    document.getElementById('photoidNameDisplay').textContent = fileName;
-});
+const photoid = document.getElementById('photoid');
+if(photoid){
+    photoid.addEventListener('change', function(event) {
+        const fileName = event.target.files[0] ? event.target.files[0].name : 'No file selected';
+        document.getElementById('photoidNameDisplay').textContent = fileName;
+    });
+}

@@ -1,0 +1,35 @@
+<div id="bannerTemplatesPopup" class="popup-background">
+    <div class="popup-content max-width-5">
+        <div class="popup-header">
+            <h3>Select Your New Banner</h3>
+            <div onclick="closePopup('bannerTemplatesPopup')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div id="dashboard-form" class="popup-body">
+            <div class="edit-user-input">
+                <div style="flex-wrap: wrap;" class="lesson-selection-container padding-bottom-1">
+                    <label style="flex: 1 1 calc(50% - 10px); box-sizing: border-box;" id="bannerTemplate1Label" class="lesson-selection-item orange banner-template-option" for="bannerTemplate1">
+                        <input id="bannerTemplate1" type="radio" name="banner-selection" hidden="" checked="">
+                    </label>
+                    <label style="flex: 1 1 calc(50% - 10px); box-sizing: border-box;" id="bannerTemplate2Label" class="lesson-selection-item orange banner-template-option" for="bannerTemplate2">
+                        <input id="bannerTemplate2" type="radio" name="banner-selection" hidden="">
+                    </label> 
+                    <label style="flex: 1 1 calc(50% - 10px); box-sizing: border-box;" id="bannerTemplate3Label" class="lesson-selection-item orange banner-template-option" for="bannerTemplate3">
+                        <input id="bannerTemplate3" type="radio" name="banner-selection" hidden="">
+                    </label>
+                    <label style="flex: 1 1 calc(50% - 10px); box-sizing: border-box;" id="bannerTemplate4Label" class="lesson-selection-item orange banner-template-option" for="bannerTemplate4">
+                        <input id="bannerTemplate4" type="radio" name="banner-selection" hidden="">
+                    </label>  
+                </div>
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button onclick="closePopup('bannerTemplatesPopup')" class="popup-btn close-popup-btn">Cancel</button>
+                <button onclick="closePopup('bannerTemplatesPopup'), selectBannerTemplate()" class="popup-btn">Select Banner</button>   
+            </div>
+        </div>
+    </div>
+</div>

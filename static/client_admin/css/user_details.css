@@ -391,6 +391,7 @@
     margin-bottom: 0;
     padding-bottom: 0.3rem;
     color: var(--text-color2);
+    max-width: 142px;
 }
 
 .edit-user-input input{

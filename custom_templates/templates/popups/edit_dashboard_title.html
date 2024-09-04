@@ -1,0 +1,24 @@
+<div id="editDashboardTitle" class="popup-background">
+    <div class="popup-content max-width-6">
+        <div class="popup-header">
+            <h3>Edit Dashboard Title</h3>
+            <div onclick="closePopup('editDashboardTitle')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div id="dashboard-form" class="popup-body">
+            <div class="course-content-input">
+                <label class="edit-user-label" for="dashboard-name">Dashboard Title</label>
+                <!-- Edit Title Input -->
+                <input id="edit-title-input" type="text" class="edit-dashboard-title" placeholder="Dashboard Title (Required)" />
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button onclick="closePopup('editDashboardTitle')" class="popup-btn close-popup-btn">Cancel</button>
+                <button id="confirm-edit-title" class="popup-btn">Save Changes</button>   
+            </div>
+        </div>
+    </div>
+</div>
