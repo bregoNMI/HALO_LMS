@@ -101,6 +101,9 @@ class Course(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
     type = models.CharField(max_length=20, choices=COURSE_TYPES, default='bundle')
+    thumbnail = models.ForeignKey('Media', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_thumbnail')
+    credential = models.OneToOneField('Credential', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_credential')
+    upload_instructions = models.TextField(blank=True)
 
     def __str__(self):
         return self.title
@@ -147,6 +150,29 @@ class Media(models.Model):
 
     def __str__(self):
         return f'Media for {self.course.title}'
+    
+class Reference(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='references')
+    file = models.FileField(upload_to='references/')
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return f'Reference for {self.course.title}'
+    
+class Upload(models.Model):
+    APPROVAL_CHOICES = [
+        (None, 'None'),
+        ('instructor', 'Instructor'),
+        ('admin', 'Admin'),
+    ]
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='uploads')
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='student_uploads')
+    file = models.FileField(upload_to='uploads/')
+    approval_type = models.CharField(max_length=10, choices=APPROVAL_CHOICES, default=None, null=True, blank=True)
+
+    def __str__(self):
+        return f'Upload for {self.course.title} by {self.student.username}'
 
 # Define a Module model
 class Module(models.Model):
