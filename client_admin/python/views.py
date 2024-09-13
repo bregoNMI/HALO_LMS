@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
@@ -163,24 +164,29 @@ def edit_user(request, user_id):
     return render(request, template, context)
 
 @login_required
-def enroll_user(request):
-    # Get user and course from the request data (you can adjust this based on how you handle data, e.g., form data or JSON)
-    user_id = request.POST.get('user_id')
-    course_id = request.POST.get('course_id')
+def enroll_users_request(request):
+    user_ids = request.POST.getlist('user_ids[]')
+    course_ids = request.POST.getlist('course_ids[]') 
 
-    # Ensure both the user and course exist
-    user = get_object_or_404(User, id=user_id)
-    course = get_object_or_404(Course, id=course_id)
+    response_data = {
+        'enrolled': [],
+        'already_enrolled': []
+    }
 
-    # Check if the UserCourse already exists (user is already enrolled)
-    user_course, created = UserCourse.objects.get_or_create(user=user, course=course)
+    for user_id in user_ids:
+        user = get_object_or_404(User, id=user_id)
+        for course_id in course_ids:
+            course = get_object_or_404(Course, id=course_id)
+            
+            # Check if the UserCourse already exists (user is already enrolled)
+            user_course, created = UserCourse.objects.get_or_create(user=user, course=course)
 
-    if created:
-        # Enrollment created successfully
-        return JsonResponse({'message': 'User enrolled successfully!', 'progress': user_course.progress}, status=201)
-    else:
-        # User is already enrolled
-        return JsonResponse({'message': 'User is already enrolled in this course!', 'progress': user_course.progress}, status=200)
+            if created:
+                response_data['enrolled'].append({'user_id': user.id, 'course_id': course.id, 'progress': user_course.progress})
+            else:
+                response_data['already_enrolled'].append({'user_id': user.id, 'course_id': course.id, 'progress': user_course.progress})
+
+    return JsonResponse(response_data, status=201 if response_data['enrolled'] else 200)
 
 @login_required
 def user_details(request, user_id):
@@ -208,8 +214,3 @@ def user_history(request, user_id):
         'profile': user
     }
     return render(request, 'users/user_history.html', context)
-
-@login_required
-def enroll_users(request):
-
-    return render(request, 'users/enroll_users.html')
