@@ -6,7 +6,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.contrib import messages
-from client_admin.models import Profile
+from client_admin.models import Profile, Course, User, UserCourse
 from django.template.response import TemplateResponse
 
 @login_required
@@ -161,6 +161,26 @@ def edit_user(request, user_id):
         'profile': profile
     }
     return render(request, template, context)
+
+@login_required
+def enroll_user(request):
+    # Get user and course from the request data (you can adjust this based on how you handle data, e.g., form data or JSON)
+    user_id = request.POST.get('user_id')
+    course_id = request.POST.get('course_id')
+
+    # Ensure both the user and course exist
+    user = get_object_or_404(User, id=user_id)
+    course = get_object_or_404(Course, id=course_id)
+
+    # Check if the UserCourse already exists (user is already enrolled)
+    user_course, created = UserCourse.objects.get_or_create(user=user, course=course)
+
+    if created:
+        # Enrollment created successfully
+        return JsonResponse({'message': 'User enrolled successfully!', 'progress': user_course.progress}, status=201)
+    else:
+        # User is already enrolled
+        return JsonResponse({'message': 'User is already enrolled in this course!', 'progress': user_course.progress}, status=200)
 
 @login_required
 def user_details(request, user_id):

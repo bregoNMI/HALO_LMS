@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
-from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media
+from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Reference, Upload
 from django.http import JsonResponse
 from .models import File
 from django.contrib.auth.models import User
@@ -211,6 +211,27 @@ def create_or_update_course(request):
                     thumbnail_image=thumbnail_image_file  # Use the file object
                 )
 
+    def handle_references(course, references):
+        """ Handle references for the course """
+        for reference_data in references:
+            reference_file = request.FILES.get(reference_data.get('file'), None)
+            description = reference_data.get('description', '')
+            
+            if reference_file:
+                Reference.objects.create(
+                    course=course,
+                    file=reference_file,
+                    description=description
+                )
+
+    def handle_uploads(course, uploads_data):
+        """ Initialize uploads for the course with instructions but no file """
+        for upload_data in uploads_data:
+            Upload.objects.create(
+                course=course,
+                approved_by=None  # No approval initially
+            )
+
     try:
         if request.method == 'POST':
             # Extract data from request
@@ -244,6 +265,14 @@ def create_or_update_course(request):
             # Handle media
             media_data = json.loads(data.get('media', '[]'))
             handle_media(course, media_data, files)
+
+            # Handle references
+            references = json.loads(data.get('references', '[]'))
+            handle_references(course, references)
+
+            # Handle uploads
+            uploads = json.loads(data.get('uploads', '[]'))
+            handle_uploads(course, uploads)
 
             return JsonResponse({'status': 'success'})
 
@@ -337,6 +366,20 @@ def file_upload(request):
             'has_next': paginated_files.has_next(),
             'next_page': page + 1 if paginated_files.has_next() else None
         })
+    
+@login_required
+def submit_coursework(request, upload_id):
+    """ Allows students to submit coursework """
+    upload = get_object_or_404(Upload, id=upload_id)
+
+    if request.method == 'POST' and request.FILES.get('coursework_file'):
+        # Assuming there's a coursework file field in the form
+        coursework_file = request.FILES['coursework_file']
+        upload.file = coursework_file  # Attach the submitted file
+        upload.save()
+        return JsonResponse({'status': 'success', 'message': 'Coursework submitted successfully'})
+
+    return JsonResponse({'status': 'error', 'message': 'No file submitted'}, status=400)
     
 def get_users(request):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
