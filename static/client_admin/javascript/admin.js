@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     /* Select Table Options */
     let checkedOptionsList = [];
+    let selectedIds = [];
     const tableOptions = document.querySelectorAll('.table-select-option');
     const tableSelectAllOption = document.querySelector('.table-select-all-option');
 
@@ -47,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectedOptionsWrapper = document.getElementById('selectedOptionsWrapper');
     const selectedOptionsCount = document.getElementById('selectedOptionsCount');
     function countSelectedOptions(){
+        console.log(checkedOptionsList);
         if(checkedOptionsList.length < 1){
             selectedOptionsWrapper.style.display = 'none';
             closeOptionsSidebar();
@@ -76,8 +78,21 @@ document.addEventListener("DOMContentLoaded", function () {
             // Check if the selected option has a data attribute matching the item's ID
             const matchingAttribute = selectedOption.getAttribute(`${item.id}`);
             if (matchingAttribute) {
-                // If there's a match, set the click event to redirect to the matching URL
+                // Add click event listener to redirect to the matching URL
                 item.addEventListener('click', () => {
+                    // Clear the array to avoid duplicate entries
+                    selectedIds = [];        
+                    // Collect all the selected IDs
+                    checkedOptionsList.forEach(option => {
+                        const id = option.getAttribute('data-id');
+                        if (!selectedIds.includes(id)) {
+                            selectedIds.push(id);
+                        }
+                    });               
+                    console.log(checkedOptionsList, selectedIds);                
+                    // Store the unique IDs in localStorage
+                    localStorage.setItem('selectedUserIds', JSON.stringify(selectedIds));          
+                    // Redirect to the matching URL
                     window.location.href = matchingAttribute;
                 });
             }
@@ -94,7 +109,6 @@ document.addEventListener("DOMContentLoaded", function () {
             multiOptionsSelect.style.display = 'none';
         }
     }
-    
 
     function multiOptionsSelect(){
         document.getElementById('singleOptionsSelect').style.display = 'none';

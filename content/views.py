@@ -347,8 +347,12 @@ def get_users(request):
 
         # Fetch the users from the database
         search_query = request.GET.get('search', '')
-        users = User.objects.filter(username__icontains=search_query)[offset:offset + per_page]
-        
+        users = User.objects.filter(
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query)
+        )[offset:offset + per_page]
+
         # Prepare the data
         user_data = [{
             'id': user.id,
@@ -360,7 +364,32 @@ def get_users(request):
 
         return JsonResponse({
             'users': user_data,
-            'has_more': User.objects.filter(username__icontains=search_query).count() > offset + per_page
+            'has_more': User.objects.filter(
+                Q(username__icontains=search_query) |
+                Q(first_name__icontains=search_query) |
+                Q(last_name__icontains=search_query)
+            ).count() > offset + per_page
+        })
+    else:
+        return JsonResponse({'error': 'This view only accepts AJAX requests.'}, status=400)
+    
+def get_courses(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        page = int(request.GET.get('page', 1))
+        per_page = 10
+        offset = (page - 1) * per_page
+
+        search_query = request.GET.get('search', '')
+        courses = Course.objects.filter(title__icontains=search_query)[offset:offset + per_page]
+
+        course_data = [{
+            'id': course.id,
+            'title': course.title,
+        } for course in courses]
+
+        return JsonResponse({
+            'courses': course_data,
+            'has_more': Course.objects.filter(title__icontains=search_query).count() > offset + per_page
         })
     else:
         return JsonResponse({'error': 'This view only accepts AJAX requests.'}, status=400)

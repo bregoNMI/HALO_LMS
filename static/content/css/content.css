@@ -976,6 +976,7 @@ input[type="text"], input[type="number"]{
     margin-bottom: 1rem;
     border: 2px solid #c7c7db;
     border-top: 0px;
+    overflow-x: hidden;
 }
 
 .userList .dropdown-item {
@@ -990,6 +991,13 @@ input[type="text"], input[type="number"]{
 .dropdown-item .dropdown-item-inner{
     display: flex;
     flex-direction: column;
+    max-width: 90%;
+}
+
+.dropdown-item .dropdown-item-inner span, .dropdown-item .dropdown-item-inner h5{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .userList .dropdown-item:hover{

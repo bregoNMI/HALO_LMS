@@ -188,3 +188,8 @@ def user_history(request, user_id):
         'profile': user
     }
     return render(request, 'users/user_history.html', context)
+
+@login_required
+def enroll_users(request):
+
+    return render(request, 'users/enroll_users.html')

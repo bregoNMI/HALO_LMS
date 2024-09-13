@@ -232,32 +232,48 @@ h1,h2,h3,h4,h5,h6{
   background-color: var(--bg-color6);
 }
 
-.scrollable-content{
+.scrollable-content, .scrollable-content-inner{
   overflow: auto;
 }
-
 /* Webkit-based browsers (Chrome, Safari) */
 .scrollable-content::-webkit-scrollbar {
   width: 8px; /* Width of the scrollbar */
   height: 8px; /* Height of the scrollbar for horizontal scrolling */
 }
-
 .scrollable-content::-webkit-scrollbar-track {
   background: #f1f1f1; /* Track color */
-  border-radius: 4px;
+  border-radius: 2px;
 }
-
 .scrollable-content::-webkit-scrollbar-thumb {
   background: #888; /* Scrollbar thumb color */
   border-radius: 4px;
 }
-
 .scrollable-content::-webkit-scrollbar-thumb:hover {
   background: #555; /* Scrollbar thumb color on hover */
 }
-
 /* Hide the scrollbar buttons/arrows */
 .scrollable-content::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* Scroll bar for popups, searches etc.. */
+.scrollable-content-inner::-webkit-scrollbar {
+  width: 4px; /* Width of the scrollbar */
+  height: 8px; /* Height of the scrollbar for horizontal scrolling */
+}
+.scrollable-content-inner::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Track color */
+  border-radius: 2px;
+}
+.scrollable-content-inner::-webkit-scrollbar-thumb {
+  background: #888; /* Scrollbar thumb color */
+  border-radius: 2px;
+}
+.scrollable-content-inner::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Scrollbar thumb color on hover */
+}
+/* Hide the scrollbar buttons/arrows */
+.scrollable-content-inner::-webkit-scrollbar-button {
   display: none;
 }
 
@@ -326,6 +342,32 @@ h1,h2,h3,h4,h5,h6{
   margin-top: 0.4rem;
 }.margin-top-3{
   margin-top: 0.6rem;
+}.margin-top-4{
+  margin-top: 0.8rem;
+}.margin-top-5{
+  margin-top: 1rem;
+}.margin-top-6{
+  margin-top: 1.2rem;
+}.margin-top-7{
+  margin-top: 1.4rem;
+}.margin-top-8{
+  margin-top: 1.6rem;
+}.margin-top-9{
+  margin-top: 1.8rem;
+}.margin-top-10{
+  margin-top: 2rem;
+}.margin-top-11{
+  margin-top:2.2rem;
+}.margin-top-12{
+  margin-top: 2.4rem;
+}.margin-top-13{
+  margin-top: 2.6rem;
+}.margin-top-14{
+  margin-top: 2.8rem;
+}.margin-top-15{
+  margin-top: 3rem;
+}.margin-top-16{
+  margin-top: 3.2rem;
 }
 
 /* No Padding */

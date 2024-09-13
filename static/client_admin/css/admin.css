@@ -300,6 +300,7 @@ html, body, button{
     cursor: pointer;
     text-decoration: none;
     transition: all 0.2s linear;
+    border: none;
 }
 
 .action-button-primary{
@@ -1058,4 +1059,114 @@ tr.selected-option th, tr.selected-option td{
     height: 7px;
     border-radius: 50%;
     background: white;
+}
+
+/*Searchable User dropdown menu */
+.course-dropdown{
+    position: relative;
+    gap: 1rem;
+}
+
+.course-dropdown .search-icon{
+    position: absolute;
+    right: 0.6rem;
+    top: 0.65rem;
+    color: gray;
+    font-size: 0.8rem;
+}
+
+.course-dropdown input{
+    padding-right: 2rem;
+    text-overflow: ellipsis;
+}
+
+.course-dropdown input:focus-visible{
+    outline: none;
+    border-bottom: 2px solid #c7c7db;
+}
+
+.courseList {
+    display: none;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #fff;
+    position: absolute;
+    width: 100%;
+    z-index: 2;
+    box-sizing: border-box;
+    top: 2.06rem;
+    border-radius: 2px 2px 8px 8px;
+    margin-bottom: 1rem;
+    border: 2px solid #c7c7db;
+    border-top: 0px;
+    overflow-x: hidden;
+}
+
+.courseList .dropdown-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #ececf1;
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+}
+
+.dropdown-item .dropdown-item-inner{
+    display: flex;
+    flex-direction: column;
+    max-width: 90%;
+}
+
+.dropdown-item .dropdown-item-inner span, .dropdown-item .dropdown-item-inner h5{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.courseList .dropdown-item:hover{
+    background-color: var(--bg-color3);
+}
+
+.courseList .dropdown-item:hover .checkmark{
+    border-color: var(--primary-blue);
+}
+
+.courseList .dropdown-item.selected {
+    background-color: var(--item-selected-blue);
+    border-bottom: 1px solid #ffffff;
+}
+
+.courseList .dropdown-item:last-child, .courseList .dropdown-item.selected:last-child{
+    border: none;
+}
+
+.no-results {
+    padding: 8px;
+    color: #999;
+}
+
+.selectedCourses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.selectedCourses .selected-course {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 8px;
+    background-color: #eceff4;
+    border-radius: 6px;
+    outline: 1px solid #e5e7eb;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.selected-course-details {
+    font-weight: 600;
+    color: #41454d;
+}
+
+.selectedCourse .remove-course {
+    cursor: pointer;
 }
