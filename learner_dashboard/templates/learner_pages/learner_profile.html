@@ -1,0 +1,273 @@
+{% extends 'learner_base.html' %}
+{% load static %}
+{% block content %}
+{% include 'learner_sidebar.html' %}
+{% include 'popups/change_password.html' %}
+<div class="learner-body align-center scrollable-content">
+    <!-- Message Wrapper -->
+    <div id="validation-message-container" class="alert-container" style="display: none;">   
+        <div id="validation-message-inner">
+            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
+            <span id="validation-message"></span>
+        </div>
+    </div>
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="max-width-0">
+        <div class="learner-top-row">
+            <div class="learner-top-row-left">
+                <h2>Profile Information</h2>
+                <span>View or edit your profile</span>
+            </div>
+            <div class="learner-top-row-right">
+                <div onclick="openPopup('changePasswordPopup')" class="learner-primary-button">
+                    <i class="fa-regular fa-lock-keyhole"></i>
+                    <span> Change Password </span>
+                </div>
+            </div>
+        </div>
+        <div class="learner-body-inner">
+            <form method="post" action="{% url 'update_learner_profile' profile.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="learner-info-section">
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-head-side-gear"></i>
+                                <span> General </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">                         
+                            <div class="learner-card-wrapper">
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="first_name">First Name</label>
+                                        <input type="text" id="first_name" name="first_name" value="{{ profile.first_name }}">
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="last_name">Last Name</label>
+                                        <input type="text" id="last_name" name="last_name" value="{{ profile.last_name }}">
+                                    </div>
+                                </div>
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="username">Username</label>
+                                        <input type="text" id="username" name="username" value="{{ profile.username }}">
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="email">Email</label>
+                                        <input type="email" id="email" name="email" value="{{ profile.email }}">
+                                    </div>
+                                </div> 
+                            </div>                 
+                        </div>
+                    </div>
+
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-address-book"></i>
+                                <span> Contact </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">                         
+                            <div class="learner-card-wrapper">
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="country">Country</label>
+                                        <div class="custom-select margin-0">
+                                            <i class="fa-regular fa-angle-down"></i>     
+                                            <input class="select-selected" type="text" id="country" name="country" value="{{ profile.country }}" readonly>
+                                            <div class="select-items scrollable-content" style="display: none;">
+                                                {% include 'dropdownOptions/country_options.html' %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="city">City</label>
+                                        <input type="text" id="city" name="city" value="{{ profile.city }}">
+                                    </div>
+                                </div>
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="state">State</label>
+                                        <input type="text" id="state" name="state" value="{{ profile.state }}">
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="code">Zip Code</label>
+                                        <input type="text" id="code" name="code" value="{{ profile.code }}">
+                                    </div>
+                                </div>
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="citizenship">Citizenship</label>
+                                        <div class="custom-select margin-0">
+                                            <i class="fa-regular fa-angle-down"></i>     
+                                            <input class="select-selected" type="text" id="citizenship" name="citizenship" value="{{ profile.citizenship }}" readonly>
+                                            <div class="select-items scrollable-content" style="display: none;">
+                                                {% include 'dropdownOptions/citizenship_options.html' %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="address_1">Address</label>
+                                        <input type="text" id="address_1" name="address_1" value="{{ profile.address_1 }}">
+                                    </div>
+                                </div> 
+                            </div>                 
+                        </div>
+                    </div>
+
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-dice-two"></i>
+                                <span> Other </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">                         
+                            <div class="learner-card-wrapper">
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="birth_date">Date of Birth</label>
+                                        <input type="text" id="birth_date" name="birth_date" class="date-picker" value="{{ profile.birth_date|date:'Y-m-d' }}">
+                                        <span class="input-group-addon">
+                                            <i class="fa-regular fa-calendar-lines"></i>
+                                        </span>
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="sex">Gender</label>
+                                        <div class="custom-select margin-0">
+                                            <i class="fa-regular fa-angle-down"></i>     
+                                            <input class="select-selected" type="text" id="sex" name="sex" value="{{ profile.sex }}" readonly>
+                                            <div class="select-items scrollable-content" style="display: none;">
+                                                {% include 'dropdownOptions/gender_options.html' %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="referral">Referral</label>
+                                        <input type="text" id="referral" name="referral" value="{{ profile.referral }}">
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="associate_school">Associate School</label>
+                                        <input type="text" id="associate_school" name="associate_school" value="{{ profile.associate_school }}">
+                                    </div>
+                                </div> 
+                            </div>                 
+                        </div>
+                    </div>
+
+
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-photo-film"></i>
+                                <span> My Images </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">                         
+                            <div class="popup-scroll-wrapper">
+                                <div style="border: none;" class="popup-body">
+                                    <div class="edit-images-row">
+                                        <div class="edit-image">
+                                            <label class="edit-user-label" for="photoid">Headshot Image</label>
+                                            {% if profile.photoid %}
+                                                <img id="photoidPreview" src="{{ profile.photoid.url }}" alt="photoid">
+                                            {% else %}
+                                                <div class="profile-image">
+                                                    <i class="fa-regular fa-user-graduate"></i>
+                                                </div>
+                                            {% endif %}
+                                            <!-- <label for="photoid" class="custom-file-upload-container">
+                                                <div class="custom-file-upload">
+                                                    <input type="file" id="photoid" name="photoid" accept="image/*" onchange="previewImage('photoid', 'photoidPreview')" style="display: none;">
+                                                    <i class="fa-solid fa-upload" aria-hidden="true"></i> Choose File
+                                                </div>
+                                                <div class="custom-file-title">
+                                                    {% if profile.photoid %}
+                                                        <span id="photoidNameDisplay" class="file-name-display">{{ profile.photoid }}</span>
+                                                    {% else %}
+                                                        <span id="photoidNameDisplay" class="file-name-display">No file selected</span>
+                                                    {% endif %}
+                                                    
+                                                </div>
+                                            </label>  -->
+                                        </div>
+                                        <div class="edit-image">
+                                            <label class="edit-user-label" for="passportphoto">Identification Image</label>
+                                            {% if profile.passportphoto %}
+                                                <img id="passportphotoPreview" src="{{ profile.passportphoto.url }}" alt="passportphoto">
+                                            {% else %}
+                                                <div class="profile-image">
+                                                    <i class="fa-regular fa-user-graduate"></i>
+                                                </div>
+                                            {% endif %}
+                                            <!-- <label for="passportphoto" class="custom-file-upload-container">
+                                                <div class="custom-file-upload">
+                                                    <input type="file" id="passportphoto" name="passportphoto" accept="image/*" onchange="previewImage('passportphoto', 'passportphotoPreview')" style="display: none;">
+                                                    <i class="fa-solid fa-upload" aria-hidden="true"></i> Choose File
+                                                </div>
+                                                <div class="custom-file-title">
+                                                    {% if profile.passportphoto %}
+                                                        <span id="passportphotoNameDisplay" class="file-name-display">{{ profile.passportphoto }}</span>
+                                                    {% else %}
+                                                        <span id="passportphotoNameDisplay" class="file-name-display">No file selected</span>
+                                                    {% endif %}
+                                                    
+                                                </div>
+                                            </label>  -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                 
+                        </div>
+                    </div>
+                </div>
+                <div id="saveButtonPlatform" class="save-button-platform max-width-0">
+                    <div class="save-button-platform-inner">
+                        <span>You have unsaved changes</span>
+                        <div class="save-button-row">
+                            <div onclick="location.reload()" class="close-popup-btn popup-btn">Reset</div>
+                            <button type="submit" id="saveUserBtn" class="popup-btn"> Save Changes </button>
+                        </div>                       
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+{% endblock %}

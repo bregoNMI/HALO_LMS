@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
     updateColorInfo('headerEditIconBackgroundColor');
     initializeExternalLink();
     testTotalWidgetCards();
+    // Call the function to initialize text color listeners
+    initializeTextColorListeners();
 });
 
 function checkBannerPosition() {
@@ -415,12 +417,12 @@ function initializeWidgetReordering() {
 function saveWidgetChanges(widgetId) {
     const typeInput = document.getElementById('edit-widget-type');
     const widgetEditTitle = document.getElementById('widgetEditTitle');
-    const widgetEditTitleColor = document.getElementById('widgetEditTextColor');
+    const widgetEditTitleColor = document.getElementById('widgetEditTextColorHex');
     const widgetEditSubtext = document.getElementById('widgetEditSubtext');
-    const widgetEditSubtextColor = document.getElementById('widgetEditSubtextColor');
+    const widgetEditSubtextColor = document.getElementById('widgetEditSubtextColorHex');
     const widgetEditIcon = document.getElementById('currentSelectedIconWidget').className;
-    const widgetEditIconColor = document.getElementById('widgetEditIconColor');
-    const widgetEditIconBackgroundColor = document.getElementById('widgetEditIconBackgroundColor');
+    const widgetEditIconColor = document.getElementById('widgetEditIconColorHex');
+    const widgetEditIconBackgroundColor = document.getElementById('widgetEditIconBackgroundColorHex');
     const widgetEditExternalLinkInput = document.getElementById('widgetEditExternalLinkInput');
 
     if (typeInput) {
@@ -552,14 +554,18 @@ function populateSidebarWithWidgetData(widgetData, widgetId) {
     const widgetEditTitle = document.getElementById('widgetEditTitle');
     const widgetEditTitleColor = document.getElementById('widgetEditTextColor');
     const widgetEditTextColorSample = document.getElementById('widgetEditTextColorSample');
+    const widgetEditTextColorHex = document.getElementById('widgetEditTextColorHex');
     const widgetEditSubtext = document.getElementById('widgetEditSubtext');
     const saveWidgetBtn = document.getElementById('saveWidgetBtn');
     const widgetEditSubtextColor = document.getElementById('widgetEditSubtextColor');
+    const widgetEditSubtextColorHex = document.getElementById('widgetEditSubtextColorHex');
     const widgetEditSubtextColorSample = document.getElementById('widgetEditSubtextColorSample');
     const widgetEditIcon = document.getElementById('currentSelectedIconWidget');
     const widgetEditIconColor = document.getElementById('widgetEditIconColor');
+    const widgetEditIconColorHex = document.getElementById('widgetEditIconColorHex');
     const widgetEditIconColorSample = document.getElementById('widgetEditIconColorSample');
     const widgetEditIconBackgroundColor = document.getElementById('widgetEditIconBackgroundColor'); 
+    const widgetEditIconBackgroundColorHex = document.getElementById('widgetEditIconBackgroundColorHex');
     const widgetEditIconBackgroundColorSample = document.getElementById('widgetEditIconBackgroundColorSample');
     const widgetEditExternalLinkInput = document.getElementById('widgetEditExternalLinkInput');
 
@@ -575,17 +581,21 @@ function populateSidebarWithWidgetData(widgetData, widgetId) {
         widgetEditTitle.value = widgetData.widget_title || '';
         widgetEditTitleColor.value = widgetData.widget_title_color || '';
         widgetEditTextColorSample.style.backgroundColor = widgetData.widget_title_color || '';
+        widgetEditTextColorHex.value = widgetData.widget_title_color || '';
 
         widgetEditSubtext.value = widgetData.widget_subtext || '';
         widgetEditSubtextColor.value = widgetData.widget_subtext_color || '';
         widgetEditSubtextColorSample.style.backgroundColor = widgetData.widget_subtext_color || '';
+        widgetEditSubtextColorHex.value = widgetData.widget_subtext_color || '';
 
         widgetEditIcon.className = widgetData.widget_icon || ''; 
         widgetEditIconColor.value = widgetData.widget_icon_color || ''; 
         widgetEditIconColorSample.style.backgroundColor  = widgetData.widget_icon_color || ''; 
+        widgetEditIconColorHex.value = widgetData.widget_icon_color || ''; 
 
         widgetEditIconBackgroundColor.value = widgetData.widget_icon_background_color || ''; 
         widgetEditIconBackgroundColorSample.style.backgroundColor  = widgetData.widget_icon_background_color || ''; 
+        widgetEditIconBackgroundColorHex.value = widgetData.widget_icon_background_color || '';
         widgetEditExternalLinkInput.value = widgetData.widget_external_link || ''; 
 
         saveWidgetBtn.setAttribute('onclick', `saveWidgetChanges(${widgetId})`)
@@ -599,10 +609,10 @@ function saveDashboardHeader(dashboardId) {
     const headerTitle = document.getElementById('headerEditTitle').value;
     const headerSubtext = document.getElementById('headerEditSubtext').value;
     const headerIcon = document.getElementById('headerEditIcon').value;
-    const headerIconColor = document.getElementById('headerEditIconColor').value;
-    const headerIconBackgroundColor = document.getElementById('headerEditIconBackgroundColor').value;
-    const headerTextColor = document.getElementById('headerEditTextColor').value;
-    const headerSubtextColor = document.getElementById('headerEditSubtextColor').value;
+    const headerIconColor = document.getElementById('headerEditIconColorHex').value;
+    const headerIconBackgroundColor = document.getElementById('headerEditIconBackgroundColorHex').value;
+    const headerTextColor = document.getElementById('headerEditTextColorHex').value;
+    const headerSubtextColor = document.getElementById('headerEditSubtextColorHex').value;
 
     fetch(`/admin/templates/dashboard/${dashboardId}/edit-header/`, {
         method: 'POST',
@@ -666,6 +676,7 @@ function updateColorInfo(inputId) {
     // Update the hex input field and color sample
     hexInput.value = colorInput.value;
     colorSample.style.backgroundColor = colorInput.value;
+    hexInput.classList.remove('form-error-field');
 }
 
 
@@ -697,6 +708,41 @@ function initializeColorListeners(){
             });
         }
     });
+}
+
+function updateColorFromText(inputId) {
+    const hexInput = document.getElementById(inputId);
+    const colorInput = document.getElementById(inputId.replace('Hex', '')); // Assuming the id structure follows the pattern
+    const colorSample = document.getElementById(inputId.replace('Hex', 'Sample'));
+
+    // Update the color input and color sample if the hex is valid
+    if (isValidHex(hexInput.value)) {
+        colorInput.value = hexInput.value;
+        colorSample.style.backgroundColor = hexInput.value;
+        hexInput.classList.remove('form-error-field');
+    }else{
+        displayValidationMessage('Please enter a valid Hex value (e.g., #000000)', false);
+        hexInput.classList.add('form-error-field');
+    }
+}
+
+function initializeTextColorListeners() {
+    // Attach event listeners to hex text inputs
+    const hexInputs = document.querySelectorAll('input[type="text"][id$="Hex"]');
+
+    hexInputs.forEach(hexInput => {
+        hexInput.addEventListener('input', () => {
+            updateColorFromText(hexInput.id);
+        });
+
+        // Initialize the color fields on page load
+        updateColorFromText(hexInput.id);
+    });
+}
+
+function isValidHex(hex) {
+    // Check if the hex code matches the valid 6-digit hex pattern
+    return /^#[0-9A-F]{6}$/i.test(hex);
 }
 
 function checkSelectedIcon(context) {

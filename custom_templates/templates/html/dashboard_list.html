@@ -2,14 +2,19 @@
 {% load static %}
 {% block content %}
     <div class="admin-body">
-        <div class="admin-top-row">
-            <div class="admin-top-row-left">
-                <h2>Dashboard Templates</h2>
-            </div>
-            <div class="admin-top-row-right">
-                <a onclick="openPopup('templateCreationPopup')" class="action-button-primary">
-                    <span>Create Dashboard</span>
+        <div class="details-top-row">
+            <div class="details-top-row-left">
+                <a href="/admin/templates/" class="back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
                 </a>
+                <h3>Dashboard Templates</h3>
+            </div>
+            <div class="details-top-row-right">
+                <div class="option-btn-row">
+                    <a onclick="openPopup('templateCreationPopup')" class="action-button-primary">
+                        <span>Create Dashboard</span>
+                    </a>
+                </div>
             </div>
         </div>
         <!-- MAKE SURE TO KEEP THIS INPUT FOR REQUESTS -->
@@ -20,12 +25,12 @@
                     <a class="template-card" href="{% url 'dashboard_edit' dashboard.id %}">
                         <div class="card-item">
                             {% if dashboard.is_main %}
-                                <button class="set-main-dashboard tooltip" data-tooltip="Main Dashboard" data-id="{{ dashboard.id }}">
+                                <button class="set-main-dashboard tooltip" data-tooltip="Main Dashboard" data-id="{{ dashboard.id }}" data-is-main="true">
                                     <span style="left: -140%; bottom: -150%; text-wrap: nowrap;" class="tooltiptext">Main Dashboard</span>
                                     <i style="color: #ffbc00;" class="fa-solid fa-star"></i>
                                 </button>
                             {% else %}
-                                <button class="set-main-dashboard tooltip" data-tooltip="Set As Main" data-id="{{ dashboard.id }}">
+                                <button class="set-main-dashboard tooltip" data-tooltip="Set As Main" data-id="{{ dashboard.id }}" data-is-main="false">
                                     <span style="left: -140%; bottom: -150%; text-wrap: nowrap;" class="tooltiptext">Set As Main</span>
                                     <i class="fa-regular fa-star"></i>
                                 </button>
@@ -51,7 +56,7 @@
                                         <span><span style="color: var(--text-color5); font-weight: 600;">{{ dashboard.num_widgets }}</span> Widgets</span>
                                     </div>
                                 </div>
-                                           
+                                        
                                 <div class="card-item-footer">
                                     <div class="card-item-options">
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
@@ -72,6 +77,14 @@
                         </div>
                     </a>
                 {% endfor %}
+                <div style="display: none;" id="noDashboardsFound" class="no-widgets-found">
+                    <img src="{% static 'client_admin\Images\HALO LMS No Graphic Test-27.png' %}" alt="HALO Graphic">    
+                    <h4>No Dashboard Templates </h4>
+                    <span class="no-widgets-subtext"> Create a new dashboard to get started </span>
+                    <a onclick="openPopup('templateCreationPopup')" class="action-button-primary">
+                        <span>Create Dashboard</span>
+                    </a>          
+                </div>
             </dv>
         </div>
     </div>
@@ -80,6 +93,7 @@
     {% include 'popups/create_new_template.html' %}
     <link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
     <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>

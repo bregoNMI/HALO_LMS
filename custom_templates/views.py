@@ -4,28 +4,37 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponseNotFound
 import json
-from .models import Dashboard, Widget
+from .models import Dashboard, Widget, Header, Footer
 from .forms import DashboardForm
+
+def templates(request):
+    header = Header.objects.first()
+    footer = Footer.objects.first()
+
+    return render(request, 'html/templates.html', {'header': header, 'footer': footer})
 
 def set_main_dashboard(request, dashboard_id):
     if request.method == 'POST':
-        Dashboard.objects.update(is_main=False)  # Reset any existing main dashboard
-        dashboard = get_object_or_404(Dashboard, id=dashboard_id)
-        dashboard.is_main = True
-        dashboard.save()
+        is_main = request.POST.get('is_main') == 'true'
         
+        if is_main:
+            # The dashboard is currently the main one, so we un-set it
+            dashboard = get_object_or_404(Dashboard, id=dashboard_id)
+            dashboard.is_main = False
+            dashboard.save()
+        else:
+            # Reset any existing main dashboard
+            Dashboard.objects.update(is_main=False)
+            # Set the selected dashboard as the main dashboard
+            dashboard = get_object_or_404(Dashboard, id=dashboard_id)
+            dashboard.is_main = True
+            dashboard.save()
+
         # Redirect to the referring page or default to home if referer is not present
         referer_url = request.META.get('HTTP_REFERER', '/')
         return JsonResponse({'success': True, 'redirect_url': referer_url})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
-
-def learner_dashboard(request):
-    dashboard = Dashboard.objects.filter(is_main=True).first()
-    if dashboard:
-        # Render the main dashboard template with the dashboard data
-        return render(request, 'dashboard/learner_dashboard.html', {'dashboard': dashboard})
-    return render(request, 'dashboard/default_dashboard.html')  # Template for no main dashboard
 
 def dashboard_list(request):
     dashboards = Dashboard.objects.annotate(num_widgets=Count('widgets')).order_by('-is_main', 'name')
@@ -203,11 +212,13 @@ def widget_reorder(request):
 def dashboard_preview(request, dashboard_id):
     # Get the dashboard and any related data
     dashboard = get_object_or_404(Dashboard, id=dashboard_id)
-    print(dashboard)
+    header = Header.objects.first()
+    footer = Footer.objects.first()
     # Pass necessary context to the template
     context = {
         'dashboard': dashboard,
-        # Add any other context data if necessary
+        'header': header,
+        'footer': footer,
     }
     
     return render(request, 'html/dashboard_preview.html', context)
@@ -221,3 +232,33 @@ def dashboard_delete(request, dashboard_id):
         raise Http404("Dashboard does not exist")
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+def update_header(request):
+    if request.method == 'POST':
+        header = Header.objects.first()  # Get the first and only Header instance
+
+        header.header_logo_display = request.POST.get('header_logo_display', header.header_logo_display)
+        header.header_logo = request.POST.get('header_logo', header.header_logo)
+        header.header_background_color = request.POST.get('header_background_color', header.header_background_color)
+        header.header_text_color = request.POST.get('header_text_color', header.header_text_color)
+        header.header_text_hover_color = request.POST.get('header_text_hover_color', header.header_text_hover_color)
+        header.header_text_background_color = request.POST.get('header_text_background_color', header.header_text_background_color)
+        
+        header.save()
+        
+        return JsonResponse({'success': True, 'message': 'Header updated successfully'})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+def update_footer(request):
+    if request.method == 'POST':
+        footer = Footer.objects.first()  # Get the first and only Header instance
+
+        footer.footer_background_color = request.POST.get('footer_background_color', footer.footer_background_color)
+        footer.footer_text_color = request.POST.get('footer_text_color', footer.footer_text_color)
+        
+        footer.save()
+        
+        return JsonResponse({'success': True, 'message': 'Footer updated successfully'})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)

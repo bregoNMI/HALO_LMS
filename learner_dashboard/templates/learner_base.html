@@ -11,14 +11,16 @@
     <link rel="stylesheet" href="{% static 'global_styles.css' %}">
     <link rel="stylesheet" href="{% static 'global_variables.css' %}">
     <link rel="stylesheet" href="{% static 'learner_dashboard\css\learner.css' %}">
+    <script src="{% static 'learner_dashboard\javascript\learner.js' %}"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
 </head>
-<body class="learner-body-container">
+<body class="learner-body-container scrollable-content">
     {% include 'learner_header.html' %}
     <div class="learner-body-container-inner">
-        {% include 'learner_sidebar.html' %}
         {% block content %}{% endblock %}
-    </div>   
+    </div>
+    {% include 'learner_footer.html' %}
 </body>
 </html>

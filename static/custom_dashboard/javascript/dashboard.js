@@ -1,14 +1,11 @@
-document.addEventListener("DOMContentLoaded", function() {
-    
-});
-
 document.addEventListener('DOMContentLoaded', function() {
     // Add event listener for setting the main dashboard
     document.querySelectorAll('.set-main-dashboard').forEach(button => {
         button.addEventListener('click', function(event) {
             event.preventDefault();
             const dashboardId = this.dataset.id;
-
+            const isMainDashboard = this.dataset.isMain === 'true'; // Reads the data-is-main attribute
+    
             fetch(`/admin/templates/dashboard/set_main/${dashboardId}/`, {
                 method: 'POST',
                 headers: {
@@ -16,7 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-CSRFToken': getCookie('csrftoken'),
                 },
                 body: new URLSearchParams({
-                    'dashboard_id': dashboardId
+                    'dashboard_id': dashboardId,
+                    'is_main': isMainDashboard ? 'true' : 'false'
                 }),
             })
             .then(response => response.json())
@@ -156,12 +154,39 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Optionally, remove the dashboard element from the DOM
                     document.querySelector(`[data-id="${currentDashboardId}"]`).closest('a').remove();
                     closePopup('confirmDashboardDeletePopup');
+
+                    testDashboardCardLength();
                 } else {
                     alert('Failed to delete dashboard.');
                 }
             });
         }
     });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    testDashboardCardLength();
+    function testDashboardCardLength(){
+        const templateCards = document.querySelectorAll('.template-card');
+        if(templateCards.length < 1){
+            document.getElementById('noDashboardsFound').style.display = "flex";
+        }else{
+            document.getElementById('noDashboardsFound').style.display = "none";
+        }
+    }
 
     // Variables for the edit title modal and buttons
     const confirmEditTitleButton = document.getElementById('confirm-edit-title');
@@ -231,22 +256,4 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     });
-
-    
 });
-
-// Helper function to get CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}

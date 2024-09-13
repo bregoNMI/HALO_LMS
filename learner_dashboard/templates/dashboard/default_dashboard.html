@@ -1,0 +1,75 @@
+{% extends 'learner_base.html' %}
+{% load static %}
+{% block content %}
+<div class="learner-body align-center scrollable-content">
+    <div class="custom-dashboard-body max-width-extend-1">
+        <div id="headerImage" class="dashboard-header-container image-section">
+            <div class="dashboard-header-inner">
+                <div class="dashboard-header-inner-left">
+                    <div id="headerIcon" class="icon-wrapper">
+                        <i class="fa-regular fa-books"></i>
+                    </div>
+                    <div class="text-wrapper">
+                        <h3 id="headerTitle"> Welcome, {{ first_name }} {{ last_name }}</h3>
+                        <span id="headerSubtext"> Kickstart your online Education </span>
+                    </div>
+                </div>
+                <div class="dashboard-header-inner-right"></div>
+            </div>
+        </div>
+        <div id="widgets-container">
+            <div class="widget resume-course">
+                <div class="widget-top">
+                    <div class="widget-inner-wrapper">
+                        <div class="widget-icon pastel-purple">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+                        <div class="widget-inner-right">
+                            <h3> Course Name </h3>
+                            <div style="display: flex; gap: 0.3rem; align-items: baseline;">
+                                <span id="resumeSubtext"> Resume </span><i id="resumeIcon" class="fa-solid fa-angle-right"></i>
+                            </div>
+                        </div>   
+                    </div>
+                </div>
+                <div class="widget-bottom">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 30%;"></div>
+                    </div>
+                    <span>30%</span>
+                </div>          
+            </div>
+            <a href="/dashboard/courses/" class="widget my-courses">
+                <div class="widget-top">
+                    <div class="widget-inner-wrapper">
+                        <div class="widget-icon pastel-orange">
+                            <i class="fa-solid fa-book-open-cover"></i>
+                        </div>
+                        <div class="widget-inner-right">
+                            <h3> My Courses </h3>
+                            <span id="resumeSubtext"> See courses you are enrolled in </span>
+                        </div>   
+                    </div>
+                </div>          
+            </a>
+            <div class="widget my-courses">
+                <div class="widget-top">
+                    <div class="widget-inner-wrapper">
+                        <div class="widget-icon pastel-pink">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <div class="widget-inner-right">
+                            <h3> Enrollment Key </h3>
+                            <span id="resumeSubtext"> Have an Enrollment Key? </span>
+                        </div>   
+                    </div>
+                </div>          
+            </div>  
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+{% endblock %}

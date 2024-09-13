@@ -1,9 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'learner_base.html' %}
 {% load static %}
 {% block content %}
-<div class="admin-body align-center scrollable-content">
+<div class="learner-body align-center scrollable-content">
     <div class="custom-dashboard-body max-width-extend-1">
-
         <input type="hidden" id="dashboard-id" value="{{ dashboard.id }}">
         <div id="headerImage" class="dashboard-header-container image-section" style="background-image: url('{{ dashboard.header_background_image }}'); background-position: {{ dashboard.header_background_image_position }};">
             <div class="dashboard-header-inner">
@@ -44,7 +43,22 @@
                             <span>30%</span>
                         </div>          
                     </div>
-                {% else %}
+                {% elif widget.type == 'myCourses' %}
+                    <a href="/dashboard/courses/" class="widget my-courses" data-id="{{ widget.id }}">
+                        <div class="widget-top">
+                            <div class="widget-inner-wrapper">
+                                <div style="background-color: {{ widget.widget_icon_background_color }};" class="widget-icon pastel-orange">
+                                    <i style="color: {{ widget.widget_icon_color }};" class="{{ widget.widget_icon }}"></i>
+                                </div>
+                                <div class="widget-inner-right">
+                                    <h3 style="color: {{ widget.widget_title_color }};"> {{ widget.widget_title }} </h3>
+                                    <span style="color: {{ widget.widget_subtext_color }};" id="resumeSubtext"> {{ widget.widget_subtext }} </span>
+                                    <p hidden>{{ widget.type }}</p>
+                                </div>   
+                            </div>
+                        </div>          
+                    </a>
+                {% elif widget.type == 'enrollmentKey' %}
                     <div class="widget my-courses" data-id="{{ widget.id }}">
                         <div class="widget-top">
                             <div class="widget-inner-wrapper">
@@ -58,7 +72,22 @@
                                 </div>   
                             </div>
                         </div>          
-                    </div>   
+                    </div>
+                {% else %}
+                    <a href="{{ widget.widget_external_link }}" class="widget my-courses" data-id="{{ widget.id }}">
+                        <div class="widget-top">
+                            <div class="widget-inner-wrapper">
+                                <div style="background-color: {{ widget.widget_icon_background_color }};" class="widget-icon pastel-orange">
+                                    <i style="color: {{ widget.widget_icon_color }};" class="{{ widget.widget_icon }}"></i>
+                                </div>
+                                <div class="widget-inner-right">
+                                    <h3 style="color: {{ widget.widget_title_color }};"> {{ widget.widget_title }} </h3>
+                                    <span style="color: {{ widget.widget_subtext_color }};" id="resumeSubtext"> {{ widget.widget_subtext }} </span>
+                                    <p hidden>{{ widget.type }}</p>
+                                </div>   
+                            </div>
+                        </div>          
+                    </a>   
                 {% endif %}  
             {% endfor %}
         </div>

@@ -57,3 +57,24 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+/* Header Dropdown */
+function toggleDropdown(event) {
+    event.stopPropagation(); // Prevent the event from bubbling up to the window
+
+    var dropdown = document.getElementById("adminDropdownContent");
+    dropdown.classList.toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.addEventListener('click', function(event) {
+    var dropdown = document.getElementById("adminDropdownContent");
+    var toggleButton = document.querySelector('.admin-header-user-icon');
+
+    // Check if the click was outside the dropdown and the toggle button
+    if (!event.target.matches('.admin-header-user-icon') && !dropdown.contains(event.target)) {
+        if (dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
+    }
+});

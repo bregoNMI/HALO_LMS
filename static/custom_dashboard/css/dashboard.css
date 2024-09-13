@@ -107,6 +107,7 @@
     padding: 1rem var(--pad-sm);
     box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
     justify-content: space-between;
+    text-decoration: none;
 }
 
 .widget-top{
@@ -136,6 +137,7 @@
 .widget-inner-right h3{
     text-wrap: nowrap;
     text-overflow: ellipsis;
+    color: black;
 }
 
 .resume-course .widget-icon, .my-courses .widget-icon{
@@ -305,20 +307,6 @@
     border-top: 1px solid #f2f6ff;
 }
 
-.color-picker{
-    visibility: hidden; 
-    pointer-events: none; 
-    position: absolute;
-}
-
-.color-sample{
-    border-radius: 8px;
-    border: 1px solid #ececf1;
-    width: 25px; 
-    height: 25px;
-    cursor: pointer;
-}
-
 .icon-selection-container{
     display: flex;
     flex-wrap: wrap;
@@ -404,7 +392,7 @@
     color: var(--text-color3);
     font-size: 0.9rem;
 }.no-widgets-found img{
-    max-width: 150px;
+    max-width: 215px;
 }
 
 .card-items-container{
@@ -412,7 +400,7 @@
     flex-direction: row;
     gap: 2rem;
     flex-wrap: wrap;
-    margin-top: 1rem;
+    margin-top: 2rem;
 }
 
 .card-item{
@@ -459,6 +447,7 @@
 }
 
 .template-card{
+    cursor: pointer;
     text-decoration: none;
 }
 
@@ -573,4 +562,105 @@
     background-color: #d5d5d5;
     color: gray;
     font-size: var(--fs-xl);
+}
+
+/* Template List */
+.template-card-items-container {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.template-option-card{
+    background-color: white;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 7.875rem;
+    overflow: hidden;
+    position: relative;
+    width: 17.75rem;
+    transition: all 0.2s linear;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+    text-decoration: none;
+    padding: var(--pad-lg);
+    outline: 2px solid transparent;
+}
+
+.template-option-icon{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 3rem;
+    width: 3rem;
+    border-radius: 8px;
+}
+
+.template-option-icon i{
+    font-size: 1.75rem;
+}
+
+.template-option-text{
+    margin-top: 1rem;
+}
+
+.template-option-text h3{
+    color: var(--text-color5);
+}.template-option-text span{
+    color: var(--text-color4);
+    font-size: 0.95rem;
+    margin-top: 0.3rem;
+}
+
+.template-option-card:has(.pastel-purple):hover{
+    outline-color: blueviolet;
+    background-color: #f8f0ff;
+}.template-option-card:has(.pastel-blue):hover{
+    outline-color: var(--primary-blue);
+    background-color: #f2f6ff;
+}.template-option-card:has(.pastel-orange):hover{
+    outline-color: #ef955a;
+    background-color: #ffedda;
+}
+
+.color-picker-container{
+    display: flex;
+    align-items: center;
+}
+
+.color-picker-container .color-sample{
+    position: relative;
+}
+
+.color-picker-container input{
+    border-radius: 0 8px 8px 0 !important;
+}
+
+.color-picker{
+    visibility: hidden; 
+    pointer-events: none; 
+    position: absolute;
+}
+
+.color-sample{
+    border-radius: 8px 0 0 8px;
+    border: 1px solid #ececf1;
+    border-right: 0px;
+    width: 30px;
+    height: 100%;
+    cursor: pointer;
+}
+
+.logo-image-preview img{
+    max-height: 150px;
+    max-width: 200px;
+    object-fit: cover;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    border-radius: 8px;
 }

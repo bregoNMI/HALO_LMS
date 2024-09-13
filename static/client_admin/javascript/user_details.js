@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Loop through each alert and add a new class if the alert is visible
     alerts.forEach(function(alert) {
-        // Check if the alert is visible (you can customize this condition)
+        // Check if the alert is visible
         if (window.getComputedStyle(alert).display !== 'none') {
             // Add a class to the active alert
             alert.classList.add('animate-alert-container');

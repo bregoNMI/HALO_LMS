@@ -1,0 +1,38 @@
+<div id="editFooterPopup" class="popup-background">
+    <div class="popup-content max-width-5">
+        <div class="popup-header">
+            <h3>Edit Footer</h3>
+            <div onclick="closePopup('editFooterPopup')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div id="footer-form" class="popup-body ">
+            {% csrf_token %}
+            <div style="margin: 0px;" class="popup-body-flex-inner">
+                <div class="course-content-input">
+                    <label class="edit-user-label" for="footer_background_color">Background Color</label>
+                    <div class="color-picker-container">
+                        <label class="color-sample" for="footer_background_color" id="footer_background_colorSample" style="background-color: {{ footer.footer_background_color }};"></label>
+                        <input class="color-picker" type="color" id="footer_background_color" value="{{ footer.footer_background_color }}" oninput="updateColorInfo('footer_background_color')">
+                        <input type="text" id="footer_background_colorHex" value="{{ footer.footer_background_color }}">     
+                    </div>
+                </div>          
+                <div class="course-content-input">
+                    <label class="edit-user-label" for="footer_text_color">Text Color</label>
+                    <div class="color-picker-container">
+                        <label class="color-sample" for="footer_text_color" id="footer_text_colorSample" style="background-color: {{ footer.footer_text_color }};"></label>
+                        <input class="color-picker" type="color" id="footer_text_color" name="footer_text_color" value="{{ footer.footer_text_color }}" oninput="updateColorInfo('footer_text_color')">
+                        <input type="text" id="footer_text_colorHex" value="{{ footer.footer_text_color }}">
+                    </div>
+                </div>              
+            </div>  
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button onclick="closePopup('editFooterPopup')" class="popup-btn close-popup-btn">Back</button>
+                <button id="update-footer-btn" class="popup-btn">Save Changes</button>   
+            </div>
+        </div>
+    </div>
+</div>

@@ -83,6 +83,7 @@ function selectFile(popupId, referenceId = null) {
                 displayMessage('Please Select an Image for Course Thumbnail', false);
             }
         }else if(popupId=== 'dashboardHeader'){
+            // Dashboard Banner Image
             const dashboardURLInput = document.getElementById('dashboardURLInput');
             const dashboardSourceDisplay = document.getElementById('headerEditBackgroundImageDisplay');
             if (isImage(selectedFileURL)) {
@@ -98,6 +99,20 @@ function selectFile(popupId, referenceId = null) {
             referenceURLInput.value = selectedFileURL;
             referenceSourceDisplay.innerText = selectedFileTitle;
             closePopup('fileLibrary');
+        }else if(popupId === 'header_logo'){
+            // Header Image
+            const header_logo = document.getElementById('header_logo');
+            const header_logoDisplay = document.getElementById('header_logoDisplay');
+            if (isImage(selectedFileURL)) {
+                header_logo.value = selectedFileURL;
+                header_logoDisplay.value = selectedFileTitle;
+                document.getElementById('header_logo_name_display').innerText = selectedFileTitle;
+                document.getElementById('logoImagePreview').src = selectedFileURL;
+                console.log('header');
+                openLibraryPopup("editHeaderPopup");
+            } else {
+                displayMessage('Please Select an Image for Certificate Source', false);
+            }
         } else {         
             const fileURLInput = document.getElementById('fileURLInput');
             const lessonFileDisplay = document.getElementById('lessonFileDisplay');
@@ -199,6 +214,12 @@ function openFileLibrary(popupId, referenceId = null) {
         closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("dashboardHeader")');
+    }else if(popupId === 'header_logo'){
+        closeLibraryPopup('editHeaderPopup');
+        closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary"), openLibraryPopup("editHeaderPopup")');
+        closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary"), openLibraryPopup("editHeaderPopup")');
+        document.getElementById('selectFileBtn').setAttribute('onclick', `selectFile("header_logo", "${referenceId}")`);
+        document.getElementById('editHeaderPopup').style.display = 'none';
     }else{
         closeFileLibraryBtn.setAttribute('onclick', 'closeFileLibrary()');
         closeFileLibrary.setAttribute('onclick', 'closeFileLibrary()');

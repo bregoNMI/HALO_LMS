@@ -1,0 +1,76 @@
+{% load static %}
+<div style="background-color: {{ header.header_background_color }};" class="learner-header-container">
+    <div class="learner-header-container-inner">
+        <a href="/dashboard/" class="learner-header-left">
+            {% if header.header_logo %}
+                <img class="header-logo" src="{{ header.header_logo }}" alt="Header Logo">
+            {% else %}
+                <img class="header-logo" src="{% static 'images/logo/Halo LMS Logo-10.png' %}" alt="Header Logo">          
+            {% endif %}
+        </a>
+        <div class="learner-header-right">
+            <div class="learner-header-icons">
+                <div class="learner-header-icon tooltip" data-tooltip="Messages" style="color: {{ header.header_text_color }};" onmouseover="this.style.backgroundColor='{{ header.header_text_background_color }}'; this.style.color='{{ header.header_text_hover_color }}';" onmouseout="this.style.backgroundColor='';" onmouseout="this.style.color='';">
+                    <span class="tooltiptext">Messages</span>
+                    <i class="fa-regular fa-messages"></i>
+                </div>
+            </div>
+            <div class="learner-dropdown-menu">
+                <div class="learner-dropdown-menu-icon" onclick="toggleDropdown()" style="color: {{ header.header_text_color }};" onmouseover="this.style.backgroundColor='{{ header.header_text_background_color }}'; this.style.color='{{ header.header_text_hover_color }}';" onmouseout="this.style.backgroundColor='';" onmouseout="this.style.color='';">
+                    <i class="fa-regular fa-bars"></i>
+                </div>
+                <div id="learnerDropdownContent" class="dropdown-content">
+                    <div class="dropdown-user-information">
+                        <div class="dropdown-user-icon">
+                            <i class="fa-solid fa-circle-{{ first_letter_lowercase }}"></i>
+                        </div>
+                        <div class="dropdown-user-details">
+                            <h4>{{ first_name }} {{ last_name }}</h4>
+                            <span>{{ email }}</span>
+                        </div>
+                    </div>
+                    <div class="dropdown-section">
+                        <a class="dropdown-content-option" href="/dashboard/">
+                            <i class="fa-regular fa-objects-column"></i>
+                            <span> Dashboard </span>
+                        </a>
+                        <a class="dropdown-content-option" href="/courses/">
+                            <i class="fa-regular fa-book-open-cover"></i>
+                            <span> My Courses </span>
+                        </a>
+                        <a class="dropdown-content-option" href="/messages/">
+                            <i class="fa-regular fa-messages"></i>
+                            <span> Messages </span>
+                        </a>
+                        <a class="dropdown-content-option" href="/transcript/">
+                            <i class="fa-regular fa-memo-pad"></i>
+                            <span> Transcript </span>
+                        </a>
+                        <a class="dropdown-content-option" href="/profile/">
+                            <i class="fa-regular fa-user-graduate"></i>
+                            <span> Profile </span>
+                        </a>
+                    </div>
+                    {% if user.is_superuser %}
+                        <div class="dropdown-section">
+                            <a class="dropdown-content-option" href="/admin/dashboard/">
+                                <i class="fa-regular fa-toolbox"></i>
+                                <span> Admin </span>
+                            </a>
+                            <a class="dropdown-content-option" href="/admin/templates/dashboards/{{dashboard.id}}/edit/">
+                                <i class="fa-regular fa-rectangle-history"></i>
+                                <span> View Template </span>
+                            </a>
+                        </div>
+                    {% endif %}
+                    <div class="dropdown-section">
+                        <a class="dropdown-content-option" href="/logout/">
+                            <i class="fa-regular fa-arrow-right-from-bracket"></i>
+                            <span> Logout </span>
+                        </a>
+                    </div>                   
+                </div>
+            </div>            
+        </div>
+    </div>
+</div>

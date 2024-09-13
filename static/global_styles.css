@@ -62,12 +62,26 @@ h1,h2,h3,h4,h5,h6{
 }
 
 .close-popup-icon:hover{
-    background-color: var(--bg-color2);
+  background-color: var(--bg-color2);
 }
 
 .popup-body{
-    padding: var(--pad-xl) var(--pad-lg);
-    border-top: 1px solid var(--bg-color2);
+  padding: var(--pad-xl) var(--pad-lg);
+  border-top: 1px solid var(--bg-color2);
+  max-height: 70vh;
+}
+
+.popup-body-flex-inner{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.popup-body-flex-inner .course-content-input{
+  flex: 1;
+  min-width: calc(50% - 16px);
+  box-sizing: border-box;
 }
 
 .filter-options-row{
@@ -218,6 +232,10 @@ h1,h2,h3,h4,h5,h6{
   background-color: var(--bg-color6);
 }
 
+.scrollable-content{
+  overflow: auto;
+}
+
 /* Webkit-based browsers (Chrome, Safari) */
 .scrollable-content::-webkit-scrollbar {
   width: 8px; /* Width of the scrollbar */
@@ -298,6 +316,16 @@ h1,h2,h3,h4,h5,h6{
 /* No Margin */
 .margin-0{
     margin: 0 !important;
+}
+
+.margin-top-0{
+  margin-top: 0 !important;
+}.margin-top-1{
+  margin-top: 0.2rem;
+}.margin-top-2{
+  margin-top: 0.4rem;
+}.margin-top-3{
+  margin-top: 0.6rem;
 }
 
 /* No Padding */

@@ -1,0 +1,71 @@
+<div class="learner-sidebar-container">
+    <div class="learner-sidebar-container-inner">
+        <div class="learner-sidebar-top">
+            <div class="sidebar-user-information">
+                <div class="dropdown-user-icon">
+                    <i class="fa-solid fa-circle-e"></i>
+                </div>
+                <div class="dropdown-user-details">
+                    <h4>{{ first_name }} {{ last_name }}</h4>
+                    <span>{{ email }}</span>
+                </div>
+                <div class="sidebar-dropdown-icon">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+            </div>
+        </div>
+        <div class="learner-sidebar-body">
+            <h6>My Learning</h6>
+            <div class="learner-sidebar-section">
+                <a class="learner-sidebar-option" href="/dashboard/">
+                    <i class="fa-regular fa-objects-column"></i>
+                    <span> Dashboard </span>
+                </a>
+                <a class="learner-sidebar-option" href="/courses/">
+                    <i class="fa-regular fa-book-open-cover"></i>
+                    <span> My Courses </span>
+                </a>
+                <a class="learner-sidebar-option" href="/transcript/">
+                    <i class="fa-regular fa-memo-pad"></i>
+                    <span> Transcript </span>
+                </a>                
+            </div>
+            <h6>Notifications</h6>
+            <div class="learner-sidebar-section">
+                <a class="learner-sidebar-option" href="/messages/">
+                    <i class="fa-regular fa-messages"></i>
+                    <span> Messages </span>
+                </a>
+                <a class="learner-sidebar-option" href="/activity/">
+                    <i class="fa-regular fa-chart-line"></i>
+                    <span> Activity </span>
+                </a>
+            </div>
+            <h6>Other</h6>
+            <div class="learner-sidebar-section">
+                <a class="learner-sidebar-option" href="/profile/">
+                    <i class="fa-regular fa-user-graduate"></i>
+                    <span> Profile </span>
+                </a>
+                <a class="learner-sidebar-option" href="/settings/">
+                    <i class="fa-regular fa-gear"></i>
+                    <span> Settings </span>
+                </a>
+            </div>
+            {% if user.is_superuser %}
+                <h6>Administrator</h6>
+                <div class="learner-sidebar-section">
+                    <a class="learner-sidebar-option" href="/admin/dashboard/">
+                        <i class="fa-regular fa-toolbox"></i>
+                        <span> Admin  </span>
+                    </a>
+                    <a class="learner-sidebar-option" href="/admin/templates/dashboards/{{dashboard.id}}/edit/">
+                        <i class="fa-regular fa-rectangle-history"></i>
+                        <span> View Template </span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="learner-sidebar-bottom"></div>
+    </div>
+</div>

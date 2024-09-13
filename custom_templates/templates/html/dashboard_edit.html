@@ -13,7 +13,7 @@
         <div class="details-top-row">
             <div class="details-top-row-left">
                 <a href="/admin/templates/dashboards/" class="back-btn">
-                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                    <i class="fa-solid fa-arrow-left"></i>
                 </a>
                 <h3>Edit Template</h3>
             </div>
@@ -84,9 +84,11 @@
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label">Title Color</label>
-                        <input class="color-picker" type="color" id="widgetEditTextColor" oninput="updateColorInfo('widgetEditIconBackgroundColor')">
-                        <input type="text" id="widgetEditTextColorHex" readonly hidden>
-                        <label class="color-sample" for="widgetEditTextColor" id="widgetEditTextColorSample"></label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" for="widgetEditTextColor" id="widgetEditTextColorSample"></label>
+                            <input class="color-picker" type="color" id="widgetEditTextColor" oninput="updateColorInfo('widgetEditIconBackgroundColor')">
+                            <input type="text" id="widgetEditTextColorHex">                       
+                        </div>                       
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="widgetEditSubtext">Subtext</label>
@@ -94,9 +96,11 @@
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="widgetEditSubtextColor">Subtext Color</label>
-                        <input class="color-picker" type="color" id="widgetEditSubtextColor" oninput="updateColorInfo('widgetEditIconBackgroundColor')">
-                        <input type="text" id="widgetEditSubtextColorHex" readonly hidden>
-                        <label class="color-sample" id="widgetEditSubtextColorSample"></label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" id="widgetEditSubtextColorSample"></label>
+                            <input class="color-picker" type="color" id="widgetEditSubtextColor" oninput="updateColorInfo('widgetEditIconBackgroundColor')">
+                            <input type="text" id="widgetEditSubtextColorHex">                      
+                        </div>                       
                     </div>
                 </div>
                 <div class="dashboard-edit-options-section">
@@ -112,15 +116,20 @@
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="widgetEditIconColor">Icon Color</label>
-                        <input class="color-picker" type="color" id="widgetEditIconColor" oninput="updateColorInfo('widgetEditIconBackgroundColor')">
-                        <input type="text" id="widgetEditIconColorHex" readonly hidden>
-                        <label class="color-sample" id="widgetEditIconColorSample" style="background-color: {{ dashboard.header_icon_color }};"></label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" id="widgetEditIconColorSample" style="background-color: {{ dashboard.header_icon_color }};"></label>
+                            <input class="color-picker" type="color" id="widgetEditIconColor" oninput="updateColorInfo('widgetEditIconBackgroundColor')">
+                            <input type="text" id="widgetEditIconColorHex">                     
+                        </div>
+                        
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="widgetEditIconBackgroundColor">Icon Background Color</label>
-                        <input class="color-picker" type="color" id="widgetEditIconBackgroundColor" oninput="updateColorInfo('widgetEditIconBackgroundColor')">
-                        <input type="text" id="widgetEditIconBackgroundColorHex" readonly hidden>
-                        <label class="color-sample" id="widgetEditIconBackgroundColorSample" style="background-color: {{ dashboard.header_icon_background_color }};"></label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" id="widgetEditIconBackgroundColorSample" style="background-color: {{ dashboard.header_icon_background_color }};"></label>
+                            <input class="color-picker" type="color" id="widgetEditIconBackgroundColor" oninput="updateColorInfo('widgetEditIconBackgroundColor')">
+                            <input type="text" id="widgetEditIconBackgroundColorHex">            
+                        </div>                    
                     </div>
                 </div>
             </div>
@@ -205,9 +214,11 @@
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label">Title Color</label>
-                        <input class="color-picker" type="color" id="headerEditTextColor" value="{{ dashboard.header_text_color }}" oninput="updateColorInfo('headerEditIconBackgroundColor')">
-                        <input type="text" id="headerEditTextColorHex" value="{{ dashboard.header_text_color }}" readonly hidden>
-                        <label class="color-sample" for="headerEditTextColor" id="headerEditTextColorSample" style=" background-color: {{ dashboard.header_text_color }};"></label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" for="headerEditTextColor" id="headerEditTextColorSample" style=" background-color: {{ dashboard.header_text_color }};"></label>
+                            <input class="color-picker" type="color" id="headerEditTextColor" value="{{ dashboard.header_text_color }}" oninput="updateColorInfo('headerEditIconBackgroundColor')">
+                            <input type="text" id="headerEditTextColorHex" value="{{ dashboard.header_text_color }}">                        
+                        </div>                 
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="headerEditSubtext">Subtext</label>
@@ -215,9 +226,11 @@
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="headerEditSubtextColor">Subtext Color</label>
-                        <input class="color-picker" type="color" id="headerEditSubtextColor" value="{{ dashboard.header_subtext_color }}" oninput="updateColorInfo('headerEditIconBackgroundColor')">
-                        <input type="text" id="headerEditSubtextColorHex" value="{{ dashboard.header_subtext_color }}" readonly hidden>
-                        <label class="color-sample" id="headerEditSubtextColorSample" style="background-color: {{ dashboard.header_subtext_color }};"></label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" id="headerEditSubtextColorSample" style="background-color: {{ dashboard.header_subtext_color }};"></label>
+                            <input class="color-picker" type="color" id="headerEditSubtextColor" value="{{ dashboard.header_subtext_color }}" oninput="updateColorInfo('headerEditIconBackgroundColor')">
+                            <input type="text" id="headerEditSubtextColorHex" value="{{ dashboard.header_subtext_color }}">                       
+                        </div>                       
                     </div>
                 </div>
                 <div class="dashboard-edit-options-section">
@@ -233,15 +246,19 @@
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="headerEditIconColor">Icon Color</label>
-                        <input class="color-picker" type="color" id="headerEditIconColor" value="{{ dashboard.header_icon_color }}" oninput="updateColorInfo('headerEditIconBackgroundColor')">
-                        <input type="text" id="headerEditIconColorHex" value="{{ dashboard.header_icon_color }}" readonly hidden>
-                        <label class="color-sample" id="headerEditIconColorSample" style="background-color: {{ dashboard.header_icon_color }};"></label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" id="headerEditIconColorSample" style="background-color: {{ dashboard.header_icon_color }};"></label>
+                            <input class="color-picker" type="color" id="headerEditIconColor" value="{{ dashboard.header_icon_color }}" oninput="updateColorInfo('headerEditIconBackgroundColor')">
+                            <input type="text" id="headerEditIconColorHex" value="{{ dashboard.header_icon_color }}">                      
+                        </div>                     
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="headerEditIconBackgroundColor">Icon Background Color</label>
-                        <input class="color-picker" type="color" id="headerEditIconBackgroundColor" value="{{ dashboard.header_icon_background_color }}" oninput="updateColorInfo('headerEditIconBackgroundColor')">
-                        <input type="text" id="headerEditIconBackgroundColorHex" value="{{ dashboard.header_icon_background_color }}" readonly hidden>
-                        <label class="color-sample" id="headerEditIconBackgroundColorSample" style="background-color: {{ dashboard.header_icon_background_color }};"></label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" id="headerEditIconBackgroundColorSample" style="background-color: {{ dashboard.header_icon_background_color }};"></label>
+                            <input class="color-picker" type="color" id="headerEditIconBackgroundColor" value="{{ dashboard.header_icon_background_color }}" oninput="updateColorInfo('headerEditIconBackgroundColor')">
+                            <input type="text" id="headerEditIconBackgroundColorHex" value="{{ dashboard.header_icon_background_color }}">                  
+                        </div>                 
                     </div>
                 </div>
             </div>

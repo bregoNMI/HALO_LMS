@@ -32,6 +32,7 @@ html, body, button{
 
 .admin-header-left .header-logo{
     max-width: 200px;
+    max-height: 45px;
 }
 
 .admin-header-right{
@@ -69,8 +70,20 @@ html, body, button{
 }
 
 .admin-header-user-icon{
-    font-size: var(--fs-xxl);
+    display: flex;
+    font-size: var(--fs-xxxl);
     color: blueviolet;
+    padding: var(--pad-xs);
+    border-radius: 50%;
+    cursor: pointer;
+    height: 1.7rem;
+    width: 1.7rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-header-user-icon:hover{
+    background-color: #333333;
 }
 
 .admin-header-name{
@@ -86,9 +99,13 @@ html, body, button{
 
 /* Admin Sidebar */
 .admin-sidebar-container{
-    padding: var(--pad-xs);
+    /* padding: var(--pad-xs); */
     background-color: white;
     z-index: 2;
+}
+
+.sidebar-body{
+    margin-top: 1rem;
 }
 
 .admin-body{
@@ -122,7 +139,7 @@ html, body, button{
     padding: var(--pad-xs) var(--pad-med);
     margin-left: var(--margin-xxl);
     border-left: 2px solid var(--bg-color2);
-    border-radius: 0px 6px 6px 0;
+    /* border-radius: 0px 6px 6px 0; */
     cursor: pointer;
     transition: all 0.2s linear;
     text-decoration: none;
@@ -152,10 +169,11 @@ html, body, button{
 .sidebar-body-item p{
     margin: 0;
     font-size: var(--fs-sm);
+    text-wrap: nowrap;
 }
 
 .sidebar-body-item i{
-    font-weight: 900;
+    /* font-weight: 900; */
 }
 
 .collapsible-content {
@@ -178,7 +196,7 @@ html, body, button{
     cursor: pointer;
     align-items: center;
     padding: var(--pad-xs) var(--pad-med);
-    border-radius: 8px;
+    /* border-radius: 8px; */
     text-decoration: none;
     /* color: var(--text-color4); */
     color: #41454d;
@@ -205,7 +223,7 @@ html, body, button{
 .collapsible-header .icon-inner-header i{
     width: 1rem;
     font-size: 1.2rem;
-    font-weight: 900;
+    /* font-weight: 900; */
 }
 
 .collapsible-header i{
@@ -281,6 +299,7 @@ html, body, button{
     font-size: var(--btn-font);
     cursor: pointer;
     text-decoration: none;
+    transition: all 0.2s linear;
 }
 
 .action-button-primary{
@@ -539,7 +558,7 @@ tr.selected-option th, tr.selected-option td{
     height: 0;
     width: 0;
 }
-   
+
 .container {
     display: block;
     position: relative;
@@ -548,7 +567,7 @@ tr.selected-option th, tr.selected-option td{
     user-select: none;
     width: 1rem;
 }
-   
+
 .checkmark {
     position: relative;
     top: 0;
@@ -565,24 +584,24 @@ tr.selected-option th, tr.selected-option td{
     border: -webkit-focus-ring-color auto 1px;
     border-color: var(--primary-blue);
 }
-   
+
 .container input:checked ~ .checkmark {
     background-color: var(--primary-blue);
     border-color: var(--primary-blue);
     animation: pop 0.5s;
     animation-direction: alternate;
 }
-   
+
 .checkmark:after {
     content: "";
     position: absolute;
     display: none;
 }
-   
+
 .container input:checked ~ .checkmark:after {
     display: block;
 }
-   
+
 .container .checkmark:after {
     left: 0.25em;
     top: 0.15em;
@@ -592,16 +611,16 @@ tr.selected-option th, tr.selected-option td{
     border-width: 0 0.1em 0.1em 0;
     transform: rotate(45deg);
 }
-   
+
 @keyframes pop {
     0% {
      transform: scale(1);
     }
-   
+
     50% {
      transform: scale(0.9);
     }
-   
+
     100% {
      transform: scale(1);
     }
@@ -744,7 +763,7 @@ tr.selected-option th, tr.selected-option td{
     width: 0;
     height: 0;
 }
-  
+
 .radio-button__label {
     display: inline-block;
     padding-left: 25px;
@@ -752,7 +771,7 @@ tr.selected-option th, tr.selected-option td{
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
 }
-  
+
 .radio-button__custom {
     position: absolute;
     top: 50%;
@@ -764,21 +783,141 @@ tr.selected-option th, tr.selected-option td{
     border: 2px solid #555;
     transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
 }
-  
+
 .radio-button__input:checked + .radio-button__label .radio-button__custom {
     transform: translateY(-50%) scale(0.8);
     border: 5px solid var(--primary-blue);
     color: var(--primary-blue);
     left: -3px;
 }
-  
+
 .radio-button__input:checked + .radio-button__label {
     color: var(--primary-blue);
 }
-  
+
 .sort-item-wrapper:hover .radio-button__custom {
     transform: translateY(-50%) scale(1.1);
     border-color: var(--primary-blue);
+}
+
+/* Dropdown Menu */
+.admin-dropdown-menu {
+    position: relative;
+    display: inline-block;
+}
+
+.admin-dropdown-menu-icon{
+    display: flex;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: white;
+    align-items: center;
+    justify-content: center;
+    padding: var(--pad-xxs);
+    border-radius: 4px;
+    transition: all 0.2s linear;
+}
+
+.admin-dropdown-menu-icon i{
+    height: 1.3rem;
+}
+
+.admin-dropdown-menu-icon:hover{
+    background-color: #333333;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    padding: var(--pad-xs);
+    box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
+    border: 1px solid #ececf1;
+    border-radius: 8px;
+    z-index: 2;
+    width: 100%;
+    min-width: 250px;
+    box-sizing: border-box;
+    z-index: 1;
+    top: 3.2rem;
+    right: 0;
+}
+
+.show {
+    display: block;
+}
+
+.dropdown-user-information{
+    display: flex;
+    gap: 0.6rem;
+    padding-bottom: var(--pad-xs);
+    align-items: center;
+}
+
+.dropdown-user-details{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    max-width: 80%;
+}
+
+.dropdown-user-details h4{
+    font-size: 0.8rem;
+    margin-top: 0;
+    color: var(--text-color2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-user-details span{
+    /* margin-top: 0.2rem; */
+    color: #798292;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-user-icon i{
+    font-size: 2rem;
+    color: blueviolet;
+}
+
+.dropdown-content-option{
+    display: flex;
+    flex-direction: row;
+    gap: 0.4rem;
+    padding: 0.5rem var(--pad-xs);
+    text-decoration: none;
+    border-radius: 6px;
+    /* color: #41454d; */
+    color: var(--text-color4);
+    transition: all 0.2s linear;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+.dropdown-content-option:hover{
+    color: #41454d;
+    background-color: #eceff4;
+}
+
+.dropdown-content-option i{
+    font-size: 1.05rem;
+    width: 1.6rem;
+}
+
+.dropdown-section{
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--pad-xxs);
+    padding-bottom: var(--pad-xxs);
+    border-top: 1px solid var(--bg-color2);
+}
+
+.dropdown-section:last-child{
+    padding-bottom: 0;
 }
 
 /* Custom Tooltip */
@@ -824,7 +963,7 @@ tr.selected-option th, tr.selected-option td{
     margin: 20px 0;
     right: -50rem;
     transition: all 0.5s ease-in-out;
-    z-index: 10;
+    z-index: 9999;
 }
 
 .alert {

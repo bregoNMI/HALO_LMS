@@ -3,7 +3,7 @@
 <div class="admin-header-container">
     <div class="admin-header-container-inner">
         <div class="admin-header-left">
-            <img class="header-logo" src="{% static 'images/logo/Halo LMS Logo-03.png' %}" alt="HALO Logo">
+            <img class="header-logo" src="{% static 'images/logo/Halo LMS Logo-10.png' %}" alt="HALO Logo">
         </div>
         <div class="admin-header-right">
             <div class="admin-header-icons">
@@ -14,13 +14,37 @@
                     <i class="fa-light fa-bell"></i>
                 </div>
             </div>
-            <div class="admin-header-profile">
-                <div class="admin-header-user-icon">
+
+            <div class="admin-dropdown-menu admin-header-profile">
+                <div class="admin-header-user-icon" onclick="toggleDropdown(event)">
                     <i class="fa-solid fa-circle-{{ first_letter_lowercase }}"></i>
                 </div>
-                <div class="admin-header-info">
-                    <h5 class="admin-header-name"> {{ first_name }} {{ last_name }}</h5>
-                    <span class="admin-header-email"> {{ email }} </span>
+                <div id="adminDropdownContent" class="dropdown-content">
+                    <div class="dropdown-user-information">
+                        <div class="dropdown-user-icon">
+                            <i class="fa-solid fa-circle-{{ first_letter_lowercase }}"></i>
+                        </div>
+                        <div class="dropdown-user-details">
+                            <h4>{{ first_name }} {{ last_name }}</h4>
+                            <span>{{ email }}</span>
+                        </div>
+                    </div>
+                    <div class="dropdown-section">
+                        <a class="dropdown-content-option" href="/profile/">
+                            <i class="fa-regular fa-user-tie-hair"></i>
+                            <span> My Profile </span>
+                        </a>
+                        <a class="dropdown-content-option" href="/dashboard/">
+                            <i class="fa-regular fa-globe-stand"></i>
+                            <span> Learner Experience </span>
+                        </a>
+                    </div>
+                    <div class="dropdown-section">
+                        <a class="dropdown-content-option" href="/logout/">
+                            <i class="fa-regular fa-arrow-right-from-bracket"></i>
+                            <span> Logout </span>
+                        </a>
+                    </div>                   
                 </div>
             </div>
         </div>

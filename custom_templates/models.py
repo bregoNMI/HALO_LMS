@@ -33,3 +33,41 @@ class Widget(models.Model):
 
     class Meta:
         ordering = ['order']
+
+class Header(models.Model):
+    header_logo_display = models.CharField(max_length=1024, default='No File Selected', blank=True, null=True)
+    header_logo = models.URLField(max_length=1024, default='/static/images/logo/HALO LMS Logo-03.png', blank=True, null=True)
+    header_background_color = models.CharField(max_length=7, default='#183b73')
+    header_text_color = models.CharField(max_length=7, default='#e7e7e7')
+    header_text_hover_color = models.CharField(max_length=7, default='#e7e7e7')
+    header_text_background_color = models.CharField(max_length=7, default='#e7e7e7')
+
+    def save(self, *args, **kwargs):
+        if not self.pk and Header.objects.exists():
+            raise ValidationError('There is already a Header instance. You cannot create another one.')
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def get_instance(cls):
+        instance, created = cls.objects.get_or_create(id=1)
+        return instance
+
+    def __str__(self):
+        return "Header Configuration"
+    
+class Footer(models.Model):
+    footer_background_color = models.CharField(max_length=7, default='#183b73')
+    footer_text_color = models.CharField(max_length=7, default='#e7e7e7')
+
+    def save(self, *args, **kwargs):
+        if not self.pk and Footer.objects.exists():
+            raise ValidationError('There is already a Footer instance. You cannot create another one.')
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def get_instance(cls):
+        instance, created = cls.objects.get_or_create(id=1)
+        return instance
+
+    def __str__(self):
+        return "Footer Configuration"
