@@ -335,6 +335,21 @@ document.addEventListener("DOMContentLoaded", function () {
             radioInput.checked = true;
         }
     });
+
+    // Select all elements with the class 'alert'
+    var alerts = document.querySelectorAll('.alert-container');
+
+    // Loop through each alert and add a new class if the alert is visible
+    alerts.forEach(function(alert) {
+        // Check if the alert is visible
+        if (window.getComputedStyle(alert).display !== 'none') {
+            // Add a class to the active alert
+            alert.classList.add('animate-alert-container');
+            setTimeout(() => {
+                alert.classList.remove('animate-alert-container');
+            }, 8000);
+        }
+    });
 });
 
 // Dynamically Opening Popups

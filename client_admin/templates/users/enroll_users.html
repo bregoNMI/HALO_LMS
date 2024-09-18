@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+    <!-- Message Wrapper -->
+    <div id="validation-message-container" class="alert-container" style="display: none;">   
+        <div id="validation-message-inner">
+            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
+            <span id="validation-message"></span>
+        </div>
+    </div>
     <div class="admin-body align-center">
         <div class="max-width-extend-1">
             <div class="details-top-row">
@@ -12,7 +19,7 @@
                 </div>
                 <div class="details-top-row-right">
                     <div class="option-btn-row">
-                        <button onclick="enrollUsers()" class="action-button-primary">
+                        <button onclick="sendEnrollmentRequest()" class="action-button-primary">
                             <i class="fa-regular fa-paper-plane"></i>
                             <span>Enroll Users</span>
                         </button>
@@ -34,7 +41,7 @@
                         </div>
                         <div class="info-card-body">
                             <div id="selectedUsers">
-                                <span class="course-content-input-subtext"> Please select the User(s) you would like to enroll into the Course(s). </span>
+                                <span class="course-content-input-subtext"> Please select the User(s) you would like to enroll into the selected Course(s). </span>
                                 <div class="right-column-file-wrapper">
                                     <div id="userDropdown1" class="user-dropdown course-content-input">
                                         <input type="text" class="userSearch" placeholder="Search users...">

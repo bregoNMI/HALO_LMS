@@ -1,18 +1,21 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponseNotFound
 import json
 from .models import Dashboard, Widget, Header, Footer
 from .forms import DashboardForm
 
+@login_required
 def templates(request):
     header = Header.objects.first()
     footer = Footer.objects.first()
 
     return render(request, 'html/templates.html', {'header': header, 'footer': footer})
 
+@login_required
 def set_main_dashboard(request, dashboard_id):
     if request.method == 'POST':
         is_main = request.POST.get('is_main') == 'true'
@@ -36,10 +39,12 @@ def set_main_dashboard(request, dashboard_id):
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
 
+@login_required
 def dashboard_list(request):
     dashboards = Dashboard.objects.annotate(num_widgets=Count('widgets')).order_by('-is_main', 'name')
     return render(request, 'html/dashboard_list.html', {'dashboards': dashboards})
 
+@login_required
 def dashboard_create(request):
     if request.method == 'POST':
         try:
@@ -68,6 +73,7 @@ def dashboard_create(request):
     else:
         return render(request, 'html/dashboard_create.html')
 
+@login_required
 def dashboard_edit(request, dashboard_id):
     dashboard = get_object_or_404(Dashboard, id=dashboard_id)
 
@@ -91,7 +97,7 @@ def dashboard_edit(request, dashboard_id):
         form = DashboardForm(instance=dashboard)
         return render(request, 'html/dashboard_edit.html', {'form': form, 'dashboard': dashboard, 'selected_layout': dashboard.layout})
 
-
+@login_required
 def widget_add(request, dashboard_id):
     if request.method == 'POST':
         try:
@@ -118,7 +124,8 @@ def widget_add(request, dashboard_id):
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
-    
+
+@login_required    
 def delete_widget(request, widget_id):
     if request.method == 'DELETE':
         try:
@@ -128,7 +135,8 @@ def delete_widget(request, widget_id):
         except Widget.DoesNotExist:
             return HttpResponseNotFound("Widget not found")
     return HttpResponseNotFound("Invalid request method")
-    
+
+@login_required    
 def get_widget_data(request, widget_id):
     widget = get_object_or_404(Widget, id=widget_id)
     return JsonResponse({
@@ -143,6 +151,7 @@ def get_widget_data(request, widget_id):
         'type': widget.type,
     })
 
+@login_required
 def edit_widget(request, widget_id):
     if request.method == 'POST':
         try:
@@ -163,6 +172,7 @@ def edit_widget(request, widget_id):
             return HttpResponseNotFound("Widget not found")
     return HttpResponseNotFound("Invalid request method")
 
+@login_required
 def edit_dashboard_header(request, dashboard_id):
     if request.method == 'POST':
         try:
@@ -209,6 +219,7 @@ def widget_reorder(request):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
+@login_required
 def dashboard_preview(request, dashboard_id):
     # Get the dashboard and any related data
     dashboard = get_object_or_404(Dashboard, id=dashboard_id)
@@ -223,6 +234,7 @@ def dashboard_preview(request, dashboard_id):
     
     return render(request, 'html/dashboard_preview.html', context)
 
+@login_required
 def dashboard_delete(request, dashboard_id):
     try:
         dashboard = Dashboard.objects.get(pk=dashboard_id)
@@ -232,7 +244,8 @@ def dashboard_delete(request, dashboard_id):
         raise Http404("Dashboard does not exist")
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-    
+
+@login_required    
 def update_header(request):
     if request.method == 'POST':
         header = Header.objects.first()  # Get the first and only Header instance
@@ -250,6 +263,7 @@ def update_header(request):
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
 
+@login_required
 def update_footer(request):
     if request.method == 'POST':
         footer = Footer.objects.first()  # Get the first and only Header instance

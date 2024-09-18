@@ -37,40 +37,43 @@ document.addEventListener('DOMContentLoaded', function() {
         allowInput: true       // Allow manual input
     });
 
-    document.getElementById('change-password-form').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent form from submitting the usual way
-        console.log('testing');
-    
-        const formData = new FormData(this);
-    
-        fetch("/change-password/", {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-        })
-        .then(response => response.json())    
-        .then(data => {
-    
-            if (data.success) {
-                // Display success message
-                displayValidationMessage(`${data.message}`, true);
-    
-                // Optionally close the popup after a successful password update
-                setTimeout(() => {
-                    closePopup('changePasswordPopup');
-                }, 2000);
-            } else {
-                // Display error message
-                displayValidationMessage(`${data.message}`, false);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            displayValidationMessage('An error occurred. Please try again', false);
+    const changePasswordForm = document.getElementById('change-password-form');
+    if(changePasswordForm){
+        document.getElementById('change-password-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from submitting the usual way
+            console.log('testing');
+        
+            const formData = new FormData(this);
+        
+            fetch("/change-password/", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+            })
+            .then(response => response.json())    
+            .then(data => {
+        
+                if (data.success) {
+                    // Display success message
+                    displayValidationMessage(`${data.message}`, true);
+        
+                    // Optionally close the popup after a successful password update
+                    setTimeout(() => {
+                        closePopup('changePasswordPopup');
+                    }, 2000);
+                } else {
+                    // Display error message
+                    displayValidationMessage(`${data.message}`, false);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                displayValidationMessage('An error occurred. Please try again', false);
+            });
         });
-    });
+    }
 
     const validationMessageContainer = document.getElementById('validation-message-container');
     const validationMessageInner = document.getElementById('validation-message-inner');
@@ -209,8 +212,108 @@ function initializeProfileInputListeners() {
     });
 }
 
-
 function showsaveButtonPlatform(){
     const saveButtonPlatform = document.getElementById('saveButtonPlatform');
     saveButtonPlatform.classList.add('animate-save-button-platform');
+}
+
+/* My Courses Page JS */
+function openCourseItemPopup(courseItem) {
+    const currentPopup = courseItem.nextElementSibling;  // Find the nearest sibling (the popup)
+    const popupContent = currentPopup.querySelector('.popup-content');
+    currentPopup.style.display = "flex";
+    setTimeout(() => {
+        popupContent.classList.add('animate-popup-content');
+    }, 100);
+    setTimeout(() => {
+        initializeTabs(currentPopup);
+    }, 400);
+    checkOverflow();
+}
+
+// Function to close a specific popup
+function closeCourseItemPopup(popup) {
+    const popupContent = popup.querySelector('.popup-content');
+    popupContent.classList.remove('animate-popup-content');
+    setTimeout(() => {
+        popup.style.display = "none";
+    }, 200);
+}
+
+// Add event listeners to all course items to trigger the popup
+document.addEventListener('DOMContentLoaded', function() {
+    const courseItems = document.querySelectorAll('.course-item');
+    courseItems.forEach(courseItem => {
+        courseItem.addEventListener('click', function() {
+            openCourseItemPopup(courseItem);  // Pass the clicked course-item to openPopup
+        });
+    });
+});
+
+function initializeTabs(popup) {
+    const tabsContainer = popup.querySelector('.tabs');
+    const tabContents = popup.querySelectorAll('.tab-content');
+    const activeTab = tabsContainer.querySelector('.tab.active');
+    updateIndicator(activeTab);
+    
+    const tabs = tabsContainer.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function () {
+            tabs.forEach(t => t.classList.remove('active'));  // Remove 'active' class from all tabs
+            this.classList.add('active');  // Add 'active' class to the clicked tab
+            updateIndicator(this);  // Update the indicator position
+            
+            const target = this.getAttribute('data-target');  // Get the target content ID
+            tabContents.forEach(content => {
+                if (content.id === target) {
+                    content.classList.add('active');  // Show the correct tab content
+                } else {
+                    content.classList.remove('active');  // Hide other tab contents
+                }
+            });
+            checkOverflow();
+        });
+    });
+}
+
+function updateIndicator(activeTab) {
+    const tabIndicator = activeTab.closest('.tabs').querySelector('.tab-indicator');
+    const tabRect = activeTab.getBoundingClientRect();
+    const containerRect = activeTab.closest('.tabs').getBoundingClientRect();
+    
+    tabIndicator.style.width = `${tabRect.width}px`;
+    tabIndicator.style.transform = `translateX(${tabRect.left - containerRect.left}px)`;
+}
+
+function toggleDescription(event) {
+    event.preventDefault();
+
+    const descriptionWrapper = event.target.previousElementSibling;
+    
+    if (descriptionWrapper.classList.contains('expanded')) {
+        descriptionWrapper.classList.remove('expanded');
+        event.target.textContent = 'Read More';
+    } else {
+        descriptionWrapper.classList.add('expanded');
+        event.target.textContent = 'Read Less';
+    }
+}
+
+// Function to check if the description is overflowing and show/hide the read more button
+function checkOverflow() {
+    const descriptions = document.querySelectorAll('.description-wrapper');
+    descriptions.forEach(wrapper => {
+        const content = wrapper.querySelector('.description-content');
+        const readMoreToggle = wrapper.nextElementSibling;
+        const fadeOverlay = wrapper.querySelector('.fade-overlay');
+
+        // Checking if the content is overflowing
+        if (content.scrollHeight > wrapper.clientHeight + 1) {
+            readMoreToggle.style.display = 'block';  // Show the "Read More" button
+            fadeOverlay.style.display = 'block';     // Show the fade overlay
+        } else if(!wrapper.classList.contains('expanded')){
+            readMoreToggle.style.display = 'none';   // Hide the "Read More" button
+            fadeOverlay.style.display = 'none';      // Hide the fade overlay
+        }
+    });
 }

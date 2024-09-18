@@ -7,7 +7,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.contrib import messages
-from client_admin.models import Profile, Course, User, UserCourse
+from client_admin.models import Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress
 from django.template.response import TemplateResponse
 
 @login_required
@@ -166,27 +166,60 @@ def edit_user(request, user_id):
 @login_required
 def enroll_users_request(request):
     user_ids = request.POST.getlist('user_ids[]')
-    course_ids = request.POST.getlist('course_ids[]') 
+    course_ids = request.POST.getlist('course_ids[]')
 
     response_data = {
         'enrolled': [],
-        'already_enrolled': []
+        'already_enrolled': [],
+        'message': ''  # Add a message key to store response messages
     }
 
     for user_id in user_ids:
         user = get_object_or_404(User, id=user_id)
         for course_id in course_ids:
             course = get_object_or_404(Course, id=course_id)
-            
+
             # Check if the UserCourse already exists (user is already enrolled)
             user_course, created = UserCourse.objects.get_or_create(user=user, course=course)
 
             if created:
-                response_data['enrolled'].append({'user_id': user.id, 'course_id': course.id, 'progress': user_course.progress})
-            else:
-                response_data['already_enrolled'].append({'user_id': user.id, 'course_id': course.id, 'progress': user_course.progress})
+                # Create UserModuleProgress instances for each module in the course
+                for module in course.modules.all():
+                    UserModuleProgress.objects.create(
+                        user_course=user_course,
+                        module=module
+                    )
 
-    return JsonResponse(response_data, status=201 if response_data['enrolled'] else 200)
+                    # Create UserLessonProgress instances for each lesson in the module
+                    for lesson in module.lessons.all():
+                        UserLessonProgress.objects.create(
+                            user_module_progress=UserModuleProgress.objects.get(
+                                user_course=user_course,
+                                module=module
+                            ),
+                            lesson=lesson
+                        )
+
+                response_data['enrolled'].append({
+                    'user_id': user.id,
+                    'course_id': course.id,
+                    'progress': user_course.progress
+                })
+            else:
+                response_data['already_enrolled'].append({
+                    'user_id': user.id,
+                    'course_id': course.id,
+                    'progress': user_course.progress
+                })
+
+    if response_data['enrolled']:
+        # Set a success message
+        messages.success(request, 'User(s) enrolled successfully.')
+        # Notify the front-end that a redirect should occur
+        return JsonResponse({'redirect_url': '/admin/users/'}, status=201)
+    else:
+        response_data['message'] = 'All users are already enrolled in the selected courses.'
+        return JsonResponse(response_data, status=200)
 
 @login_required
 def user_details(request, user_id):
@@ -214,3 +247,8 @@ def user_history(request, user_id):
         'profile': user
     }
     return render(request, 'users/user_history.html', context)
+
+@login_required
+def enroll_users(request):
+
+    return render(request, 'users/enroll_users.html')

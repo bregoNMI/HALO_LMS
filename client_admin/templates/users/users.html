@@ -2,15 +2,32 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
     <div class="admin-body">
         <div class="admin-top-row">
             <div class="admin-top-row-left">
                 <h2>Users</h2>
             </div>
             <div class="admin-top-row-right">
-                <div class="action-button-secondary">
+                <!-- <div class="action-button-secondary">
                     <span>Import</span>
-                </div>
+                </div> -->
                 <div class="action-button-primary">
                     <span>Add user</span>
                 </div>

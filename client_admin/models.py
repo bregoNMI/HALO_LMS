@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
+from datetime import datetime
 
 def resize_image(image_field, size=(300, 300)):
     # Check if the image field has a file
@@ -83,6 +84,18 @@ class UserCourse(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     progress = models.PositiveIntegerField(default=0)  # percentage of the course completed by the user
+
+    def get_status(self):
+        expiration_date = self.course.get_event_date('expiration_date')
+        if expiration_date and expiration_date < datetime.now().date():
+            return 'Expired'
+
+        if self.progress == 0:
+            return 'Not Started'
+        elif self.progress == 100:
+            return 'Completed'
+        else:
+            return 'Started'
 
     def __str__(self):
         return f"{self.user.username} - {self.course.title}"

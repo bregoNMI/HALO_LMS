@@ -105,6 +105,10 @@ class Course(models.Model):
     credential = models.OneToOneField('Credential', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_credential')
     upload_instructions = models.TextField(blank=True)
 
+    def get_event_date(self, event_type):
+        event = self.event_dates.filter(type=event_type).first()
+        return event.date if event else None
+
     def __str__(self):
         return self.title
 

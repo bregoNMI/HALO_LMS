@@ -1,15 +1,15 @@
 from django.contrib.auth.decorators import login_required
 from custom_templates.models import Dashboard, Widget, Header, Footer
-from client_admin.models import Profile
+from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import update_session_auth_hash
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.dateparse import parse_date
-from client_admin.models import Profile
+from client_admin.models import Profile, User
 
 # Other Data is loaded on context_processors.py
-
+@login_required
 def learner_dashboard(request):
     dashboard = Dashboard.objects.filter(is_main=True).first()
     header = Header.objects.first()
@@ -18,6 +18,18 @@ def learner_dashboard(request):
     if dashboard:
         return render(request, 'dashboard/learner_dashboard.html', {'dashboard': dashboard, 'header': header, 'footer': footer})
     return render(request, 'dashboard/default_dashboard.html')
+
+@login_required
+def learner_courses(request):
+    user = request.user
+
+    # Fetch the user's courses and their progress
+    user_courses = UserCourse.objects.filter(user=user).select_related('course').prefetch_related('module_progresses__module__lessons')
+
+    context = {
+        'user_courses': user_courses
+    }
+    return render(request, 'learner_pages/learner_courses.html', context)
 
 @login_required
 def learner_profile(request):

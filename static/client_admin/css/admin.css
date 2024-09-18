@@ -835,11 +835,10 @@ tr.selected-option th, tr.selected-option td{
     box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
     border: 1px solid #ececf1;
     border-radius: 8px;
-    z-index: 2;
+    z-index: 10;
     width: 100%;
     min-width: 250px;
     box-sizing: border-box;
-    z-index: 1;
     top: 3.2rem;
     right: 0;
 }

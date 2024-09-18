@@ -375,10 +375,84 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-function enrollUsers(){
-    const selectedUsers = document.querySelectorAll('.selectedUsers');
+function sendEnrollmentRequest() {
+    // Get selected users and courses
+    const selectedUsers = document.querySelectorAll('.selectedUsers .selected-user');
+    const selectedCourses = document.querySelectorAll('.selectedCourses .selected-course');
 
-    const selectedCourses = document.querySelectorAll('.selectedCourses');
+    // Extract IDs from selected users
+    const userIds = Array.from(selectedUsers).map(user => user.getAttribute('data-user-id'));
 
-    console.log(selectedUsers, selectedCourses);
+    // Extract IDs from selected courses
+    const courseIds = Array.from(selectedCourses).map(course => course.getAttribute('data-course-id'));
+
+    // Check if any users or courses are selected
+    if (userIds.length === 0 || courseIds.length === 0) {
+        displayValidationMessage('Please select at least one user and one course.', false);
+        return;
+    }
+
+    // Create the data object to be sent in the POST request
+    const data = new FormData();
+    userIds.forEach(id => data.append('user_ids[]', id));
+    courseIds.forEach(id => data.append('course_ids[]', id));
+
+    // Send the POST request to the server
+    fetch('/admin/users/enroll-user-request/', {
+        method: 'POST',
+        body: data,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCsrfToken()
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || 'Network response was not ok');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.redirect_url) {
+            // Redirect to the new page where messages will be shown
+            window.location.href = data.redirect_url;
+        } else {
+            // Display validation message for error case
+            displayValidationMessage(data.message, false);  // Error message
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        displayValidationMessage('An error occurred during the enrollment process.', false);
+    });
+}
+
+// Function to get the CSRF token
+function getCsrfToken() {
+    const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
+    return cookieValue;
+}
+
+const validationMessageContainer = document.getElementById('validation-message-container');
+const validationMessageInner = document.getElementById('validation-message-inner');
+const validationMessage = document.getElementById('validation-message');
+const validationIcon = document.getElementById('validation-icon');
+
+function displayValidationMessage(message, isSuccess) {
+    validationMessage.textContent = message;
+    validationMessageContainer.style.display = 'flex';
+    setTimeout(() => {
+        validationMessageContainer.className = isSuccess ? 'alert-container animate-alert-container' : 'alert-container animate-alert-container';
+    }, 100);
+    validationMessageInner.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
+    setTimeout(() => {
+        validationMessageContainer.classList.remove('animate-alert-container');
+    }, 10000);
+    if(isSuccess){
+        validationIcon.className = 'fa-solid fa-circle-check';
+    }else{
+        validationIcon.className = 'fa-solid fa-triangle-exclamation';
+    }
 }

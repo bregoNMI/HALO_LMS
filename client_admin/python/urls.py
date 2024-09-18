@@ -13,6 +13,7 @@ urlpatterns = [
     path('users/<int:user_id>/transcript/', views.user_transcript, name='user_transcript'),
     path('users/<int:user_id>/history/', views.user_history, name='user_history'),
     path('users/enroll-users/', views.enroll_users, name='enroll_users'),
+    path('users/enroll-user-request/', views.enroll_users_request, name='enroll_user_request'),
     
     # Courses
     path('courses/', content_views.admin_courses, name='admin_courses'),

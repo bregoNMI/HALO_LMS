@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('dashboard/', views.learner_dashboard, name='learner_dashboard'),
     path('profile/', views.learner_profile, name='learner_profile'),
+    path('courses/', views.learner_courses, name='learner_courses'),
 
     # Requests
     path('update-profile/<int:user_id>/', views.update_learner_profile, name='update_learner_profile'),

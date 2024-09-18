@@ -1000,6 +1000,15 @@ input[type="text"], input[type="number"]{
     text-overflow: ellipsis;
 }
 
+.dropdown-item .dropdown-item-inner span{
+    font-size: var(--fs-sm);
+    color: #798292;
+}
+
+#selectedUsers .right-column-file-wrapper, #selectedCourses .right-column-file-wrapper{
+    margin-top: 0.2rem;
+}
+
 .userList .dropdown-item:hover{
     background-color: var(--bg-color3);
 }
