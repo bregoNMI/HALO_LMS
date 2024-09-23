@@ -28,6 +28,14 @@ class File(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     file_type = models.CharField(max_length=50, choices=FILE_TYPE_CHOICES, default='other')
 
+    def calculate_progress(self):
+        modules = self.modules.all()
+        total_modules = modules.count()
+        if total_modules == 0:
+            return 0
+        module_progress = sum(module.calculate_progress() for module in modules) / total_modules
+        return module_progress
+
     def __str__(self):
         return self.title
 
@@ -210,6 +218,14 @@ class Module(models.Model):
     description = models.TextField(blank=True)
     order = models.PositiveIntegerField()
 
+    def calculate_progress(self):
+        lessons = self.lessons.all()
+        total_lessons = lessons.count()
+        completed_lessons = lessons.filter(is_completed=True).count()
+        if total_lessons == 0:
+            return 0
+        return (completed_lessons / total_lessons) * 100
+
     class Meta:
         ordering = ['order']
 
@@ -221,6 +237,7 @@ class Lesson(models.Model):
     module = models.ForeignKey(Module, related_name='lessons', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     order = models.PositiveIntegerField()
+    is_completed = models.BooleanField(default=False)
 
     file = models.ForeignKey(File, on_delete=models.CASCADE, null=True, blank=True)
 

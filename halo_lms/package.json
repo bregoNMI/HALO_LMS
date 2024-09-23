@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@aws-amplify/auth": "^6.3.11",
+    "aws-amplify": "^6.4.3",
+    "boto3": "^0.0.1"
+  }
+}

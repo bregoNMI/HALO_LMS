@@ -1,3 +1,4 @@
+{% load static %}
 <div id="editUserPopup" class="popup-background"> 
     <div class="popup-content max-width-3">
         <form id="editUserForm" method="post" action="{% url 'edit_user' profile.id %}" enctype="multipart/form-data">
@@ -88,6 +89,17 @@
                             <input type="email" id="email" name="email" value="{{ profile.email }}">
                         </div>
                     </div>
+                    <div class="edit-user-row">
+                        <div class="edit-user-input">
+                            <label class="edit-user-label" for="password">New Password</label>
+                            <input type="password" id="password" name="password" placeholder="Enter new password">
+                        </div>
+                        <div class="edit-user-input">
+                            <label class="edit-user-label" for="confirm_password">Confirm Password</label>
+                            <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm new password">
+                        </div>
+                    </div>
+                    <span id="password-error" style="color: red; display: none;">Passwords do not match.</span>
                     <div class="edit-user-row">
                         <div class="edit-user-input">
                             <label class="edit-user-label" for="role">Role</label>
@@ -211,3 +223,4 @@
         </form>
     </div>
 </div>
+<script src="{% static 'client_admin/javascript/editUser.js' %}"></script>

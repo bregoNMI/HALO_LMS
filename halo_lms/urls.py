@@ -16,7 +16,6 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from halo_lms.main.python import views
 
 urlpatterns = [
     path('django-admin/', admin.site.urls),
@@ -26,3 +25,4 @@ urlpatterns = [
     path('requests/', include('content.urls')),
     path('', include('learner_dashboard.urls')),
 ]
+
