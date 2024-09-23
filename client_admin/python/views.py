@@ -8,10 +8,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.contrib import messages
-from client_admin.models import Profile, User
+from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress
 from .forms import UserRegistrationForm, ProfileForm
 from django.contrib.auth import update_session_auth_hash
 from authentication.python.views import addUserCognito, modifyCognito, register_view
+from django.template.response import TemplateResponse
 #from models import Profile
 #from authentication.python import views
 
@@ -310,3 +311,8 @@ def add_user(request):
         profile_form = ProfileForm()
 
     return render(request, 'users/add_user.html', {'user_form': user_form, 'profile_form': profile_form})
+
+@login_required
+def enroll_users(request):
+
+    return render(request, 'users/enroll_users.html')
