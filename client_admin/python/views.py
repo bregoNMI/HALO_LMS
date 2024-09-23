@@ -106,6 +106,7 @@ def admin_users(request):
         'sort_by': sort_by,
     })
 
+'''
 @login_required
 def edit_user(request, user_id):
     profile = get_object_or_404(Profile, pk=user_id)
@@ -169,6 +170,91 @@ def edit_user(request, user_id):
 
     context = {
         'profile': profile
+    }
+    return render(request, template, context)
+'''
+
+@login_required
+def edit_user(request, user_id):
+    user = get_object_or_404(Profile, pk=user_id)
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+        email = request.POST.get('email')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        role = request.POST.get('role')
+        archived = request.POST.get('archived') == 'on'  # Check if checkbox is checked
+        country = request.POST.get('country')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        code = request.POST.get('code')
+        citizenship = request.POST.get('citizenship')
+        address_1 = request.POST.get('address_1')
+        birth_date_str = request.POST.get('birth_date')
+        sex = request.POST.get('sex')
+        referral = request.POST.get('referral')
+        associate_school = request.POST.get('associate_school')
+
+        # Initialize birth_date with None or an existing value from the user
+        birth_date = user.birth_date if hasattr(user, 'birth_date') else None
+        
+        # Parse and format birth_date
+        if birth_date_str:
+            parsed_birth_date = parse_date(birth_date_str)
+            if parsed_birth_date:
+                birth_date = parsed_birth_date
+                user.birth_date = birth_date
+
+        # Handle password change
+        if password and confirm_password:
+            if password == confirm_password:
+                user.user.set_password(password)  # Assuming 'user' is a Profile object with a related User
+                user.user.save()
+                update_session_auth_hash(request, user.user)  # Keeps the user logged in after password change
+                messages.success(request, 'Password updated successfully.')
+            else:
+                messages.error(request, 'Passwords do not match.')
+
+        user.username = username
+        user.email = email
+        user.first_name = first_name
+        user.last_name = last_name
+        user.role = role
+        user.archived = archived
+        user.country = country
+        user.city = city
+        user.state = state
+        user.code = code
+        user.citizenship = citizenship
+        user.address_1 = address_1
+        user.birth_date = birth_date
+        user.sex = sex
+        user.referral = referral
+        user.associate_school = associate_school
+        modifyCognito(request)
+        user.save()
+        
+        messages.success(request, 'User information updated successfully')
+        # Determine where to redirect
+        referer = request.META.get('HTTP_REFERER')
+        if referer:
+            return redirect(referer)
+        else:
+            # Default redirect
+            return redirect('user_details', user_id=user.id)
+
+    # Determine which template to use
+    referer = request.META.get('HTTP_REFERER', '')
+    if 'transcript' in referer:
+        template = 'users/user_transcript.html'
+    else:
+        template = 'users/user_details.html'
+    
+    context = {
+        'profile': user
     }
     return render(request, template, context)
 
