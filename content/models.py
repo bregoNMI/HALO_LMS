@@ -104,6 +104,7 @@ class Course(models.Model):
     thumbnail = models.ForeignKey('Media', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_thumbnail')
     credential = models.OneToOneField('Credential', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_credential')
     upload_instructions = models.TextField(blank=True)
+    estimated_completion_time = models.DurationField(null=True, blank=True, help_text="Estimated time to complete the course (e.g., 3 hours)")
 
     def get_event_date(self, event_type):
         event = self.event_dates.filter(type=event_type).first()
@@ -111,6 +112,30 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def get_expiration_date(self):
+        try:
+            expiration_event = self.event_dates.get(type='expiration_date')
+            return expiration_event.date
+        except EventDate.DoesNotExist:
+            return None
+
+    def get_due_date(self):
+        try:
+            due_event = self.event_dates.get(type='due_date')
+            return due_event.date
+        except EventDate.DoesNotExist:
+            return None
+
+    def get_start_date(self):
+        try:
+            start_event = self.event_dates.get(type='start_date')
+            return start_event.date
+        except EventDate.DoesNotExist:
+            return None
+        
+    def get_lesson_count(self):
+        return Lesson.objects.filter(module__course=self).count()
 
 # New Credential model for managing course credentials like certificates
 class Credential(models.Model):
