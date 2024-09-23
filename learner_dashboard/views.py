@@ -6,7 +6,12 @@ from django.contrib.auth import update_session_auth_hash
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.dateparse import parse_date
+from django.contrib.auth import logout
 from client_admin.models import Profile, User
+
+def custom_logout_view(request):
+    logout(request)
+    return redirect('login')  # Redirect to the login page after logout
 
 # Other Data is loaded on context_processors.py
 @login_required
