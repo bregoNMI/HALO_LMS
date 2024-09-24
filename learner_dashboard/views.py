@@ -11,7 +11,7 @@ from client_admin.models import Profile, User
 
 def custom_logout_view(request):
     logout(request)
-    return redirect('login')  # Redirect to the login page after logout
+    return redirect('login_view')  # Redirect to the login page after logout
 
 # Other Data is loaded on context_processors.py
 @login_required

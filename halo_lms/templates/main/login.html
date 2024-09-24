@@ -12,63 +12,23 @@
         <div class="login-container">
             <div class="loginForm">
                 <h1>Login</h1>
-                <form id="loginForm" class="form-field" method="post">
+                <form id="loginForm" class="form-field" method="post" action="{% url 'login_view' %}">
                     {% csrf_token %}
                     <div class="login-form-field">
-                        <label for="id_username">Username:</label>
-                        <input type="text" id="id_username" name="username" required>
+                        <label for="username_or_email">Username or Email:</label>
+                        <input type="text" id="id_username_or_email" name="username_or_email" required>
                     </div>
                     <div class="login-form-field">
                         <label for="id_password">Password:</label>
                         <input type="password" id="id_password" name="password" required>
                     </div>
-                    <button class="scale-button" type="submit">Login</button>
-                </form>
+                    <button type="submit" class="scale-button">Login</button>
+                </form>                
+                <div class="button-container">
+                    <a href="{% url 'register_view' %}" class="scale-button">Register</a>
+                </div>
             </div>
         </div>
     </div>
-
-    <script>
-        // Ensure AWS SDK is loaded before accessing AWS object
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize AWS SDK with your region and credentials
-            AWS.config.region = 'us-east-1'; // Replace with your AWS region
-            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                IdentityPoolId: 'us-east-1:3ea1002e-ba8a-45f0-9e5b-88ccaa522031'
-            });
-
-            // Function to handle login form submission
-            document.getElementById('loginForm').addEventListener('submit', function(event) {
-                event.preventDefault(); // Prevent form submission
-                var username = document.getElementById('id_username').value;
-                var password = document.getElementById('id_password').value;
-
-                // Initialize the Amazon Cognito service
-                var cognito = new AWS.CognitoIdentityServiceProvider();
-
-                // Parameters for authentication
-                var params = {
-                    AuthFlow: 'USER_PASSWORD_AUTH',
-                    ClientId: 'eokheqvqgjr7lcocjkpkqchou',
-                    AuthParameters: {
-                        USERNAME: username,
-                        PASSWORD: password
-                    }
-                };
-
-                // Call Cognito to authenticate the user
-                cognito.initiateAuth(params, function(err, data) {
-                    if (err) {
-                        console.error('Error initiating auth:', err);
-                        alert('Login failed. Please check your credentials.');
-                    } else {
-                        console.log('Authentication successful:', data);
-                        alert('Login successful!');
-                    }
-                });
-            });
-        });
-    </script>
-
 </body>
 </html>

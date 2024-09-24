@@ -28,9 +28,12 @@
                 <!-- <div class="action-button-secondary">
                     <span>Import</span>
                 </div> -->
-                <div class="action-button-primary">
-                    <span>Add user</span>
-                </div>
+                <form method="post" enctype="multipart/form-data" action="{% url 'add_user' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="action-button-primary">
+                        <span>Add user</span>
+                    </button>
+                </form>
             </div>
         </div>
         <div class="table-container">

@@ -15,6 +15,7 @@ urlpatterns = [
     path('users/enroll-users/', views.enroll_users, name='enroll_users'),
     path('users/enroll-user-request/', views.enroll_users_request, name='enroll_user_request'),
     
+    path('add', views.add_user, name='add_user'),
     # Courses
     path('courses/', content_views.admin_courses, name='admin_courses'),
     path('courses/online/add/', content_views.add_online_courses, name='add_online_courses'),
