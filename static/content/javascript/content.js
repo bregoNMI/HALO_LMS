@@ -1188,6 +1188,13 @@ function generateCourseData() {
         }
     ];
 
+    const termsAndConditionsCheckbox = document.getElementById('terms');
+    courseData.terms_and_conditions = termsAndConditionsCheckbox.checked;
+    formData.append('terms_and_conditions', termsAndConditionsCheckbox.checked);
+
+    const mustComplete = document.querySelector('input[name="must_complete"]:checked').value;
+    formData.append('must_complete', mustComplete === 'must_complete1' ? 'any_order' : 'by_chapter');
+
     eventDateSections.forEach((section) => {
         const selectedOption = document.querySelector(`input[name="${section.name}"]:checked`);
         if (selectedOption) {

@@ -196,21 +196,25 @@ def create_or_update_course(request):
 
     def handle_media(course, media_data, request_files):
         """ Handle media for the course """
-
         for media in media_data:
             if media.get('type') == 'thumbnail':
                 thumbnail_link = media.get('thumbnail_link', '')
 
                 # Access file directly from request.FILES using a known key
-                thumbnail_image_file = request.FILES.get('media[0][thumbnail_image]', None)
+                thumbnail_image_file = request_files.get('media[0][thumbnail_image]', None)
 
                 print(f"Handling media: {thumbnail_link}, {thumbnail_image_file}")  # Check if this is printing
 
-                Media.objects.create(
+                # Create the Media object
+                media_obj = Media.objects.create(
                     course=course,
                     thumbnail_link=thumbnail_link,
                     thumbnail_image=thumbnail_image_file  # Use the file object
                 )
+
+                # Assign the created media object as the course thumbnail
+                course.thumbnail = media_obj
+                course.save()  # Save the course to update the thumbnail field
 
     def handle_references(course, references):
         """ Handle references for the course """
@@ -248,6 +252,8 @@ def create_or_update_course(request):
             course.description = data.get('description', '')
             course.category = get_object_or_404(Category, id=data.get('category_id', 1))
             course.type = data.get('type', 'bundle')
+            course.terms_and_conditions = data.get('terms_and_conditions', 'false') == 'true'
+            course.must_complete = data.get('must_complete', 'any_order')
             course.save()
 
             # Handle credentials
