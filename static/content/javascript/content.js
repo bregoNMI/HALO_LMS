@@ -1156,6 +1156,24 @@ function generateCourseData() {
         formData.append('credentials', JSON.stringify(courseData.credentials));
     }
 
+    // Handle Reference Materials
+    const referenceMaterialsCheckbox = document.getElementById('referenceMaterials');
+    if (referenceMaterialsCheckbox && referenceMaterialsCheckbox.checked) {
+        // Get all reference cards
+        const referenceCards = document.querySelectorAll('.reference-card');
+        referenceCards.forEach((referenceCard, index) => {
+            const referenceData = {
+                type: 'reference',
+                source: document.getElementById(`referenceURLInput-${index + 1}`).value,
+                title: referenceCard.querySelector('.reference-title').value.trim(),
+                description: getEditorContent(`referenceDescription-${index + 1}`),
+            };
+            courseData.resources.push(referenceData);
+        });
+
+        formData.append('resources', JSON.stringify(courseData.resources));
+    }
+
     // Handle Event Dates
     const eventDateSections = [
         {

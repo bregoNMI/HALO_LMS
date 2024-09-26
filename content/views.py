@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
-from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Reference, Upload
+from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload
 from client_admin.models import TimeZone
 from django.http import JsonResponse
 from .models import File
@@ -216,16 +216,20 @@ def create_or_update_course(request):
                 course.thumbnail = media_obj
                 course.save()  # Save the course to update the thumbnail field
 
-    def handle_references(course, references):
+    def handle_resources(course, resources):
         """ Handle references for the course """
-        for reference_data in references:
-            reference_file = request.FILES.get(reference_data.get('file'), None)
+        for reference_data in resources:
+            resource_url = reference_data.get('source', '')
             description = reference_data.get('description', '')
+            title = reference_data.get('title', '')
+            type = reference_data.get('type', '')
             
-            if reference_file:
-                Reference.objects.create(
+            if resource_url:
+                Resources.objects.create(
                     course=course,
-                    file=reference_file,
+                    url=resource_url,  # Use URL instead of file
+                    type=type,
+                    title=title,
                     description=description
                 )
 
@@ -274,8 +278,9 @@ def create_or_update_course(request):
             handle_media(course, media_data, files)
 
             # Handle references
-            references = json.loads(data.get('references', '[]'))
-            handle_references(course, references)
+            resources = json.loads(data.get('resources', '[]'))
+            print(f"Resources received: {resources}")  # Check what modules are being received
+            handle_resources(course, resources)
 
             # Handle uploads
             uploads = json.loads(data.get('uploads', '[]'))

@@ -189,13 +189,20 @@ class Media(models.Model):
     def __str__(self):
         return f'Media for {self.course.title}'
     
-class Reference(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='references')
-    file = models.FileField(upload_to='references/')
+class Resources(models.Model):
+    RESOURCE_TYPES = [
+        ('reference', 'Reference'),
+        # Add more types as needed
+    ]
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='resources')
+    type = models.CharField(max_length=20, choices=RESOURCE_TYPES)
+    title = models.CharField(max_length=200, blank=True)
+    url = models.URLField(max_length=500, blank=True)  # Replace file field with URLField
     description = models.TextField(blank=True)
 
     def __str__(self):
-        return f'Reference for {self.course.title}'
+        return f'Resource for {self.course.title}'
     
 class Upload(models.Model):
     APPROVAL_CHOICES = [
