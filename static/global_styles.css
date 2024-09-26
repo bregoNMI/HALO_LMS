@@ -21,6 +21,7 @@ h1,h2,h3,h4,h5,h6{
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    cursor: default;
 }
 
 .popup-content {
@@ -169,7 +170,7 @@ h1,h2,h3,h4,h5,h6{
 .custom-select {
   position: relative;
   display: inline-block;
-  min-width: 200px;
+  /* min-width: 200px; */
   margin-bottom: 10px;
 }
 
@@ -266,11 +267,11 @@ h1,h2,h3,h4,h5,h6{
   border-radius: 2px;
 }
 .scrollable-content-inner::-webkit-scrollbar-thumb {
-  background: #888; /* Scrollbar thumb color */
+  background: #a3a3a3; /* Scrollbar thumb color */
   border-radius: 2px;
 }
 .scrollable-content-inner::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Scrollbar thumb color on hover */
+  background: #707070; /* Scrollbar thumb color on hover */
 }
 /* Hide the scrollbar buttons/arrows */
 .scrollable-content-inner::-webkit-scrollbar-button {

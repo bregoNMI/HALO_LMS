@@ -106,7 +106,6 @@ function initializeHeaderVariables(){
         var firstName = headerTitleElement.getAttribute('data-first-name');
         var lastName = headerTitleElement.getAttribute('data-last-name');
 
-        // Replace placeholders with actual values
         if (headerTitle.includes('{{ first_name }}')) {
             headerTitle = headerTitle.replace('{{ first_name }}', firstName);
         }
@@ -121,7 +120,6 @@ function initializeHeaderVariables(){
     if(headerSubtextElement){
         var headerSubtext = headerSubtextElement.getAttribute('data-header-subtext');
 
-        // Replace placeholders with actual values
         if (headerSubtext.includes('{{ first_name }}')) {
             headerSubtext = headerSubtext.replace('{{ first_name }}', firstName);
         }

@@ -6,6 +6,7 @@ from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
 from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Reference, Upload
+from client_admin.models import TimeZone
 from django.http import JsonResponse
 from .models import File
 from django.contrib.auth.models import User
@@ -433,6 +434,31 @@ def get_courses(request):
         return JsonResponse({
             'courses': course_data,
             'has_more': Course.objects.filter(title__icontains=search_query).count() > offset + per_page
+        })
+    else:
+        return JsonResponse({'error': 'This view only accepts AJAX requests.'}, status=400)
+    
+def get_timezones(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        page = int(request.GET.get('page', 1))
+        per_page = 10
+        offset = (page - 1) * per_page
+
+        search_query = request.GET.get('search', '')
+        timezones = TimeZone.objects.filter(name__icontains=search_query)[offset:offset + per_page]
+
+        timezone_data = [{
+            'id': timezone.id,
+            'name': timezone.name,
+        } for timezone in timezones]
+
+        total_timezones = TimeZone.objects.filter(name__icontains=search_query).count()
+        has_more = total_timezones > (offset + per_page)
+
+        return JsonResponse({
+            'timezones': timezone_data,
+            'has_more': has_more,
+            'total': total_timezones  # Optional: you can include total count if needed
         })
     else:
         return JsonResponse({'error': 'This view only accepts AJAX requests.'}, status=400)

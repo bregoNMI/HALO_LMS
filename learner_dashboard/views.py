@@ -6,7 +6,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils.dateparse import parse_date
-from client_admin.models import Profile, User
+from client_admin.models import Profile, User, Message
 
 # Other Data is loaded on context_processors.py
 @login_required
@@ -124,3 +124,24 @@ def change_password(request):
             return JsonResponse({'success': False, 'message': 'Please fill out all fields.'})
 
     return JsonResponse({'success': False, 'message': 'Invalid request.'})
+
+@login_required
+def learner_notifications(request):
+    # Retrieve the messages for the current user
+    messages = Message.objects.filter(recipients=request.user).order_by('-sent_at')
+    
+    context = {
+        'messages': messages
+    }
+    
+    return render(request, 'learner_pages/learner_notifications.html', context)
+
+@login_required
+def mark_message_as_read(request, message_id):
+    try:
+        message = Message.objects.get(id=message_id, recipients=request.user)
+        message.read = True
+        message.save()
+        return JsonResponse({'success': True})
+    except Message.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Message not found'}, status=404)

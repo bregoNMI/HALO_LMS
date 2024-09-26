@@ -7,12 +7,62 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.contrib import messages
-from client_admin.models import Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress
+from client_admin.models import Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings
+from client_admin.forms import OrganizationSettingsForm
 from django.template.response import TemplateResponse
 
 @login_required
 def admin_dashboard(request):
     return render(request, 'dashboard.html')
+
+@login_required
+def admin_settings(request):
+    settings = OrganizationSettings.objects.first()
+
+    # Create a new instance if none exists
+    if settings is None:
+        settings = OrganizationSettings()
+
+    if request.method == 'POST':
+        form = form = OrganizationSettingsForm(request.POST, request.FILES, instance=settings)
+
+        if form.is_valid():
+            # Handle boolean fields
+            settings.on_login_course = request.POST.get('on_login_course') == 'on'
+            settings.profile_customization = request.POST.get('profile_customization') == 'on'
+            settings.default_course_thumbnail = request.POST.get('default_course_thumbnail') == 'on' 
+            settings.default_certificate = request.POST.get('default_certificate') == 'on' 
+
+            # Save the on_login_course_id (make sure it exists in the POST data)
+            course_id = request.POST.get('on_login_course_id')
+            if course_id:
+                settings.on_login_course_id = int(course_id)
+            
+            messages.success(request, 'Settings updated successfully')
+
+            # Save the form data
+            form.save()
+            return redirect('admin_settings')
+        else:
+            messages.error(request, form.errors)
+            print(form.errors)  # Print errors for debugging
+
+    else:
+        form = OrganizationSettingsForm(instance=settings)
+
+    # If a course is already selected, fetch the course name to display it
+    selected_course_name = ''
+    if settings.on_login_course_id:
+        try:
+            selected_course = Course.objects.get(id=settings.on_login_course_id)
+            selected_course_name = selected_course.title
+        except Course.DoesNotExist:
+            selected_course_name = ''
+
+    return render(request, 'settings.html', {
+        'form': form,
+        'selected_course_name': selected_course_name,
+    })
 
 @login_required
 def custom_admin_header(request):
@@ -243,8 +293,12 @@ def user_transcript(request, user_id):
 def user_history(request, user_id):
     user = get_object_or_404(Profile, pk=user_id)
 
+    # Fetch messages sent by the logged-in user to the specified user
+    sent_messages = Message.objects.filter(sender=request.user, recipients=user.user)
+
     context = {
-        'profile': user
+        'profile': user,
+        'sent_messages': sent_messages,  # Pass the messages to the template
     }
     return render(request, 'users/user_history.html', context)
 
@@ -252,3 +306,34 @@ def user_history(request, user_id):
 def enroll_users(request):
 
     return render(request, 'users/enroll_users.html')
+
+@login_required
+def message_users(request):
+
+    return render(request, 'users/message_users.html')
+
+@login_required
+def message_users_request(request):
+    if request.method == 'POST':
+        user_ids = request.POST.getlist('user_ids[]')
+        subject = request.POST.get('subject')
+        body = request.POST.get('body')
+
+        if not subject or not body:
+            return JsonResponse({'message': 'Subject and body are required.'}, status=400)
+
+        # Create the message and associate it with the recipients
+        sender = request.user
+        message = Message.objects.create(subject=subject, body=body, sender=sender)
+
+        # Associate the message with the selected users
+        recipients = User.objects.filter(id__in=user_ids)
+        message.recipients.set(recipients)
+        message.save()
+
+        messages.success(request, 'Message sent successfully.')
+
+        return JsonResponse({'message': 'Message sent successfully', 'redirect_url': '/admin/users/'})
+    else:
+        return JsonResponse({'message': 'Invalid request method'}, status=400)
+      

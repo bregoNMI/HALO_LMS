@@ -939,12 +939,12 @@ input[type="text"], input[type="number"]{
 }
 
 /*Searchable User dropdown menu */
-.user-dropdown{
+.user-dropdown, .timezone-dropdown{
     position: relative;
     gap: 1rem;
 }
 
-.user-dropdown .search-icon{
+.user-dropdown .search-icon, .timezone-dropdown .search-icon{
     position: absolute;
     right: 0.6rem;
     top: 0.65rem;
@@ -952,17 +952,17 @@ input[type="text"], input[type="number"]{
     font-size: 0.8rem;
 }
 
-.user-dropdown input{
+.user-dropdown input, .timezone-dropdown input{
     padding-right: 2rem;
     text-overflow: ellipsis;
 }
 
-.user-dropdown input:focus-visible{
+.user-dropdown input:focus-visible, .timezone-dropdown input:focus-visible{
     outline: none;
     border-bottom: 2px solid #c7c7db;
 }
 
-.userList {
+.userList, .timezoneList{
     display: none;
     max-height: 200px;
     overflow-y: auto;
@@ -979,7 +979,7 @@ input[type="text"], input[type="number"]{
     overflow-x: hidden;
 }
 
-.userList .dropdown-item {
+.userList .dropdown-item, .timezoneList .dropdown-item {
     padding: 8px;
     cursor: pointer;
     border-bottom: 1px solid #ececf1;
@@ -1009,20 +1009,20 @@ input[type="text"], input[type="number"]{
     margin-top: 0.2rem;
 }
 
-.userList .dropdown-item:hover{
+.userList .dropdown-item:hover, .timezoneList .dropdown-item:hover{
     background-color: var(--bg-color3);
 }
 
-.userList .dropdown-item:hover .checkmark{
+.userList .dropdown-item:hover .checkmark, .timezoneList .dropdown-item:hover .checkmark{
     border-color: var(--primary-blue);
 }
 
-.userList .dropdown-item.selected {
+.userList .dropdown-item.selected, .timezoneList .dropdown-item.selected {
     background-color: var(--item-selected-blue);
     border-bottom: 1px solid #ffffff;
 }
 
-.userList .dropdown-item:last-child, .userList .dropdown-item.selected:last-child{
+.userList .dropdown-item:last-child, .userList .dropdown-item.selected:last-child, .timezoneList .dropdown-item:last-child, .timezoneList .dropdown-item.dropdown-item.selected:last-child{
     border: none;
 }
 
@@ -1031,13 +1031,13 @@ input[type="text"], input[type="number"]{
     color: #999;
 }
 
-.selectedUsers {
+.selectedUsers, .selectedTimezones {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
 }
 
-.selectedUsers .selected-user {
+.selectedUsers .selected-user, .selectedTimezones .selected-timezone {
     display: flex;
     justify-content: space-between;
     padding: 4px 8px;
@@ -1048,12 +1048,13 @@ input[type="text"], input[type="number"]{
     gap: 0.6rem;
 }
 
-.selected-user-details {
+.selected-user-details, .selected-timezone-details {
     font-weight: 600;
+    font-size: 0.9rem;
     color: #41454d;
 }
 
-.selectedUsers .remove-user {
+.selectedUsers .remove-user, .selectedTimezones .remove-timezone {
     cursor: pointer;
 }
 

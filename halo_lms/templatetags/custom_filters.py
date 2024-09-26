@@ -1,4 +1,5 @@
 from django import template
+import os
 
 register = template.Library()
 
@@ -14,3 +15,13 @@ def render_template(value, context=None):
     if context is None:
         context = {}
     return Template(value).render(Context(context))
+
+@register.filter(name='first_letter')
+def first_letter(value):
+    if value and isinstance(value, str):
+        return value[0].lower()  # Get the first letter and lowercase it
+    return ''
+
+@register.filter
+def filename(value):
+    return os.path.basename(value)

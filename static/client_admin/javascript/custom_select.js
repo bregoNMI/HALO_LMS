@@ -1,7 +1,6 @@
 // Custom Select Box
 document.addEventListener("DOMContentLoaded", function () {
     var customSelects = document.querySelectorAll('.custom-select');
-    console.log(customSelects);
 
     customSelects.forEach(function(customSelect) {
         var selectSelected = customSelect.querySelector('.select-selected');

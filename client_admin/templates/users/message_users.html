@@ -15,13 +15,13 @@
                     <a href="{% url 'admin_users' %}" class="back-btn">
                         <i class="fa-solid fa-arrow-left"></i>
                     </a>
-                    <h3> Enroll Users </h3>
+                    <h3> Message Users </h3>
                 </div>
                 <div class="details-top-row-right">
                     <div class="option-btn-row">
-                        <button onclick="sendEnrollmentRequest()" class="action-button-primary">
+                        <button onclick="sendMessageRequest()" class="action-button-primary">
                             <i class="fa-regular fa-paper-plane"></i>
-                            <span>Enroll Users</span>
+                            <span>Send Message</span>
                         </button>
                     </div>
                 </div>
@@ -29,7 +29,7 @@
             <div class="course-content-container margin-top-10">
                 <!-- Left Column -->
                 <div class="course-content-left-column">
-                    <div class="details-info-card">
+                    <div class="details-info-card ">
                         <div class="info-card-header collapsable-header">
                             <div class="card-header-left">
                                 <i class="fa-regular fa-square-dashed-circle-plus"></i>
@@ -41,7 +41,7 @@
                         </div>
                         <div class="info-card-body">
                             <div id="selectedUsers">
-                                <span class="course-content-input-subtext"> Please select the User(s) you would like to enroll into the selected Course(s). </span>
+                                <span class="course-content-input-subtext"> Please select the User(s) you would like to send a message to. </span>
                                 <div class="right-column-file-wrapper">
                                     <div id="userDropdown1" class="user-dropdown course-content-input">
                                         <input type="text" class="userSearch" placeholder="Search users...">
@@ -60,27 +60,21 @@
                     <div class="details-info-card">
                         <div class="info-card-header collapsable-header">
                             <div class="card-header-left">
-                                <i class="fa-regular fa-highlighter-line"></i>
-                                <span> Selected Courses </span>
+                                <i class="fa-regular fa-feather"></i>
+                                <span> Compose Message </span>
                             </div>
                             <div class="card-header-right">
                                 <i class="fa-regular fa-angle-down"></i>
                             </div>
                         </div>
                         <div class="info-card-body">
-                            <div id="selectedCourses">
-                                <span class="course-content-input-subtext"> Please select the Course(s) you would like to enroll the selected User(s) into. </span>
-                                <div class="right-column-file-wrapper">
-                                    <div id="courseDropdown" class="course-dropdown course-content-input">
-                                        <input type="text" class="courseSearch" placeholder="Search courses...">
-                                        <i class="fa-regular fa-magnifying-glass search-icon"></i>
-                                        <div class="courseList scrollable-content-inner">
-                                            <div class="loadingIndicator" style="display:none;">Loading...</div>
-                                        </div>
-                                        
-                                        <div class="selectedCourses"></div>
-                                    </div>
-                                </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="subject">Subject</label>
+                                <input type="text" id="subject" name="subject" placeholder="Subject (Required)">
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="body">Body</label>
+                                <div class="editor-container" id="body"></div>
                             </div>                                
                         </div>
                     </div>
@@ -95,4 +89,6 @@
     <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
     <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 {% endblock content %}

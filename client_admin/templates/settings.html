@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="admin-body align-center">
+        <div class="max-width-0">         
+            <form method="POST" action="{% url 'admin_settings' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="admin-top-row">
+                    <div class="admin-top-row-left">
+                        <h2>Settings</h2>
+                        <span class="admin-header-subtext">Customize your LMS</span>
+                    </div>
+                    <div class="admin-top-row-right">
+                        <button type="submit" class="action-button-primary">
+                            <i class="fa-regular fa-floppy-disk"></i>
+                            <span>Save Settings</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="settings-container">
+                    <div id="settingsTabs" class="tabs-container">
+                        <div class="tabs">
+                            <div class="tab active" data-target="tab1">General</div>
+                            <div class="tab" data-target="tab2">Learners</div>
+                            <div class="tab" data-target="tab3">Courses</div>
+                            <div class="tab" data-target="tab4">Portal</div>
+                            <div class="tab-indicator"></div>
+                        </div>
+                    
+                        <div class="tab-content-container">
+                            <!-- General -->
+                            <div class="tab-content active" id="tab1">
+                                <div class="settings-info-section">
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-mug-hot"></i>
+                                                <span> Client Profile </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="settings-card-wrapper">
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label for="id_lms_name">LMS Name</label>
+                                                        <input type="text" id="id_lms_name" name="lms_name" value="{{ form.lms_name.value|default:'' }}" placeholder="LMS Name" required>
+                                                    </div>
+                                                </div>
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label for="id_organization_name">Organization Name</label>
+                                                        <input type="text" id="id_organization_name" name="organization_name" value="{{ form.organization_name.value|default:'' }}" placeholder="Organization Name">
+                                                    </div>
+                                                </div> 
+                                            </div>                 
+                                        </div>
+                                    </div>
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-calendars"></i>
+                                                <span> Date & Time Preferences </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="settings-card-wrapper">
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="date_format">Date Format</label>
+                                                        <div class="custom-select margin-0">
+                                                            <i class="fa-regular fa-angle-down"></i>     
+                                                            <input class="select-selected" type="text" id="date_format" name="date_format" value="{{ form.date_format.value|default:'' }}" placeholder="Date Format" readonly>
+                                                            <div class="select-items scrollable-content" style="display: none;">
+                                                                {% include 'dropdownOptions/date_format_options.html' %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="time_zone">Time Zone</label>
+                                                        <div id="selectedTimeZones">
+                                                            <div class="right-column-file-wrapper">
+                                                                <div id="userDropdown1" class="timezone-dropdown course-content-input">
+                                                                    <input type="text" id="time_zone" name="time_zone" class="timezoneSearch" value="{{ form.time_zone.value|default:'' }}" placeholder="Search timezones...">
+                                                                    <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                                                                    <div class="timezoneList scrollable-content-inner">
+                                                                        <div class="loadingIndicator" style="display:none;">Loading...</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>                 
+                                        </div>
+                                    </div>
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-crystal-ball"></i>
+                                                <span> Main Contact </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="settings-card-wrapper">
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label for="id_contact_first_name">First Name</label>
+                                                        <input type="text" id="id_contact_first_name" name="contact_first_name" value="{{ form.contact_first_name.value|default:'' }}" placeholder="First Name">
+                                                    </div>
+                                                    <div class="edit-settings-input">
+                                                        <label for="id_contact_last_name">Last Name</label>
+                                                        <input type="text" id="id_contact_last_name" name="contact_last_name" value="{{ form.contact_last_name.value|default:'' }}" placeholder="Last Name">
+                                                    </div>
+                                                </div>
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="contact_address">Address</label>
+                                                        <input type="text" id="contact_address" name="contact_address" value="{{ form.contact_address.value|default:'' }}" placeholder="Address">
+                                                    </div>
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="contact_country">Country</label>
+                                                        <div class="custom-select margin-0">
+                                                            <i class="fa-regular fa-angle-down"></i>     
+                                                            <input class="select-selected" type="text" id="contact_country" name="contact_country" value="{{ form.contact_country.value|default:'' }}" placeholder="Country" readonly>
+                                                            <div class="select-items scrollable-content" style="display: none;">
+                                                                {% include 'dropdownOptions/country_options.html' %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="contact_state">State/Province</label>
+                                                        <input type="text" id="contact_state" name="contact_state" value="{{ form.contact_state.value|default:'' }}" placeholder="State/Province">
+                                                    </div>
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="contact_city">City</label>
+                                                        <input type="text" id="contact_city" name="contact_city" value="{{ form.contact_city.value|default:'' }}" placeholder="City">
+                                                    </div>
+                                                </div>
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="contact_postal_code">Postal Code</label>
+                                                        <input type="text" id="contact_postal_code" name="contact_postal_code" value="{{ form.contact_postal_code.value|default:'' }}" placeholder="Postal Code">
+                                                    </div>
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="contact_phone">Phone</label>
+                                                        <input type="text" id="contact_phone" name="contact_phone" value="{{ form.contact_phone.value|default:'' }}" placeholder="Phone">
+                                                    </div>
+                                                </div>
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="contact_email">Email Address</label>
+                                                        <input type="email" id="contact_email" name="contact_email" value="{{ form.contact_email.value|default:'' }}" placeholder="Email Address">
+                                                    </div>
+                                                </div> 
+                                            </div>                 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Users -->
+                            <div class="tab-content" id="tab2">
+                                <div class="settings-info-section">
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-house-person-leave"></i>
+                                                <span> Learner Settings </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="settings-card-wrapper">
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="on_login_course">One-time Course</label>
+                                                        <label class="toggle-switch">
+                                                            <input class="toggle-hidden-settings-input" type="checkbox" id="on_login_course" name="on_login_course" {% if form.on_login_course.value %}checked{% endif %}>
+                                                            <div class="toggle-switch-background">
+                                                            <div class="toggle-switch-handle"></div>
+                                                            </div>
+                                                        </label>
+                                                        <span class="settings-input-subtext">Learners must complete this course before gaining access to the LMS.</span>
+                                                    </div>
+                                                    <div class="edit-settings-input hidden-settings-input">
+                                                        <div id="selectedCourse">
+                                                            <div class="right-column-file-wrapper">
+                                                                <div id="courseDropdown1" class="singular-course-dropdown course-content-input">
+                                                                    <!-- Hidden input for storing course ID -->
+                                                                    <input type="hidden" id="on_login_course_id" name="on_login_course_id" value="{{ form.on_login_course_id.value|default:'' }}">
+                                                                    <!-- Visible field for displaying the selected course name -->
+                                                                    <input type="text" id="course_name_display" class="courseSearch" value="{{ selected_course_name }}" placeholder="Search Courses...">
+                                                                    <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                                                                    <div class="courseList scrollable-content-inner">
+                                                                        <div class="loadingIndicator" style="display:none;">Loading...</div>
+                                                                    </div>
+                                                                    
+                                                                    <div class="selectedCourses"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>                                                   
+                                                </div>
+                                                
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="profile_customization">Allow Profile Customization</label>
+                                                        <label class="toggle-switch">
+                                                            <input type="checkbox" id="profile_customization" name="profile_customization" {% if form.profile_customization.value %}checked{% endif %}>
+                                                            <div class="toggle-switch-background">
+                                                            <div class="toggle-switch-handle"></div>
+                                                            </div>
+                                                        </label>
+                                                        <span class="settings-input-subtext"> Allow Learners to edit their profile information and re-upload images.</span>
+                                                    </div> 
+                                                </div>
+                                                
+                                            </div>                 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Courses -->
+                            <div class="tab-content" id="tab3">
+                                <div class="settings-info-section">
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-recycle"></i>
+                                                <!-- <i class="fa-regular fa-sliders-up"></i> -->
+                                                <span> Course Defaults </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="settings-card-wrapper">
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="default_course_thumbnail">Default Course Thumbnail</label>
+                                                        <label class="toggle-switch">
+                                                            <input class="toggle-hidden-settings-input" type="checkbox" id="default_course_thumbnail" name="default_course_thumbnail" {% if form.default_course_thumbnail.value %}checked{% endif %}>
+                                                            <div class="toggle-switch-background">
+                                                            <div class="toggle-switch-handle"></div>
+                                                            </div>
+                                                        </label>
+                                                        <span class="settings-input-subtext">Enable to add a default thumbnail for courses.</span>
+                                                    </div>
+                                                    <div class="edit-settings-input hidden-settings-input">
+                                                        <label for="default_course_thumbnail_image" class="custom-file-upload-container">
+                                                            <div class="custom-file-upload">
+                                                                <input type="file" id="default_course_thumbnail_image" name="default_course_thumbnail_image" accept="image/*" style="display: none;">
+                                                                <i class="fa-solid fa-upload"></i> Choose File
+                                                            </div>
+                                                            <div class="custom-file-title">
+                                                                {% if form.default_course_thumbnail_image.value %}
+                                                                    <span id="thumbNailImageDisplay" class="file-name-display">{{ form.default_course_thumbnail_image.value.name|filename }}</span>
+                                                                {% else %}
+                                                                    <span id="thumbNailImageDisplay" class="file-name-display">No file selected</span>
+                                                                {% endif %}                                
+                                                            </div>
+                                                        </label> 
+                                                    </div>                                                   
+                                                </div>
+                                                
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="default_certificate">Default Certificate Image</label>
+                                                        <label class="toggle-switch">
+                                                            <input class="toggle-hidden-settings-input" type="checkbox" id="default_certificate" name="default_certificate" {% if form.default_certificate.value %}checked{% endif %}>
+                                                            <div class="toggle-switch-background">
+                                                            <div class="toggle-switch-handle"></div>
+                                                            </div>
+                                                        </label>
+                                                        <span class="settings-input-subtext">Enable to add a default certificate if none are selected for a course.</span>
+                                                    </div>
+                                                    <div class="edit-settings-input hidden-settings-input">
+                                                        <label for="default_certificate_image" class="custom-file-upload-container">
+                                                            <div class="custom-file-upload">
+                                                                <input type="file" id="default_certificate_image" name="default_certificate_image" accept="image/*" style="display: none;">
+                                                                <i class="fa-solid fa-upload"></i> Choose File
+                                                            </div>
+                                                            <div class="custom-file-title">
+                                                                {% if form.default_certificate_image.value %}
+                                                                    <span id="certificateImageDisplay" class="file-name-display">{{ form.default_certificate_image.value.name|filename }}</span>
+                                                                {% else %}
+                                                                    <span id="certificateImageDisplay" class="file-name-display">No file selected</span>
+                                                                {% endif %}                                
+                                                            </div>
+                                                        </label> 
+                                                    </div>                                                   
+                                                </div>
+                                                
+                                            </div>                 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Portal -->
+                            <div class="tab-content" id="tab4">
+                                <div class="settings-info-section">
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-palette"></i>
+                                                <span> Appearance </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="settings-card-wrapper">
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="portal_favicon">Favicon</label>
+                                                        <label for="portal_favicon" class="custom-file-upload-container">
+                                                            <div class="custom-file-upload">
+                                                                <input type="file" id="portal_favicon" name="portal_favicon" accept="image/*" style="display: none;">
+                                                                <i class="fa-solid fa-upload"></i> Choose File
+                                                            </div>
+                                                            <div class="custom-file-title">
+                                                                {% if form.portal_favicon.value %}
+                                                                    <span id="faviconImageDisplay" class="file-name-display">{{ form.portal_favicon.value.name|filename }}</span>
+                                                                {% else %}
+                                                                    <span id="faviconImageDisplay" class="file-name-display">No file selected</span>
+                                                                {% endif %}                                
+                                                            </div>
+                                                        </label>
+                                                        <span class="settings-input-subtext">Upload a Favicon that will apear at the top of your browser tabs (Suggested size 16 x 16 px).</span> 
+                                                    </div>
+                                                    <div class="edit-settings-input">
+                                                        <div class="favicon-preview">
+                                                            <img id="faviconPreview" src="{{ form.portal_favicon.value.url }}" alt="Favicon">
+                                                        </div>
+                                                    </div>                                                   
+                                                </div>                                             
+                                            </div>                 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+            </form>
+        </div>   
+    </div>
+    <link rel="stylesheet" href="{% static 'client_admin\css\settings.css' %}">
+    <script src="{% static 'client_admin\javascript\settings.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\ajax_search_options.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
+{% endblock content %}

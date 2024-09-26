@@ -1,0 +1,124 @@
+.notifications-container{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    background-color: white;
+    border-radius: 8px;
+    /* outline: 1px solid #d7d7d7; */
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+    overflow: hidden;
+}
+
+.message-container{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--bg-color2);
+    padding: var(--pad-sm);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border-radius: 0px;
+}.message-container:hover{
+    border-radius: 8px;
+    box-shadow: rgb(0 0 0 / 3%) 0px 0px 2px;
+    background-color: var(--bg-color6);
+}.message-container:last-child{
+    border-bottom: none;
+}
+
+.message-left{
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    max-width: 70%;
+}
+
+.message-body{
+    color: #798292;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2em;
+    max-height: 1.2em;
+    max-width: 100%;
+}
+
+.message-body p{
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.message-content{
+    color: #798292;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}.message-content-header{
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+}.message-content-header p{
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}.message-content-header span{
+    flex: none;
+}
+
+.message-right{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+}.message-right span{
+    color: var(--text-color4);
+    font-size: 0.75rem;
+}.message-right i{
+    color: var(--primary-blue);
+    font-size: 0.8rem;
+}
+
+.close-popup {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.message-popup-header{
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    align-items: center;
+    padding: var(--pad-sm);
+    border-bottom: 1px solid var(--bg-color2);
+}
+
+.message-popup-body{
+    text-wrap: wrap;
+}.message-popup-body p:first-child{
+    /* margin-top: 0; */
+}
+
+.message-popup-left{
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.popup-content .message-right{
+    position: absolute;
+    right: 0.8rem;
+}

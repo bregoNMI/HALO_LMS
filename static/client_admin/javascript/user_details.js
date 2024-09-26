@@ -68,3 +68,21 @@ if(photoid){
         document.getElementById('photoidNameDisplay').textContent = fileName;
     });
 }
+
+function enrollUserBtn(){
+    let selectedIds = []; 
+    selectedIds.push(userId);
+    // Store the User's ID in local storage
+    localStorage.setItem('selectedUserIds', JSON.stringify(selectedIds));          
+    // Redirect to Enrollment Page
+    window.location.href = '/admin/users/enroll-users/';
+}
+
+function messageUserBtn(){
+    let selectedIds = []; 
+    selectedIds.push(userId);
+    // Store the User's ID in local storage
+    localStorage.setItem('selectedUserIds', JSON.stringify(selectedIds));          
+    // Redirect to Message Page
+    window.location.href = '/admin/users/message-users/';
+}
