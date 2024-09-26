@@ -95,6 +95,11 @@ class Course(models.Model):
         ('inactive', 'Inactive'),
     ]
 
+    MUST_COMPLETE_CHOICES = [
+        ('any_order', 'All lessons, in any order'),
+        ('by_chapter', 'All lessons, in order by chapter'),
+    ]
+
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -105,6 +110,10 @@ class Course(models.Model):
     credential = models.OneToOneField('Credential', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_credential')
     upload_instructions = models.TextField(blank=True)
     estimated_completion_time = models.DurationField(null=True, blank=True, help_text="Estimated time to complete the course (e.g., 3 hours)")
+    terms_and_conditions = models.BooleanField(default=False)
+    must_complete = models.CharField(
+        max_length=20, choices=MUST_COMPLETE_CHOICES, default='any_order'
+    )
 
     def get_event_date(self, event_type):
         event = self.event_dates.filter(type=event_type).first()
