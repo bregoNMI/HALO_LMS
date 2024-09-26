@@ -56,7 +56,32 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     });
+
+    document.querySelectorAll('.collapsible-section').forEach(section => {
+        const collapsibleHeader = section.querySelector('.collapsible-header');
+        const collapsibleContent = section.querySelector('.collapsible-content');
+    
+        // Ensure both the header and content exist before proceeding
+        if (collapsibleHeader && collapsibleContent) {
+            // Check if any 'a' tag inside the collapsible content has the 'current-page' class
+            if (collapsibleContent.querySelector('a.current-page')) {
+                collapsibleHeader.classList.add('highlight'); // Add your desired class to the header
+            }
+        }
+    });  
 });
+
+function checkDropdownMenu(){
+    document.querySelectorAll('.collapsible-section').forEach(section => {
+        const collapsibleHeader = section.querySelector('.collapsible-header');
+        const collapsibleContent = section.querySelector('.collapsible-content');
+    
+        // Check if any 'a' tag inside the collapsible content has the 'current-page' class
+        if (collapsibleContent.querySelector('a.current-page')) {
+            collapsibleHeader.classList.add('highlight'); // Add your desired class to the header
+        }
+    });
+}
 
 /* Header Dropdown */
 function toggleDropdown(event) {

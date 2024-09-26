@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedOptionsCount.innerText = checkedOptionsList.length;
         testActiveOptions();
     }
+    
     function singleOptionsSelect() {
         // Assuming checkedOptionsList is an array of selected elements
         if (checkedOptionsList.length === 0) return; // If no option is selected, exit the function

@@ -1,5 +1,5 @@
 from custom_templates.models import Dashboard, Header, Footer
-from client_admin.models import Profile
+from client_admin.models import Profile, Message, OrganizationSettings
 
 def user_info(request):
     if request.user.is_authenticated:
@@ -28,4 +28,22 @@ def learner_base_data(request):
         'header': header,
         'footer': footer,
         'profile': profile,
+    }
+
+def unread_messages_processor(request):
+    # Ensure the request has a user and that the user is authenticated
+    if request.user.is_authenticated:
+        unread_messages_exist = Message.objects.filter(recipients=request.user, read=False).exists()
+    else:
+        unread_messages_exist = False
+
+    # Return the context variable
+    return {
+        'unread_messages_exist': unread_messages_exist
+    }
+
+def organization_settings(request):
+    settings = OrganizationSettings.objects.first()
+    return {
+        'settings': settings,
     }

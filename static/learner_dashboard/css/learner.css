@@ -4,6 +4,7 @@ html{
 
 html, body, button{
     font-family: var(--primary-font);
+    letter-spacing: 0.02em;
 }
 
 #courseItemPopup{
@@ -187,7 +188,7 @@ html, body, button{
 
 .dropdown-content-option:hover{
     color: #41454d;
-    background-color: #eceff4;
+    background-color: #efefef;
 }
 
 .dropdown-content-option i{
@@ -286,12 +287,12 @@ html, body, button{
     color: var(--text-color4);
     transition: all 0.2s linear;
     align-items: center;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
 }
 
 .learner-sidebar-option:hover {
-    color: #41454d;
-    background-color: #eceff4;
+    color: #191c1f;
+    background-color: #efefef;
 }
 
 .learner-sidebar-option i{
@@ -304,8 +305,8 @@ html, body, button{
 }
 
 .learner-sidebar-option.active{
-    color: #41454d;
-    background-color: #eceff4;
+    color: #191c1f;
+    background-color: #efefef;
 }
 
 .learner-top-row {
@@ -572,6 +573,7 @@ html, body, button{
 .course-item-footer{
     display: flex;
     gap: 0.35rem;
+    flex-wrap: wrap;
 }
 
 .course-item-footer-item{
@@ -875,6 +877,40 @@ html, body, button{
     width: 1.5rem;
     color: #4caf50;
     font-size: 1.45rem;
+}
+
+.tab-content-event-dates{
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.tab-content-event-dates-item-top{
+    display: flex;
+    gap: 0.4rem;
+    color: #555961;
+}
+
+.event-dates-subtext{
+    color: #555961;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.notification-icon{
+    display: flex;
+    position: absolute;
+    right: 0.3rem;
+    /* bottom: 0.45rem; */
+    padding: 0.15rem;
+    color: red;
+    font-size: 0.6rem;
+    height: 0.3rem;
+    width: 0.3rem;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Custom Tooltip */

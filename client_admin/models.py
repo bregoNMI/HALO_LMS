@@ -7,6 +7,7 @@ from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
 from datetime import datetime
+from pytz import all_timezones
 
 def resize_image(image_field, size=(300, 300)):
     # Check if the image field has a file
@@ -116,3 +117,57 @@ class UserLessonProgress(models.Model):
 
     def __str__(self):
         return f"{self.user_module_progress.user_course.user.username} - {self.lesson.title}"
+    
+class Message(models.Model):
+    subject = models.CharField(max_length=255)
+    body = models.TextField()
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    recipients = models.ManyToManyField(User, related_name='received_messages')
+    sent_at = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.subject
+    
+class OrganizationSettings(models.Model):
+    # Client Profile
+    lms_name = models.CharField(max_length=255, blank=True, null=True, default='LMS Name')
+    organization_name = models.CharField(max_length=255, blank=True, null=True)
+    
+    # Main Contact
+    contact_first_name = models.CharField(max_length=255, blank=True, null=True)
+    contact_last_name = models.CharField(max_length=255, blank=True, null=True)
+    contact_address = models.CharField(max_length=255, blank=True, null=True)
+    contact_city = models.CharField(max_length=255, blank=True, null=True)
+    contact_state = models.CharField(max_length=255, blank=True, null=True)
+    contact_country = models.CharField(max_length=255, blank=True, null=True)
+    contact_postal_code = models.CharField(max_length=20, blank=True, null=True)
+    contact_phone = models.CharField(max_length=20, blank=True, null=True)
+    contact_email = models.EmailField(blank=True, null=True)
+
+    # Date & Time Preferences
+    date_format = models.CharField(max_length=255, blank=True, null=True)
+    time_zone = models.CharField(max_length=255, blank=True, null=True)
+
+    # User settings
+    on_login_course = models.BooleanField(default=False, blank=True, null=True)
+    on_login_course_id = models.PositiveIntegerField(blank=True, null=True)
+    profile_customization = models.BooleanField(default=False, blank=True, null=True)
+
+    # Course Settings 
+    default_course_thumbnail = models.BooleanField(default=False, blank=True, null=True)
+    default_course_thumbnail_image = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
+    default_certificate = models.BooleanField(default=False, blank=True, null=True)
+    default_certificate_image = models.ImageField(upload_to='certificates/', blank=True, null=True)
+
+    # Portal
+    portal_favicon = models.ImageField(upload_to='logos/', blank=True, null=True)
+
+    def __str__(self):
+        return self.lms_name
+    
+class TimeZone(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name

@@ -9,11 +9,18 @@
             {% endif %}
         </a>
         <div class="learner-header-right">
-            <div class="learner-header-icons">
-                <div class="learner-header-icon tooltip" data-tooltip="Messages" style="color: {{ header.header_text_color }};" onmouseover="this.style.backgroundColor='{{ header.header_text_background_color }}'; this.style.color='{{ header.header_text_hover_color }}';" onmouseout="this.style.backgroundColor='';" onmouseout="this.style.color='';">
-                    <span class="tooltiptext">Messages</span>
-                    <i class="fa-regular fa-messages"></i>
-                </div>
+            <div class="learner-header-icons">             
+                <a href="/notifications/" class="learner-header-icon tooltip" data-tooltip="Notifications" style="color: {{ header.header_text_color }};" onmouseover="this.style.backgroundColor='{{ header.header_text_background_color }}'; this.style.color='{{ header.header_text_hover_color }}';" onmouseout="this.style.backgroundColor='';" onmouseout="this.style.color='';">
+                    <span class="tooltiptext">Notifications</span>
+                    {% if unread_messages_exist %}
+                        <div class="notification-icon" style="background-color: {{ header.header_background_color }};">
+                            <i class="fa-solid fa-circle-small"></i>
+                        </div>
+                        <i class="fa-regular fa-bell"></i>
+                    {% else %}
+                        <i class="fa-regular fa-bell"></i>
+                    {% endif %}
+                </a>
             </div>
             <div class="learner-dropdown-menu">
                 <div class="learner-dropdown-menu-icon" onclick="toggleDropdown()" style="color: {{ header.header_text_color }};" onmouseover="this.style.backgroundColor='{{ header.header_text_background_color }}'; this.style.color='{{ header.header_text_hover_color }}';" onmouseout="this.style.backgroundColor='';" onmouseout="this.style.color='';">
@@ -38,9 +45,9 @@
                             <i class="fa-regular fa-book-open-cover"></i>
                             <span> My Courses </span>
                         </a>
-                        <a class="dropdown-content-option" href="/messages/">
-                            <i class="fa-regular fa-messages"></i>
-                            <span> Messages </span>
+                        <a class="dropdown-content-option" href="/notifications/">
+                            <i class="fa-regular fa-bell"></i>
+                            <span> Notifications </span>
                         </a>
                         <a class="dropdown-content-option" href="/transcript/">
                             <i class="fa-regular fa-memo-pad"></i>

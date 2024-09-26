@@ -1,0 +1,138 @@
+{% extends 'learner_base.html' %}
+{% load static %}
+{% block content %}
+{% load custom_filters %}
+{% include 'learner_sidebar.html' %}
+{% include 'popups/change_password.html' %}
+<div class="learner-body align-center scrollable-content">
+    <!-- Message Wrapper -->
+    <div id="validation-message-container" class="alert-container" style="display: none;">   
+        <div id="validation-message-inner">
+            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
+            <span id="validation-message"></span>
+        </div>
+    </div>
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="max-width-0">
+        <div class="learner-top-row">
+            <div class="learner-top-row-left">
+                <h2>Notifications</h2>
+                <span>View messages</span>
+            </div>
+            <div class="learner-top-row-right">
+                <!-- <div onclick="openPopup('changePasswordPopup')" class="learner-primary-button">
+                    <i class="fa-regular fa-lock-keyhole"></i>
+                    <span> Change Password </span>
+                </div> -->
+            </div>
+        </div>
+        <div class="learner-body-inner">
+            <div class="notifications-container">
+                <div id="notificationTabs" class="tabs-container">
+                    <div class="tabs">
+                        <button class="tab active" data-target="tab1">Messages</button>
+                        <!-- <button class="tab" data-target="tab2">Lessons</button>
+                        <button class="tab" data-target="tab3">Reference Materials</button> -->
+                        <div class="tab-indicator"></div>
+                    </div>
+                
+                    <div class="tab-content-container">
+                        <div class="tab-content active scrollable-content-inner" id="tab1">
+                            <div class="messages-list">
+                                {% for message in messages %}
+                                    <div id="message-{{ message.id }}" class="message {% if message.read %}read{% endif %} message-container" onclick="openMessagePopup({{ message.id }})">
+                                        <div class="message-left">
+                                            <div class="dropdown-user-icon">
+                                                <i class="fa-solid fa-circle-{{ message.sender.first_name|first_letter }}"></i>
+                                            </div>
+                                            <div class="message-content">
+                                                <div class="message-content-header">
+                                                    <p>{{ message.sender.first_name }} {{ message.sender.last_name }}</p>
+                                                    <span class="lesson-counter pastel-blue">{{ message.sender.profile.role }}</span>
+                                                </div>
+                                                <div class="message-body">
+                                                    {{ message.body|safe }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="message-right">
+                                            <span>{{ message.sent_at }}</span>
+                                            {% if not message.read %}
+                                                <i class="fa-solid fa-circle-small mark-as-read-icon"></i>
+                                                <button class="mark-as-read-btn" data-message-id="{{ message.id }}" hidden>Mark as Read</button>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Popup for showing message details -->
+                                        <div id="popup-message-{{ message.id }}" class="popup-background" hidden>
+                                            <div class="popup-content max-width-2">
+                                                <div class="message-popup-header">
+                                                    <h4>{{ message.subject }}</h4>
+                                                    <div onclick="closeMessagePopup(event, {{ message.id }})" class="close-popup-icon">
+                                                        <i class="fa-solid fa-xmark"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="message-container" style="cursor: auto; background-color: white !important;">
+                                                    <div class="message-popup-left">
+                                                        <div class="dropdown-user-icon">
+                                                            <i class="fa-solid fa-circle-{{ message.sender.first_name|first_letter }}"></i>
+                                                        </div>
+                                                        <div class="message-content">
+                                                            <div class="message-content-header">
+                                                                <p>{{ message.sender.first_name }} {{ message.sender.last_name }}</p>
+                                                                <span class="lesson-counter pastel-blue">{{ message.sender.profile.role }}</span>
+                                                            </div>
+                                                            <div class="message-popup-body">
+                                                                {{ message.body|safe }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="message-right">
+                                                        <span>{{ message.sent_at }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <p>No messages available.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="tab-content scrollable-content-inner" id="tab2">
+                            <p>Content for Tab 2</p>
+                        </div>
+                        <div class="tab-content scrollable-content-inner" id="tab3">
+                            <p>Content for Tab 3</p>
+                        </div>
+                    </div>
+                </div> 
+            </div>                                    
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'learner_dashboard/css/messages.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+<script src="{% static 'learner_dashboard\javascript\messages.js' %}"></script>
+{% endblock %}

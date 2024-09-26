@@ -347,13 +347,356 @@ function initializeCourseDropdown(containerId) {
     fetchCourses();
 }
 
+function initializeSingularCourseDropdown(containerId) {
+    const container = document.getElementById(containerId);
+    const courseSearchInput = container.querySelector('.courseSearch');
+    const courseList = container.querySelector('.courseList');
+    const loadingIndicator = container.querySelector('.loadingIndicator');
+    const selectedCoursesList = container.querySelector('.selectedCourses'); // Keep this if you want to show selected courses separately
+
+    let page = 1;
+    let isLoading = false;
+    let hasMoreCourses = true;
+
+    // Function to fetch courses from the backend
+    function fetchCourses(searchTerm = '', resetList = false) {
+        if (isLoading || !hasMoreCourses) return;
+
+        isLoading = true;
+        loadingIndicator.style.display = 'block';
+
+        fetch(`/requests/get-courses/?page=${page}&search=${searchTerm}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (resetList) {
+                courseList.innerHTML = '';
+                page = 1;
+            }
+
+            // Append courses to the dropdown list
+            data.courses.forEach(course => {
+                const courseItem = document.createElement('div');
+                courseItem.classList.add('dropdown-item');
+                courseItem.innerHTML = `
+                    <div class="dropdown-item-inner">
+                        <h5>${course.title}</h5>
+                    </div>
+                `;
+                courseItem.dataset.courseId = course.id;
+
+                // Create the checkbox with the proper structure
+                const checkboxWrapper = document.createElement('div');
+                checkboxWrapper.innerHTML = `
+                    <label class="container">
+                        <input value="${course.id}" class="course-checkbox" type="checkbox">
+                        <div class="checkmark"></div>
+                    </label>
+                `;
+
+                courseItem.prepend(checkboxWrapper);
+                courseList.appendChild(courseItem);
+
+                const checkbox = checkboxWrapper.querySelector('.course-checkbox');
+
+                // Check if the course is already selected and mark the checkbox
+                if (selectedCoursesList.querySelector(`[data-course-id="${course.id}"]`)) {
+                    courseItem.classList.add('selected');
+                    checkbox.checked = true; // Ensure the checkbox is checked
+                }
+
+                // Click event for the course item
+                courseItem.addEventListener('click', function () {
+                    // Uncheck all checkboxes and remove selection from previously selected items
+                    const previouslySelectedItem = courseList.querySelector('.dropdown-item.selected');
+                    if (previouslySelectedItem) {
+                        previouslySelectedItem.classList.remove('selected');
+                        const previousCheckbox = previouslySelectedItem.querySelector('.course-checkbox');
+                        if (previousCheckbox) {
+                            previousCheckbox.checked = false;
+                        }
+                    }
+
+                    // Select the current item
+                    appendSelectedCourse(course.title, course.id);
+                    checkbox.checked = true; // Ensure the checkbox is checked
+                    courseItem.classList.add('selected');
+
+                    // Do not close the dropdown on item select
+                });
+
+                // Ensure checkbox triggers parent item click
+                checkbox.addEventListener('click', function (event) {
+                    event.stopPropagation(); // Prevent checkbox click from triggering twice
+                    courseItem.click(); // Trigger the parent item click
+                });
+            });
+
+            if (data.courses.length === 0 && resetList) {
+                courseList.innerHTML = '<div class="no-results">No results found</div>';
+            }
+
+            hasMoreCourses = data.has_more;
+            isLoading = false;
+            loadingIndicator.style.display = 'none';
+            page += 1;
+        })
+        .catch(error => {
+            console.error('Error fetching courses:', error);
+            isLoading = false;
+            loadingIndicator.style.display = 'none';
+        });
+    }
+
+    // Function to append selected course to the list
+    function appendSelectedCourse(name, courseId) {
+        selectedCoursesList.innerHTML = ''; // Clear previous selections
+        
+        // Update the course name in the search input (visible to the user)
+        courseSearchInput.value = name;
+    
+        // Update the hidden input with the selected course ID
+        const hiddenInput = container.querySelector('input[type="hidden"]'); // Dynamically find the hidden input within the same container
+        console.log(hiddenInput, container);
+        if (hiddenInput) {
+            hiddenInput.value = courseId;  // Set the selected course ID in the hidden input
+        }
+    }
+
+    // Function to remove selected course from the list
+    function removeSelectedCourse(courseId) {
+        const courseItem = selectedCoursesList.querySelector(`[data-course-id="${courseId}"]`);
+        if (courseItem) {
+            courseItem.remove();
+        }
+
+        // Uncheck the corresponding item in the dropdown
+        const dropdownItem = courseList.querySelector(`[data-course-id="${courseId}"]`);
+        if (dropdownItem) {
+            dropdownItem.classList.remove('selected');
+            dropdownItem.querySelector('.course-checkbox').checked = false;
+        }
+    }
+
+    // Event listener for scrolling in the dropdown list (infinite scroll)
+    courseList.addEventListener('scroll', function () {
+        if (courseList.scrollTop + courseList.clientHeight >= courseList.scrollHeight) {
+            fetchCourses(courseSearchInput.value);
+        }
+    });
+
+    // Event listener for the search input
+    courseSearchInput.addEventListener('input', function () {
+        page = 1;
+        hasMoreCourses = true;
+        fetchCourses(courseSearchInput.value, true);
+    });
+
+    // Event listener to display the dropdown list when focusing the search input
+    courseSearchInput.addEventListener('focus', function () {
+        courseSearchInput.style.borderRadius = '8px 8px 0 0';
+        courseList.style.display = 'block';
+        courseSearchInput.style.border = '2px solid #c7c7db';
+    });
+
+    // Hide the dropdown list when clicking outside
+    document.addEventListener('click', function (event) {
+        if (!container.contains(event.target)) {
+            courseList.style.display = 'none';
+            courseSearchInput.style.borderRadius = '8px';
+            courseSearchInput.style.border = '1px solid #ececf1';
+        }
+    });
+
+    // Initial load
+    fetchCourses();
+}
+
+function initializeTimeZoneDropdown(containerId) { 
+    const container = document.getElementById(containerId);
+    const timeZoneSearchInput = container.querySelector('.timezoneSearch');
+    const timeZoneList = container.querySelector('.timezoneList');
+    const loadingIndicator = container.querySelector('.loadingIndicator');
+    const selectedTimezones = container.querySelector('.selectedTimezones');
+
+    let page = 1;
+    let isLoading = false;
+    let hasMoreTimeZones = true;
+
+    // Function to fetch timezones from the backend
+    function fetchTimeZones(searchTerm = '', resetList = false) {
+        if (isLoading || !hasMoreTimeZones) return;
+
+        isLoading = true;
+        loadingIndicator.style.display = 'block';
+
+        fetch(`/requests/get-timezones/?page=${page}&search=${searchTerm}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (resetList) {
+                timeZoneList.innerHTML = '';
+                page = 1;
+            }
+
+            // Append timezones to the dropdown list
+            data.timezones.forEach(timezone => {
+                const timezoneItem = document.createElement('div');
+                timezoneItem.classList.add('dropdown-item');
+                timezoneItem.innerHTML = `
+                    <div class="dropdown-item-inner">
+                        <h5>${timezone.name}</h5>
+                    </div>
+                `;
+                timezoneItem.dataset.timezoneId = timezone.id;
+
+                // Create the checkbox with the proper structure
+                const checkboxWrapper = document.createElement('div');
+                checkboxWrapper.innerHTML = `
+                    <label class="container">
+                        <input value="${timezone.id}" class="timezone-checkbox" type="checkbox">
+                        <div class="checkmark"></div>
+                    </label>
+                `;
+
+                timezoneItem.prepend(checkboxWrapper);
+                timeZoneList.appendChild(timezoneItem);
+
+                const checkbox = checkboxWrapper.querySelector('.timezone-checkbox');
+
+                // Click event for the entire item
+                timezoneItem.addEventListener('click', function (event) {
+                    // Uncheck all other checkboxes and remove previously selected timezone
+                    const allCheckboxes = timeZoneList.querySelectorAll('.timezone-checkbox');
+                    allCheckboxes.forEach(cb => {
+                        if (cb !== checkbox) {
+                            cb.checked = false;
+                            cb.closest('.dropdown-item').classList.remove('selected');
+                        }
+                    });
+
+                    // Set the current checkbox state
+                    if (!checkbox.checked) {
+                        appendSelectedTimezone(timezone.name, timezone.id);
+                        checkbox.checked = true;
+                        timezoneItem.classList.add('selected');
+                    } else {
+                        removeSelectedTimezone(timezone.id);
+                        checkbox.checked = false;
+                        timezoneItem.classList.remove('selected');
+                    }
+                });
+
+                // Ensure checkbox triggers parent item click
+                checkbox.addEventListener('click', function (event) {
+                    event.stopPropagation();  // Prevent checkbox click from triggering twice
+                    timezoneItem.click();  // Trigger the parent item click
+                });
+
+                // Mark the item as selected if it matches the input value
+                if (timezone.name === timeZoneSearchInput.value) {
+                    appendSelectedTimezone(timezone.name, timezone.id);
+                    checkbox.checked = true;
+                    timezoneItem.classList.add('selected');
+                }
+            });
+
+            if (data.timezones.length === 0 && resetList) {
+                timeZoneList.innerHTML = '<div class="no-results">No results found</div>';
+            }
+
+            hasMoreTimeZones = data.has_more;
+            isLoading = false;
+            loadingIndicator.style.display = 'none';
+            page += 1;
+        })
+        .catch(error => {
+            console.error('Error fetching timezones:', error);
+            isLoading = false;
+            loadingIndicator.style.display = 'none';
+        });
+    }
+
+    // Function to append selected timezone to the list and input field
+    function appendSelectedTimezone(name, timezoneId) {
+        // Update the input field with the selected timezone name
+        timeZoneSearchInput.value = name;
+    }
+
+    // Function to remove selected timezone from the list
+    function removeSelectedTimezone(timezoneId) {
+        const timezoneItem = selectedTimezones.querySelector(`[data-timezone-id="${timezoneId}"]`);
+        if (timezoneItem) {
+            timezoneItem.remove();
+        }
+        
+        // Clear the input field when no timezone is selected
+        timeZoneSearchInput.value = '';
+
+        // Uncheck the corresponding item in the dropdown
+        const dropdownItem = timeZoneList.querySelector(`[data-timezone-id="${timezoneId}"]`);
+        if (dropdownItem) {
+            dropdownItem.classList.remove('selected');
+            dropdownItem.querySelector('.timezone-checkbox').checked = false;
+        }
+    }
+
+    // Event listener for scrolling in the dropdown list (infinite scroll)
+    timeZoneList.addEventListener('scroll', function () {
+        if (timeZoneList.scrollTop + timeZoneList.clientHeight >= timeZoneList.scrollHeight) {
+            fetchTimeZones(timeZoneSearchInput.value);
+        }
+    });
+
+    // Event listener for the search input
+    timeZoneSearchInput.addEventListener('input', function () {
+        page = 1;
+        hasMoreTimeZones = true;
+        fetchTimeZones(timeZoneSearchInput.value, true);
+    });
+
+    // Event listener to display the dropdown list when focusing the search input
+    timeZoneSearchInput.addEventListener('focus', function () {
+        timeZoneSearchInput.style.borderRadius = '8px 8px 0 0';
+        timeZoneList.style.display = 'block';
+        timeZoneSearchInput.style.border = '2px solid #c7c7db';
+    });
+
+    // Hide the dropdown list when clicking outside
+    document.addEventListener('click', function (event) {
+        if (!container.contains(event.target)) {
+            timeZoneList.style.display = 'none';
+            timeZoneSearchInput.style.borderRadius = '8px';
+            timeZoneSearchInput.style.border = '1px solid #ececf1';
+        }
+    });
+
+    // Initial load
+    fetchTimeZones();
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+    initializeQuill();
+
+
     // Initialize dropdown for all containers on the page
     document.querySelectorAll('.user-dropdown').forEach(dropdown => {
         initializeUserDropdown(dropdown.id);
     });
     document.querySelectorAll('.course-dropdown').forEach(dropdown => {
         initializeCourseDropdown(dropdown.id);
+    }); 
+    document.querySelectorAll('.timezone-dropdown').forEach(dropdown => {
+        initializeTimeZoneDropdown(dropdown.id);
+    }); 
+    document.querySelectorAll('.singular-course-dropdown').forEach(dropdown => {
+        initializeSingularCourseDropdown(dropdown.id);
     });
 
     // Retrieve the selected IDs from localStorage
@@ -429,6 +772,59 @@ function sendEnrollmentRequest() {
     });
 }
 
+function sendMessageRequest() {
+    const selectedUsers = document.querySelectorAll('.selectedUsers .selected-user');
+    const subject = document.getElementById('subject').value;
+    const body = getEditorContent('body');
+
+    const userIds = Array.from(selectedUsers).map(user => user.getAttribute('data-user-id'));
+
+    if (userIds.length === 0) {
+        displayValidationMessage('Please select at least one user.', false);
+        return;
+    }
+    if(subject.length === 0){
+        displayValidationMessage('Please enter a message subject.', false);
+        return;
+    }if(body === '<p><br></p>'){
+        displayValidationMessage('Please enter a message body.', false);
+        return;
+    }
+
+    const data = new FormData();
+    userIds.forEach(id => data.append('user_ids[]', id));
+    data.append('subject', subject);  // Include key 'subject'
+    data.append('body', body);        // Include key 'body'
+
+    fetch('/admin/users/message-user-request/', {
+        method: 'POST',
+        body: data,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCsrfToken()
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || 'Network response was not ok');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+        } else {
+            displayValidationMessage(data.message, false);  // Error message
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        displayValidationMessage('An error occurred while sending the message.', false);
+    });
+}
+
 // Function to get the CSRF token
 function getCsrfToken() {
     const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
@@ -455,4 +851,57 @@ function displayValidationMessage(message, isSuccess) {
     }else{
         validationIcon.className = 'fa-solid fa-triangle-exclamation';
     }
+}
+
+// Declare quillEditors as a global variable to store all Quill instances
+let quillEditors = [];
+
+function initializeQuill() {
+    // Select all elements with a specific class that should have a Quill editor
+    const editors = document.querySelectorAll('.editor-container');
+    if(editors.length > 0){
+        var icons = Quill.import('ui/icons');
+        icons['bold'] = '<i class="fa-solid fa-bold"></i>';
+        icons['italic'] = '<i class="fa-solid fa-italic"></i>';
+        icons['underline'] = '<i class="fa-solid fa-underline"></i>';
+        icons['link'] = '<i class="fa-solid fa-link"></i>';
+        icons['image'] = '<i class="fa-regular fa-image"></i>';
+
+        
+
+        // Iterate over each editor container
+        editors.forEach(function(editor) {
+            // Check if the editor container has already been initialized
+            if (!editor.classList.contains('quill-initialized')) {
+                // Initialize a new Quill editor for this container
+                const quill = new Quill(editor, {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: {
+                            container: [
+                                [{ 'header': [1, 2, 3, false] }],
+                                ['bold', 'italic', 'underline'],
+                                ['link', 'image']
+                            ],
+                            handlers: {
+                                // Add custom handlers here
+                            }
+                        }
+                    }
+                });
+
+                // Mark this container as initialized
+                editor.classList.add('quill-initialized');
+
+                // Push the instance to the quillEditors array
+                quillEditors.push(quill);
+            }
+        });
+    }
+    
+}
+
+function getEditorContent(editorId) {
+    const quillEditor = new Quill(`#${editorId}`);
+    return quillEditor.root.innerHTML; // or quillEditor.getText() for plain text
 }

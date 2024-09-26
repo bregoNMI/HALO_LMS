@@ -57,6 +57,7 @@
     cursor: pointer;
     background-color: var(--bg-color4);
     flex: 1;
+    transition: all 0.2s linear;
 }
 
 .option-btn:hover {
@@ -292,6 +293,15 @@
 .info-card-body .card-body-item{
     display: flex;
     gap: 0.8rem;
+}
+
+.details-info-card-overflow{
+    overflow: hidden;
+}
+.details-info-card-overflow .info-card-body{
+    max-height: 20rem;
+    overflow: auto;
+    box-sizing: border-box;
 }
 
 .card-body-item .card-body-left i{
