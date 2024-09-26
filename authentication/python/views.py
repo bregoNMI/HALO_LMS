@@ -53,11 +53,6 @@ if secrets:
     AWS_SECRET_ACCESS_KEY = secrets.get('AWS_SECRET_ACCESS_KEY')
     COGNITO_CLIENT_SECRET = secrets.get('COGNITO_CLIENT_SECRET')
 
-    # Print for debugging
-    print("AWS_ACCESS_KEY_ID:", AWS_ACCESS_KEY_ID)
-    print("AWS_SECRET_ACCESS_KEY:", AWS_SECRET_ACCESS_KEY)
-    print("COGNITO_CLIENT_SECRET:", COGNITO_CLIENT_SECRET)
-
     # Handle missing secrets
     if AWS_ACCESS_KEY_ID is None:
         print("AWS_ACCESS_KEY_ID not found in the secrets.")
@@ -201,25 +196,6 @@ def login_view(request):
             return JsonResponse({'message': 'Login failed. Invalid credentials.'}, status=401)
     else:
         return JsonResponse({'message': 'Method not allowed'}, status=405)
-
-client = boto3.client('cognito-idp', region_name=settings.AWS_REGION)  
-# Function to authenticate the user with AWS Cognito
-def cognito_authenticate(username, password):
-    print
-    try:
-        response = client.initiate_auth(
-            ClientId=settings.COGNITO_CLIENT_ID,
-            AuthFlow='USER_PASSWORD_AUTH',
-            AuthParameters={
-                'USERNAME': username,
-                'PASSWORD': password,
-            }
-        )
-        return response
-    except client.exceptions.NotAuthorizedException:
-        return None
-    except client.exceptions.UserNotFoundException:
-        return None
 '''
 def login_view(request):
     if request.method == 'POST':
@@ -337,7 +313,7 @@ def register_view(request):
             )
 
             messages.success(request, 'Registration successful. Please check your email to confirm your account.')
-            return render(request, 'login.html')
+            return render(request, 'main/login.html')
         except cognito_client.exceptions.UsernameExistsException:
             messages.error(request, 'Username already exists.')
         except cognito_client.exceptions.InvalidParameterException as e:
@@ -459,14 +435,6 @@ def modifyCognito(request):
         reg_photo = request.FILES.get('passportphoto')
 
         try:
-            # Retrieve Cognito credentials from session
-            access_token = request.session.get('access_token')
-            cognito_username = request.session.get('cognito_username')
-            
-            if not access_token or not cognito_username:
-                messages.error(request, 'User is not authenticated.')
-                return redirect('login/')
-
             # Change Password only if new_password is provided
             if new_password:
                 if new_password != confirm_password:
@@ -477,7 +445,6 @@ def modifyCognito(request):
                 cognito_client.change_password(
                     PreviousPassword='',
                     ProposedPassword=new_password,
-                    AccessToken=access_token
                 )
                 messages.success(request, 'Password changed successfully.')
 
@@ -496,14 +463,14 @@ def modifyCognito(request):
             s3_bucket = settings.AWS_STORAGE_BUCKET_NAME
             if id_photo:
                 id_photo_name = id_photo.name
-                s3_key = f"users/{cognito_username}/id_photo/{id_photo_name}"  # Use Cognito username
+                s3_key = f"users/{username}/id_photo/{id_photo_name}"  # Use Cognito username
                 s3_client.upload_fileobj(id_photo, s3_bucket, s3_key)
                 id_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_key}"
                 user_attributes.append({'Name': 'custom:id_photo', 'Value': id_photo_url})
 
             if reg_photo:
                 reg_photo_name = reg_photo.name
-                s3_key = f"users/{cognito_username}/reg_photo/{reg_photo_name}"  # Use Cognito username
+                s3_key = f"users/{username}/reg_photo/{reg_photo_name}"  # Use Cognito username
                 s3_client.upload_fileobj(reg_photo, s3_bucket, s3_key)
                 reg_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_key}"
                 user_attributes.append({'Name': 'custom:reg_photo', 'Value': reg_photo_url})

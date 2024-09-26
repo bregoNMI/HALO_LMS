@@ -8,6 +8,13 @@ from django.contrib import messages
 from django.utils.dateparse import parse_date
 from django.contrib.auth import logout
 from client_admin.models import Profile, User
+import boto3
+from django.conf import settings
+import logging
+import json
+from botocore.exceptions import ClientError
+from authentication.python.views import modifyCognito
+from halo_lms.settings import COGNITO_USER_POOL_ID
 
 def custom_logout_view(request):
     logout(request)
@@ -84,6 +91,9 @@ def update_learner_profile(request, user_id):
         if 'passportphoto' in request.FILES:
             profile.passportphoto = request.FILES['passportphoto']
 
+        #Updating Cognito User
+        modifyCognito(request)
+
         # Save Profile model
         profile.save()
 
@@ -120,7 +130,25 @@ def change_password(request):
                     user.save()
                     update_session_auth_hash(request, user)
 
-                    return JsonResponse({'success': True, 'message': 'Password updated successfully.'})
+                    # Update the password in AWS Cognito
+                    cognito_client = boto3.client('cognito-idp')
+                    try:
+                        # Admin Set Password if using admin privileges
+                        cognito_client.admin_set_user_password(
+                            UserPoolId=settings.COGNITO_USER_POOL_ID,  # Your User Pool ID
+                            Username=user.username,  # Assuming Django username matches Cognito username
+                            Password=new_password1,
+                            Permanent=True,  # Set the new password as permanent
+                        )
+                        return JsonResponse({'success': True, 'message': 'Password updated successfully.'})
+
+                    except cognito_client.exceptions.UserNotFoundException:
+                        return JsonResponse({'success': False, 'message': 'User not found in Cognito.'}, status=404)
+                    except cognito_client.exceptions.InvalidPasswordException as e:
+                        return JsonResponse({'success': False, 'message': f'Invalid new password: {e}'}, status=400)
+                    except ClientError as e:
+                        return JsonResponse({'success': False, 'message': f'An error occurred: {e.response["Error"]["Message"]}'}, status=500)
+
                 else:
                     return JsonResponse({'success': False, 'message': 'New passwords do not match.'})
             else:

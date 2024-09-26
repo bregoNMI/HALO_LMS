@@ -23,7 +23,6 @@ urlpatterns = [
     path('admin/', include('client_admin.python.urls')),
     path('login/', login_view, name='login_view'),
     path('register/', register_view, name='register_view'),  # Register URL
-    path('client_admin/', include('client_admin.python.urls')),
     path('requests/', include('content.urls')),
     path('', include('learner_dashboard.urls')),
 ]
