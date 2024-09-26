@@ -22,6 +22,7 @@ urlpatterns = [
     path('django-admin/', admin.site.urls),
     path('admin/', include('client_admin.python.urls')),
     path('login/', views.login, name='login'),
+    path('client_admin/', include('client_admin.python.urls')),
     path('requests/', include('content.urls')),
     path('', include('learner_dashboard.urls')),
 ]
