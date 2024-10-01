@@ -411,7 +411,7 @@ html, body, button{
     height: 17.375rem;
     overflow: hidden;
     position: relative;
-    width: 15rem;
+    width: 14.5rem;
     transition: all 0.2s ease-in-out;
     box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
     text-decoration: none;
@@ -461,6 +461,16 @@ html, body, button{
 }.green-status-item:hover{
     background-color: #3e9241;
 }.green-status-item i{
+    font-size: 1rem;
+    color: white;
+}
+
+.red-status-item{
+    background-color: #ff5757;
+    border: 1px solid #e74747;
+}.red-status-item:hover{
+    background-color: #e74747;
+}.red-status-item i{
     font-size: 1.1rem;
     color: white;
 }
@@ -766,13 +776,14 @@ html, body, button{
 }
 
 .tab-content-description{
+    position: relative;
     line-height: 1.4;
     color: #35373a;
     font-size: 0.9rem;
 }
 
-.tab-content-description {
-    position: relative;
+.tab-content-description img{
+    max-width: 8rem;
 }
 
 .description-wrapper {

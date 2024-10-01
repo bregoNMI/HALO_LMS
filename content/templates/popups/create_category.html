@@ -1,0 +1,23 @@
+<div id="createCategory" class="popup-background">
+    <div class="popup-content max-width-6">
+        <div class="popup-header">
+            <h3>Create Category</h3>
+            <div onclick="closePopup('createCategory')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <div class="course-content-input">
+                <label class="edit-user-label" for="newCategoryName">Category Name</label>
+                <input type="text" id="newCategoryName" name="newCategoryName" placeholder="Category Name (Required)">
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <div onclick="closePopup('createCategory')" class="popup-btn close-popup-btn">Cancel</div>
+                <button class="popup-btn disabled" id="createCategoryButton" disabled>Create Category</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -15,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.dateformat import DateFormat
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
+from django.views.decorators.http import require_POST
 
 # Courses
 @login_required
@@ -248,16 +249,25 @@ def create_or_update_course(request):
             files = request.FILES
 
             # Check if it's an update
-            course_id = data.get('id')
-            course = get_object_or_404(Course, id=course_id) if course_id else Course()
+            course_id = data.get('id', None)
+            print(f"Received course_id: {course_id}")
+            if course_id:
+                course = get_object_or_404(Course, id=course_id)
+            else:
+                # Create a new Course instance if no ID is provided
+                course = Course()
 
             # Update course fields
             course.title = data.get('title', '')
             course.description = data.get('description', '')
-            course.category = get_object_or_404(Category, id=data.get('category_id', 1))
+            category_id = data.get('category_id')
+            if category_id:
+                course.category = get_object_or_404(Category, id=category_id)
             course.type = data.get('type', 'bundle')
             course.terms_and_conditions = data.get('terms_and_conditions', 'false') == 'true'
             course.must_complete = data.get('must_complete', 'any_order')
+            course.estimated_completion_time = data.get('estimated_completion_time', '')
+            course.status = data.get('status', '')
             course.save()
 
             # Handle credentials
@@ -473,3 +483,41 @@ def get_timezones(request):
         })
     else:
         return JsonResponse({'error': 'This view only accepts AJAX requests.'}, status=400)
+    
+def get_categories(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        page = int(request.GET.get('page', 1))
+        per_page = 10
+        offset = (page - 1) * per_page
+
+        search_query = request.GET.get('search', '')
+        # Filter categories based on the search query
+        categories = Category.objects.filter(name__icontains=search_query)[offset:offset + per_page]
+
+        category_data = [{
+            'id': category.id,
+            'name': category.name,
+        } for category in categories]
+
+        return JsonResponse({
+            'categories': category_data,
+            'has_more': Category.objects.filter(name__icontains=search_query).count() > offset + per_page
+        })
+    else:
+        return JsonResponse({'error': 'This view only accepts AJAX requests.'}, status=400)
+    
+@require_POST
+def create_category(request):
+    category_name = request.POST.get('name', '').strip()
+
+    if category_name:
+        # Create a new category
+        category = Category.objects.create(name=category_name)
+        
+        # Return the created category data
+        return JsonResponse({
+            'id': category.id,
+            'name': category.name,
+        }, status=201)  # HTTP 201 Created
+
+    return JsonResponse({'error': 'Category name is required.'}, status=400)

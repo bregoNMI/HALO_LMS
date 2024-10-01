@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function() {
     assignReferenceHeaderListeners();
     assignUploadHeaderListeners();
     testErrorFields();
+    handleFileUploadErrorRemoval();
 });
 
 function initializeTopRowNav(){
@@ -106,8 +107,23 @@ function initializeQuill() {
 }
 
 function getEditorContent(editorId) {
-    const quillEditor = new Quill(`#${editorId}`);
-    return quillEditor.root.innerHTML; // or quillEditor.getText() for plain text
+    const editorElement = document.getElementById(editorId);
+
+    // Check if the editor element exists
+    if (!editorElement) {
+        console.warn(`Editor with id ${editorId} does not exist`);
+        return ''; // Return an empty string if the editor doesn't exist
+    }
+
+    // Assuming Quill editor is being used, ensure the editor is initialized
+    const quillInstance = Quill.find(editorElement);
+    
+    if (quillInstance) {
+        return quillInstance.root.innerHTML.trim(); // Return the editor content
+    } else {
+        console.warn(`Quill instance not found for editor ${editorId}`);
+        return ''; // Return an empty string if Quill instance isn't found
+    }
 }
 
 // Function to test if there is more than one module-card
@@ -429,7 +445,7 @@ function createNewUpload(){
     const newUploadId = uploadCards.length + 1; // Generate a new unique ID based on the number of existing references
 
     const newUploadCard = `
-    <div class="upload-card">
+    <div class="upload-card" id="referenceCard-${newUploadId}">
         <div class="info-card-header collapsable-header">
             <div class="card-header-left">
                 <i class="fa-light fa-grip-dots-vertical upload-drag-icon"></i>
@@ -586,22 +602,42 @@ function confirmDelete() {
     closePopup('moduleDeleteConfirmation');
 }
 
-function confirmReferenceDelete(){
+function confirmReferenceDelete() {
     if (window.referenceToDelete) {
+        const section = window.referenceToDelete.closest('.toggle-option-details');
         window.referenceToDelete.remove();
         window.referenceToDelete = null;
         testReferenceCount();
+
+        // Select all error fields within the section
+        const formErrorFields = section.querySelectorAll('.form-error-field');
+
+        // If no error fields are found, remove the 'form-error-section' class from the section
+        if (formErrorFields.length === 0) {
+            section.classList.remove('form-error-section');
+        }
+
+        closePopup('referenceDeleteConfirmation');
     }
-    closePopup('referenceDeleteConfirmation');
 }
 
 function confirmUploadDelete(){
     if (window.uploadToDelete) {
+        const section = window.uploadToDelete.closest('.toggle-option-details');
         window.uploadToDelete.remove();
         window.uploadToDelete = null;
         testUploadCount();
-    }
-    closePopup('uploadDeleteConfirmation');
+
+        // Select all error fields within the section
+        const formErrorFields = section.querySelectorAll('.form-error-field');
+
+        // If no error fields are found, remove the 'form-error-section' class from the section
+        if (formErrorFields.length === 0) {
+            section.classList.remove('form-error-section');
+        }
+
+        closePopup('uploadDeleteConfirmation');
+    }   
 }
 
 // Function to handle creating a lesson
@@ -1111,6 +1147,16 @@ document.getElementById('editLessonTitle').addEventListener('keyup', function() 
         editLessonBtn.setAttribute('disabled', true);
     }
 });
+document.getElementById('newCategoryName').addEventListener('keyup', function() {
+    const createCategoryButton = document.getElementById('createCategoryButton');
+    if(this.value.length >= 1){
+        createCategoryButton.classList.remove('disabled');
+        createCategoryButton.removeAttribute('disabled');
+    }else{
+        createCategoryButton.classList.add('disabled');
+        createCategoryButton.setAttribute('disabled', true);
+    }
+});
 
 
 function generateCourseData() {
@@ -1124,12 +1170,19 @@ function generateCourseData() {
 
     const formData = new FormData(); // Create FormData object
 
+    // Formatting Completion Time
+    const hours = document.getElementById('completion_hours').value || 0;
+    const minutes = document.getElementById('completion_seconds').value || 0;
+
     // Initialize courseData
     const courseData = {
+        id: document.getElementById('courseId') ? document.getElementById('courseId').value : null, // Check for the course ID,
         title: document.getElementById('title').value,
         description: getEditorContent('courseDescription'),
-        category_id: 1, // Adjust as needed
+        category_id: document.getElementById('category').getAttribute('data-category-id'), // Adjust as needed
         type: 'online', // Adjust as needed
+        status: document.getElementById('status').value,
+        estimated_completion_time: `${hours}h ${minutes}m`,
         modules: [],
         credentials: [],
         event_dates: [],
@@ -1138,11 +1191,20 @@ function generateCourseData() {
         uploads: [],
     };
 
+    // Append course ID only if it's not null
+    if (courseData.id) {
+        formData.append('id', courseData.id); 
+    }
+    if (courseData.category_id) {
+        formData.append('category_id', courseData.category_id); 
+    }
     // Append basic course data to FormData
+    
     formData.append('title', courseData.title);
     formData.append('description', courseData.description);
-    formData.append('category_id', courseData.category_id);
     formData.append('type', courseData.type);
+    formData.append('status', courseData.status);
+    formData.append('estimated_completion_time', courseData.estimated_completion_time);
 
     // Handle certificate credentials
     const certificateCheckbox = document.getElementById('certificate');
@@ -1162,13 +1224,19 @@ function generateCourseData() {
         // Get all reference cards
         const referenceCards = document.querySelectorAll('.reference-card');
         referenceCards.forEach((referenceCard, index) => {
-            const referenceData = {
-                type: 'reference',
-                source: document.getElementById(`referenceURLInput-${index + 1}`).value,
-                title: referenceCard.querySelector('.reference-title').value.trim(),
-                description: getEditorContent(`referenceDescription-${index + 1}`),
-            };
-            courseData.resources.push(referenceData);
+            const referenceURLInput = document.getElementById(`referenceURLInput-${index + 1}`);
+            const referenceDescriptionEditor = document.getElementById(`referenceDescription-${index + 1}`);
+            
+            // Check if the URL input exists before proceeding
+            if (referenceURLInput) {
+                const referenceData = {
+                    type: 'reference',
+                    source: referenceURLInput.value,
+                    title: referenceCard.querySelector('.reference-title').value.trim(),
+                    description: getEditorContent(`referenceDescription-${index + 1}`), // This will return an empty string if the editor does not exist
+                };
+                courseData.resources.push(referenceData);
+            }
         });
 
         formData.append('resources', JSON.stringify(courseData.resources));
@@ -1298,7 +1366,7 @@ function generateCourseData() {
     formData.append('modules', JSON.stringify(courseData.modules));
 
     // Handle Media (Thumbnail)
-    const thumbnailInput = document.getElementById('fileInput'); // Assuming this is an <input type="file">
+    const thumbnailInput = document.getElementById('thumbnailFileInput');
     const ThumbnailImagePreview = document.getElementById('ThumbnailImagePreview');
 
     if (ThumbnailImagePreview.src.startsWith('https://')) {
@@ -1373,6 +1441,82 @@ function validateCourseData() {
         errors.push('Course Title is required');
         title.classList.add('form-error-field');
     }
+
+    // Validate Reference Materials
+    const referenceMaterialsCheckbox = document.getElementById('referenceMaterials');
+    if (referenceMaterialsCheckbox && referenceMaterialsCheckbox.checked) {
+        // Get all reference cards
+        const referenceCards = document.querySelectorAll('.reference-card');
+
+        referenceCards.forEach((referenceCard) => {
+            // Extract index from the reference card ID
+            const referenceCardId = referenceCard.id; // Example: 'referenceCard-4'
+            const referenceIndex = referenceCardId.split('-')[1]; // Gets '4'
+
+            if (!referenceIndex) {
+                console.warn(`Reference index not found for card: ${referenceCardId}`);
+                return; // Skip this card if the index is undefined
+            }
+
+            const referenceSource = document.getElementById(`referenceURLInput-${referenceIndex}`);
+            const referenceTitle = referenceCard.querySelector('.reference-title');
+            const referenceDescription = getEditorContent(`referenceDescription-${referenceIndex}`);
+
+            // Check if the referenceSource exists
+            if (referenceSource) {
+                // Validate Reference Source
+                if (!referenceSource.value) {
+                    displayValidationMessage(`Reference ${referenceIndex} Source is required`, false);
+                    errors.push(`Reference ${referenceIndex} Source is required`);
+                    referenceSource.closest('.custom-file-upload-container').classList.add('form-error-field');
+                    highlightErrorFields(referenceSource.closest('.custom-file-upload-container'));
+                }
+            } else {
+                console.warn(`Reference source for index ${referenceIndex} not found.`);
+            }
+
+            // Validate Reference Title
+            if (referenceTitle && !referenceTitle.value.trim()) {
+                displayValidationMessage(`Reference ${referenceIndex} Title is required`, false);
+                errors.push(`Reference ${referenceIndex} Title is required`);
+                referenceTitle.classList.add('form-error-field');
+                highlightErrorFields(referenceTitle);
+            } else if (!referenceTitle) {
+                console.warn(`Reference title element not found for index ${referenceIndex}`);
+            }
+        });
+    }
+
+    // Validate Reference Materials
+    const courseUploadsCheckbox = document.getElementById('courseUploads');
+    if (courseUploadsCheckbox && courseUploadsCheckbox.checked) {
+        // Get all reference cards
+        const uploadsCards = document.querySelectorAll('.upload-card');
+
+        uploadsCards.forEach((uploadCard) => {
+            // Extract index from the reference card ID
+            const uploadCardId = uploadCard.id; // Example: 'referenceCard-4'
+            const uploadIndex = uploadCardId.split('-')[1]; // Gets '4'
+
+            if (!uploadIndex) {
+                console.warn(`Reference index not found for card: ${uploadCardId}`);
+                return; // Skip this card if the index is undefined
+            }
+
+            const uploadTitle = uploadCard.querySelector('.upload-title');
+
+            // Validate Reference Title
+            if (uploadTitle && !uploadTitle.value.trim()) {
+                displayValidationMessage(`Reference ${uploadIndex} Title is required`, false);
+                errors.push(`Reference ${uploadIndex} Title is required`);
+                uploadTitle.classList.add('form-error-field');
+                highlightErrorFields(uploadTitle);
+            } else if (!uploadTitle) {
+                console.warn(`Reference title element not found for index ${uploadIndex}`);
+            }
+        });
+    }
+
 
     // Validate start_date - Select Date
     const startDate = document.querySelector('input[name="start_date"]:checked').value;
@@ -1449,15 +1593,30 @@ function validateCourseData() {
     return errors;
 }
 
-function highlightErrorFields(field){
-    // Add error classes
+function highlightErrorFields(field) {
+    
+    // Add error classes to the field
     const errorField = field.closest('.edit-user-input');
+    const resourceErrorField = field.closest('.reference-card');
+    const uploadErrorField = field.closest('.upload-card');
+
+    if(resourceErrorField){
+        resourceErrorField.closest('.toggle-option-details').classList.add('form-error-section');
+    }
+    if(uploadErrorField){
+        uploadErrorField.closest('.toggle-option-details').classList.add('form-error-section');
+    }
+    
     if (errorField) {
-        errorField.querySelector('.form-control').classList.add('form-error-field');
+        const formControl = errorField.querySelector('.form-control');
+        const errorIcon = errorField.querySelector('.input-group-addon');
+
+        // Add the error field class immediately
+        formControl.classList.add('form-error-field');
         errorField.closest('.toggle-option-details').classList.add('form-error-section');
         
-        // Target the correct span for the error icon
-        const errorIcon = errorField.querySelector('.input-group-addon');
+
+        // Add the error icon class
         if (errorIcon) {
             errorIcon.classList.add('form-error-icon');
         }
@@ -1467,31 +1626,80 @@ function highlightErrorFields(field){
 function testErrorFields() {
     // Select all elements with the class 'form-error-field'
     const formErrorFields = document.querySelectorAll('.form-error-field');
+    console.log(formErrorFields);
 
     // Iterate through each element
     formErrorFields.forEach(field => {
-        // Add event listeners to cover different types of input changes
+        const errorSection = field.closest('.toggle-option-details');
+        const errorFieldWrapper = field.closest('.edit-user-input');
+        const errorIcon = errorFieldWrapper ? errorFieldWrapper.querySelector('.input-group-addon') : null;
+
+        // Add event listeners to handle changes in the input field
         field.addEventListener('input', handleInputChange);
         field.addEventListener('change', handleInputChange);
         field.addEventListener('paste', handleInputChange);
         field.addEventListener('focus', handleInputChange);
-        field.addEventListener('mousedown', handleInputChange);
 
         function handleInputChange() {
-            // Check the length of the field's value
+            // Check the field's value
             if (field.value.trim().length > 0) {
-                // Remove the 'form-error-field' class if length is greater than zero
+                // Remove the 'form-error-field' class
                 field.classList.remove('form-error-field');
-                field.closest('.toggle-option-details').classList.remove('form-error-section');
-                field.nextElementSibling.classList.remove('form-error-icon');
+                if (errorIcon) {
+                    errorIcon.classList.remove('form-error-icon');
+                }
             } else {
-                // Keep the class if length is zero
+                // If the field is empty, apply the 'form-error-field' class
                 field.classList.add('form-error-field');
-                field.closest('.toggle-option-details').classList.add('form-error-section');
-                field.nextElementSibling.classList.add('form-error-icon');
+                if (errorIcon) {
+                    errorIcon.classList.add('form-error-icon');
+                }
             }
+
+            // After updating the individual field, check all fields again
+            checkAllErrorFields(errorSection);
         }
     });
+    handleFileUploadErrorRemoval();
+}
+
+function checkAllErrorFields(errorSection) {
+    // Check if any fields within the reference section still have the 'form-error-field' class
+    if(errorSection){
+        const errorFields = errorSection.querySelectorAll('.form-error-field');
+        console.log(errorFields, errorSection);
+
+        // If no error fields are present, remove the 'form-error-section' class
+        if (errorFields.length === 0) {
+            errorSection.classList.remove('form-error-section');
+        } else {
+            // If there are error fields, ensure the 'form-error-section' class is applied
+            errorSection.classList.add('form-error-section');
+        }
+    }
+}
+
+function handleFileUploadErrorRemoval() {
+    document.querySelectorAll('input[type="hidden"][id^="referenceURLInput"]').forEach(input => {
+        // Listen for changes to the hidden input
+        const observer = new MutationObserver(() => {
+            // Check if the hidden input has a value (i.e., file uploaded)
+            if (input.value.trim().length > 0) {
+                const errorSection = input.closest('.toggle-option-details');
+                const uploadContainer = input.closest('.custom-file-upload-container');
+    
+                // Remove the error class if a file has been selected
+                if (uploadContainer) {
+                    uploadContainer.classList.remove('form-error-field');
+                }
+                // After updating the individual field, check all fields again
+                checkAllErrorFields(errorSection);
+            }
+        });
+    
+        // Observe the input field for changes to its value attribute
+        observer.observe(input, { attributes: true, attributeFilter: ['value'] });
+    });    
 }
 
 // Function to convert base64 string to Blob
@@ -1594,12 +1802,12 @@ function initializeRadioOptions() {
 
 function initializeThumbnailPreview(){
     const dropzone = document.getElementById('dropzone');
-    const fileInput = document.getElementById('fileInput');
+    const thumbnailFileInput = document.getElementById('thumbnailFileInput');
     const imagePreview = document.getElementById('imagePreview');
     const thumbnailDelete = document.getElementById('thumbnailDelete');
 
     // Open file dialog when dropzone is clicked
-    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('click', () => thumbnailFileInput.click());
 
     // Remove Current Thumbnail
     thumbnailDelete.addEventListener('click', (e) => {
@@ -1608,11 +1816,11 @@ function initializeThumbnailPreview(){
         thumbnailDelete.style.display = "none";
         const ThumbnailImagePreview = document.getElementById('ThumbnailImagePreview');
         ThumbnailImagePreview.src = ''; // Clear the image
-        fileInput.value = ''; // This clears the selected file
+        thumbnailFileInput.value = ''; // This clears the selected file
     });
 
     // Handle file selection
-    fileInput.addEventListener('change', handleFile);
+    thumbnailFileInput.addEventListener('change', handleFile);
 
     // Handle drag over event
     dropzone.addEventListener('dragover', (event) => {
@@ -1650,7 +1858,7 @@ function initializeThumbnailPreview(){
                 imagePreview.style.display = "flex";
                 thumbnailDelete.style.display = "flex";
             } else {
-                alert('Please select a valid image file.');
+                displayValidationMessage('Please Select an Image for Course Thumbnail', false);
             }
         } else {
             // Do nothing if no file is selected (e.g., the user clicked "Cancel")
@@ -1833,7 +2041,265 @@ function initializeUserDropdown(containerId) {
     fetchUsers();
 }
 
-// Initialize dropdown for all containers on the page
+// Initialize dropdown for all user containers on the page
 document.querySelectorAll('.user-dropdown').forEach(dropdown => {
     initializeUserDropdown(dropdown.id);
+});
+
+// Initialize dropdown for all category containers on the page
+document.querySelectorAll('.category-dropdown').forEach(dropdown => {
+    initializeCategoryDropdown(dropdown.id);
+});
+
+// Category Dropdown Search
+function initializeCategoryDropdown(containerId) {
+    const container = document.getElementById(containerId);
+    const categorySearchInput = container.querySelector('.categorySearch');
+    const categoryList = container.querySelector('.categoryList');
+    const loadingIndicator = container.querySelector('.loadingIndicator');
+    const selectedCategories = container.querySelector('.selectedCategories');
+    const noResults = container.querySelector('.no-results');
+
+    let page = 1;
+    let isLoading = false;
+    let hasMoreCategories = true;
+    if(noResults){noResults.style.display = 'none';}
+
+    // Function to fetch categories from the backend
+    function fetchCategories(searchTerm = '', resetList = false) {
+        if (isLoading || !hasMoreCategories) return;
+
+        isLoading = true;
+        if(loadingIndicator){loadingIndicator.style.display = 'block';}
+
+        fetch(`/requests/get-categories/?page=${page}&search=${searchTerm}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (resetList) {
+                categoryList.innerHTML = '';
+                page = 1;
+            }
+
+            // Append categories to the dropdown list
+            if(data.categories.length == 0){
+                categoryList.innerHTML = '<div class="no-results">No categories created</div>';
+                console.log('no categories');
+            }
+            data.categories.forEach(category => {
+                const categoryItem = document.createElement('div');
+                categoryItem.classList.add('dropdown-item');
+                categoryItem.innerHTML = `
+                    <div class="dropdown-item-inner">
+                        <h5>${category.name}</h5>
+                    </div>
+                `;
+                categoryItem.dataset.categoryId = category.id;
+
+                // Create the checkbox with the proper structure
+                const checkboxWrapper = document.createElement('div');
+                checkboxWrapper.innerHTML = `
+                    <label class="container">
+                        <input value="${category.id}" class="category-checkbox" type="checkbox">
+                        <div class="checkmark"></div>
+                    </label>
+                `;
+
+                categoryItem.prepend(checkboxWrapper);
+                categoryList.appendChild(categoryItem);
+
+                const checkbox = checkboxWrapper.querySelector('.category-checkbox');
+
+                // Click event for the entire item
+                categoryItem.addEventListener('click', function (event) {
+                    // Uncheck all other checkboxes and remove previously selected category
+                    const allCheckboxes = categoryList.querySelectorAll('.category-checkbox');
+                    allCheckboxes.forEach(cb => {
+                        if (cb !== checkbox) {
+                            cb.checked = false;
+                            cb.closest('.dropdown-item').classList.remove('selected');
+                        }
+                    });
+
+                    // Set the current checkbox state
+                    if (!checkbox.checked) {
+                        appendSelectedCategory(category.name, category.id);
+                        checkbox.checked = true;
+                        categoryItem.classList.add('selected');
+                    } else {
+                        removeSelectedCategory(category.id);
+                        checkbox.checked = false;
+                        categoryItem.classList.remove('selected');
+                    }
+                });
+
+                // Ensure checkbox triggers parent item click
+                checkbox.addEventListener('click', function (event) {
+                    event.stopPropagation();  // Prevent checkbox click from triggering twice
+                    categoryItem.click();  // Trigger the parent item click
+                });
+
+                // Mark the item as selected if it matches the input value
+                if (category.name === categorySearchInput.value) {
+                    appendSelectedCategory(category.name, category.id);
+                    checkbox.checked = true;
+                    categoryItem.classList.add('selected');
+                }
+            });
+
+            if (data.categories.length === 0 && resetList) {
+                categoryList.innerHTML = '<div class="no-results">No results found</div>';
+            }
+
+            hasMoreCategories = data.has_more;
+            isLoading = false;
+            if(loadingIndicator){loadingIndicator.style.display = 'none';}
+            page += 1;
+        })
+        .catch(error => {
+            console.error('Error fetching categories:', error);
+            isLoading = false;
+            if(loadingIndicator){loadingIndicator.style.display = 'none';}
+        });
+    }
+
+    // Function to append selected category to the list and input field
+    function appendSelectedCategory(name, categoryId) {
+        // Update the input field with the selected category name
+        categorySearchInput.value = name;
+        categorySearchInput.setAttribute('data-category-id', categoryId);
+    }
+
+    // Function to remove selected category from the list
+    function removeSelectedCategory(categoryId) {
+        const categoryItem = selectedCategories.querySelector(`[data-category-id="${categoryId}"]`);
+        if (categoryItem) {
+            categoryItem.remove();
+        }
+        
+        // Clear the input field when no category is selected
+        categorySearchInput.value = '';
+
+        // Uncheck the corresponding item in the dropdown
+        const dropdownItem = categoryList.querySelector(`[data-category-id="${categoryId}"]`);
+        if (dropdownItem) {
+            dropdownItem.classList.remove('selected');
+            dropdownItem.querySelector('.category-checkbox').checked = false;
+        }
+    }
+
+    // Event listener for scrolling in the dropdown list (infinite scroll)
+    categoryList.addEventListener('scroll', function () {
+        if (categoryList.scrollTop + categoryList.clientHeight >= categoryList.scrollHeight) {
+            fetchCategories(categorySearchInput.value);
+        }
+    });
+
+    // Event listener for the search input
+    categorySearchInput.addEventListener('input', function () {
+        page = 1;
+        hasMoreCategories = true;
+        fetchCategories(categorySearchInput.value, true);
+    });
+
+    // Event listener to display the dropdown list when focusing the search input
+    categorySearchInput.addEventListener('focus', function () {
+        categorySearchInput.style.borderRadius = '8px 8px 0 0';
+        categoryList.style.display = 'block';
+        categorySearchInput.style.border = '2px solid #c7c7db';
+    });
+
+    // Hide the dropdown list when clicking outside
+    document.addEventListener('click', function (event) {
+        if (!container.contains(event.target)) {
+            categoryList.style.display = 'none';
+            categorySearchInput.style.borderRadius = '8px';
+            categorySearchInput.style.border = '1px solid #ececf1';
+        }
+    });
+
+    // Initial load
+    fetchCategories();
+}
+
+// Function to create a new category
+function createCategory(name) {
+    fetch('/requests/create-category/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: new URLSearchParams({
+            'name': name,
+        }),
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('Error creating category');
+    })
+    .then(data => {
+        // Update the dropdown list with the new category
+        updateCategoryDropdown(data.id, data.name);
+        // Fully resetting the category dropdown to add the newly added category
+        const categoryList = document.querySelector('.categoryList');
+        const dropdownItems = categoryList.querySelectorAll('.dropdown-item');
+        // Remove each dropdown item
+        dropdownItems.forEach(item => {
+            categoryList.removeChild(item);
+        });
+
+        document.querySelectorAll('.category-dropdown').forEach(dropdown => {
+            initializeCategoryDropdown(dropdown.id);
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+// Function to update the category dropdown list
+function updateCategoryDropdown(categoryId, categoryName) {
+    const categoryList = document.querySelector('.categoryList');  // Adjust if necessary
+
+    const categoryItem = document.createElement('div');
+    categoryItem.classList.add('dropdown-item');
+    categoryItem.innerHTML = `
+        <div class="dropdown-item-inner">
+            <h5>${categoryName}</h5>
+        </div>
+    `;
+    categoryItem.dataset.categoryId = categoryId;
+
+    const checkboxWrapper = document.createElement('div');
+    checkboxWrapper.innerHTML = `
+        <label class="container">
+            <input value="${categoryId}" class="category-checkbox" type="checkbox">
+            <div class="checkmark"></div>
+        </label>
+    `;
+
+    categoryItem.prepend(checkboxWrapper);
+    categoryList.appendChild(categoryItem);
+}
+
+document.getElementById('createCategoryButton').addEventListener('click', function() {
+    const categoryName = document.getElementById('newCategoryName').value.trim();
+    if (categoryName) {
+        createCategory(categoryName);
+        document.getElementById('newCategoryName').value = ''; // Clear input field
+        closePopup('createCategory');
+
+        const createCategoryButton = document.getElementById('createCategoryButton');
+        createCategoryButton.classList.add('disabled');
+        createCategoryButton.setAttribute('disabled', true);
+    } else {
+        alert('Please enter a category name.');
+    }
 });

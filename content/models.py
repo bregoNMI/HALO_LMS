@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 class Category(models.Model):
     name = models.CharField(max_length=200, blank=True)
@@ -91,8 +93,8 @@ class Course(models.Model):
     ]
 
     STATUS_TYPES = [
-        ('active', 'Active'),
-        ('inactive', 'Inactive'),
+        ('Active', 'Active'),
+        ('Inactive', 'Inactive'),
     ]
 
     MUST_COMPLETE_CHOICES = [
@@ -104,8 +106,9 @@ class Course(models.Model):
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     type = models.CharField(max_length=20, choices=COURSE_TYPES, default='bundle')
+    status = models.CharField(max_length=20, choices=STATUS_TYPES, default='Inactive')
     thumbnail = models.ForeignKey('Media', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_thumbnail')
     credential = models.OneToOneField('Credential', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_credential')
     upload_instructions = models.TextField(blank=True)
@@ -117,6 +120,7 @@ class Course(models.Model):
 
     def get_event_date(self, event_type):
         event = self.event_dates.filter(type=event_type).first()
+        print(event.from_enrollment)
         return event.date if event else None
 
     def __str__(self):
@@ -198,7 +202,8 @@ class Resources(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='resources')
     type = models.CharField(max_length=20, choices=RESOURCE_TYPES)
     title = models.CharField(max_length=200, blank=True)
-    url = models.URLField(max_length=500, blank=True)  # Replace file field with URLField
+    url = models.URLField(max_length=500, blank=True)
+    file_type = models.CharField(max_length=200, blank=True, null=True)
     description = models.TextField(blank=True)
 
     def __str__(self):

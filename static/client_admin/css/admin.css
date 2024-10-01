@@ -1017,7 +1017,7 @@ tr.selected-option th, tr.selected-option td{
 /* Custom radio button */
 .custom-radio {
     position: relative;
-    padding-left: 25px;
+    padding-left: 22px;
     cursor: pointer;
     user-select: none;
     font-size: 0.95rem;

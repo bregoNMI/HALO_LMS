@@ -16,7 +16,7 @@
     background-color: white;
     color: var(--text-color2);
     border: 1px solid var(--bg-color2);
-    font-weight: 600;
+    /* font-weight: 600; */
 }
 
 .close-library-btn:hover{

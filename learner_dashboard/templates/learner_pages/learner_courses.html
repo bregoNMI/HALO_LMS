@@ -1,5 +1,6 @@
 {% extends 'learner_base.html' %}
 {% load static %}
+{% load custom_filters %}
 {% block content %}
 {% include 'learner_sidebar.html' %}
 <div class="learner-body align-center scrollable-content">
@@ -30,6 +31,8 @@
                         <div class="course-item-top">                         
                             {% if user_course.course.thumbnail.thumbnail_link %}
                                 <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_link }});" class="course-item-thumbnail"></div>
+                            {% elif user_course.course.thumbnail.thumbnail_image %}
+                                <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_image.url }});" class="course-item-thumbnail"></div>
                             {% else %}
                                 <div class="course-item-thumbnail">
                                     <div class="thumbnail-placeholder">
@@ -51,7 +54,7 @@
                                         <i class="fa-solid fa-check"></i>
                                     </div>
                                 {% else %}
-                                    <div class="course-item-status-item orange-status-item">
+                                    <div class="course-item-status-item red-status-item">
                                         <i class="fa-regular fa-stopwatch"></i>
                                     </div>
                                 {% endif %}  
@@ -120,10 +123,12 @@
                                         {% endif %}
                                     </div>
                                     <h4 class="course-item-popup-title">{{ user_course.course.title }}</h4>
-                                    <div class="course-time-wrapper">
-                                        <i class="fa-regular fa-clock"></i>
-                                        <span>8h 18m</span>
-                                    </div>
+                                    {% if user_course.course.estimated_completion_time %}
+                                        <div class="course-time-wrapper">
+                                            <i class="fa-regular fa-clock"></i>
+                                            <span>{{ user_course.course.estimated_completion_time|format_time }}</span>
+                                        </div>
+                                    {% endif %}
                                     <!-- Button To Start Course -->
                                     {% if user_course.get_status == 'Not Started' %}
                                         <div class="start-course-btn">
@@ -153,7 +158,9 @@
                                     <div class="tabs">
                                         <button class="tab active" data-target="tab1">Overview</button>
                                         <button class="tab" data-target="tab2">Lessons</button>
-                                        <button class="tab" data-target="tab3">Reference Materials</button>
+                                        {% if user_course.course.resources.exists %}
+                                            <button class="tab" data-target="tab3">Reference Materials</button>
+                                        {% endif %}
                                         <div class="tab-indicator"></div>
                                     </div>
                                 
@@ -240,7 +247,13 @@
                                             {% endfor %}
                                         </div>
                                         <div class="tab-content scrollable-content-inner" id="tab3">
-                                            <p>Content for Tab 3</p>
+                                            {% for resource in user_course.course.resources.all %}
+                                                {% if resource.type == 'reference' %}
+                                                    <p>{{ resource.title }}</p>
+                                                    <p>{{ resource.type }}</p>
+                                                    <p>{{ resource.url }}</p>
+                                                {% endif %}
+                                            {% endfor %}
                                         </div>
                                     </div>
                                 </div>                        
