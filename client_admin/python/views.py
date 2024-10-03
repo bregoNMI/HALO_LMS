@@ -695,5 +695,5 @@ def stop_impersonating(request):
             except User.DoesNotExist:
                 messages.error(request, 'Original user not found. Please log in again.')
 
-    return redirect('/dashboard')  # Redirect to the appropriate page
+    return redirect('/admin/users')  # Redirect to the appropriate page
 
