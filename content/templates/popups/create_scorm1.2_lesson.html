@@ -3,9 +3,9 @@
         <div class="popup-header">
             <h3>Create New Lesson</h3>
             <span class="selected-lesson-type pastel-purple">SCORM 1.2</span>
-            <div onclick="closeCreateLessonPopup('scorm1.2Popup')" class="close-popup-icon">
+            <button onclick="closeCreateLessonPopup('scorm1.2Popup')" class="close-popup-icon">
                 <i class="fa-solid fa-xmark"></i>
-            </div>
+            </button>
         </div>
         <div class="popup-body">
             <div class="course-content-input">
@@ -17,7 +17,7 @@
                 <div class="editor-container" id="SCORM12lessonDescription"></div>
             </div>
             <div class="choose-file-wrapper">
-                <h5 class="popup-content-header">Upload Lesson File</h5>
+                <h5 class="popup-content-header">Upload Lesson File <span class="file-required-text">(Required)</span></h5>
                 <label for="SCORM1.2fileInput" class="custom-file-upload-container">
                     <div class="custom-file-upload">
                         <input type="file" id="SCORM1.2fileInput" name="file" style="display: none;" accept=".zip">
@@ -29,6 +29,12 @@
                     
                     <!-- <input type="file" id="fileInput" name="file">               -->   
                 </label> 
+            </div>
+            <div class="file-upload-loading">
+                <svg class="file-loading" viewBox="25 25 50 50">
+                    <circle r="20" cy="50" cx="50"></circle>
+                </svg>
+                <span>Uploading Lesson File, please wait...</span>
             </div>
             <!-- <input type="hidden" id="SCORM1.2fileURLInput" name="fileURL" accept=".zip"> -->
         </div>

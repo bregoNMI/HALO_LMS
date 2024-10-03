@@ -412,7 +412,7 @@ function createNewReference() {
         </div>
         <div class="reference-card-body">
             <div class="right-column-file-wrapper">
-                <h5 class="right-column-option-header">Reference Source</h5>
+                <h5 class="right-column-option-header">Reference Source <span class="file-required-text">(Required)</span></h5>
                 <div onclick="openFileLibrary('referenceSource', '${newReferenceId}')" class="custom-file-upload-container">
                     <div class="custom-file-upload">
                         <input type="file" id="referenceSource-${newReferenceId}" name="referenceSource" style="display: none;" readonly="">
@@ -422,6 +422,7 @@ function createNewReference() {
                         <span id="referenceSourceDisplay-${newReferenceId}" class="file-name-display">No file selected</span>
                     </div>
                     <input type="hidden" id="referenceURLInput-${newReferenceId}" name="referenceURL">
+                    <input type="hidden" id="referenceTypeInput-${newReferenceId}" name="referenceType">
                 </div>
             </div>
             <div class="reference-card-content">
@@ -641,29 +642,30 @@ function confirmUploadDelete(){
 }
 
 // Function to handle creating a lesson
-function createLesson(lessonType) {
+async function createLesson(lessonType) {
     let title;
     let description;
-    let fileURLInput;
+    let fileInput; // This can be a file or a URL
     let fileName;
     let popupToClose;
 
+    // Determine the title, description, and file input based on lesson type
     if (lessonType === 'file' && window.closestLessonContainer) {
         title = document.getElementById('lessonTitle').value;
         description = getEditorContent('lessonDescription');
-        fileURLInput = document.getElementById('fileURLInput').value;
+        fileInput = document.getElementById('fileURLInput').value; // This is a a URL from the File Library
         fileName = document.getElementById('lessonFileDisplay').innerText;  
         popupToClose = 'lessonCreationPopup';
     } else if (lessonType === 'SCORM1.2' && window.closestLessonContainer) {
         title = document.getElementById('SCORM1.2lessonTitle').value;
         description = getEditorContent('SCORM12lessonDescription');
-        fileURLInput = document.getElementById('SCORM1.2fileInput').files[0];
+        fileInput = document.getElementById('SCORM1.2fileInput').files[0];
         fileName = document.getElementById('SCORM1.2fileNameDisplay').innerText;
         popupToClose = 'scorm1.2Popup';
     } else if (lessonType === 'SCORM2004' && window.closestLessonContainer) {
         title = document.getElementById('SCORM2004lessonTitle').value;
         description = getEditorContent('SCORM2004lessonDescription');
-        fileURLInput = document.getElementById('SCORM2004fileInput').files[0];
+        fileInput = document.getElementById('SCORM2004fileInput').files[0];
         fileName = document.getElementById('SCORM2004fileNameDisplay').innerText;
         popupToClose = 'scorm2004Popup';
     }
@@ -674,17 +676,24 @@ function createLesson(lessonType) {
 
         let fileURL = '';
 
-        // Handle file inputs
-        if (fileURLInput instanceof File) {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                fileURL = event.target.result;
-                createAndAppendLessonCard(index, title, description, fileURL, fileName, lessonType);
-            };
-            reader.readAsDataURL(fileURLInput);
-        } else {
-            fileURL = fileURLInput;
+        // Case: lessonType is 'file' and fileInput is a URL
+        if (lessonType === 'file' && typeof fileInput === 'string' && fileInput.startsWith('http')) {
+            // Use the URL directly
+            fileURL = fileInput;
             createAndAppendLessonCard(index, title, description, fileURL, fileName, lessonType);
+        } 
+        // Case: fileInput is a File object
+        else if (fileInput instanceof File) {
+            const fileId = await uploadFile(fileInput); // Upload the file and get the ID
+            if (fileId) {
+                createAndAppendLessonCard(index, title, description, fileId, fileName, lessonType); // Use fileId
+            } else {
+                console.error('File upload failed, lesson not created');
+            }
+        } 
+        // Handle invalid file input
+        else {
+            console.error('No valid file input provided');
         }
     }
 
@@ -705,7 +714,99 @@ function createLesson(lessonType) {
     }, 300);
 }
 
+// Function to upload a file and return the file ID
+async function uploadFile(file, isUpdate = false) {
+    const formData = new FormData();
+    formData.append('file', file); // Attach the file
+
+    try {
+        showFileUploadLoading(isUpdate);
+        console.log('Uploading file');
+        const response = await fetch('/requests/upload-lesson-file/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('File upload failed');
+        }
+
+        const data = await response.json();
+        console.log('Uploaded file ID:', data.file_id);
+
+        // If isUpdate is true, update the editFileURLInput field (used in edit mode)
+        if (isUpdate) {
+            document.getElementById('editFileURLInput').value = data.file_id; // Set file ID in the edit field
+        }
+
+        console.log('Upload finished');
+        removeFileUploadLoading(isUpdate);
+        return data.file_id; // Return the file ID from the response
+    } catch (error) {
+        removeFileUploadLoading(isUpdate);
+        console.error('Error uploading file:', error);
+        return null; // Handle error case as needed
+    }
+}
+
+function showFileUploadLoading(isUpdate){
+    const loadingSymbols = document.querySelectorAll('.file-upload-loading');
+    // Showing the loading symbol
+    for (const symbol of loadingSymbols) {
+        symbol.style.display = 'flex'; // Show each loading symbol
+    }
+    // Blocking all of the inputs and buttons
+    const popupBtns = document.querySelectorAll('.popup-btn');
+    for (const btn of popupBtns) {
+        btn.classList.add('disabled');
+        btn.setAttribute('disabled', true);
+    }
+    const closePopupIcon = document.querySelectorAll('.close-popup-icon');
+    for (const btn of closePopupIcon) {
+        btn.classList.add('disabled');
+        btn.setAttribute('disabled', true);
+    }
+}
+
+function removeFileUploadLoading(isUpdate){
+    const loadingSymbols = document.querySelectorAll('.file-upload-loading');
+    // Showing the loading symbol
+    for(const symbol of loadingSymbols){
+        symbol.style.display = 'none';
+    }
+
+    // Unblocking all of the inputs and buttons
+    const popupBtns = document.querySelectorAll('.popup-btn');
+    for (const btn of popupBtns) {
+        btn.classList.remove('disabled');
+        btn.removeAttribute('disabled');
+    }
+    const closePopupIcon = document.querySelectorAll('.close-popup-icon');
+    for (const btn of closePopupIcon) {
+        btn.classList.remove('disabled');
+        btn.removeAttribute('disabled');
+    }
+    if(isUpdate){
+        const finishedLoadingSymbols = document.querySelectorAll('.file-upload-finished');
+        // Showing the loading symbol
+        for(const symbol of finishedLoadingSymbols){
+            symbol.style.display = 'flex';
+            symbol.style.opacity = '1';
+            setTimeout(() => {
+                symbol.style.opacity = '0';
+            }, 3000);
+            setTimeout(() => {
+                symbol.style.display = 'none';
+            }, 3400);
+        }   
+    }
+}
+
 function clearFileLessonInputs(){
+    const createFileLessonBtn = document.getElementById('createFileLessonBtn');
     document.getElementById('lessonTitle').value = '';
     document.querySelector('#lessonDescription .ql-editor p').innerHTML = '';
     document.getElementById('fileURLInput').value = '';
@@ -715,6 +816,7 @@ function clearFileLessonInputs(){
     createFileLessonBtn.setAttribute('disabled', true);
 }
 function clearSCORM12LessonInputs(){
+    const createFileLessonBtn = document.getElementById('create12LessonBtn');
     document.getElementById('SCORM1.2lessonTitle').value = '';
     document.querySelector('#SCORM12lessonDescription .ql-editor p').innerHTML = '';
     document.getElementById('SCORM1.2fileInput').value = '';
@@ -724,6 +826,7 @@ function clearSCORM12LessonInputs(){
     createFileLessonBtn.setAttribute('disabled', true);
 }
 function clearSCORM2004LessonInputs(){
+    const createFileLessonBtn = document.getElementById('create2004LessonBtn');
     document.getElementById('SCORM2004lessonTitle').value = '';
     document.querySelector('#SCORM2004lessonDescription .ql-editor p').innerHTML = '';
     document.getElementById('SCORM2004fileInput').value = '';
@@ -731,6 +834,7 @@ function clearSCORM2004LessonInputs(){
     // Resetting Create BTN
     createFileLessonBtn.classList.add('disabled');
     createFileLessonBtn.setAttribute('disabled', true);
+    console.log(createFileLessonBtn);
 }
 
 function createAndAppendLessonCard(index, title, description, fileURL, fileName, lessonType) {
@@ -1017,6 +1121,8 @@ document.getElementById('editLessonBtn').addEventListener('click', function () {
     const newFileURL = document.getElementById('editFileURLInput').value;
     const fileName = document.getElementById('editLessonFileDisplay').innerText;
 
+    console.log(newFileURL);
+
     // Update the lesson with the edited data
     updateLessonCard(window.lessonToEdit, newTitle, newDescription, fileName, newFileURL);
 
@@ -1072,13 +1178,8 @@ function assignFIleInputListeners(){
     document.getElementById('SCORM12FileEditInput').addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64Data = e.target.result;
-                document.getElementById('editFileURLInput').value = base64Data; // Store base64 data in the input field
-                document.getElementById('editLessonFileDisplay').textContent = file.name; // Update file display name
-            };
-            reader.readAsDataURL(file);
+            document.getElementById('editLessonFileDisplay').textContent = file.name; // Update file display name
+            uploadFile(file, true);
         } else {
             document.getElementById('editLessonFileDisplay').textContent = 'No file selected';
             document.getElementById('editFileURLInput').value = ''; // Clear the input field if no file is selected
@@ -1090,13 +1191,8 @@ function assign2004FIleInputListeners(){
     document.getElementById('SCORM2004FileEditInput').addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64Data = e.target.result;
-                document.getElementById('editFileURLInput').value = base64Data; // Store base64 data in the input field
-                document.getElementById('editLessonFileDisplay').textContent = file.name; // Update file display name
-            };
-            reader.readAsDataURL(file);
+            document.getElementById('editLessonFileDisplay').textContent = file.name; // Update file display name
+            uploadFile(file, true);
         } else {
             document.getElementById('editLessonFileDisplay').textContent = 'No file selected';
             document.getElementById('editFileURLInput').value = ''; // Clear the input field if no file is selected
@@ -1105,27 +1201,43 @@ function assign2004FIleInputListeners(){
 }
 
 // Clearing disabled status on create lesson buttons
-document.getElementById('lessonTitle').addEventListener('keyup', function() {
+function checkLessonFileFields() {
+    const lessonTitle = document.getElementById('lessonTitle');
+    const fileURLInput = document.getElementById('fileURLInput');
     const createFileLessonBtn = document.getElementById('createFileLessonBtn');
-    if(this.value.length >= 1){
-        createFileLessonBtn.classList.remove('disabled');
-        createFileLessonBtn.removeAttribute('disabled');
-    }else{
-        createFileLessonBtn.classList.add('disabled');
-        createFileLessonBtn.setAttribute('disabled', true);
-    }
-});
 
-document.getElementById('SCORM2004lessonTitle').addEventListener('keyup', function() {
-    const createFileLessonBtn = document.getElementById('create2004LessonBtn');
-    if(this.value.length >= 1){
+    // Check if both fields have values
+    if (lessonTitle.value.length > 0 && fileURLInput.value.length > 0) {
         createFileLessonBtn.classList.remove('disabled');
         createFileLessonBtn.removeAttribute('disabled');
-    }else{
+    } else {
         createFileLessonBtn.classList.add('disabled');
         createFileLessonBtn.setAttribute('disabled', true);
     }
-});
+}
+// Add event listeners to both fields
+document.getElementById('lessonTitle').addEventListener('keyup', checkLessonFileFields);
+
+function check2004FileFields() {
+    const lessonTitle = document.getElementById('SCORM2004lessonTitle');
+    const fileInput = document.getElementById('SCORM2004fileInput');
+    const createFileLessonBtn = document.getElementById('create2004LessonBtn');
+
+    // Check if both fields have valid values
+    if (lessonTitle.value.length > 0 && fileInput.files.length > 0) {
+        createFileLessonBtn.classList.remove('disabled');
+        createFileLessonBtn.removeAttribute('disabled');
+    } else {
+        createFileLessonBtn.classList.add('disabled');
+        createFileLessonBtn.setAttribute('disabled', true);
+    }
+}
+// Add event listener to the lessonTitle field (user types in it)
+document.getElementById('SCORM2004lessonTitle').addEventListener('keyup', check2004FileFields);
+// Add event listener to the file input field (detects file selection)
+document.getElementById('SCORM2004fileInput').addEventListener('change', check2004FileFields);
+
+
 
 document.getElementById('SCORM1.2lessonTitle').addEventListener('keyup', function() {
     const createFileLessonBtn = document.getElementById('create12LessonBtn');
@@ -1159,16 +1271,20 @@ document.getElementById('newCategoryName').addEventListener('keyup', function() 
 });
 
 
-function generateCourseData() {
+function generateCourseData(isSave) {
+    setDisabledSaveBtns();
     // Validate data
     const errors = validateCourseData();
     if (errors.length > 0) {
         console.log("Validation Errors:", errors);
         // Errors are being displayed from validateCourseData
+        removeDisabledSaveBtns();
         return;
     }
 
     const formData = new FormData(); // Create FormData object
+
+    if(isSave){formData.append('is_save', true);}
 
     // Formatting Completion Time
     const hours = document.getElementById('completion_hours').value || 0;
@@ -1225,6 +1341,7 @@ function generateCourseData() {
         const referenceCards = document.querySelectorAll('.reference-card');
         referenceCards.forEach((referenceCard, index) => {
             const referenceURLInput = document.getElementById(`referenceURLInput-${index + 1}`);
+            const referenceTypeInput = document.getElementById(`referenceTypeInput-${index + 1}`);
             const referenceDescriptionEditor = document.getElementById(`referenceDescription-${index + 1}`);
             
             // Check if the URL input exists before proceeding
@@ -1233,6 +1350,7 @@ function generateCourseData() {
                     type: 'reference',
                     source: referenceURLInput.value,
                     title: referenceCard.querySelector('.reference-title').value.trim(),
+                    file_type: referenceTypeInput.value,
                     description: getEditorContent(`referenceDescription-${index + 1}`), // This will return an empty string if the editor does not exist
                 };
                 courseData.resources.push(referenceData);
@@ -1331,31 +1449,27 @@ function generateCourseData() {
 
         const lessonCards = moduleContainer.querySelectorAll('.lesson-card');
         lessonCards.forEach((lessonCard, lessonIndex) => {
+            const lessonType = lessonCard.querySelector('.lesson-type')?.value || '';
             const lessonData = {
                 title: lessonCard.querySelector('.lesson-title')?.textContent.trim(),
                 description: lessonCard.querySelector('.lesson-description')?.value || '',
                 order: lessonIndex + 1,
-                content_type: lessonCard.querySelector('.lesson-type')?.value || '',
+                content_type: lessonType,
             };
 
             const lessonFileInput = lessonCard.querySelector('.lesson-file');
-            const lessonFileName = lessonCard.querySelector('.lesson-file-name');
-            const lessonType = lessonCard.querySelector('.lesson-type');
-            // Test if it it Type File or SCORM
-            if(lessonType.value === 'file'){
-                formData.append(`lessons[${lessonIndex}][file_link]`, lessonFileName.value);
-            }else{
-                if (lessonFileInput) {
-                    const base64String = lessonFileInput.value;
-                    if (base64String) {
-                        const mimeType = 'application/x-zip-compressed'; // Adjust MIME type if needed
-                        const blob = base64ToBlob(base64String, mimeType);
-                        formData.append(`lessons[${lessonIndex}][file]`, blob, `lesson_${lessonIndex}_file.zip`);
-                    }
-                }
-            }
-            
+            const lessonFileName = lessonCard.querySelector('.lesson-file-name').value;
 
+            // Check if it's a file type
+            if (lessonType === 'file') {
+                // Case 1: It's a file type with a URL
+                lessonData['file_url'] = lessonFileInput.value; // Use the file URL
+                lessonData['file_name'] = lessonFileName; // Include the file name
+            } else if (lessonType.startsWith('SCORM')) {
+                lessonData['file_id'] = lessonFileInput.value;
+            }
+
+            // Add lessonData to moduleData
             moduleData.lessons.push(lessonData);
         });
 
@@ -1405,18 +1519,43 @@ function generateCourseData() {
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Success:', data);
+        if(isSave){
+            displayValidationMessage('Course saved successfully', true);
+            document.getElementById('courseId').value = data.course_id;
+        }else{
+            window.location.href = data.redirect_url;
+            console.log('publish');
+        }
         // Handle success
+        removeDisabledSaveBtns();
     })
     .catch((error) => {
         console.error('Error:', error);
         // Handle error
+        removeDisabledSaveBtns();
     });
+}
+
+function setDisabledSaveBtns(){
+    const courseSaveBtns = document.querySelectorAll('.course-save-btns');
+    for (const btn of courseSaveBtns) {
+        // btn.classList.add('disabled');
+        btn.setAttribute('disabled', true);
+    }
+}
+
+function removeDisabledSaveBtns(){
+    const courseSaveBtns = document.querySelectorAll('.course-save-btns');
+    for (const btn of courseSaveBtns) {
+        // btn.classList.remove('disabled');
+        btn.removeAttribute('disabled');
+    }
 }
 
 const validationMessageContainer = document.getElementById('validation-message-container');
 const validationMessageInner = document.getElementById('validation-message-inner');
 const validationMessage = document.getElementById('validation-message');
+const validationIcon = document.getElementById('validation-icon');
 
 function displayValidationMessage(message, isSuccess) {
     validationMessage.textContent = message;
@@ -1428,6 +1567,11 @@ function displayValidationMessage(message, isSuccess) {
     setTimeout(() => {
         validationMessageContainer.classList.remove('animate-alert-container');
     }, 10000);
+    if(isSuccess){
+        validationIcon.className = 'fa-solid fa-circle-check';
+    }else{
+        validationIcon.className = 'fa-solid fa-triangle-exclamation';
+    }
 }
 
 // Checking to Ensure that all the required fields and filled in

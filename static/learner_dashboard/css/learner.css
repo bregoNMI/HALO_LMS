@@ -924,6 +924,49 @@ html, body, button{
     justify-content: center;
 }
 
+.course-resources-container{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+}
+
+.reference-item{
+    display: flex;
+    flex-direction: row;
+    gap: 0.7rem;
+    text-decoration: none;
+    padding: 0.3rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    transition: all 0.2s linear;
+    outline: 2px solid #f2f2f2;
+}.reference-item:hover{
+    outline-color: var(--primary-blue);
+    background-color: #f2f6ff;
+}
+
+.reference-icon{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    flex: none;
+    width: 2.3rem;
+    box-shadow: 0px 1px 2px 0px var(--primary-blue);
+    margin-bottom: 1px;
+}.reference-icon i{
+    font-size: 1.1rem;
+}
+
+.reference-text h4{
+    font-size: 0.9rem;
+    color: #41454d;
+}.reference-text span{
+    color: var(--text-color4);
+    font-size: 0.9rem;
+}
+
 /* Custom Tooltip */
 .tooltip {
     position: relative;

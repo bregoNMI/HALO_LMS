@@ -14,6 +14,15 @@ class Category(models.Model):
     def __str__(self):
         return self.name
     
+# The lesson files that originally get uploaded
+class UploadedFile(models.Model):
+    title = models.CharField(max_length=200)
+    file = models.FileField(upload_to='uploads/', null=True, blank=True)  # For uploaded files
+    url = models.URLField(max_length=200, null=True, blank=True)  # For URLs
+
+    def __str__(self):
+        return self.title
+    
 class File(models.Model):
     FILE_TYPE_CHOICES = [
         ('image', 'Image'),
@@ -244,6 +253,7 @@ class Lesson(models.Model):
     order = models.PositiveIntegerField()
 
     file = models.ForeignKey(File, on_delete=models.CASCADE, null=True, blank=True)
+    uploaded_file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         ordering = ['order']
@@ -276,3 +286,4 @@ class Answer(models.Model):
 
     def __str__(self):
         return self.text
+    

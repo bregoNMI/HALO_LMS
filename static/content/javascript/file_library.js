@@ -55,6 +55,7 @@ function selectFile(popupId, referenceId = null) {
         const selectedRow = selectedOption.closest('.table-select-option');
         const selectedFileURL = selectedRow.getAttribute('data-file-url');
         const selectedFileTitle = selectedRow.querySelector('.file-title').textContent;
+        const selectedFileType = selectedRow.querySelector('.file-type').textContent;
 
         if (popupId === 'editLesson') {
             const editFileURLInput = document.getElementById('editFileURLInput');
@@ -95,8 +96,10 @@ function selectFile(popupId, referenceId = null) {
             }
         } else if (popupId === 'referenceSource' && referenceId !== null) {
             const referenceURLInput = document.querySelector(`#referenceURLInput-${referenceId}`);
+            const referenceTypeInput = document.querySelector(`#referenceTypeInput-${referenceId}`);
             const referenceSourceDisplay = document.querySelector(`#referenceSourceDisplay-${referenceId}`);
             referenceURLInput.value = selectedFileURL;
+            referenceTypeInput.value = selectedFileType;
             referenceSourceDisplay.innerText = selectedFileTitle;
             closePopup('fileLibrary');
         }else if(popupId === 'header_logo'){
@@ -108,21 +111,22 @@ function selectFile(popupId, referenceId = null) {
                 header_logoDisplay.value = selectedFileTitle;
                 document.getElementById('header_logo_name_display').innerText = selectedFileTitle;
                 document.getElementById('logoImagePreview').src = selectedFileURL;
-                console.log('header');
                 openLibraryPopup("editHeaderPopup");
             } else {
-                displayMessage('Please Select an Image for Certificate Source', false);
+                displayMessage('Please Select an Image for Header Logo', false);
             }
         } else {         
             const fileURLInput = document.getElementById('fileURLInput');
             const lessonFileDisplay = document.getElementById('lessonFileDisplay');
             fileURLInput.value = selectedFileURL;
             lessonFileDisplay.innerText = selectedFileTitle;
+            checkLessonFileFields();
             closeFileLibrary();
         }
 
         console.log('Selected File URL:', selectedFileURL);
-        console.log('Selected File Title:', selectedFileTitle);      
+        console.log('Selected File Title:', selectedFileTitle);     
+        console.log('Selected File Type:', selectedFileType); 
     } else {
         console.log('No file selected');
     }
@@ -332,7 +336,7 @@ document.getElementById('fileUploadForm').addEventListener('submit', function(ev
                             </label>
                         </td>
                         <td class="file-title">${response.file.title}</td>
-                        <td>${response.file.file_type}</td>                   
+                        <td class="file-type">${response.file.file_type}</td>                   
                         <td>${response.file.uploaded_at}</td>
                     </tr>
                 `;
@@ -425,7 +429,7 @@ function updateFileList(files) {
             row.innerHTML = `
                 <td><label class="custom-radio"><input type="radio" name="file_library_select"><span class="custom-radio-button"></span></label></td>
                 <td class="file-title">${file.title}</td>
-                <td>${file.file_type}</td>                   
+                <td class="file-type">${file.file_type}</td>                   
                 <td>${file.uploaded_at}</td>
             `;
     
@@ -565,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 row.innerHTML = `
                     <td><label class="custom-radio"><input type="radio" name="file_library_select"><span class="custom-radio-button"></span></label></td>
                     <td class="file-title">${file.title}</td>
-                    <td>${file.file_type}</td>
+                    <td class="file-type">${file.file_type}</td>
                     <td>${file.uploaded_at}</td>
                 `;
                 fileListContainer.appendChild(row);

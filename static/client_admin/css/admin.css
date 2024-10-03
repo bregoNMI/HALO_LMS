@@ -969,7 +969,7 @@ tr.selected-option th, tr.selected-option td{
 .alert-container {
     position: absolute;
     margin: 20px 0;
-    right: -50rem;
+    right: -70rem;
     transition: all 0.5s ease-in-out;
     z-index: 99;
 }
@@ -1172,6 +1172,7 @@ tr.selected-option th, tr.selected-option td{
 .selected-course-details {
     font-weight: 600;
     color: #41454d;
+    font-size
 }
 
 .selectedCourse .remove-course {

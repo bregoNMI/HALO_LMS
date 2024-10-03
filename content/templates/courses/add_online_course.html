@@ -5,7 +5,7 @@
     <!-- Message Wrapper -->
     <div id="validation-message-container" class="alert-container" style="display: none;">   
         <div id="validation-message-inner">
-            <i class="fa-solid fa-triangle-exclamation"></i>
+            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
             <span id="validation-message"></span>
         </div>
     </div>
@@ -18,20 +18,20 @@
                 <h3> Add Online Course </h3>
             </div>
             <div class="details-top-row-right">
-                <div class="option-btn-row">
+                <!-- <div class="option-btn-row">
                     <div class="option-btn">
                         <i class="fa-regular fa-clock-rotate-left"></i>
                         <span> View History </span>
                     </div>
-                </div>
-                <div class="option-btn">
+                </div> -->
+                <button onclick="generateCourseData('save')" class="option-btn course-save-btns">
                     <i class="fa-regular fa-floppy-disk"></i>
                     <span> Save </span>
-                </div>
-                <div onclick="generateCourseData()" class="action-button-primary">
+                </button>
+                <button onclick="generateCourseData()" class="action-button-primary course-save-btns">
                     <i class="fa-regular fa-paper-plane"></i>
                     <span>Publish</span>
-                </div>
+                </button>
             </div>
         </div>
     </div>
@@ -45,20 +45,20 @@
                     <h3> Add Online Course </h3>
                 </div>
                 <div class="details-top-row-right">
-                    <div class="option-btn-row">
+                    <!-- <div class="option-btn-row">
                         <div class="option-btn">
                             <i class="fa-regular fa-clock-rotate-left"></i>
                             <span> View History </span>
                         </div>
-                    </div>
-                    <div class="option-btn">
+                    </div> -->
+                    <button onclick="generateCourseData('save')" class="option-btn course-save-btns">
                         <i class="fa-regular fa-floppy-disk"></i>
                         <span> Save </span>
-                    </div>
-                    <div onclick="generateCourseData()" class="action-button-primary">
+                    </button>
+                    <button onclick="generateCourseData()" class="action-button-primary course-save-btns">
                         <i class="fa-regular fa-paper-plane"></i>
                         <span>Publish</span>
-                    </div>
+                    </button>
                 </div>
             </div>
             <!-- Beginning of option sections -->
@@ -84,7 +84,7 @@
                             </div>
                             <div class="course-content-input">
                                 <label class="edit-user-label" for="description">Course Description</label>
-                                <div class="editor-container" id="courseDescription"></div>
+                                <div class="editor-container scrollable-content-inner" id="courseDescription"></div>
                             </div>
                             <div class="course-content-input course-content-row">
                                 <div class="edit-user-input">
@@ -536,7 +536,7 @@
                                         </div>
                                         <div class="reference-card-body">
                                             <div class="right-column-file-wrapper">
-                                                <h5 class="right-column-option-header">Reference Source</h5>
+                                                <h5 class="right-column-option-header">Reference Source <span class="file-required-text">(Required)</span></h5>
                                                 <div onclick="openFileLibrary('referenceSource', '1')" for="referenceSource" class="custom-file-upload-container">
                                                     <div class="custom-file-upload">
                                                         <input type="file" id="referenceSource" name="referenceSource" style="display: none;" readonly="">
@@ -546,7 +546,7 @@
                                                         <span id="referenceSourceDisplay-1" class="file-name-display">No file selected</span>
                                                     </div>
                                                     <input type="hidden" id="referenceURLInput-1" name="referenceURL">
-                                                    <input type="hidden" id="referenceType-1" name="referenceType">
+                                                    <input type="hidden" id="referenceTypeInput-1" name="referenceType">
                                                 </div>
                                             </div>
                                             <div class="reference-card-content">

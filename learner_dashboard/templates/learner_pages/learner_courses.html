@@ -34,11 +34,15 @@
                             {% elif user_course.course.thumbnail.thumbnail_image %}
                                 <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_image.url }});" class="course-item-thumbnail"></div>
                             {% else %}
-                                <div class="course-item-thumbnail">
-                                    <div class="thumbnail-placeholder">
-                                        <i class="fa-regular fa-book-open-cover"></i>
-                                    </div>
-                                </div>                                   
+                                {% if settings.default_course_thumbnail %}
+                                    <div style="background-image: url({{ settings.default_course_thumbnail_image.url }});" class="course-item-thumbnail"></div>
+                                {% else %}
+                                    <div class="course-item-thumbnail">
+                                        <div class="thumbnail-placeholder">
+                                            <i class="fa-regular fa-book-open-cover"></i>
+                                        </div>
+                                    </div> 
+                                {% endif %}                                  
                             {% endif %}
                             <div class="course-item-status">
                                 {% if user_course.get_status == 'Not Started' %}
@@ -247,13 +251,21 @@
                                             {% endfor %}
                                         </div>
                                         <div class="tab-content scrollable-content-inner" id="tab3">
-                                            {% for resource in user_course.course.resources.all %}
-                                                {% if resource.type == 'reference' %}
-                                                    <p>{{ resource.title }}</p>
-                                                    <p>{{ resource.type }}</p>
-                                                    <p>{{ resource.url }}</p>
-                                                {% endif %}
-                                            {% endfor %}
+                                            <div class="course-resources-container">
+                                                {% for resource in user_course.course.resources.all %}
+                                                    {% if resource.type == 'reference' %}
+                                                        <a href="{{ resource.url }}" target="_blank" class="reference-item">
+                                                            <div class="reference-icon pastel-blue">
+                                                                <i class="fa-regular fa-paperclip"></i>
+                                                            </div>
+                                                            <div class="reference-text">
+                                                                <h4>{{ resource.title }}</h4>
+                                                                <span>{{ resource.file_type }}</span>
+                                                            </div>
+                                                        </a>                                                    
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>                        
@@ -263,7 +275,7 @@
                 {% empty %}
                     <div style="display: flex;" class="no-widgets-found">
                         <img src="/static/client_admin/images/HALO LMS No Graphic Test-27.png" alt="No Widgets Image">    
-                        <h4>No Courses</h4>
+                        <h4>It's empty in here</h4>
                         <span class="no-widgets-subtext"> You are currently not enrolled in any courses </span>        
                     </div>
                 {% endfor %}

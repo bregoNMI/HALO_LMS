@@ -58,6 +58,7 @@
     background-color: var(--bg-color4);
     flex: 1;
     transition: all 0.2s linear;
+    border: none;
 }
 
 .option-btn:hover {
