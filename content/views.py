@@ -258,12 +258,11 @@ def create_or_update_course(request):
                 )
 
     def handle_uploads(course, uploads_data):
-        """ Initialize uploads for the course with instructions but no file """
-        for upload_data in uploads_data:
-            Upload.objects.create(
-                course=course,
-                approved_by=None  # No approval initially
-            )
+        upload_instructions = request.POST.get('upload_instructions', '')
+
+        # Now you can save the instructions to the course model or handle them as needed
+        course.upload_instructions = upload_instructions
+        course.save()
 
     try:
         if request.method == 'POST':

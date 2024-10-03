@@ -1360,6 +1360,40 @@ function generateCourseData(isSave) {
         formData.append('resources', JSON.stringify(courseData.resources));
     }
 
+    // Handle Upload Instructions
+    const uploadInstructions = getEditorContent('uploadInstructions');  // Assuming you have a getEditorContent function to get the content of the editor
+
+    // Add upload instructions to courseData
+    courseData.upload_instructions = uploadInstructions;
+
+    // Append upload instructions to formData
+    formData.append('upload_instructions', uploadInstructions);
+
+    // Handle Uploads
+    const uploadCards = document.querySelectorAll('.upload-card');
+    uploadCards.forEach((uploadCard, index) => {
+        const uploadData = {
+            type: 'upload',
+            title: uploadCard.querySelector('.upload-title').value.trim(),
+            approval_type: uploadCard.querySelector('input[name="upload_approval"]:checked').value,
+        };
+
+        // Handle special case for 'Other' approval type (if additional users are selected)
+        if (uploadData.approval_type === 'upload_approval4') {
+            const selectedUsers = [];
+            const userList = uploadCard.querySelectorAll('.selectedUsers .user-item');
+            userList.forEach(user => {
+                selectedUsers.push(user.dataset.userId); // Assuming each user-item has a data-user-id attribute
+            });
+            uploadData.selected_approvers = selectedUsers; // Add selected approvers to the data
+        }
+
+        courseData.resources.push(uploadData); // Push the upload data into the course resources array
+    });
+
+    // Append uploads data to formData
+    formData.append('resources', JSON.stringify(courseData.resources));
+
     // Handle Event Dates
     const eventDateSections = [
         {
