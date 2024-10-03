@@ -5,7 +5,7 @@
     <!-- Message Wrapper -->
     <div id="validation-message-container" class="alert-container" style="display: none;">   
         <div id="validation-message-inner">
-            <i class="fa-solid fa-triangle-exclamation"></i>
+            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
             <span id="validation-message"></span>
         </div>
     </div>
@@ -18,20 +18,20 @@
                 <h3> Add Online Course </h3>
             </div>
             <div class="details-top-row-right">
-                <div class="option-btn-row">
+                <!-- <div class="option-btn-row">
                     <div class="option-btn">
                         <i class="fa-regular fa-clock-rotate-left"></i>
                         <span> View History </span>
                     </div>
-                </div>
-                <div class="option-btn">
+                </div> -->
+                <button onclick="generateCourseData('save')" class="option-btn course-save-btns">
                     <i class="fa-regular fa-floppy-disk"></i>
                     <span> Save </span>
-                </div>
-                <div onclick="generateCourseData()" class="action-button-primary">
+                </button>
+                <button onclick="generateCourseData()" class="action-button-primary course-save-btns">
                     <i class="fa-regular fa-paper-plane"></i>
                     <span>Publish</span>
-                </div>
+                </button>
             </div>
         </div>
     </div>
@@ -45,20 +45,20 @@
                     <h3> Add Online Course </h3>
                 </div>
                 <div class="details-top-row-right">
-                    <div class="option-btn-row">
+                    <!-- <div class="option-btn-row">
                         <div class="option-btn">
                             <i class="fa-regular fa-clock-rotate-left"></i>
                             <span> View History </span>
                         </div>
-                    </div>
-                    <div class="option-btn">
+                    </div> -->
+                    <button onclick="generateCourseData('save')" class="option-btn course-save-btns">
                         <i class="fa-regular fa-floppy-disk"></i>
                         <span> Save </span>
-                    </div>
-                    <div onclick="generateCourseData()" class="action-button-primary">
+                    </button>
+                    <button onclick="generateCourseData()" class="action-button-primary course-save-btns">
                         <i class="fa-regular fa-paper-plane"></i>
                         <span>Publish</span>
-                    </div>
+                    </button>
                 </div>
             </div>
             <!-- Beginning of option sections -->
@@ -76,13 +76,15 @@
                             </div>
                         </div>
                         <div class="info-card-body">
+                            <!-- Hidden Field to store the course ID -->
+                            <input id="courseId" type="hidden">
                             <div class="course-content-input">
                                 <label class="edit-user-label" for="title">Course Title</label>
                                 <input type="text" id="title" name="title" placeholder="Course Title (Required)">
                             </div>
                             <div class="course-content-input">
                                 <label class="edit-user-label" for="description">Course Description</label>
-                                <div class="editor-container" id="courseDescription"></div>
+                                <div class="editor-container scrollable-content-inner" id="courseDescription"></div>
                             </div>
                             <div class="course-content-input course-content-row">
                                 <div class="edit-user-input">
@@ -97,16 +99,24 @@
                                     </div>
                                 </div>
                                 <div class="edit-user-input">
-                                    <label class="edit-user-label" for="category">Category</label>
-                                    <div class="custom-select margin-0">
-                                        <i class="fa-regular fa-angle-down"></i>     
-                                        <input class="select-selected" type="text" id="category" name="category" value="" readonly="" placeholder="Select a category">
-                                        <div class="select-items scrollable-content" style="display: none;">
-                                            {% for category in category_list %}
-                                                <div class="select-item" data-id="{{ category.id }}" data-name="category" data-value="{{ category }}">{{ category }}</div>                                         
-                                            {% endfor %}
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <label class="edit-user-label" for="category">Category</label>
+                                        <span style="display: flex;" onclick="openPopup('createCategory')" class="create-category-icon tooltip" data-tooltip="Create New Category">
+                                            <span class="tooltiptext">Create New Category</span>
+                                            <i class="fa-regular fa-plus"></i>
+                                        </span>
+                                    </div>                           
+                                    <div id="selectedCategories">
+                                        <div class="right-column-file-wrapper">
+                                            <div id="userDropdown2" class="category-dropdown course-content-input">
+                                                <input type="text" id="category" name="category" class="categorySearch" placeholder="Search categories...">
+                                                <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                                                <div class="categoryList scrollable-content-inner">
+                                                    <div class="loadingIndicator" style="display:none;">Loading...</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </div>                 
                                 </div>
                             </div>      
                         </div>
@@ -138,16 +148,37 @@
                                     </label>
                                 </div>  
                             </div>
-                            <div class="course-content-input">
-                                <label class="edit-user-label" for="terms">Terms & Conditions</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="terms" name="terms">
-                                    <div class="toggle-switch-background">
-                                      <div class="toggle-switch-handle"></div>
+                            <div class="course-content-input course-content-row" style="flex-wrap: wrap;">
+                                <div class="edit-user-input" style="flex: 1 1 35%;">
+                                    <label class="edit-user-label" for="terms">Terms & Conditions</label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="terms" name="terms">
+                                        <div class="toggle-switch-background">
+                                        <div class="toggle-switch-handle"></div>
+                                        </div>
+                                    </label>
+                                    <span class="course-content-input-subtext"> Learners must accept Terms & Conditions to gain access to the course.</span>
+                                </div>
+                                <div class="edit-user-input" style="flex: 1 1 35%;">
+                                    <label class="edit-user-label">Completion Time</label>
+                                    <div style="display: flex; gap: 1rem;">
+                                        <div class="edit-user-input" style="max-width: 13.6rem;">
+                                            <input type="number" id="completion_hours" name="completion_hours" class="icon-field form-control" placeholder="Hours" min="0">
+                                            <span class="input-group-addon">
+                                                <i class="fa-regular fa-hourglass"></i>
+                                            </span>
+                                        </div>
+                                        <div class="edit-user-input" style="max-width: 13.6rem;">
+                                            <input type="number" id="completion_seconds" name="completion_seconds" class="icon-field form-control" placeholder="Minutes" min="0" max="60">
+                                            <span class="input-group-addon">
+                                                <i class="fa-regular fa-watch"></i>
+                                            </span>
+                                        </div>
                                     </div>
-                                </label>
-                                <span class="course-content-input-subtext"> Learners must accept Terms & Conditions to gain access to the course.</span>
-                            </div>     
+                                    
+                                    <span class="course-content-input-subtext"> Provide an estimated completion time for the course.</span>
+                                </div>
+                            </div>  
                         </div>
                     </div>
                     <!-- Course Content -->
@@ -449,7 +480,7 @@
                                     <div class="dropzone" id="dropzone">
                                         <i class="fa-regular fa-panorama"></i>
                                         <p>Drag & drop an image here, or click to select one</p>
-                                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                                        <input type="file" id="thumbnailFileInput" accept="image/*" style="display: none;">
                                         <!-- Thumbnail Display -->
                                         <div id="imagePreview" class="image-preview">
                                             <img alt="Course Thumbnail" id="ThumbnailImagePreview">
@@ -487,7 +518,7 @@
                             <!-- Reference -->
                             <div class="toggle-option-details">
                                 <div id="referenceContainer" class="course-references-container reference-container">
-                                    <div class="reference-card">
+                                    <div class="reference-card" id="referenceCard-1">
                                         <div class="info-card-header collapsable-header">
                                             <div class="card-header-left">
                                                 <i class="fa-light fa-grip-dots-vertical reference-drag-icon"></i>
@@ -505,7 +536,7 @@
                                         </div>
                                         <div class="reference-card-body">
                                             <div class="right-column-file-wrapper">
-                                                <h5 class="right-column-option-header">Reference Source</h5>
+                                                <h5 class="right-column-option-header">Reference Source <span class="file-required-text">(Required)</span></h5>
                                                 <div onclick="openFileLibrary('referenceSource', '1')" for="referenceSource" class="custom-file-upload-container">
                                                     <div class="custom-file-upload">
                                                         <input type="file" id="referenceSource" name="referenceSource" style="display: none;" readonly="">
@@ -515,11 +546,12 @@
                                                         <span id="referenceSourceDisplay-1" class="file-name-display">No file selected</span>
                                                     </div>
                                                     <input type="hidden" id="referenceURLInput-1" name="referenceURL">
+                                                    <input type="hidden" id="referenceTypeInput-1" name="referenceType">
                                                 </div>
                                             </div>
                                             <div class="reference-card-content">
-                                                <label class="edit-user-label" for="referenceDescription">Reference Description</label>
-                                                <div class="editor-container" id="referenceDescription"></div>
+                                                <label class="edit-user-label" for="referenceDescription-1">Reference Description</label>
+                                                <div class="editor-container" id="referenceDescription-1"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -561,7 +593,7 @@
                             <!-- Course Uploads -->
                             <div class="toggle-option-details">
                                 <div id="uploadContainer" class="course-uploads-container upload-container">
-                                    <div class="upload-card">
+                                    <div class="upload-card" id="uploadCard-1">
                                         <div class="info-card-header collapsable-header">
                                             <div class="card-header-left">
                                                 <i class="fa-light fa-grip-dots-vertical upload-drag-icon"></i>
@@ -623,7 +655,7 @@
                                                     <div id="userDropdown1" class="user-dropdown course-content-input">
                                                         <input type="text" class="userSearch" placeholder="Search users...">
                                                         <i class="fa-regular fa-magnifying-glass search-icon"></i>
-                                                        <div class="userList scrollable-content"></div>
+                                                        <div class="userList scrollable-content-inner"></div>
                                                         <div class="loadingIndicator" style="display:none;">Loading...</div>
                                                         <div class="selectedUsers"></div>
                                                     </div>
@@ -644,6 +676,7 @@
             </div>
         </div>
     </div>
+    {% include 'popups/create_category.html' %}
     {% include 'popups/edit_upload_instructions.html' %}
     {% include 'popups/file_library.html' %}
     {% include 'popups/create_new_lesson.html' %}

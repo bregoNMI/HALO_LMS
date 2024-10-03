@@ -5,12 +5,23 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 class Category(models.Model):
     name = models.CharField(max_length=200, blank=True)
 
     def __str__(self):
         return self.name
+    
+# The lesson files that originally get uploaded
+class UploadedFile(models.Model):
+    title = models.CharField(max_length=200)
+    file = models.FileField(upload_to='uploads/', null=True, blank=True)  # For uploaded files
+    url = models.URLField(max_length=200, null=True, blank=True)  # For URLs
+
+    def __str__(self):
+        return self.title
     
 class File(models.Model):
     FILE_TYPE_CHOICES = [
@@ -91,8 +102,8 @@ class Course(models.Model):
     ]
 
     STATUS_TYPES = [
-        ('active', 'Active'),
-        ('inactive', 'Inactive'),
+        ('Active', 'Active'),
+        ('Inactive', 'Inactive'),
     ]
 
     MUST_COMPLETE_CHOICES = [
@@ -104,8 +115,9 @@ class Course(models.Model):
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     type = models.CharField(max_length=20, choices=COURSE_TYPES, default='bundle')
+    status = models.CharField(max_length=20, choices=STATUS_TYPES, default='Inactive')
     thumbnail = models.ForeignKey('Media', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_thumbnail')
     credential = models.OneToOneField('Credential', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_credential')
     upload_instructions = models.TextField(blank=True)
@@ -117,6 +129,7 @@ class Course(models.Model):
 
     def get_event_date(self, event_type):
         event = self.event_dates.filter(type=event_type).first()
+        print(event.from_enrollment)
         return event.date if event else None
 
     def __str__(self):
@@ -189,13 +202,21 @@ class Media(models.Model):
     def __str__(self):
         return f'Media for {self.course.title}'
     
-class Reference(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='references')
-    file = models.FileField(upload_to='references/')
+class Resources(models.Model):
+    RESOURCE_TYPES = [
+        ('reference', 'Reference'),
+        # Add more types as needed
+    ]
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='resources')
+    type = models.CharField(max_length=20, choices=RESOURCE_TYPES)
+    title = models.CharField(max_length=200, blank=True)
+    url = models.URLField(max_length=500, blank=True)
+    file_type = models.CharField(max_length=200, blank=True, null=True)
     description = models.TextField(blank=True)
 
     def __str__(self):
-        return f'Reference for {self.course.title}'
+        return f'Resource for {self.course.title}'
     
 class Upload(models.Model):
     APPROVAL_CHOICES = [
@@ -232,6 +253,7 @@ class Lesson(models.Model):
     order = models.PositiveIntegerField()
 
     file = models.ForeignKey(File, on_delete=models.CASCADE, null=True, blank=True)
+    uploaded_file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         ordering = ['order']
@@ -264,3 +286,4 @@ class Answer(models.Model):
 
     def __str__(self):
         return self.text
+    

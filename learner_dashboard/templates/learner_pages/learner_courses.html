@@ -1,5 +1,6 @@
 {% extends 'learner_base.html' %}
 {% load static %}
+{% load custom_filters %}
 {% block content %}
 {% include 'learner_sidebar.html' %}
 <div class="learner-body align-center scrollable-content">
@@ -30,12 +31,18 @@
                         <div class="course-item-top">                         
                             {% if user_course.course.thumbnail.thumbnail_link %}
                                 <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_link }});" class="course-item-thumbnail"></div>
+                            {% elif user_course.course.thumbnail.thumbnail_image %}
+                                <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_image.url }});" class="course-item-thumbnail"></div>
                             {% else %}
-                                <div class="course-item-thumbnail">
-                                    <div class="thumbnail-placeholder">
-                                        <i class="fa-regular fa-book-open-cover"></i>
-                                    </div>
-                                </div>                                   
+                                {% if settings.default_course_thumbnail %}
+                                    <div style="background-image: url({{ settings.default_course_thumbnail_image.url }});" class="course-item-thumbnail"></div>
+                                {% else %}
+                                    <div class="course-item-thumbnail">
+                                        <div class="thumbnail-placeholder">
+                                            <i class="fa-regular fa-book-open-cover"></i>
+                                        </div>
+                                    </div> 
+                                {% endif %}                                  
                             {% endif %}
                             <div class="course-item-status">
                                 {% if user_course.get_status == 'Not Started' %}
@@ -51,7 +58,7 @@
                                         <i class="fa-solid fa-check"></i>
                                     </div>
                                 {% else %}
-                                    <div class="course-item-status-item orange-status-item">
+                                    <div class="course-item-status-item red-status-item">
                                         <i class="fa-regular fa-stopwatch"></i>
                                     </div>
                                 {% endif %}  
@@ -120,10 +127,12 @@
                                         {% endif %}
                                     </div>
                                     <h4 class="course-item-popup-title">{{ user_course.course.title }}</h4>
-                                    <div class="course-time-wrapper">
-                                        <i class="fa-regular fa-clock"></i>
-                                        <span>8h 18m</span>
-                                    </div>
+                                    {% if user_course.course.estimated_completion_time %}
+                                        <div class="course-time-wrapper">
+                                            <i class="fa-regular fa-clock"></i>
+                                            <span>{{ user_course.course.estimated_completion_time|format_time }}</span>
+                                        </div>
+                                    {% endif %}
                                     <!-- Button To Start Course -->
                                     {% if user_course.get_status == 'Not Started' %}
                                         <div class="start-course-btn">
@@ -153,7 +162,9 @@
                                     <div class="tabs">
                                         <button class="tab active" data-target="tab1">Overview</button>
                                         <button class="tab" data-target="tab2">Lessons</button>
-                                        <button class="tab" data-target="tab3">Reference Materials</button>
+                                        {% if user_course.course.resources.exists %}
+                                            <button class="tab" data-target="tab3">Reference Materials</button>
+                                        {% endif %}
                                         <div class="tab-indicator"></div>
                                     </div>
                                 
@@ -240,7 +251,21 @@
                                             {% endfor %}
                                         </div>
                                         <div class="tab-content scrollable-content-inner" id="tab3">
-                                            <p>Content for Tab 3</p>
+                                            <div class="course-resources-container">
+                                                {% for resource in user_course.course.resources.all %}
+                                                    {% if resource.type == 'reference' %}
+                                                        <a href="{{ resource.url }}" target="_blank" class="reference-item">
+                                                            <div class="reference-icon pastel-blue">
+                                                                <i class="fa-regular fa-paperclip"></i>
+                                                            </div>
+                                                            <div class="reference-text">
+                                                                <h4>{{ resource.title }}</h4>
+                                                                <span>{{ resource.file_type }}</span>
+                                                            </div>
+                                                        </a>                                                    
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>                        
@@ -250,7 +275,7 @@
                 {% empty %}
                     <div style="display: flex;" class="no-widgets-found">
                         <img src="/static/client_admin/images/HALO LMS No Graphic Test-27.png" alt="No Widgets Image">    
-                        <h4>No Courses</h4>
+                        <h4>It's empty in here</h4>
                         <span class="no-widgets-subtext"> You are currently not enrolled in any courses </span>        
                     </div>
                 {% endfor %}

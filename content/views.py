@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
-from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Reference, Upload
+from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile
 from client_admin.models import TimeZone
 from django.http import JsonResponse
 from .models import File
@@ -14,6 +14,9 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.dateformat import DateFormat
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.views.decorators.http import require_POST
+from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
 # Courses
@@ -163,7 +166,6 @@ def create_or_update_course(request):
 
     def handle_modules_and_lessons(course, modules):
         for module_data in modules:
-            print(f"Processing module data: {module_data}")
             module_id = module_data.get('id')
             module = get_object_or_404(Module, id=module_id) if module_id else Module(course=course)
             module.title = module_data.get('title', 'Untitled Module')
@@ -180,19 +182,39 @@ def create_or_update_course(request):
                 lesson.save()
                 print(f"Lesson '{lesson.title}' saved with ID: {lesson.id}")
 
-                if 'file' in lesson_data:
-                    lesson_file = lesson_data['file']
-                    if lesson_file:
-                        file_instance = File(
-                            user=request.user,
-                            file=lesson_file,
-                            title=lesson_file.name,
-                            file_type='other'
-                        )
-                        file_instance.save()
-                        lesson.file = file_instance
-                        lesson.save()
-                        print(f"File '{file_instance.title}' saved for lesson ID: {lesson.id}")
+                # Handle file attachment for the lesson (either file_id or file_url)
+                if 'file_id' in lesson_data:
+                    file_id = lesson_data.get('file_id')
+                    file_instance = get_object_or_404(UploadedFile, id=file_id)
+                    lesson.uploaded_file = file_instance
+                    lesson.save()
+                    print(f"File '{file_instance.title}' associated with lesson ID: {lesson.id}")
+                elif 'file_url' in lesson_data:
+                    file_url = lesson_data.get('file_url')
+
+                    # Attempt to match the file URL with an existing file in the File model
+                    try:
+                        # Retrieve all File instances
+                        file_instance = File.objects.all().filter(file__isnull=False)
+
+                        # Manually check for a match by comparing file URLs
+                        matching_file = None
+                        for file in file_instance:
+                            if file.file.url == file_url:
+                                matching_file = file
+                                break
+
+                        if matching_file:
+                            lesson.file = matching_file  # Assign the file instance to the lesson
+                            lesson.save()
+                            print(f"File URL '{matching_file.file.url}' associated with lesson ID: {lesson.id}")
+                        else:
+                            print(f"No file found with URL '{file_url}' for lesson ID: {lesson.id}")
+
+                    except File.DoesNotExist:
+                        print(f"Error occurred when searching for file with URL '{file_url}' for lesson ID: {lesson.id}")
+
+
 
     def handle_media(course, media_data, request_files):
         """ Handle media for the course """
@@ -216,16 +238,22 @@ def create_or_update_course(request):
                 course.thumbnail = media_obj
                 course.save()  # Save the course to update the thumbnail field
 
-    def handle_references(course, references):
+    def handle_resources(course, resources):
         """ Handle references for the course """
-        for reference_data in references:
-            reference_file = request.FILES.get(reference_data.get('file'), None)
+        for reference_data in resources:
+            resource_url = reference_data.get('source', '')
             description = reference_data.get('description', '')
+            title = reference_data.get('title', '')
+            type = reference_data.get('type', '')
+            file_type = reference_data.get('file_type', '')
             
-            if reference_file:
-                Reference.objects.create(
+            if resource_url:
+                Resources.objects.create(
                     course=course,
-                    file=reference_file,
+                    url=resource_url,  # Use URL instead of file
+                    type=type,
+                    title=title,
+                    file_type=file_type,
                     description=description
                 )
 
@@ -243,17 +271,29 @@ def create_or_update_course(request):
             data = request.POST
             files = request.FILES
 
+            # Testing if the save button was selected
+            is_save = data.get('is_save', None)
+
             # Check if it's an update
-            course_id = data.get('id')
-            course = get_object_or_404(Course, id=course_id) if course_id else Course()
+            course_id = data.get('id', None)
+            print(f"Received course_id: {course_id}")
+            if course_id:
+                course = get_object_or_404(Course, id=course_id)
+            else:
+                # Create a new Course instance if no ID is provided
+                course = Course()
 
             # Update course fields
             course.title = data.get('title', '')
             course.description = data.get('description', '')
-            course.category = get_object_or_404(Category, id=data.get('category_id', 1))
+            category_id = data.get('category_id')
+            if category_id:
+                course.category = get_object_or_404(Category, id=category_id)
             course.type = data.get('type', 'bundle')
             course.terms_and_conditions = data.get('terms_and_conditions', 'false') == 'true'
             course.must_complete = data.get('must_complete', 'any_order')
+            course.estimated_completion_time = data.get('estimated_completion_time', '')
+            course.status = data.get('status', '')
             course.save()
 
             # Handle credentials
@@ -274,14 +314,19 @@ def create_or_update_course(request):
             handle_media(course, media_data, files)
 
             # Handle references
-            references = json.loads(data.get('references', '[]'))
-            handle_references(course, references)
+            resources = json.loads(data.get('resources', '[]'))
+            print(f"Resources received: {resources}")  # Check what modules are being received
+            handle_resources(course, resources)
 
             # Handle uploads
             uploads = json.loads(data.get('uploads', '[]'))
             handle_uploads(course, uploads)
 
-            return JsonResponse({'status': 'success'})
+            if is_save:
+                return JsonResponse({'status': 'success', 'course_id': course.id})
+            else:
+                messages.success(request, 'Course published successfully!')
+                return JsonResponse({'status': 'success', 'redirect_url': '/admin/courses/', 'course_id': course.id})
 
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
@@ -468,3 +513,72 @@ def get_timezones(request):
         })
     else:
         return JsonResponse({'error': 'This view only accepts AJAX requests.'}, status=400)
+    
+def get_categories(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        page = int(request.GET.get('page', 1))
+        per_page = 10
+        offset = (page - 1) * per_page
+
+        search_query = request.GET.get('search', '')
+        # Filter categories based on the search query
+        categories = Category.objects.filter(name__icontains=search_query)[offset:offset + per_page]
+
+        category_data = [{
+            'id': category.id,
+            'name': category.name,
+        } for category in categories]
+
+        return JsonResponse({
+            'categories': category_data,
+            'has_more': Category.objects.filter(name__icontains=search_query).count() > offset + per_page
+        })
+    else:
+        return JsonResponse({'error': 'This view only accepts AJAX requests.'}, status=400)
+    
+@require_POST
+def create_category(request):
+    category_name = request.POST.get('name', '').strip()
+
+    if category_name:
+        # Create a new category
+        category = Category.objects.create(name=category_name)
+        
+        # Return the created category data
+        return JsonResponse({
+            'id': category.id,
+            'name': category.name,
+        }, status=201)  # HTTP 201 Created
+
+    return JsonResponse({'error': 'Category name is required.'}, status=400)
+
+def upload_lesson_file(request):
+    if request.method == 'POST':
+        # Check if a file is uploaded
+        if request.FILES.get('file'):
+            file = request.FILES['file']
+            file_path = default_storage.save(f'lessons/{file.name}', ContentFile(file.read()))
+            uploaded_file = UploadedFile.objects.create(title=file.name, file=file)
+        # Check if a URL is provided
+        elif request.POST.get('url'):
+            url = request.POST.get('url')
+            uploaded_file = UploadedFile.objects.create(title=url, url=url)
+        else:
+            return JsonResponse({'error': 'No file or URL uploaded'}, status=400)
+
+        return JsonResponse({'file_id': uploaded_file.id})  # Return the ID of the uploaded file
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def get_file_id_from_path(file_path):
+    # Check if a record for the file already exists in the database
+    try:
+        # Assuming you have a model called Lesson
+        lesson_file, created = Lesson.objects.get_or_create(
+            file_path=file_path,
+            defaults={'file_name': os.path.basename(file_path)}  # Add other fields as needed
+        )
+        return lesson_file.id  # Return the file ID
+    except Exception as e:
+        # Log the error or handle it as needed
+        return None  # Return None or an appropriate error response

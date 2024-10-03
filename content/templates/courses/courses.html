@@ -2,15 +2,32 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
     <div class="admin-body">
         <div class="admin-top-row">
             <div class="admin-top-row-left">
                 <h2>Courses</h2>
             </div>
             <div class="admin-top-row-right">
-                <div class="action-button-secondary">
+                <!-- <div class="action-button-secondary">
                     <span>Import</span>
-                </div>
+                </div> -->
                 <a href="{% url 'add_online_courses' %}" class="action-button-primary">
                     <span>Add Course</span>
                 </a>
@@ -59,7 +76,7 @@
                                 <input class="sort-hidden-filters" id="sortByHIddenFilter" type="hidden" name="{{ key }}" value="{{ value }}">
                             {% endif %}
                         {% endfor %}                     
-                        <div class="custom-select">
+                        <div class="custom-select sort-options">
                             <div class="select-selected" style="display: none;">Sort By</div>
                             <div id="sortSelectItems" class="select-items scrollable-content">
                                 <div class="sort-item-wrapper" data-value="title_asc">
@@ -129,9 +146,9 @@
                         <tr>
                             <th><label class="container"><input type="checkbox" class="table-select-all-option"><div class="checkmark"></div></label></th>
                             <th>Course Title</th>
-                            <th>First Name</th>
-                            <th>Username</th>
-                            <th>Email Address</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Category</th>
                         </tr>
                     </thead>
                     <tbody>     
@@ -139,9 +156,9 @@
                             <tr data-id="{{ course.id }}" data-details="{% url 'course_details' course.id %}" class="table-select-option">
                                 <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
                                 <td>{{ course.title }}</td>
-                                <td>{{ course.first_name }}</td>                 
-                                <td>{{ course.username }}</td>
-                                <td>{{ course.email }}</td>
+                                <td>{{ course.type }}</td>                 
+                                <td>{{ course.status }}</td>
+                                <td>{{ course.category }}</td>
                             </tr>
                         {% endfor %}        
                     </tbody>

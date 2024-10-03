@@ -3,9 +3,9 @@
         <div class="popup-header">
             <h3>Edit Lesson</h3>
             <span id="editLessonType" class="selected-lesson-type">File</span>
-            <div onclick="closePopup('editLesson')" class="close-popup-icon">
+            <button onclick="closePopup('editLesson')" class="close-popup-icon">
                 <i class="fa-solid fa-xmark"></i>
-            </div>
+            </button>
         </div>
         <div class="popup-body">
             <div class="course-content-input">
@@ -17,7 +17,7 @@
                 <div class="editor-container" id="editLessonDescription"></div>
             </div>
             <div class="choose-file-wrapper">
-                <h5 class="popup-content-header">Choose File</h5>
+                <h5 class="popup-content-header">Choose File <span class="file-required-text">(Required)</span></h5>
                 <div id="editFileUploadSection">
                     <!-- <div id="lessonFileUploadBtn" for="lessonFile" class="custom-file-upload-container">
                         <div class="custom-file-upload">
@@ -31,6 +31,16 @@
                 </div>
             </div>
             <input type="hidden" id="editFileURLInput" name="fileURL">
+            <div class="file-upload-loading">
+                <svg class="file-loading" viewBox="25 25 50 50">
+                    <circle r="20" cy="50" cx="50"></circle>
+                </svg>
+                <span>Uploading Lesson File, please wait...</span>
+            </div>
+            <div class="file-upload-finished">
+                <i class="fa-regular fa-circle-check fa-bounce"></i>
+                <span>File uploaded successfully</span>
+            </div>
         </div>
         <div class="popup-footer">
             <div class="spacer"></div>

@@ -1,5 +1,6 @@
 from django import template
 import os
+import datetime
 
 register = template.Library()
 
@@ -32,3 +33,19 @@ def split(value, key):
     Splits the value by the given key.
     """
     return value.split(key)
+
+@register.filter
+def format_time(estimated_time):
+    # Check if estimated_time is None
+    if not estimated_time:
+        return "N/A"  # Return a placeholder if time is not set
+    
+    # Ensure it's a timedelta object before formatting
+    if isinstance(estimated_time, datetime.timedelta):
+        total_seconds = int(estimated_time.total_seconds())
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        return f"{hours}h {minutes}m"
+
+    # In case it's already a string, return as is (if needed)
+    return str(estimated_time)
