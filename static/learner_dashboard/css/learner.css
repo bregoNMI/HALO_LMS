@@ -235,6 +235,7 @@ html, body, button{
     padding: var(--pad-med) var(--pad-sm);
     background-color: white;
     max-width: 230px;
+    min-width: 200px;
 }
 
 .sidebar-user-information{

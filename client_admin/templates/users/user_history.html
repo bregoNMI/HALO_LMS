@@ -58,51 +58,53 @@
                     <span> History </span>
                 </a>
             </div>
-            <div class="details-info-section">
-                <div class="details-info-card details-info-card-overflow">
-                    <div class="info-card-header collapsable-header">
-                        <div class="card-header-left">
-                            <i class="fa-regular fa-list-tree"></i>
-                            <span> Activity Log </span>
+            {% if activity_logs %}
+                <div class="details-info-section">
+                    <div class="details-info-card details-info-card-overflow">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-list-tree"></i>
+                                <span> Activity Log </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
                         </div>
-                        <div class="card-header-right">
-                            <i class="fa-regular fa-angle-down"></i>
-                        </div>
-                    </div>
-                    <div class="user-history-container info-card-body scrollable-content-inner">
-                        <div class="user-history-wrapper">
-                            {% for log in activity_logs %}                      
-                            <div class="user-history-item">
-                                <div class="user-history-header">
-                                    <div class="user-history-left">
-                                        <div class="user-history-icon">
-                                            <i class="fa-light fa-pencil"></i>
-                                        </div>
-                                        <div class="user-history-action">
-                                            <span><b>{{ log.action_performer }}</b> {{ log.action }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="user-history-right">
-                                        <div class="user-history-date">
-                                            <span> {{ log.timestamp|date:"M d" }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="user-history-body">
-                                    {% with log.action|split:"," as action_parts %}
-                                        {% for part in action_parts %}
-                                            <div class="user-history-body-item">
-                                                <span>{{ part }}</span>
+                        <div class="user-history-container info-card-body scrollable-content-inner">
+                            <div class="user-history-wrapper">
+                                {% for log in activity_logs %}                      
+                                    <div class="user-history-item">
+                                        <div class="user-history-header">
+                                            <div class="user-history-left">
+                                                <div class="user-history-icon">
+                                                    <i class="fa-light fa-pencil"></i>
+                                                </div>
+                                                <div class="user-history-action">
+                                                    <span><b>{{ log.action_performer }}</b> {{ log.action }}</span>
+                                                </div>
                                             </div>
-                                        {% endfor %}
-                                    {% endwith %}
-                                </div>
-                            </div>   
-                            {% endfor %}    
+                                            <div class="user-history-right">
+                                                <div class="user-history-date">
+                                                    <span> {{ log.timestamp|date:"M d" }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="user-history-body">
+                                            {% with log.action|split:"," as action_parts %}
+                                                {% for part in action_parts %}
+                                                    <div class="user-history-body-item">
+                                                        <span>{{ part }}</span>
+                                                    </div>
+                                                {% endfor %}
+                                            {% endwith %}
+                                        </div>
+                                    </div>   
+                                {% endfor %}    
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
             {% if sent_messages %}
                 <div class="details-info-section" style="display: block;">
                     <div class="details-info-card details-info-card-overflow">

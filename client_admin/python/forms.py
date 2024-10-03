@@ -24,7 +24,7 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['username', 'email', 'first_name', 'last_name', 'name_on_cert', 'associate_school',
-                  'archived', 'role', 'birth_date', 'address_1', 'address_2', 'city', 'state', 'code',
+                  'archived', 'role', 'birth_date', 'address_1', 'city', 'state', 'code',
                   'country', 'citizenship', 'phone', 'sex', 'delivery_method', 'referral', 'initials',
                   'photoid', 'passportphoto']
         

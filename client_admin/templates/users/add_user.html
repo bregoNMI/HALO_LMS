@@ -2,126 +2,271 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
-    <div class="admin-body">
-        <h1>Add User</h1>
-        <form id="addUserForm" method="post" action="{% url 'add_user'%}" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="add-user-row">
-                <div class="add-user-input">
-                    <label class="add-user-label" for="first_name">First Name</label>
-                    <input type="text" id="first_name" name="first_name" value="{{ profile.first_name }}">
-                </div>
-                <div class="add-user-input">
-                    <label class="add-user-label" for="last_name">Last Name</label>
-                    <input type="text" id="last_name" name="last_name" value="{{ profile.last_name }}">
-                </div>
-            </div>
-            <div class="add-user-row">
-                <div class="add-user-input">
-                    <label class="add-user-label" for="username">Username</label>
-                    <input type="text" id="username" name="username" value="{{ profile.username }}">
-                </div>
-                <div class="add-user-input">
-                    <label class="add-user-label" for="password">Password</label>
-                    <input type="password" id="password" name="password" value="{{ profile.password }}">
-                </div>
-                <div class="add-user-input">
-                    <label class="add-user-label" for="email">Email</label>
-                    <input type="email" id="email" name="email" value="{{ profile.email }}">
-                </div>
-                <div class="add-user-input">
-                    <label class="add-user-label" for="associate_school">Associate School</label>
-                    <input type="text" id="associate_school" name="associate_school" value="{{ profile.associate_school }}">
-                </div>
-            </div>
-            <div class="add-user-input">
-                <label class="add-user-label" for="role">Role</label>
-                <input type="text" id="role" name="role" value="{{ profile.role }}">
-            </div>
-            <div class="add-user-input">
-                <label class="add-user-label" for="archived">Archived</label>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="archived" name="archived" {% if profile.archived %}checked{% endif %}>
-                    <div class="toggle-switch-background">
-                      <div class="toggle-switch-handle"></div>
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
                     </div>
-                </label>
-            </div>
-            <div class="body">
-                <div class="add-user-header">
-                    <div class="add-user-header-icon">
-                        <i class="fa-regular fa-address-book"></i>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
                     </div>
-                    <h3> Contact </h3>
-                </div>
-                <div class="add-user-row">
-                    <div class="add-user-input">
-                        <label class="add-user-label" for="country">Country</label>
-                        <input type="text" id="country" name="country" value="{{ profile.country }}">
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="admin-body align-center">
+        <div class="max-width-0">
+            <form id="addUserForm" method="post" action="{% url 'add_user'%}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div id="mainNavBar" class="details-top-row">
+                    <div class="details-top-row-left">
+                        <a href="/admin/users/" class="back-btn">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </a>
+                        <h3> Add New User </h3>
                     </div>
-                    <div class="add-user-input">
-                        <label class="add-user-label" for="city">City</label>
-                        <input type="text" id="city" name="city" value="{{ profile.city }}">
-                    </div>
-                    <div class="add-user-input">
-                        <label class="add-user-label" for="address_1">Address 1</label>
-                        <input type="text" id="address_1" name="address_1" value="{{ profile.address_1 }}">
-                    </div>
-                    <div class="add-user-input">
-                        <label class="add-user-label" for="address_2">Address 2</label>
-                        <input type="text" id="address_2" name="address_2" value="{{ profile.address_2 }}">
+                    <div class="details-top-row-right">
+                        <button type="submit" class="action-button-primary submit-form-button scale-button">
+                            <i class="fa-regular fa-paper-plane"></i>
+                            <span>Create User</span>
+                        </button>
                     </div>
                 </div>
-                <div class="add-user-row">
-                    <div class="add-user-input">
-                        <label class="add-user-label" for="state">State</label>
-                        <input type="text" id="state" name="state" value="{{ profile.state }}">
+                <div class="learner-info-section" style="padding-top: var(--pad-lg); display: flex; flex-wrap: wrap; flex-direction: column;">
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-lock"></i>
+                                <span> Login Credentials </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">                         
+                            <div class="learner-card-wrapper">                          
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="username">Username</label>
+                                        <input type="text" id="username" name="username" placeholder="Username (Required)" autocomplete="off" required>
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="password">Password</label>
+                                        <input type="password" id="password" name="password" placeholder="Password (Required)" autocomplete="new-password" required>
+                                    </div>
+                                </div>
+                            </div>                 
+                        </div>
                     </div>
-                    <div class="add-user-input">
-                        <label class="add-user-label" for="code">Zip Code</label>
-                        <input type="text" id="code" name="code" value="{{ profile.code }}">
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-fingerprint"></i>
+                                <span> Identification Images </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">                         
+                            <div class="learner-card-wrapper">                          
+                                <div class="edit-images-row edit-user-row">
+                                    <div class="edit-image">
+                                        <label class="edit-user-label" for="photoid">Headshot Image <span class="file-required-text">(Required)</span></label>
+                                        
+                                        <label for="photoid" class="custom-file-upload-container">
+                                            <div class="custom-file-upload">
+                                                <input type="file" id="photoid" name="photoid" accept="image/*" style="display: none;">
+                                                <i class="fa-solid fa-upload"></i> Choose File
+                                            </div>
+                                            <div class="custom-file-title">                                               
+                                                <span id="photoidNameDisplay" class="file-name-display">No file selected</span>                                                                         
+                                            </div>
+                                        </label> 
+                                    </div>
+                                    <div class="edit-image">
+                                        <label class="edit-user-label" for="passportphoto">Identification Image <span class="file-required-text">(Required)</span></label>
+                                        
+                                        <label for="passportphoto" class="custom-file-upload-container">
+                                            <div class="custom-file-upload">
+                                                <input type="file" id="passportphoto" name="passportphoto" accept="image/*" style="display: none;">
+                                                <i class="fa-solid fa-upload"></i> Choose File
+                                            </div>
+                                            <div class="custom-file-title">                                              
+                                                <span id="passportphotoNameDisplay" class="file-name-display">No file selected</span>                                            
+                                            </div>
+                                        </label> 
+                                    </div>
+                                </div>
+                            </div>                 
+                        </div>
                     </div>
-                    <div class="add-user-input">
-                        <label class="add-user-label" for="phone">Phone</label>
-                        <input type="text" id="phone" name="phone" value="{{ profile.phone }}">
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-head-side-gear"></i>
+                                <span> General </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">                         
+                            <div class="learner-card-wrapper">
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="first_name">First Name</label>
+                                        <input type="text" id="first_name" name="first_name">
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="last_name">Last Name</label>
+                                        <input type="text" id="last_name" name="last_name">
+                                    </div>
+                                </div>
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="associate_school">Associate School</label>
+                                        <input type="text" id="associate_school" name="associate_school">
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="email">Email</label>
+                                        <input type="email" id="email" name="email">
+                                    </div>
+                                </div>
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="role">Role</label>
+                                        <div class="custom-select margin-0">
+                                            <i class="fa-regular fa-angle-down"></i>     
+                                            <input class="select-selected" type="text" id="role" name="role" readonly>
+                                            <div class="select-items scrollable-content" style="display: none;">
+                                                <div class="select-item" data-name="role" data-value="Student">Student</div>
+                                                <div class="select-item" data-name="role" data-value="Auditor">Auditor</div>
+                                                <div class="select-item" data-name="role" data-value="Instructor">Instructor</div>
+                                                <div class="select-item" data-name="role" data-value="Admin">Admin</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="archived">Archived</label>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="archived" name="archived">
+                                            <div class="toggle-switch-background">
+                                              <div class="toggle-switch-handle"></div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div> 
+                            </div>                 
+                        </div>
+                    </div>
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-address-book"></i>
+                                <span> Contact </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">                         
+                            <div class="learner-card-wrapper">                          
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="country">Country</label>
+                                        <input type="text" id="country" name="country">
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="city">City</label>
+                                        <input type="text" id="city" name="city">
+                                    </div>
+                                </div>
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="state">State</label>
+                                        <input type="text" id="state" name="state">
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="address_1">Address</label>
+                                        <input type="text" id="address_1" name="address_1">
+                                    </div>
+                                </div>
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="code">Zip Code</label>
+                                        <input type="text" id="code" name="code">
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="phone">Phone</label>
+                                        <input type="text" id="phone" name="phone">
+                                    </div>
+                                </div>
+                            </div>                 
+                        </div>
+                    </div>
+
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-dice-two"></i>
+                                <span> Other </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">                         
+                            <div class="learner-card-wrapper">                          
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="citizenship">Citizenship</label>
+                                        <input type="text" id="citizenship" name="citizenship">
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="initials">Initials</label>
+                                        <input type="text" id="initials" name="initials">
+                                    </div>
+                                </div>
+                                <div class="edit-user-row">
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="birth_date">Date of Birth</label>
+                                        <input type="text" id="birth_date" name="birth_date" class="date-picker">
+                                        <span class="input-group-addon">
+                                            <i class="fa-regular fa-calendar-lines"></i>
+                                        </span>
+                                    </div>
+                                    <div class="edit-user-input">
+                                        <label class="edit-user-label" for="sex">Gender</label>
+                                        <input type="text" id="sex" name="sex">
+                                    </div>
+                                </div>
+                            </div>                 
+                        </div>
                     </div>
                 </div>
-                <div class="add-user-row">
-                    <div class="add-user-input">
-                        <label class="add-user-label" for="citizenship">Citizenship</label>
-                        <input type="text" id="citizenship" name="citizenship" value="{{ profile.citizenship }}">
-                    </div>
-                    <div class="add-user-input">
-                        <label class="add-user-label" for="initials">Initials</label>
-                        <input type="text" id="initials" name="initials" value="{{ profile.initials }}">
-                    </div>
-                    <div class="add-user-input">
-                        <label class="add-user-label" for="photoid">Photo ID</label>
-                        <input type="file" id="photoid" name="photoid" value="{{ profile.photoid }}">
-                    </div>
-                    <div class="add-user-input">
-                        <label class="add-user-label" for="passportphoto">Passport Photo</label>
-                        <input type="file" id="passportphoto" name="passportphoto" value="{{ profile.passportphoto }}">
-                    </div>
-                </div>   
-            </div>
-            <div class="submit-button-container">
-                <button class="submit-form-button scale-button" type="submit">
-                    <i class="fa-kit fa-regular-user-pilot-circle-plus"></i>
-                    <span>Create User</span>
-                </button>
-            </div>   
-            <!-- Display messages if any -->
-            {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                        <li class="{{ message.tags }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </form>
+            </form>
+        </div>
     </div>
+    <script>
+        document.getElementById('photoid').addEventListener('change', function() {
+            const fileName = this.files[0] ? this.files[0].name : 'No file selected';
+            document.getElementById('photoidNameDisplay').textContent = fileName;
+        });
+
+        document.getElementById('passportphoto').addEventListener('change', function() {
+            const fileName = this.files[0] ? this.files[0].name : 'No file selected';
+            document.getElementById('passportphotoNameDisplay').textContent = fileName;
+        });
+    </script>
     {% include 'optionsSidebar/user_options_sidebar.html' %}
     {% include 'popups/filters_popup.html' %}
-    <script src="{% static 'client_admin/javascript/admin.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
 {% endblock content %}

@@ -466,6 +466,7 @@ def user_history(request, user_id):
 @login_required
 def add_user(request):
     if request.method == 'POST':
+        print('received')
         user_form = UserRegistrationForm(request.POST)
         profile_form = ProfileForm(request.POST, request.FILES)
         if user_form.is_valid():
@@ -507,6 +508,7 @@ def add_user(request):
             profile.save()
 
             addUserCognito(request)
+            print('message')
             messages.success(request, 'User created successfully.')
             return redirect('dashboard/')  # Redirect to a success page or list view
 
