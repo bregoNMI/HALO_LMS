@@ -17,6 +17,7 @@ urlpatterns = [
     path('users/message-users/', views.message_users, name='message_users'),
     path('users/message-user-request/', views.message_users_request, name='message_users'),
     
+    path('add', views.add_user, name='add_user'),
     # Courses
     path('courses/', content_views.admin_courses, name='admin_courses'),
     path('courses/online/add/', content_views.add_online_courses, name='add_online_courses'),
@@ -44,4 +45,7 @@ urlpatterns = [
 
     # Main Dashboard
     path('templates/dashboard/set_main/<int:dashboard_id>/', custom_template_views.set_main_dashboard, name='set_main_dashboard'),
+
+    path('impersonate/<int:profile_id>/', views.impersonate_user, name='impersonate_user'),
+    path('stop-impersonating/', views.stop_impersonating, name='stop_impersonating'),
 ]

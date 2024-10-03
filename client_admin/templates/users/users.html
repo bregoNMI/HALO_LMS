@@ -28,9 +28,12 @@
                 <!-- <div class="action-button-secondary">
                     <span>Import</span>
                 </div> -->
-                <div class="action-button-primary">
-                    <span>Add user</span>
-                </div>
+                <form method="post" enctype="multipart/form-data" action="{% url 'add_user' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="action-button-primary">
+                        <span>Add user</span>
+                    </button>
+                </form>
             </div>
         </div>
         <div class="table-container">
@@ -207,7 +210,7 @@
                     </thead>
                     <tbody>     
                         {% for profile in page_obj %}
-                            <tr data-id="{{ profile.id }}" data-history="{% url 'user_history' profile.id %}" data-details="{% url 'user_details' profile.id %}" data-transcript="{% url 'user_transcript' profile.id %}" data-enroll-users="/admin/users/enroll-users/" data-message-users="/admin/users/message-users/" class="table-select-option">
+                            <tr data-id="{{ profile.id }}" data-history="{% url 'user_history' profile.id %}" data-details="{% url 'user_details' profile.id %}" data-transcript="{% url 'user_transcript' profile.id %}" data-enroll-users="/admin/users/enroll-users/" data-message-users="/admin/users/message-users/" impersonate-user="{% url 'impersonate_user' profile.id %}" class="table-select-option">
                                 <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
                                 <td>{{ profile.last_name }}</td>
                                 <td>{{ profile.first_name }}</td>                 

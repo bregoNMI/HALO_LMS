@@ -27,6 +27,13 @@ def first_letter(value):
 def filename(value):
     return os.path.basename(value)
 
+@register.filter(name='split')
+def split(value, key):
+    """
+    Splits the value by the given key.
+    """
+    return value.split(key)
+
 @register.filter
 def format_time(estimated_time):
     # Check if estimated_time is None

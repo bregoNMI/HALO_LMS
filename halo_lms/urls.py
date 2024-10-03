@@ -17,11 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from halo_lms.main.python import views
-
+from authentication.python.views import login_view, register_view
 urlpatterns = [
     path('django-admin/', admin.site.urls),
     path('admin/', include('client_admin.python.urls')),
-    path('login/', views.login, name='login'),
+    path('login/', login_view, name='login_view'),
+    path('register/', register_view, name='register_view'),  # Register URL
     path('requests/', include('content.urls')),
     path('', include('learner_dashboard.urls')),
 ]

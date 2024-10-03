@@ -1,15 +1,31 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+from django.shortcuts import render
+from django.contrib.auth import get_user_model
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
+import logging
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
+from django.http import HttpResponseForbidden
+from learner_dashboard.views import learner_dashboard
 from django.contrib import messages
-from client_admin.models import Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings
+from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog
 from client_admin.forms import OrganizationSettingsForm
+from .forms import UserRegistrationForm, ProfileForm
+from django.contrib.auth import update_session_auth_hash, login
+from authentication.python.views import addUserCognito, modifyCognito, register_view
 from django.template.response import TemplateResponse
+#from models import Profile
+#from authentication.python import views
+
+# Define the custom exception at the top of your views file
+class ImpersonationError(Exception):
+    """Custom exception for impersonation errors."""
+    pass
+
 
 @login_required
 def admin_dashboard(request):
@@ -150,6 +166,7 @@ def admin_users(request):
         'sort_by': sort_by,
     })
 
+'''
 @login_required
 def edit_user(request, user_id):
     profile = get_object_or_404(Profile, pk=user_id)
@@ -177,7 +194,10 @@ def edit_user(request, user_id):
         profile.referral = request.POST.get('referral')
         profile.associate_school = request.POST.get('associate_school')
 
-        # Parsing and formatting birth_date
+        # Initialize birth_date with None or an existing value from the user
+        birth_date = user.birth_date if hasattr(user, 'birth_date') else None
+        
+        # Parse and format birth_date
         if birth_date_str:
             birth_date = parse_date(birth_date_str)
             if birth_date:
@@ -210,6 +230,132 @@ def edit_user(request, user_id):
 
     context = {
         'profile': profile
+    }
+    return render(request, template, context)
+'''
+
+@login_required
+def edit_user(request, user_id):
+    if request.is_impersonating:
+        return  messages.error(request, 'Cannot edit while impersonating')
+
+    user = get_object_or_404(Profile, pk=user_id)
+
+    # Store original values for comparison
+    original_values = {
+        'username': user.username,
+        'email': user.email,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'role': user.role,
+        'archived': user.archived,
+        'country': user.country,
+        'city': user.city,
+        'state': user.state,
+        'code': user.code,
+        'citizenship': user.citizenship,
+        'address_1': user.address_1,
+        'birth_date': user.birth_date,
+        'sex': user.sex,
+        'referral': user.referral,
+        'associate_school': user.associate_school,
+    }
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+        email = request.POST.get('email')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        role = request.POST.get('role')
+        archived = request.POST.get('archived') == 'on'  # Check if checkbox is checked
+        country = request.POST.get('country')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        code = request.POST.get('code')
+        citizenship = request.POST.get('citizenship')
+        address_1 = request.POST.get('address_1')
+        birth_date_str = request.POST.get('birth_date')
+        sex = request.POST.get('sex')
+        referral = request.POST.get('referral')
+        associate_school = request.POST.get('associate_school')
+
+        # Initialize birth_date with None or an existing value from the user
+        birth_date = user.birth_date if hasattr(user, 'birth_date') else None
+        
+        # Parse and format birth_date
+        if birth_date_str:
+            parsed_birth_date = parse_date(birth_date_str)
+            if parsed_birth_date:
+                birth_date = parsed_birth_date
+                user.birth_date = birth_date
+
+        # Handle password change
+        if password and confirm_password:
+            if password == confirm_password:
+                user.user.set_password(password)  # Assuming 'user' is a Profile object with a related User
+                user.user.save()
+                update_session_auth_hash(request, user.user)  # Keeps the user logged in after password change
+                messages.success(request, 'Password updated successfully.')
+            else:
+                messages.error(request, 'Passwords do not match.')
+
+        user.username = username
+        user.email = email
+        user.first_name = first_name
+        user.last_name = last_name
+        user.role = role
+        user.archived = archived
+        user.country = country
+        user.city = city
+        user.state = state
+        user.code = code
+        user.citizenship = citizenship
+        user.address_1 = address_1
+        user.birth_date = birth_date
+        user.sex = sex
+        user.referral = referral
+        user.associate_school = associate_school
+        modifyCognito(request)
+        user.save()
+        
+        # Prepare the changes log
+        changes = []
+        for field, original_value in original_values.items():
+            new_value = getattr(user, field)
+            if original_value != new_value:
+                changes.append(f"Changed {field} from '{original_value}' to '{new_value}'")
+
+        changes_log = "; ".join(changes) if changes else "No changes made."
+
+        # Log the activity in the ActivityLog
+        ActivityLog.objects.create(
+            user=user.user,  # Assuming this is the user being edited
+            action_performer=request.user.username,  # Store the username
+            action_target=user.user.username,  # Store the username of the user being edited
+            action=f'Updated User Information: {changes_log}',
+            user_groups=', '.join(group.name for group in request.user.groups.all()),  # User groups
+        )
+
+        messages.success(request, 'User information updated successfully')
+        # Determine where to redirect
+        referer = request.META.get('HTTP_REFERER')
+        if referer:
+            return redirect(referer)
+        else:
+            # Default redirect
+            return redirect('user_details', user_id=user.id)
+
+    # Determine which template to use
+    referer = request.META.get('HTTP_REFERER', '')
+    if 'transcript' in referer:
+        template = 'users/user_transcript.html'
+    else:
+        template = 'users/user_details.html'
+    
+    context = {
+        'profile': user
     }
     return render(request, template, context)
 
@@ -255,6 +401,17 @@ def enroll_users_request(request):
                     'course_id': course.id,
                     'progress': user_course.progress
                 })
+                try:
+                    # Log the activity in the ActivityLog
+                    ActivityLog.objects.create(
+                        user=user,  # Assuming this is the user being edited
+                        action_performer=request.user,  # User performing the action
+                        action_target=user,  # User being enrolled
+                        action=f"Enrolled in Course: {course.title}",
+                        user_groups=', '.join(group.name for group in request.user.groups.all()),  # Optional: Add user groups
+                    )
+                except Exception as e:
+                    print(f"Failed to create activity log: {e}")  # Replace with proper logging mechanism
             else:
                 response_data['already_enrolled'].append({
                     'user_id': user.id,
@@ -296,11 +453,70 @@ def user_history(request, user_id):
     # Fetch messages sent by the logged-in user to the specified user
     sent_messages = Message.objects.filter(sender=request.user, recipients=user.user)
 
+    # Fetch activity log entries related to the user
+    activity_logs = ActivityLog.objects.filter(action_target=user.user)
+
     context = {
         'profile': user,
         'sent_messages': sent_messages,  # Pass the messages to the template
+        'activity_logs': activity_logs,  # Pass the activity logs to the template
     }
     return render(request, 'users/user_history.html', context)
+
+@login_required
+def add_user(request):
+    if request.method == 'POST':
+        user_form = UserRegistrationForm(request.POST)
+        profile_form = ProfileForm(request.POST, request.FILES)
+        if user_form.is_valid():
+            print('user_form valid')
+
+        if profile_form.is_valid():
+            print('profile form is valid')
+
+        if user_form.is_valid() and profile_form.is_valid():
+            # Extract the cleaned data from the form
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            email = request.POST.get('email')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            role = request.POST.get('role')
+            archived = request.POST.get('archived') == 'on'  # Check if checkbox is checked
+            country = request.POST.get('country')
+            city = request.POST.get('city')
+            state = request.POST.get('state')
+            code = request.POST.get('code')
+            citizenship = request.POST.get('citizenship')
+            address_1 = request.POST.get('address_1')
+            birth_date_str = request.POST.get('birth_date')
+            sex = request.POST.get('sex')
+            referral = request.POST.get('referral')
+            associate_school = request.POST.get('associate_school')
+            # Create a new user
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+            )
+
+            profile = profile_form.save(commit=False)
+            profile.user = user  # Link profile to user
+            profile.save()
+
+            addUserCognito(request)
+            messages.success(request, 'User created successfully.')
+            return redirect('dashboard/')  # Redirect to a success page or list view
+
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        user_form = UserRegistrationForm()
+        profile_form = ProfileForm()
+
+    return render(request, 'users/add_user.html', {'user_form': user_form, 'profile_form': profile_form})
 
 @login_required
 def enroll_users(request):
@@ -336,4 +552,148 @@ def message_users_request(request):
         return JsonResponse({'message': 'Message sent successfully', 'redirect_url': '/admin/users/'})
     else:
         return JsonResponse({'message': 'Invalid request method'}, status=400)
-      
+
+User = get_user_model()
+logger = logging.getLogger(__name__)
+"""
+@login_required
+def impersonate_user(request, profile_id):
+    # Ensure the user has permission to impersonate
+    if request.user.is_authenticated and request.user.is_superuser:
+        try:
+            # Retrieve the user associated with the given profile ID
+            user_to_impersonate = User.objects.get(profile__id=profile_id)
+            print("User found:", user_to_impersonate.username)
+
+            # Store the original user ID before impersonating
+            if 'original_user_id' not in request.session:
+                request.session['original_user_id'] = request.user.id
+                request.session.modified = True
+                print("Original user ID stored:", request.session['original_user_id'])
+
+            # Log in as the impersonated user
+            login(request, user_to_impersonate)
+
+            # Set the session variable for impersonation
+            request.session['impersonate_user_id'] = user_to_impersonate.id  
+            request.session.modified = True  # Ensure the session is marked as modified
+            print("Session data after impersonation:", request.session.items())
+
+            # Log the session data
+            impersonate_user_id = request.session.get('impersonate_user_id', None)
+            print("Assigned impersonate_user_id:", impersonate_user_id)
+            print("Session data before redirect:", impersonate_user_id)
+            #print("Orginal: ", request.session['original_user_id'])
+
+            # Redirect to the dashboard
+            return redirect('/dashboard')  # Update with the appropriate dashboard URL
+
+        except User.DoesNotExist:
+            print("User does not exist.")
+            return redirect('/login')
+        except ImpersonationError as e:
+            # Handle the impersonation error
+            messages.error(request, str(e))  # Use the error message from the exception
+            return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect back
+
+    print("Unauthorized access attempt.")
+    return redirect('/login')
+
+@login_required
+def stop_impersonating(request):
+
+    # Print session data before any operations
+    print("Session data before stopping impersonation:", dict(request.session.items()))
+    
+    if 'impersonate_user_id' in request.session:
+        del request.session['impersonate_user_id']
+
+        # Retrieve the original user ID from the session
+        original_user_id = request.session.pop('original_user_id', None)
+        print('herre')
+        print("d: ", original_user_id)
+        if original_user_id:
+            User = get_user_model()
+            try:
+                # Retrieve the original user and log them back in
+                original_user = User.objects.get(id=original_user_id)
+                login(request, original_user)
+                
+                messages.success(request, 'You have stopped impersonating the user and are now logged back in as yourself.')
+            except User.DoesNotExist:
+                messages.error(request, 'Original user not found. Please log in again.')
+
+    return redirect('/dashboard')  # Redirect to the appropriate page
+"""
+@login_required
+def impersonate_user(request, profile_id):
+    # Ensure the user has permission to impersonate
+    if request.user.is_authenticated and request.user.is_superuser:
+        try:
+            # Retrieve the user associated with the given profile ID
+            user_to_impersonate = User.objects.get(profile__id=profile_id)
+            print("User found:", user_to_impersonate.username)
+
+            # Store the original user ID before impersonating
+            if 'original_user_id' not in request.session:
+                request.session['original_user_id'] = request.user.id
+                request.session.modified = True
+                print("Original user ID stored:", request.session['original_user_id'])
+
+            # Store the original session ID in a temporary variable
+            original_user_id = request.session['original_user_id']
+
+            # Log in as the impersonated user
+            login(request, user_to_impersonate)
+
+            # Set the session variable for impersonation
+            request.session['impersonate_user_id'] = user_to_impersonate.id
+            request.session['original_user_id'] = original_user_id  # Restore original user ID
+            request.session.modified = True  # Ensure the session is marked as modified
+
+            # Log the session data
+            print("Session data after impersonation:", request.session.items())
+            impersonate_user_id = request.session.get('impersonate_user_id', None)
+            print("Assigned impersonate_user_id:", impersonate_user_id)
+
+            # Redirect to the dashboard
+            return redirect('/dashboard')  # Update with the appropriate dashboard URL
+
+        except User.DoesNotExist:
+            print("User does not exist.")
+            return redirect('/login')
+        except ImpersonationError as e:
+            # Handle the impersonation error
+            messages.error(request, str(e))  # Use the error message from the exception
+            return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect back
+
+    print("Unauthorized access attempt.")
+    return redirect('/login')
+
+
+@login_required
+def stop_impersonating(request):
+    # Print session data before any operations
+    print("Session data before stopping impersonation:", dict(request.session.items()))
+    
+    if 'impersonate_user_id' in request.session:
+        # Delete the impersonation session variable
+        del request.session['impersonate_user_id']
+
+        # Retrieve the original user ID from the session
+        original_user_id = request.session.pop('original_user_id', None)
+        print("Retrieved original user ID:", original_user_id)
+
+        if original_user_id:
+            User = get_user_model()
+            try:
+                # Retrieve the original user and log them back in
+                original_user = User.objects.get(id=original_user_id)
+                login(request, original_user)
+                
+                messages.success(request, 'You have stopped impersonating the user and are now logged back in as yourself.')
+            except User.DoesNotExist:
+                messages.error(request, 'Original user not found. Please log in again.')
+
+    return redirect('/admin/users') 
+

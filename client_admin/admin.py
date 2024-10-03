@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, Message, UserCourse, UserModuleProgress, UserLessonProgress, OrganizationSettings, TimeZone
+from .models import Profile, Message, UserCourse, UserModuleProgress, UserLessonProgress, OrganizationSettings, TimeZone, ActivityLog
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'first_name', 'last_name', 'email', 'photoid', 'passportphoto')
@@ -16,3 +16,4 @@ admin.site.register(UserCourse)
 admin.site.register(UserModuleProgress)
 admin.site.register(UserLessonProgress)
 admin.site.register(TimeZone)
+admin.site.register(ActivityLog)

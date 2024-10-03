@@ -1,5 +1,6 @@
 from custom_templates.models import Dashboard, Header, Footer
 from client_admin.models import Profile, Message, OrganizationSettings
+from django.contrib.auth import get_user_model
 
 def user_info(request):
     if request.user.is_authenticated:
@@ -46,4 +47,22 @@ def organization_settings(request):
     settings = OrganizationSettings.objects.first()
     return {
         'settings': settings,
+    }
+
+def user_impersonation(request):
+    User = get_user_model()
+    original_user = request.session.get('original_user_id')
+    impersonated_user = request.user if request.user.is_authenticated else None
+    
+    if original_user:
+        try:
+            original_user_instance = User.objects.get(id=original_user)
+        except User.DoesNotExist:
+            original_user_instance = None
+    else:
+        original_user_instance = None
+
+    return {
+        'original_user': original_user_instance,
+        'impersonated_user': impersonated_user,
     }

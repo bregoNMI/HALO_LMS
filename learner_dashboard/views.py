@@ -8,10 +8,19 @@ from django.contrib import messages
 from django.utils.dateparse import parse_date
 from client_admin.models import Profile, User, Message
 from django.contrib.auth import logout
+from client_admin.models import Profile, User
+from django.http import HttpResponseForbidden
+import boto3
+from django.conf import settings
+import logging
+import json
+from botocore.exceptions import ClientError
+from authentication.python.views import modifyCognito
+from halo_lms.settings import COGNITO_USER_POOL_ID
 
 def custom_logout_view(request):
     logout(request)
-    return redirect('login')  # Redirect to the login page after logout
+    return redirect('login_view')  # Redirect to the login page after logout
 
 # Other Data is loaded on context_processors.py
 @login_required
@@ -19,7 +28,8 @@ def learner_dashboard(request):
     dashboard = Dashboard.objects.filter(is_main=True).first()
     header = Header.objects.first()
     footer = Footer.objects.first()
-
+    # After redirecting (in the redirected view)
+    print("Session data after redirect:", request.session.get('impersonate_user_id'))
     if dashboard:
         return render(request, 'dashboard/learner_dashboard.html', {'dashboard': dashboard, 'header': header, 'footer': footer})
     return render(request, 'dashboard/default_dashboard.html')
@@ -45,6 +55,12 @@ def learner_profile(request):
 
 @login_required
 def update_learner_profile(request, user_id):
+
+    print("Is Impersonating:", getattr(request, 'is_impersonating', False))
+    # Prevent updates if impersonating
+    if getattr(request, 'is_impersonating', False):
+        return JsonResponse("Cannot edit while Impersonating")
+
     # Get the profile and associated user
     profile = get_object_or_404(Profile, pk=user_id)
     user = profile.user
@@ -84,6 +100,9 @@ def update_learner_profile(request, user_id):
         if 'passportphoto' in request.FILES:
             profile.passportphoto = request.FILES['passportphoto']
 
+        #Updating Cognito User
+        modifyCognito(request)
+
         # Save Profile model
         profile.save()
 
@@ -120,7 +139,25 @@ def change_password(request):
                     user.save()
                     update_session_auth_hash(request, user)
 
-                    return JsonResponse({'success': True, 'message': 'Password updated successfully.'})
+                    # Update the password in AWS Cognito
+                    cognito_client = boto3.client('cognito-idp')
+                    try:
+                        # Admin Set Password if using admin privileges
+                        cognito_client.admin_set_user_password(
+                            UserPoolId=settings.COGNITO_USER_POOL_ID,  # Your User Pool ID
+                            Username=user.username,  # Assuming Django username matches Cognito username
+                            Password=new_password1,
+                            Permanent=True,  # Set the new password as permanent
+                        )
+                        return JsonResponse({'success': True, 'message': 'Password updated successfully.'})
+
+                    except cognito_client.exceptions.UserNotFoundException:
+                        return JsonResponse({'success': False, 'message': 'User not found in Cognito.'}, status=404)
+                    except cognito_client.exceptions.InvalidPasswordException as e:
+                        return JsonResponse({'success': False, 'message': f'Invalid new password: {e}'}, status=400)
+                    except ClientError as e:
+                        return JsonResponse({'success': False, 'message': f'An error occurred: {e.response["Error"]["Message"]}'}, status=500)
+
                 else:
                     return JsonResponse({'success': False, 'message': 'New passwords do not match.'})
             else:
