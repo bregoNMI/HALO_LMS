@@ -9,6 +9,7 @@ from django.utils.dateparse import parse_date
 from client_admin.models import Profile, User, Message
 from django.contrib.auth import logout
 from client_admin.models import Profile, User
+from django.http import HttpResponseForbidden
 import boto3
 from django.conf import settings
 import logging
@@ -27,7 +28,8 @@ def learner_dashboard(request):
     dashboard = Dashboard.objects.filter(is_main=True).first()
     header = Header.objects.first()
     footer = Footer.objects.first()
-
+    # After redirecting (in the redirected view)
+    print("Session data after redirect:", request.session.get('impersonate_user_id'))
     if dashboard:
         return render(request, 'dashboard/learner_dashboard.html', {'dashboard': dashboard, 'header': header, 'footer': footer})
     return render(request, 'dashboard/default_dashboard.html')
@@ -53,6 +55,12 @@ def learner_profile(request):
 
 @login_required
 def update_learner_profile(request, user_id):
+
+    print("Is Impersonating:", getattr(request, 'is_impersonating', False))
+    # Prevent updates if impersonating
+    if getattr(request, 'is_impersonating', False):
+        return JsonResponse("Cannot edit while Impersonating")
+
     # Get the profile and associated user
     profile = get_object_or_404(Profile, pk=user_id)
     user = profile.user

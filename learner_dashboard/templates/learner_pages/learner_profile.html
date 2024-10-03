@@ -28,6 +28,16 @@
             {% endfor %}
         </div>
     {% endif %}
+    
+    <!-- Display Impersonation Error if it exists -->
+    {% if impersonation_error %}
+        <div class="alert alert-error">
+            <i class="fa-solid fa-circle-xmark"></i>
+            {{ impersonation_error }}
+        </div>
+    {% endif %}
+
+    
     <div class="max-width-0">
         <div class="learner-top-row">
             <div class="learner-top-row-left">

@@ -45,4 +45,7 @@ urlpatterns = [
 
     # Main Dashboard
     path('templates/dashboard/set_main/<int:dashboard_id>/', custom_template_views.set_main_dashboard, name='set_main_dashboard'),
+
+    path('impersonate/<int:profile_id>/', views.impersonate_user, name='impersonate_user'),
+    path('stop-impersonating/', views.stop_impersonating, name='stop_impersonating'),
 ]

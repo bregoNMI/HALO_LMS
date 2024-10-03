@@ -171,3 +171,18 @@ class TimeZone(models.Model):
 
     def __str__(self):
         return self.name
+    
+class ActivityLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Assuming you want to log the user as well
+    action_performer = models.CharField(max_length=150)  # Changed from ForeignKey to CharField
+    action_target = models.CharField(max_length=150)  # Changed from ForeignKey to CharField
+    action = models.CharField(max_length=50)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    user_groups = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = 'activitylog'
+
+    def __str__(self):
+        return f"{self.action_performer} performed '{self.action}' on {self.action_target} at {self.timestamp}"

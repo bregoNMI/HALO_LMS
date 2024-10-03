@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{%load custom_filters%}
 {% block content %}
     {% if messages %}
         <div class="alert-container">
@@ -69,7 +70,8 @@
                         </div>
                     </div>
                     <div class="user-history-container info-card-body scrollable-content-inner">
-                        <div class="user-history-wrapper">                      
+                        <div class="user-history-wrapper">
+                            {% for log in activity_logs %}                      
                             <div class="user-history-item">
                                 <div class="user-history-header">
                                     <div class="user-history-left">
@@ -77,46 +79,26 @@
                                             <i class="fa-light fa-pencil"></i>
                                         </div>
                                         <div class="user-history-action">
-                                            <span><b>Evan Ferro</b> edited user information</span>
+                                            <span><b>{{ log.action_performer }}</b> {{ log.action }}</span>
                                         </div>
                                     </div>
                                     <div class="user-history-right">
                                         <div class="user-history-date">
-                                            <span> Jul 30</span>
+                                            <span> {{ log.timestamp|date:"M d" }}</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="user-history-body">
-                                    <div class="user-history-body-item">
-                                        <span> Changed username from eferro to eferro123</span>
-                                    </div>
-                                    <div class="user-history-body-item">
-                                        <span> Changed role from Student to Admin</span>
-                                    </div>
+                                    {% with log.action|split:"," as action_parts %}
+                                        {% for part in action_parts %}
+                                            <div class="user-history-body-item">
+                                                <span>{{ part }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    {% endwith %}
                                 </div>
-                            </div>
-                            <div class="user-history-item">
-                                <div class="user-history-header">
-                                    <div class="user-history-left">
-                                        <div class="user-history-icon">
-                                            <i class="fa-light fa-hand-holding-box"></i>
-                                        </div>
-                                        <div class="user-history-action">
-                                            <span><b>Evan Ferro</b> enrolled user in courses</span>
-                                        </div>
-                                    </div>
-                                    <div class="user-history-right">
-                                        <div class="user-history-date">
-                                            <span> Jul 29</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="user-history-body">
-                                    <div class="user-history-body-item">
-                                        <span> Enrolled user in Advanced Firefighting Revalidation</span>
-                                    </div>
-                                </div>
-                            </div>                         
+                            </div>   
+                            {% endfor %}    
                         </div>
                     </div>
                 </div>

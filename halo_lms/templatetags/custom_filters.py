@@ -25,3 +25,10 @@ def first_letter(value):
 @register.filter
 def filename(value):
     return os.path.basename(value)
+
+@register.filter(name='split')
+def split(value, key):
+    """
+    Splits the value by the given key.
+    """
+    return value.split(key)
