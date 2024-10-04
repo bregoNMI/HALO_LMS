@@ -263,7 +263,7 @@ def register_view(request):
             if not id_photo: missing_fields.append('id_photo')
             if not id_photo: missing_fields.append('reg_photo')
             messages.error(request, f'Missing fields: {", ".join(missing_fields)}')
-            return render(request, 'register.html')
+            return render(request, 'main/register.html')
 
         try:
             # Upload the photo to S3
@@ -418,7 +418,7 @@ def addUserCognito(request):
         except Exception as e:
             messages.error(request, f'An error occurred: {e}')
     
-    return render(request, 'register.html')
+    return render(request, 'main/register.html')
 
 @login_required
 def modifyCognito(request):

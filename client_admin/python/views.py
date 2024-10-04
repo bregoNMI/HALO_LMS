@@ -464,37 +464,37 @@ def user_history(request, user_id):
     return render(request, 'users/user_history.html', context)
 
 @login_required
+def add_user_page(request):
+    """Render the user registration and profile creation form."""
+    user_form = UserRegistrationForm()
+    profile_form = ProfileForm()
+
+    return render(request, 'users/add_user.html', {
+        'user_form': user_form,
+        'profile_form': profile_form
+    })
+
+@login_required
 def add_user(request):
     if request.method == 'POST':
-        print('received')
+        print('POST request received')
+
+        # Bind forms with POST data and FILES
         user_form = UserRegistrationForm(request.POST)
         profile_form = ProfileForm(request.POST, request.FILES)
-        if user_form.is_valid():
-            print('user_form valid')
 
-        if profile_form.is_valid():
-            print('profile form is valid')
-
+        # Validate both forms
         if user_form.is_valid() and profile_form.is_valid():
-            # Extract the cleaned data from the form
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            email = request.POST.get('email')
-            first_name = request.POST.get('first_name')
-            last_name = request.POST.get('last_name')
-            role = request.POST.get('role')
-            archived = request.POST.get('archived') == 'on'  # Check if checkbox is checked
-            country = request.POST.get('country')
-            city = request.POST.get('city')
-            state = request.POST.get('state')
-            code = request.POST.get('code')
-            citizenship = request.POST.get('citizenship')
-            address_1 = request.POST.get('address_1')
-            birth_date_str = request.POST.get('birth_date')
-            sex = request.POST.get('sex')
-            referral = request.POST.get('referral')
-            associate_school = request.POST.get('associate_school')
-            # Create a new user
+            print('Both forms are valid')
+
+            # Extract the cleaned data from the user form
+            username = user_form.cleaned_data.get('username')
+            password = user_form.cleaned_data.get('password')
+            email = user_form.cleaned_data.get('email')
+            first_name = user_form.cleaned_data.get('first_name')
+            last_name = user_form.cleaned_data.get('last_name')
+
+            # Create the new user
             user = User.objects.create_user(
                 username=username,
                 password=password,
@@ -503,22 +503,31 @@ def add_user(request):
                 last_name=last_name,
             )
 
+            # Save the profile linked to the user
             profile = profile_form.save(commit=False)
             profile.user = user  # Link profile to user
             profile.save()
 
+            # Additional operations like Cognito integration
             addUserCognito(request)
-            print('message')
+            print('User successfully created and registered with Cognito.')
+
             messages.success(request, 'User created successfully.')
-            return redirect('dashboard/')  # Redirect to a success page or list view
+            return redirect('/admin/users/')  # Redirect to success page
 
         else:
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        user_form = UserRegistrationForm()
-        profile_form = ProfileForm()
+            # Handle form errors and log them
+            if not user_form.is_valid():
+                print('User form errors:', user_form.errors)
+                logger.error('User form errors: %s', user_form.errors)
 
-    return render(request, 'users/add_user.html', {'user_form': user_form, 'profile_form': profile_form})
+            if not profile_form.is_valid():
+                print('Profile form errors:', profile_form.errors)
+                logger.error('Profile form errors: %s', profile_form.errors)
+
+            messages.error(request, 'We were unable to create a user. Please enter required fields and try again.')
+
+    return redirect('add_user_page')
 
 @login_required
 def enroll_users(request):

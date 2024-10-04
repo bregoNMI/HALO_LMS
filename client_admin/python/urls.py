@@ -18,6 +18,7 @@ urlpatterns = [
     path('users/message-user-request/', views.message_users_request, name='message_users'),
     
     path('add', views.add_user, name='add_user'),
+    path('users/add',views.add_user_page, name='add_user_page'),
     # Courses
     path('courses/', content_views.admin_courses, name='admin_courses'),
     path('courses/online/add/', content_views.add_online_courses, name='add_online_courses'),
