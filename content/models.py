@@ -223,15 +223,16 @@ class Upload(models.Model):
         (None, 'None'),
         ('instructor', 'Instructor'),
         ('admin', 'Admin'),
+        ('other', 'Other'),  # Add 'Other' as an option
     ]
 
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='uploads')
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='student_uploads')
-    file = models.FileField(upload_to='uploads/')
-    approval_type = models.CharField(max_length=10, choices=APPROVAL_CHOICES, default=None, null=True, blank=True)
+    approval_type = models.CharField(max_length=30, choices=APPROVAL_CHOICES, default=None, null=True, blank=True)
+    approvers = models.ManyToManyField(User, blank=True)  # Users who approve the upload, relevant when 'other' is selected
+    title = models.CharField(max_length=255, default='title')
 
     def __str__(self):
-        return f'Upload for {self.course.title} by {self.student.username}'
+        return self.title
 
 # Define a Module model
 class Module(models.Model):

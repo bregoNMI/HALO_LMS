@@ -127,26 +127,41 @@ def create_or_update_course(request):
 
     def handle_credentials(course, credentials):
         """ Handle credentials for the course """
-        for credential_data in credentials:
-            if credential_data.get('type') == 'certificate':
-                Credential.objects.update_or_create(
-                    course=course,
-                    type='certificate',
-                    defaults={
-                        'source': credential_data.get('source', ''),
-                        'title': credential_data.get('title', '')
-                    }
-                )
+        existing_credentials = Credential.objects.filter(course=course).values_list('type', flat=True)
+
+        # Handle incoming credentials
+        incoming_credentials = {cred.get('type'): cred for cred in credentials if cred.get('type')}
+
+        # Update or create new credentials
+        for cred_type, cred_data in incoming_credentials.items():
+            Credential.objects.update_or_create(
+                course=course,
+                type=cred_type,
+                defaults={
+                    'source': cred_data.get('source', ''),
+                    'title': cred_data.get('title', '')
+                }
+            )
+
+        # Remove any credentials that are no longer in the incoming data
+        for existing_cred in existing_credentials:
+            if existing_cred not in incoming_credentials:
+                Credential.objects.filter(course=course, type=existing_cred).delete()
 
     def handle_event_dates(course, event_dates):
         """ Handle event dates for the course """
+        existing_event_dates = EventDate.objects.filter(course=course)
+
+        # Extract types from the incoming event dates for easy comparison
+        incoming_event_types = {event.get('type') for event in event_dates}
+
+        # Update or create new event dates
         for event_date_data in event_dates:
             event_date_type = event_date_data.get('type')
             date_value = event_date_data.get('date')
             time_value = event_date_data.get('time', '')
             from_enrollment = event_date_data.get('from_enrollment', {})
 
-            # Normalize and validate time format if provided
             normalized_time = normalize_time(time_value)
             if normalized_time is None and time_value:
                 return JsonResponse({
@@ -163,6 +178,11 @@ def create_or_update_course(request):
                     'from_enrollment': from_enrollment,
                 }
             )
+
+        # Remove any event dates that are no longer in the incoming data
+        for existing_event in existing_event_dates:
+            if existing_event.type not in incoming_event_types:
+                existing_event.delete()
 
     def handle_modules_and_lessons(course, modules):
         for module_data in modules:
@@ -214,8 +234,6 @@ def create_or_update_course(request):
                     except File.DoesNotExist:
                         print(f"Error occurred when searching for file with URL '{file_url}' for lesson ID: {lesson.id}")
 
-
-
     def handle_media(course, media_data, request_files):
         """ Handle media for the course """
         for media in media_data:
@@ -258,11 +276,51 @@ def create_or_update_course(request):
                 )
 
     def handle_uploads(course, uploads_data):
+        # Extract upload instructions and save to course
         upload_instructions = request.POST.get('upload_instructions', '')
-
-        # Now you can save the instructions to the course model or handle them as needed
         course.upload_instructions = upload_instructions
-        course.save()
+
+        # Debug print to see the uploads_data received
+        print(f"Uploads data received: {uploads_data}")
+
+        for upload_data in uploads_data:
+            # Extract approval type and approvers
+            approval_type = upload_data.get('approval_type', '')
+            approvers_ids = upload_data.get('selected_approvers', [])
+            title = upload_data.get('title', '')
+
+            # Debug print to confirm the data being processed
+            print(f"Processing upload - Title: {title}, Approval Type: {approval_type}, Approvers: {approvers_ids}")
+
+            if title:  # Ensure that the title is provided
+                try:
+                    # Create the Upload instance
+                    upload = Upload.objects.create(
+                        course=course,
+                        approval_type=approval_type,
+                        title=title,
+                    )
+                    
+                    # Debug print to confirm upload creation
+                    print(f"Upload created: {upload}")
+
+                    # Add approvers if the list is not empty
+                    if approvers_ids:
+                        # Fetch users by their IDs
+                        approvers = User.objects.filter(id__in=approvers_ids)  
+                        upload.approvers.set(approvers)  # Set the approvers
+
+                        # Debug print to confirm approvers have been set
+                        print(f"Approvers set for upload: {upload.approvers.all()}")
+
+                    # Save the upload instance (not strictly necessary since set() saves the relation)
+                    upload.save()  
+
+                except Exception as e:
+                    # Log the error or handle it appropriately
+                    print(f"Error creating upload: {e}")
+            else:
+                print("No title provided for upload, skipping this upload.")  
 
     try:
         if request.method == 'POST':

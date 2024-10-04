@@ -702,7 +702,7 @@ def stop_impersonating(request):
                 original_user = User.objects.get(id=original_user_id)
                 login(request, original_user)
                 
-                messages.success(request, 'You have stopped impersonating the user and are now logged back in as yourself.')
+                messages.success(request, 'You have stopped impersonating.')
             except User.DoesNotExist:
                 messages.error(request, 'Original user not found. Please log in again.')
 
