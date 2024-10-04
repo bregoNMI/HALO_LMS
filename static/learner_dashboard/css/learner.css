@@ -1045,3 +1045,18 @@ html, body, button{
     background-color: #f8d7da;
     border-color: #f5c6cb;
 }
+
+.learner-impersonate{
+    color: #f34242;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    background-color: #ffd0d0;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.stop-impersonating-btn{
+    color: #f34242;
+}.stop-impersonating-btn:hover{
+    color: #f34242;
+}

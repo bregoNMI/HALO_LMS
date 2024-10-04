@@ -10,9 +10,9 @@
         </a>
         <div class="learner-header-right">
             {% if request.is_impersonating %}
-            <div class="learner-impersonate" style="color: red; position: relative;">
-                <i class="fa-solid fa-hockey-mask"></i>
-                <span class="tooltip-text">Impersonating User</span>
+            <div class="learner-impersonate">
+                <i class="fa-regular fa-masks-theater"></i>
+                <span class="tooltip-text">Impersonating</span>
             </div>
             {% endif %}            
             <div class="learner-header-icons">             
@@ -33,16 +33,28 @@
                     <i class="fa-regular fa-bars"></i>
                 </div>
                 <div id="learnerDropdownContent" class="dropdown-content">
-                    <div class="dropdown-user-information">
-                        <div class="dropdown-user-icon">
-                            <i class="fa-solid fa-circle-{{ first_letter_lowercase }}"></i>
-                        </div>
+                    <div class="dropdown-user-information">                  
+                        {% if request.is_impersonating %}
+                            <div class="dropdown-user-icon" style="padding: 0.3rem; border-radius: 8px; background-color: #ffd0d0;">
+                                <i class="fa-regular fa-masks-theater" style="color: #f34242; font-size: 1.5rem;"></i>
+                            </div>                        
+                        {% else %}
+                            <div class="dropdown-user-icon">
+                                <i class="fa-solid fa-circle-{{ first_letter_lowercase }}"></i>
+                            </div>
+                        {% endif %}
                         <div class="dropdown-user-details">
                             <h4>{{ first_name }} {{ last_name }}</h4>
                             <span>{{ email }}</span>
                         </div>
                     </div>
                     <div class="dropdown-section">
+                        {% if request.is_impersonating %}
+                            <a class="dropdown-content-option stop-impersonating-btn" href="{% url 'stop_impersonating' %}">
+                                <i class="fa-regular fa-circle-xmark"></i>
+                                <span> Stop Impersonating </span>
+                            </a>
+                        {% endif %}
                         <a class="dropdown-content-option" href="/dashboard/">
                             <i class="fa-regular fa-objects-column"></i>
                             <span> Dashboard </span>
@@ -63,12 +75,6 @@
                             <i class="fa-regular fa-user-graduate"></i>
                             <span> Profile </span>
                         </a>
-                        {% if request.is_impersonating %}
-                        <a class="dropdown-content-option" href="{% url 'stop_impersonating' %}">
-                            <i class="fa-sharp fa-solid fa-circle-xmark"></i>
-                            <span> Stop Impersonating </span>
-                        </a>
-                        {% endif %}
                     </div>
                     {% if user.is_superuser %}
                         <div class="dropdown-section">

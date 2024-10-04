@@ -468,22 +468,22 @@ function createNewUpload(){
                 <label class="edit-user-label">Upload Approval</label>
                 <div class="content-input-options-row">
                     <label class="custom-radio">
-                        <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalNone${newUploadId}" value="upload_approval1" checked="">
+                        <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalNone${newUploadId}" value="None" checked="">
                         <span class="custom-radio-button"></span>
                         None
                     </label>
                     <label class="custom-radio">
-                        <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalInstructor${newUploadId}" value="upload_approval2">
+                        <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalInstructor${newUploadId}" value="instructor">
                         <span class="custom-radio-button"></span>
                         Instructor
                     </label>
                     <label class="custom-radio">
-                        <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalAdmin${newUploadId}" value="upload_approval3">
+                        <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalAdmin${newUploadId}" value="admin">
                         <span class="custom-radio-button"></span>
                         Admin
                     </label>
                     <label class="custom-radio">
-                        <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalOther${newUploadId}" value="upload_approval4">
+                        <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalOther${newUploadId}" value="other">
                         <span class="custom-radio-button"></span>
                         Other
                     </label>
@@ -1370,29 +1370,38 @@ function generateCourseData(isSave) {
     formData.append('upload_instructions', uploadInstructions);
 
     // Handle Uploads
-    const uploadCards = document.querySelectorAll('.upload-card');
-    uploadCards.forEach((uploadCard, index) => {
-        const uploadData = {
-            type: 'upload',
-            title: uploadCard.querySelector('.upload-title').value.trim(),
-            approval_type: uploadCard.querySelector('input[name="upload_approval"]:checked').value,
-        };
+    const uploadsCheckbox = document.getElementById('courseUploads');
+    if (uploadsCheckbox && uploadsCheckbox.checked) {
+        const uploadCards = document.querySelectorAll('.upload-card');
+        uploadCards.forEach((uploadCard, index) => {
+            console.log(index);
+            const uploadData = {
+                type: 'upload',
+                title: uploadCard.querySelector('.upload-title').value.trim(),
+                approval_type: uploadCard.querySelector(`input[name="upload_approval${index+1}"]:checked`).value,
+            };
 
-        // Handle special case for 'Other' approval type (if additional users are selected)
-        if (uploadData.approval_type === 'upload_approval4') {
-            const selectedUsers = [];
-            const userList = uploadCard.querySelectorAll('.selectedUsers .user-item');
-            userList.forEach(user => {
-                selectedUsers.push(user.dataset.userId); // Assuming each user-item has a data-user-id attribute
-            });
-            uploadData.selected_approvers = selectedUsers; // Add selected approvers to the data
-        }
+            // Handle special case for 'Other' approval type (if additional users are selected)
+            if (uploadData.approval_type === 'other') {
+                const selectedUsers = [];          
+                // Query the correct user-item elements inside the uploadCard
+                const userList = uploadCard.querySelectorAll('.selected-user');        
+                // Extract the data-user-id for each selected user
+                userList.forEach(user => {
+                    const userId = user.dataset.userId;
+                    if (userId) {
+                        selectedUsers.push(userId); // Add the user ID to the array
+                    }
+                });        
+                uploadData.selected_approvers = selectedUsers; // Add selected approvers to the upload data
+            }
 
-        courseData.resources.push(uploadData); // Push the upload data into the course resources array
-    });
+            courseData.uploads.push(uploadData); // Push the upload data into the course resources array
+        });
+    }
 
     // Append uploads data to formData
-    formData.append('resources', JSON.stringify(courseData.resources));
+    formData.append('uploads', JSON.stringify(courseData.uploads));
 
     // Handle Event Dates
     const eventDateSections = [
@@ -1685,12 +1694,12 @@ function validateCourseData() {
 
             // Validate Reference Title
             if (uploadTitle && !uploadTitle.value.trim()) {
-                displayValidationMessage(`Reference ${uploadIndex} Title is required`, false);
-                errors.push(`Reference ${uploadIndex} Title is required`);
+                displayValidationMessage(`Upload ${uploadIndex} Title is required`, false);
+                errors.push(`Upload ${uploadIndex} Title is required`);
                 uploadTitle.classList.add('form-error-field');
                 highlightErrorFields(uploadTitle);
             } else if (!uploadTitle) {
-                console.warn(`Reference title element not found for index ${uploadIndex}`);
+                console.warn(`Upload title element not found for index ${uploadIndex}`);
             }
         });
     }
