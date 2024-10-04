@@ -67,7 +67,7 @@ class Profile(models.Model):
     photoid = models.ImageField()
     passportphoto = models.ImageField()
     date_joined = models.DateTimeField(('date joined'), auto_now_add=True)
-    last_opened_course = models.OneToOneField(Course, on_delete=models.CASCADE, primary_key=True)
+    last_opened_course = models.OneToOneField(Course, on_delete=models.CASCADE, null=True, blank=True)
     timezone = models.CharField(
         max_length=50,
         choices=[(tz, tz) for tz in all_timezones],
