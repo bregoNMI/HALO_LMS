@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 class Category(models.Model):
@@ -127,34 +127,64 @@ class Course(models.Model):
         max_length=20, choices=MUST_COMPLETE_CHOICES, default='any_order'
     )
 
-    def get_event_date(self, event_type):
+    def calculate_event_date(self, event, enrollment_date):
+        """Helper function to calculate the event date relative to enrollment_date."""
+        if event.from_enrollment:
+            offset = event.from_enrollment
+            years = offset.get('years', 0)
+            months = offset.get('months', 0)
+            days = offset.get('days', 0)
+            
+            # Add years and months using relativedelta for accurate month/year handling
+            relative_date = enrollment_date + relativedelta(years=years, months=months) + timedelta(days=days)
+            return relative_date
+        return event.date
+
+    def get_event_date(self, event_type, enrollment_date=None):
+        """Retrieve the event date, considering 'from_enrollment' if applicable."""
         event = self.event_dates.filter(type=event_type).first()
-        print(event.from_enrollment)
-        return event.date if event else None
+        if not event:
+            return None
+        
+        # If there's an enrollment_date and from_enrollment is defined, calculate it
+        if enrollment_date and event.from_enrollment:
+            return self.calculate_event_date(event, enrollment_date)
+        
+        # Otherwise, return the static date
+        return event.date
 
     def __str__(self):
         return self.title
     
-    def get_expiration_date(self):
-        try:
-            expiration_event = self.event_dates.get(type='expiration_date')
-            return expiration_event.date
-        except EventDate.DoesNotExist:
+    def get_expiration_date(self, enrollment_date=None):
+        event = self.event_dates.filter(type='expiration_date').first()
+        if not event:
+            return None
+        
+        if enrollment_date and event.from_enrollment:
+            return self.calculate_event_date(event, enrollment_date)
+        
+        return event.date
+
+    def get_due_date(self, enrollment_date=None):
+        event = self.event_dates.filter(type='due_date').first()
+        if not event:
             return None
 
-    def get_due_date(self):
-        try:
-            due_event = self.event_dates.get(type='due_date')
-            return due_event.date
-        except EventDate.DoesNotExist:
+        if enrollment_date and event.from_enrollment:
+            return self.calculate_event_date(event, enrollment_date)
+        
+        return event.date
+
+    def get_start_date(self, enrollment_date=None):
+        event = self.event_dates.filter(type='start_date').first()
+        if not event:
             return None
 
-    def get_start_date(self):
-        try:
-            start_event = self.event_dates.get(type='start_date')
-            return start_event.date
-        except EventDate.DoesNotExist:
-            return None
+        if enrollment_date and event.from_enrollment:
+            return self.calculate_event_date(event, enrollment_date)
+        
+        return event.date
         
     def get_lesson_count(self):
         return Lesson.objects.filter(module__course=self).count()
