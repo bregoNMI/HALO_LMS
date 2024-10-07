@@ -345,11 +345,12 @@ function updateLessonNumbers(container) {
 }
 
 // Function to create a new module
+let tempModuleId = 1;
 function createNewModule() {
     const moduleContainer = document.getElementById('moduleContainer');
 
     const newModuleCard = `
-    <div class="module-card">
+    <div class="module-card" data-temp-id='${tempModuleId}'>
         <div class="info-card-header collapsable-header">
             <div class="card-header-left">
                 <i class="fa-light fa-grip-dots-vertical module-drag-icon"></i>
@@ -378,6 +379,7 @@ function createNewModule() {
     </div>`;
 
     moduleContainer.insertAdjacentHTML('beforeend', newModuleCard);
+    tempModuleId++;
 
     // Reassign event listeners to include the new module
     assignModuleHeaderListeners();
@@ -837,9 +839,11 @@ function clearSCORM2004LessonInputs(){
     console.log(createFileLessonBtn);
 }
 
+let tempLessonId = 1;
 function createAndAppendLessonCard(index, title, description, fileURL, fileName, lessonType) {
     const newLesson = document.createElement('div');
     newLesson.className = 'lesson-card';
+    newLesson.setAttribute('data-temp-id', tempLessonId)
     newLesson.innerHTML = `
         <input class="lesson-file-name" type="hidden" value="${fileName}">
         <input class="lesson-type" type="hidden" value="${lessonType}">
@@ -864,6 +868,7 @@ function createAndAppendLessonCard(index, title, description, fileURL, fileName,
 
     window.closestLessonContainer.appendChild(newLesson);
     updateLessonNumbers(window.closestLessonContainer);
+    tempLessonId++;
 }
 
 function selectLessonType(){
@@ -1484,6 +1489,8 @@ function generateCourseData(isSave) {
 
     moduleContainers.forEach((moduleContainer, moduleIndex) => {
         const moduleData = {
+            id: moduleContainer.getAttribute('data-id') || null,
+            temp_id: moduleContainer.getAttribute('data-temp-id') || null,
             title: moduleContainer.querySelector('.module-title')?.value || 'Untitled Module',
             description: moduleContainer.querySelector('.module-description')?.value || '',
             order: moduleIndex + 1,
@@ -1494,6 +1501,8 @@ function generateCourseData(isSave) {
         lessonCards.forEach((lessonCard, lessonIndex) => {
             const lessonType = lessonCard.querySelector('.lesson-type')?.value || '';
             const lessonData = {
+                id: lessonCard.getAttribute('data-id') || null,
+                temp_id: lessonCard.getAttribute('data-temp-id') || null,
                 title: lessonCard.querySelector('.lesson-title')?.textContent.trim(),
                 description: lessonCard.querySelector('.lesson-description')?.value || '',
                 order: lessonIndex + 1,
@@ -1569,6 +1578,23 @@ function generateCourseData(isSave) {
             window.location.href = data.redirect_url;
             console.log('publish');
         }
+        console.log(data.modules);
+
+        data.modules.forEach(module => {
+            const moduleContainer = document.querySelector(`[data-temp-id='${module.temp_id}']`);
+            if (moduleContainer) {
+                moduleContainer.setAttribute('data-id', module.id); // Update module ID
+
+                // Update each lesson ID
+                module.lessons.forEach(lesson => {
+                    const lessonCard = moduleContainer.querySelector(`[data-temp-id='${lesson.temp_id}']`);
+                    if (lessonCard) {
+                        lessonCard.setAttribute('data-id', lesson.id); // Update lesson ID
+                    }
+                });
+            }
+        });
+
         // Handle success
         removeDisabledSaveBtns();
     })

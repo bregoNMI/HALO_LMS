@@ -6,7 +6,7 @@ from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
 from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile
-from client_admin.models import TimeZone
+from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse
 from django.http import JsonResponse
 from .models import File
 from django.contrib.auth.models import User
@@ -185,13 +185,24 @@ def create_or_update_course(request):
                 existing_event.delete()
 
     def handle_modules_and_lessons(course, modules):
+        module_response = []
+
         for module_data in modules:
             module_id = module_data.get('id')
             module = get_object_or_404(Module, id=module_id) if module_id else Module(course=course)
             module.title = module_data.get('title', 'Untitled Module')
             module.description = module_data.get('description', '')
             module.order = module_data.get('order', 0)
+            
+            print(f"Saving Module: {module.title}, Course ID: {course.id}")  # Debug statement
             module.save()
+
+            module_response.append({
+                'id': module.id,
+                'temp_id': module_data.get('temp_id'),
+                'title': module.title,
+                'lessons': []
+            })
             print(f"Module '{module.title}' saved with ID: {module.id}")
 
             for lesson_data in module_data.get('lessons', []):
@@ -199,7 +210,17 @@ def create_or_update_course(request):
                 lesson = get_object_or_404(Lesson, id=lesson_id) if lesson_id else Lesson(module=module)
                 lesson.title = lesson_data.get('title', '')
                 lesson.order = lesson_data.get('order', 0)
+
+                print(f"Saving Lesson: {lesson.title}, Module ID: {module.id}")  # Debug statement
                 lesson.save()
+
+                lesson_response = {
+                    'id': lesson.id,
+                    'temp_id': lesson_data.get('temp_id'),
+                    'title': lesson.title,
+                }
+
+                module_response[-1]['lessons'].append(lesson_response)
                 print(f"Lesson '{lesson.title}' saved with ID: {lesson.id}")
 
                 # Handle file attachment for the lesson (either file_id or file_url)
@@ -214,10 +235,7 @@ def create_or_update_course(request):
 
                     # Attempt to match the file URL with an existing file in the File model
                     try:
-                        # Retrieve all File instances
                         file_instance = File.objects.all().filter(file__isnull=False)
-
-                        # Manually check for a match by comparing file URLs
                         matching_file = None
                         for file in file_instance:
                             if file.file.url == file_url:
@@ -225,7 +243,7 @@ def create_or_update_course(request):
                                 break
 
                         if matching_file:
-                            lesson.file = matching_file  # Assign the file instance to the lesson
+                            lesson.file = matching_file
                             lesson.save()
                             print(f"File URL '{matching_file.file.url}' associated with lesson ID: {lesson.id}")
                         else:
@@ -233,6 +251,8 @@ def create_or_update_course(request):
 
                     except File.DoesNotExist:
                         print(f"Error occurred when searching for file with URL '{file_url}' for lesson ID: {lesson.id}")
+
+        return module_response
 
     def handle_media(course, media_data, request_files):
         """ Handle media for the course """
@@ -322,6 +342,26 @@ def create_or_update_course(request):
             else:
                 print("No title provided for upload, skipping this upload.")  
 
+    def update_user_progress(course):
+        """ Update progress for all users enrolled in the course """
+        enrolled_users = UserCourse.objects.filter(course=course).select_related('user')
+        
+        for user_course in enrolled_users:
+            # Update UserModuleProgress and UserLessonProgress for each module and lesson in the updated course
+            for module in course.modules.all():
+                # Get or create UserModuleProgress for this user-course-module combination
+                user_module_progress, _ = UserModuleProgress.objects.get_or_create(
+                    user_course=user_course,
+                    module=module
+                )
+
+                # Create UserLessonProgress instances for each lesson in the module
+                for lesson in module.lessons.all():
+                    UserLessonProgress.objects.get_or_create(
+                        user_module_progress=user_module_progress,
+                        lesson=lesson
+                    )
+
     try:
         if request.method == 'POST':
             # Extract data from request
@@ -364,7 +404,7 @@ def create_or_update_course(request):
             # Handle modules and lessons
             modules = json.loads(data.get('modules', '[]'))
             print(f"Modules received: {modules}")  # Check what modules are being received
-            handle_modules_and_lessons(course, modules)
+            module_response = handle_modules_and_lessons(course, modules)
 
             # Handle media
             media_data = json.loads(data.get('media', '[]'))
@@ -379,8 +419,11 @@ def create_or_update_course(request):
             uploads = json.loads(data.get('uploads', '[]'))
             handle_uploads(course, uploads)
 
+            # Update user progress for all enrolled users
+            update_user_progress(course)
+
             if is_save:
-                return JsonResponse({'status': 'success', 'course_id': course.id})
+                return JsonResponse({'status': 'success', 'course_id': course.id, 'modules': module_response})
             else:
                 messages.success(request, 'Course published successfully!')
                 return JsonResponse({'status': 'success', 'redirect_url': '/admin/courses/', 'course_id': course.id})
