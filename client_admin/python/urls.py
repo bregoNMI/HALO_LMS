@@ -22,7 +22,7 @@ urlpatterns = [
     # Courses
     path('courses/', content_views.admin_courses, name='admin_courses'),
     path('courses/online/add/', content_views.add_online_courses, name='add_online_courses'),
-    path('courses/<int:course_id>/', content_views.course_details, name='course_details'),
+    path('courses/online/edit/<int:course_id>/', content_views.edit_online_courses, name='edit_online_courses'),
 
     # Settings
     path('settings/', views.admin_settings, name='admin_settings'), 

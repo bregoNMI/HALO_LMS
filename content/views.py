@@ -7,7 +7,7 @@ from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
 from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile
 from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest, Http404
 from .models import File
 from django.contrib.auth.models import User
 import json
@@ -18,6 +18,7 @@ from django.core.files.base import ContentFile
 from django.views.decorators.http import require_POST
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.apps import apps
 
 # Courses
 @login_required
@@ -74,6 +75,7 @@ def admin_courses(request):
         'sort_by': sort_by,
     })
 
+@login_required
 def add_online_courses(request):
     category = Category.objects.all()
     page = 1  # Initially load the first page
@@ -93,14 +95,35 @@ def add_online_courses(request):
     return render(request, 'courses/add_online_course.html', context)
 
 @login_required
-def course_details(request, course_id):
+def edit_online_courses(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
 
+    total_seconds = course.estimated_completion_time.total_seconds()
+    hours = int(total_seconds // 3600)
+    minutes = int((total_seconds % 3600) // 60)
+
+    certificate_credential = course.credentials.filter(type='certificate').first()
+    start_date = course.event_dates.filter(type='start_date').first()
+    expiration_date = course.event_dates.filter(type='expiration_date').first()
+    due_date = course.event_dates.filter(type='due_date').first()
+    thumbnail_media = course.media.filter(type='thumbnail').first()
+    references_resources = course.resources.filter(type='reference').all()
+    course_uploads = course.uploads.all()
+
     context = {
-        'course': course
+        'course': course,
+        'hours': hours,
+        'minutes': minutes,
+        'certificate_credential': certificate_credential,
+        'start_date': start_date,
+        'expiration_date': expiration_date,
+        'due_date': due_date,
+        'thumbnail_media': thumbnail_media,
+        'references_resources': references_resources,
+        'course_uploads': course_uploads,
     }
 
-    return render(request, 'courses/course_details.html', context)
+    return render(request, 'courses/edit_online_course.html', context)
 
 @login_required
 def create_or_update_course(request):
@@ -139,6 +162,7 @@ def create_or_update_course(request):
                 type=cred_type,
                 defaults={
                     'source': cred_data.get('source', ''),
+                    'source_title': cred_data.get('source_title', ''),
                     'title': cred_data.get('title', '')
                 }
             )
@@ -210,6 +234,7 @@ def create_or_update_course(request):
                 lesson = get_object_or_404(Lesson, id=lesson_id) if lesson_id else Lesson(module=module)
                 lesson.title = lesson_data.get('title', '')
                 lesson.order = lesson_data.get('order', 0)
+                lesson.content_type = lesson_data.get('content_type', '')
 
                 print(f"Saving Lesson: {lesson.title}, Module ID: {module.id}")  # Debug statement
                 lesson.save()
@@ -224,7 +249,9 @@ def create_or_update_course(request):
                 print(f"Lesson '{lesson.title}' saved with ID: {lesson.id}")
 
                 # Handle file attachment for the lesson (either file_id or file_url)
-                if 'file_id' in lesson_data:
+                file_id = lesson_data.get('file_id', None)
+                if file_id in lesson_data:
+                    print('file_id', file_id)
                     file_id = lesson_data.get('file_id')
                     file_instance = get_object_or_404(UploadedFile, id=file_id)
                     lesson.uploaded_file = file_instance
@@ -258,114 +285,207 @@ def create_or_update_course(request):
         """ Handle media for the course """
         for media in media_data:
             if media.get('type') == 'thumbnail':
-                thumbnail_link = media.get('thumbnail_link', '')
+                type = media.get('type', '')
+                new_thumbnail_link = media.get('thumbnail_link', '')
 
                 # Access file directly from request.FILES using a known key
-                thumbnail_image_file = request_files.get('media[0][thumbnail_image]', None)
+                new_thumbnail_image_file = request_files.get('media[0][thumbnail_image]', None)
 
-                print(f"Handling media: {thumbnail_link}, {thumbnail_image_file}")  # Check if this is printing
+                print(f"Handling media: {new_thumbnail_link}, {new_thumbnail_image_file}")  # Debug print
 
-                # Create the Media object
-                media_obj = Media.objects.create(
-                    course=course,
-                    thumbnail_link=thumbnail_link,
-                    thumbnail_image=thumbnail_image_file  # Use the file object
-                )
+                # Check if the course already has a thumbnail
+                if course.thumbnail:
+                    print('thumbnail', course.thumbnail)
 
-                # Assign the created media object as the course thumbnail
-                course.thumbnail = media_obj
-                course.save()  # Save the course to update the thumbnail field
+                    # Delete old image if it exists
+                    if course.thumbnail.thumbnail_image:
+                        course.thumbnail.thumbnail_image.delete(save=False)
+
+                    # Update thumbnail link if exists
+                    course.thumbnail.thumbnail_link = new_thumbnail_link or ''
+
+                    # Update thumbnail image if a new file is provided
+                    if new_thumbnail_image_file:
+                        course.thumbnail.thumbnail_image = new_thumbnail_image_file
+
+                    course.thumbnail.save()  # Save changes to the existing thumbnail
+
+                else:
+                    # Create a new Media object for the thumbnail if it doesn't exist
+                    media_obj = Media.objects.create(
+                        course=course,
+                        type=type,
+                        thumbnail_link=new_thumbnail_link,
+                        thumbnail_image=new_thumbnail_image_file
+                    )
+
+                    # Assign the new media object as the course thumbnail
+                    course.thumbnail = media_obj
+                    course.save()  # Save the course to update the thumbnail field
+
 
     def handle_resources(course, resources):
+        reference_response = []
         """ Handle references for the course """
-        for reference_data in resources:
+        
+        # Iterate over the incoming resources and update or create
+        for index, reference_data in enumerate(resources):
             resource_url = reference_data.get('source', '')
             description = reference_data.get('description', '')
             title = reference_data.get('title', '')
             type = reference_data.get('type', '')
             file_type = reference_data.get('file_type', '')
-            
+            file_title = reference_data.get('file_title', '')
+            resource_id = reference_data.get('id', None)  # Get the resource ID from the incoming data
+            order = reference_data.get('order', index + 1)  # Capture the order from the frontend
+
             if resource_url:
-                Resources.objects.create(
-                    course=course,
-                    url=resource_url,  # Use URL instead of file
-                    type=type,
-                    title=title,
-                    file_type=file_type,
-                    description=description
-                )
+                if resource_id:
+                    # Check if resource with the given ID exists and belongs to the right course
+                    existing_resource = Resources.objects.filter(id=resource_id, course=course).first()
+
+                    if existing_resource:
+                        # Update the existing resource
+                        existing_resource.url = resource_url
+                        existing_resource.type = type
+                        existing_resource.title = title
+                        existing_resource.file_type = file_type
+                        existing_resource.file_title = file_title
+                        existing_resource.description = description
+                        existing_resource.order = order  # Update the order
+                        existing_resource.save()
+                        print(f"Resource updated: {existing_resource.title}")
+                    else:
+                        print(f"Resource ID {resource_id} not found or doesn't belong to this course.")
+                else:
+                    # If there's no resource ID, create a new one
+                    reference = Resources.objects.create(
+                        course=course,
+                        url=resource_url,
+                        type=type,
+                        title=title,
+                        file_type=file_type,
+                        file_title=file_title,
+                        description=description,
+                        order=order  # Set the order
+                    )
+
+                    reference_response.append({
+                        'id': reference.id,
+                        'temp_id': reference_data.get('temp_id'),
+                        'title': reference.title,
+                    })
+                    print(f"New resource created: {title}")
+
+        return reference_response
 
     def handle_uploads(course, uploads_data):
-        # Extract upload instructions and save to course
-        upload_instructions = request.POST.get('upload_instructions', '')
-        course.upload_instructions = upload_instructions
-
-        # Debug print to see the uploads_data received
-        print(f"Uploads data received: {uploads_data}")
+        upload_response = []
 
         for upload_data in uploads_data:
-            # Extract approval type and approvers
+            upload_id = upload_data.get('id', None)
             approval_type = upload_data.get('approval_type', '')
             approvers_ids = upload_data.get('selected_approvers', [])
             title = upload_data.get('title', '')
 
-            # Debug print to confirm the data being processed
             print(f"Processing upload - Title: {title}, Approval Type: {approval_type}, Approvers: {approvers_ids}")
 
-            if title:  # Ensure that the title is provided
+            if title:
                 try:
-                    # Create the Upload instance
-                    upload = Upload.objects.create(
-                        course=course,
-                        approval_type=approval_type,
-                        title=title,
-                    )
-                    
-                    # Debug print to confirm upload creation
-                    print(f"Upload created: {upload}")
+                    if upload_id:
+                        upload = Upload.objects.filter(id=upload_id, course=course).first()
 
-                    # Add approvers if the list is not empty
-                    if approvers_ids:
-                        # Fetch users by their IDs
-                        approvers = User.objects.filter(id__in=approvers_ids)  
-                        upload.approvers.set(approvers)  # Set the approvers
+                        if upload:
+                            # Update existing upload
+                            upload.approval_type = approval_type
+                            upload.title = title
+                            if approvers_ids:
+                                approvers = User.objects.filter(id__in=approvers_ids)
+                                upload.approvers.set(approvers)
+                            upload.save()
+                            print(f"Upload updated: {upload}")
+                        else:
+                            # Create new upload
+                            upload = Upload.objects.create(
+                                course=course,
+                                approval_type=approval_type,
+                                title=title,
+                            )
+                            if approvers_ids:
+                                approvers = User.objects.filter(id__in=approvers_ids)
+                                upload.approvers.set(approvers)
+                            upload.save()
+                            print(f"Upload created: {upload}")
+                        
+                        # Append to upload_response
+                        upload_response.append({
+                            'id': upload.id,
+                            'temp_id': upload_data.get('temp_id'),
+                            'title': upload.title,
+                        })
 
-                        # Debug print to confirm approvers have been set
-                        print(f"Approvers set for upload: {upload.approvers.all()}")
-
-                    # Save the upload instance (not strictly necessary since set() saves the relation)
-                    upload.save()  
+                    else:
+                        # Create new upload if no ID
+                        upload = Upload.objects.create(
+                            course=course,
+                            approval_type=approval_type,
+                            title=title,
+                        )
+                        if approvers_ids:
+                            approvers = User.objects.filter(id__in=approvers_ids)
+                            upload.approvers.set(approvers)
+                        upload.save()
+                        
+                        # Append to upload_response
+                        upload_response.append({
+                            'id': upload.id,
+                            'temp_id': upload_data.get('temp_id'),
+                            'title': upload.title,
+                        })
+                        print(f"Upload created: {upload}")
 
                 except Exception as e:
-                    # Log the error or handle it appropriately
-                    print(f"Error creating upload: {e}")
+                    print(f"Error creating or updating upload: {e}")
             else:
-                print("No title provided for upload, skipping this upload.")  
+                print("No title provided for upload, skipping this upload.")
+
+        return upload_response
+
 
     def update_user_progress(course):
         """ Update progress for all users enrolled in the course """
         enrolled_users = UserCourse.objects.filter(course=course).select_related('user')
         
         for user_course in enrolled_users:
-            # Update UserModuleProgress and UserLessonProgress for each module and lesson in the updated course
             for module in course.modules.all():
-                # Get or create UserModuleProgress for this user-course-module combination
+                # Get or create UserModuleProgress based on module and user_course (without order)
                 user_module_progress, _ = UserModuleProgress.objects.get_or_create(
                     user_course=user_course,
                     module=module
                 )
+                
+                # Optionally update the order if needed
+                if user_module_progress.order != module.order:
+                    user_module_progress.order = module.order
+                    user_module_progress.save()
 
-                # Create UserLessonProgress instances for each lesson in the module
                 for lesson in module.lessons.all():
-                    UserLessonProgress.objects.get_or_create(
+                    # Get or create UserLessonProgress based on lesson and user_module_progress (without order)
+                    user_lesson_progress, _ = UserLessonProgress.objects.get_or_create(
                         user_module_progress=user_module_progress,
                         lesson=lesson
                     )
+                    
+                    # Optionally update the order if needed
+                    if user_lesson_progress.order != lesson.order:
+                        user_lesson_progress.order = lesson.order
+                        user_lesson_progress.save()
 
     try:
         if request.method == 'POST':
             # Extract data from request
             data = request.POST
+            print('Data received:', data)
             files = request.FILES
 
             # Testing if the save button was selected
@@ -391,6 +511,10 @@ def create_or_update_course(request):
             course.must_complete = data.get('must_complete', 'any_order')
             course.estimated_completion_time = data.get('estimated_completion_time', '')
             course.status = data.get('status', '')
+            course.referencesEnabled = data.get('referencesEnabled', 'false') == 'true'
+            course.uploadsEnabled = data.get('uploadsEnabled', 'false') == 'true'
+            # Extract upload instructions and save to course
+            course.upload_instructions = data.get('upload_instructions', '')
             course.save()
 
             # Handle credentials
@@ -412,18 +536,19 @@ def create_or_update_course(request):
 
             # Handle references
             resources = json.loads(data.get('resources', '[]'))
-            print(f"Resources received: {resources}")  # Check what modules are being received
-            handle_resources(course, resources)
+            print(f"Resources received: {resources}")
+            reference_response = handle_resources(course, resources)
 
             # Handle uploads
             uploads = json.loads(data.get('uploads', '[]'))
-            handle_uploads(course, uploads)
+            print(f"Uploads received: {uploads}")
+            upload_response = handle_uploads(course, uploads)
 
             # Update user progress for all enrolled users
             update_user_progress(course)
 
             if is_save:
-                return JsonResponse({'status': 'success', 'course_id': course.id, 'modules': module_response})
+                return JsonResponse({'status': 'success', 'course_id': course.id, 'modules': module_response, 'references': reference_response, 'uploads': upload_response})
             else:
                 messages.success(request, 'Course published successfully!')
                 return JsonResponse({'status': 'success', 'redirect_url': '/admin/courses/', 'course_id': course.id})
@@ -682,3 +807,32 @@ def get_file_id_from_path(file_path):
     except Exception as e:
         # Log the error or handle it as needed
         return None  # Return None or an appropriate error response
+    
+@require_POST
+def delete_object_ajax(request):
+    try:
+        # Parse the JSON request body
+        data = json.loads(request.body)
+        object_type = data.get('type')
+        object_id = data.get('id')
+
+        if not object_type or not object_id:
+            return JsonResponse({"error": "Missing 'type' or 'id' in the request."}, status=400)
+
+        # Dynamically get the model class from the object_type
+        model_class = apps.get_model('content', object_type)
+
+        # Get the object by its ID and delete it
+        obj = model_class.objects.get(id=object_id)
+        obj.delete()
+
+        return JsonResponse({"message": f"{object_type} with ID {object_id} deleted successfully."})
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON data."}, status=400)
+    except LookupError:
+        return JsonResponse({"error": f"Invalid object type: {object_type}"}, status=400)
+    except model_class.DoesNotExist:
+        return JsonResponse({"error": f"{object_type} with ID {object_id} does not exist."}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

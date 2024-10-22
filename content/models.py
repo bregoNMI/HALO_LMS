@@ -126,6 +126,8 @@ class Course(models.Model):
     must_complete = models.CharField(
         max_length=20, choices=MUST_COMPLETE_CHOICES, default='any_order'
     )
+    referencesEnabled = models.BooleanField(default=False)
+    uploadsEnabled = models.BooleanField(default=False)
 
     def calculate_event_date(self, event, enrollment_date):
         """Helper function to calculate the event date relative to enrollment_date."""
@@ -199,6 +201,7 @@ class Credential(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='credentials')
     type = models.CharField(max_length=20, choices=CREDENTIAL_TYPES)
     title = models.CharField(max_length=200, blank=True)  # Title for the credential
+    source_title = models.CharField(max_length=200, blank=True)
     source = models.URLField(max_length=500, blank=True)  # URL or file path to the credential
 
     def __str__(self):
@@ -225,6 +228,7 @@ class Media(models.Model):
         ('thumbnail', 'Thumbnail'),
         # Add more types as needed
     ]
+    type = models.CharField(max_length=20, choices=MEDIA_TYPES)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='media')
     thumbnail_link = models.URLField(max_length=500, blank=True)  # For storing a URL to the image
     thumbnail_image = models.ImageField(upload_to='thumbnails/', blank=True)  # For storing the uploaded image
@@ -243,7 +247,9 @@ class Resources(models.Model):
     title = models.CharField(max_length=200, blank=True)
     url = models.URLField(max_length=500, blank=True)
     file_type = models.CharField(max_length=200, blank=True, null=True)
+    file_title = models.CharField(max_length=200, blank=True, null=True)
     description = models.TextField(blank=True)
+    order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f'Resource for {self.course.title}'
@@ -282,7 +288,7 @@ class Lesson(models.Model):
     module = models.ForeignKey(Module, related_name='lessons', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     order = models.PositiveIntegerField()
-
+    content_type = models.CharField(max_length=200, default='file')
     file = models.ForeignKey(File, on_delete=models.CASCADE, null=True, blank=True)
     uploaded_file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE, null=True, blank=True)
 

@@ -10,4 +10,5 @@ urlpatterns = [
     path('get-categories/', views.get_categories, name='get_categories'),
     path('create-category/', views.create_category, name='create_category'),
     path('upload-lesson-file/', views.upload_lesson_file, name='upload_lesson_file'),
+    path('delete-course-object/', views.delete_object_ajax, name='delete_object_ajax'),
 ]

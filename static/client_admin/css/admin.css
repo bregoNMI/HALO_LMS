@@ -1172,7 +1172,7 @@ tr.selected-option th, tr.selected-option td{
 .selected-course-details {
     font-weight: 600;
     color: #41454d;
-    font-size
+    font-size: 0.9rem;
 }
 
 .selectedCourse .remove-course {

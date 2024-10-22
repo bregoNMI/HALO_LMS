@@ -162,7 +162,7 @@
                                     <div class="tabs">
                                         <button class="tab active" data-target="tab1">Overview</button>
                                         <button class="tab" data-target="tab2">Lessons</button>
-                                        {% if user_course.course.resources.exists %}
+                                        {% if user_course.course.resources.exists and user_course.course.referencesEnabled %}
                                             <button class="tab" data-target="tab3">Reference Materials</button>
                                         {% endif %}
                                         <div class="tab-indicator"></div>

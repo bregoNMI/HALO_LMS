@@ -113,6 +113,10 @@ class UserModuleProgress(models.Model):
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
     progress = models.PositiveIntegerField(default=0)  # percentage of the module completed by the user
     completed = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
 
     def __str__(self):
         return f"{self.user_course.user.username} - {self.module.title}"
@@ -121,6 +125,10 @@ class UserLessonProgress(models.Model):
     user_module_progress = models.ForeignKey(UserModuleProgress, related_name='lesson_progresses', on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
 
     def __str__(self):
         return f"{self.user_module_progress.user_course.user.username} - {self.lesson.title}"

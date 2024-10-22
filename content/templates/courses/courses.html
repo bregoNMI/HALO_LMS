@@ -153,7 +153,7 @@
                     </thead>
                     <tbody>     
                         {% for course in page_obj %}
-                            <tr data-id="{{ course.id }}" data-details="{% url 'course_details' course.id %}" class="table-select-option">
+                            <tr data-id="{{ course.id }}" data-details="{% url 'edit_online_courses' course.id %}" class="table-select-option">
                                 <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
                                 <td>{{ course.title }}</td>
                                 <td>{{ course.type }}</td>                 

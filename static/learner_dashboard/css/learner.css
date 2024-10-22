@@ -844,6 +844,11 @@ html, body, button{
     padding: 0.2rem var(--pad-xs);
     font-weight: 600;
     border-radius: 10px;
+    text-wrap: nowrap;
+    flex: none;
+    flex-grow: 0;
+    flex-basis: 0;
+    height: 1rem;
 }
 
 .course-item-lesson-container{

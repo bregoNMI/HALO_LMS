@@ -9,7 +9,7 @@
         <div class="popup-body">
             <div class="course-content-input">
                 <label class="edit-user-label" for="uploadInstructions">Upload Instructions</label>
-                <div class="editor-container" id="uploadInstructions"></div>
+                <div class="editor-container" id="uploadInstructions">{{ course.upload_instructions|safe }}</div>
             </div>
             <span class="course-content-input-subtext"> Provide Instructions for course uploads that Learners can review.</span>
         </div>

@@ -518,7 +518,7 @@
                             <!-- Reference -->
                             <div class="toggle-option-details">
                                 <div id="referenceContainer" class="course-references-container reference-container">
-                                    <div class="reference-card" id="referenceCard-1">
+                                    <div class="reference-card" id="referenceCard-1" data-temp-id="1">
                                         <div class="info-card-header collapsable-header">
                                             <div class="card-header-left">
                                                 <i class="fa-light fa-grip-dots-vertical reference-drag-icon"></i>
@@ -593,7 +593,7 @@
                             <!-- Course Uploads -->
                             <div class="toggle-option-details">
                                 <div id="uploadContainer" class="course-uploads-container upload-container">
-                                    <div class="upload-card" id="uploadCard-1">
+                                    <div class="upload-card" id="uploadCard-1" data-temp-id="1">
                                         <div class="info-card-header collapsable-header">
                                             <div class="card-header-left">
                                                 <i class="fa-light fa-grip-dots-vertical upload-drag-icon"></i>
@@ -686,6 +686,7 @@
     {% include 'popups/reference_delete_confirmation.html' %}
     {% include 'popups/lesson_delete_confirmation.html' %}
     {% include 'popups/upload_delete_confirmation.html' %}
+    {% include 'popups/thumbnail_delete_confirmation.html' %}
     {% include 'popups/edit_lesson.html' %}
     {% include 'popups/select_lesson_type.html' %}
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>

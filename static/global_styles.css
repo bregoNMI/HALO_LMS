@@ -48,7 +48,8 @@ h1,h2,h3,h4,h5,h6{
 
 .popup-header h3{
     color: var(--text-color5);
-    font-size: var(--close-icon);
+    font-size: 1rem;
+    /* font-size: var(--close-icon); */
     margin: 0;
 }
 

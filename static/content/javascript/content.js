@@ -393,10 +393,21 @@ function createNewModule() {
 function createNewReference() {
     const referenceContainer = document.getElementById('referenceContainer');
     const referenceCards = referenceContainer.querySelectorAll('.reference-card');
-    const newReferenceId = referenceCards.length + 1; // Generate a new unique ID based on the number of existing references
 
+    // Helper function to check if an ID exists
+    function idExists(id) {
+        return document.getElementById(`referenceCard-${id}`) !== null;
+    }
+
+    // Generate a new unique ID
+    let newReferenceId = referenceCards.length + 1;
+    while (idExists(newReferenceId)) {
+        newReferenceId++; // Keep incrementing if the ID already exists
+    }
+
+    // Define the new reference card HTML template
     const newReferenceCard = `
-    <div class="reference-card" id="referenceCard-${newReferenceId}">
+    <div class="reference-card" id="referenceCard-${newReferenceId}" data-temp-id="${newReferenceId}">
         <div class="info-card-header collapsable-header">
             <div class="card-header-left">
                 <i class="fa-light fa-grip-dots-vertical reference-drag-icon"></i>
@@ -434,21 +445,30 @@ function createNewReference() {
         </div>
     </div>`;
 
+    // Append the new reference card to the container
     referenceContainer.insertAdjacentHTML('beforeend', newReferenceCard);
 
-    // Reassign event listeners to include the new reference card
-    assignReferenceHeaderListeners();
-    testReferenceCount();
-    initializeQuill(); // Initialize Quill for the new reference description editor
+    // Reassign event listeners and initialize any components for the new card
+    assignReferenceHeaderListeners(); // Event listeners for collapsable and delete buttons
+    testReferenceCount(); // Update reference count or perform any validation logic
+    initializeQuill(`#referenceDescription-${newReferenceId}`); // Initialize Quill for the new description field
 }
 
 function createNewUpload(){
     const uploadContainer = document.getElementById('uploadContainer');
     const uploadCards = uploadContainer.querySelectorAll('.upload-card');
-    const newUploadId = uploadCards.length + 1; // Generate a new unique ID based on the number of existing references
+
+    function idExists(id) {
+        return document.getElementById(`referenceCard-${id}`) !== null;
+    }
+
+    let newUploadId = uploadCards.length + 1;
+    while (idExists(newUploadId)) {
+        newUploadId++; // Increment the ID until a unique one is found
+    }
 
     const newUploadCard = `
-    <div class="upload-card" id="referenceCard-${newUploadId}">
+    <div class="upload-card" id="referenceCard-${newUploadId}" data-temp-id="${newUploadId}">
         <div class="info-card-header collapsable-header">
             <div class="card-header-left">
                 <i class="fa-light fa-grip-dots-vertical upload-drag-icon"></i>
@@ -598,6 +618,8 @@ function closePopup(popupId) {
 // Function to confirm the deletion of a module
 function confirmDelete() {
     if (window.moduleToDelete) {
+        let moduleId = window.moduleToDelete.getAttribute('data-id');
+        if(moduleId){deleteObject('Module', moduleId);}
         window.moduleToDelete.remove();
         window.moduleToDelete = null;
         testModuleCount();
@@ -608,6 +630,8 @@ function confirmDelete() {
 function confirmReferenceDelete() {
     if (window.referenceToDelete) {
         const section = window.referenceToDelete.closest('.toggle-option-details');
+        let referenceId = window.referenceToDelete.getAttribute('data-id');
+        if(referenceId){deleteObject('Resources', referenceId);}
         window.referenceToDelete.remove();
         window.referenceToDelete = null;
         testReferenceCount();
@@ -627,6 +651,8 @@ function confirmReferenceDelete() {
 function confirmUploadDelete(){
     if (window.uploadToDelete) {
         const section = window.uploadToDelete.closest('.toggle-option-details');
+        let uploadId = window.uploadToDelete.getAttribute('data-id');
+        if(uploadId){deleteObject('Upload', uploadId);}
         window.uploadToDelete.remove();
         window.uploadToDelete = null;
         testUploadCount();
@@ -1024,6 +1050,7 @@ function assignEditHandlers() {
 
     editButtons.forEach(button => {
         button.onclick = function () {
+            console.log(button);
             // Get the lesson card to be edited
             const lessonCard = button.closest('.lesson-card');
             window.lessonToEdit = lessonCard; // Store it globally if needed
@@ -1107,6 +1134,7 @@ function assignEditHandlers() {
             }     
 
             // Display the file name if you have a display element
+            console.log(lessonCard, document.getElementById('editLessonFileDisplay'));
             if (fileURL !== 'undefined' && fileURL !== '') {
                 document.getElementById('editLessonFileDisplay').innerText = lessonCard.querySelector('.lesson-file-name').value;
             } else {
@@ -1151,10 +1179,11 @@ document.getElementById('confirmDeleteButton').addEventListener('click', functio
     if (window.lessonToDelete) {
         // Get the parent container of the lesson to be deleted
         const container = window.lessonToDelete.closest('.lesson-container');
+        let lessonId = window.lessonToDelete.getAttribute('data-id');
+        if(lessonId){deleteObject('Lesson', lessonId);}
 
         // Remove the lesson
         window.lessonToDelete.remove();
-
         // Re-number the lessons in that specific container
         updateLessonNumbers(container);
 
@@ -1333,6 +1362,7 @@ function generateCourseData(isSave) {
         const certificateData = {
             type: 'certificate',
             source: document.getElementById('certificateURLInput').value,
+            source_title: document.getElementById('certificateSourceDisplay').innerText,
             title: document.getElementById('certTitle').value.trim(),
         };
         courseData.credentials.push(certificateData);
@@ -1345,18 +1375,30 @@ function generateCourseData(isSave) {
         // Get all reference cards
         const referenceCards = document.querySelectorAll('.reference-card');
         referenceCards.forEach((referenceCard, index) => {
-            const referenceURLInput = document.getElementById(`referenceURLInput-${index + 1}`);
-            const referenceTypeInput = document.getElementById(`referenceTypeInput-${index + 1}`);
-            const referenceDescriptionEditor = document.getElementById(`referenceDescription-${index + 1}`);
-            
+            // Extract the dynamic ID from the reference card's ID
+            const referenceId = referenceCard.id.split('-')[1]; // Extract the part after 'referenceCard-'
+
+            // Now construct the IDs for other elements based on this referenceId
+            const referenceURLInput = document.getElementById(`referenceURLInput-${referenceId}`);
+            const referenceTypeInput = document.getElementById(`referenceTypeInput-${referenceId}`);
+            const fileTitle = document.getElementById(`referenceSourceDisplay-${referenceId}`);
+            const referenceDescriptionEditor = document.getElementById(`referenceDescription-${referenceId}`);
+            // This is from already created references
+            const realId = referenceCard.getAttribute('data-id') || null;
+            const tempId = referenceCard.getAttribute('data-temp-id') || null;
+
             // Check if the URL input exists before proceeding
             if (referenceURLInput) {
                 const referenceData = {
+                    id: realId,
+                    temp_id: tempId,
                     type: 'reference',
                     source: referenceURLInput.value,
                     title: referenceCard.querySelector('.reference-title').value.trim(),
                     file_type: referenceTypeInput.value,
-                    description: getEditorContent(`referenceDescription-${index + 1}`), // This will return an empty string if the editor does not exist
+                    file_title: fileTitle.innerText,
+                    description: getEditorContent(`referenceDescription-${referenceId}`), // This will return an empty string if the editor does not exist
+                    order: index + 1,
                 };
                 courseData.resources.push(referenceData);
             }
@@ -1379,11 +1421,21 @@ function generateCourseData(isSave) {
     if (uploadsCheckbox && uploadsCheckbox.checked) {
         const uploadCards = document.querySelectorAll('.upload-card');
         uploadCards.forEach((uploadCard, index) => {
+            const uploadId = uploadCard.getAttribute('data-id') || null;
+            const tempId = uploadCard.getAttribute('data-temp-id') || null;
+            let approvalType;
+            if(uploadId && !tempId){
+                approvalType = uploadCard.querySelector(`input[name="upload_approval${uploadId}"]:checked`).value;
+            }else{
+                approvalType = uploadCard.querySelector(`input[name="upload_approval${tempId}"]:checked`).value;
+            }
             console.log(index);
             const uploadData = {
+                id: uploadId,
+                temp_id: tempId,
                 type: 'upload',
                 title: uploadCard.querySelector('.upload-title').value.trim(),
-                approval_type: uploadCard.querySelector(`input[name="upload_approval${index+1}"]:checked`).value,
+                approval_type: approvalType,
             };
 
             // Handle special case for 'Other' approval type (if additional users are selected)
@@ -1443,6 +1495,12 @@ function generateCourseData(isSave) {
     const termsAndConditionsCheckbox = document.getElementById('terms');
     courseData.terms_and_conditions = termsAndConditionsCheckbox.checked;
     formData.append('terms_and_conditions', termsAndConditionsCheckbox.checked);
+
+    courseData.referencesEnabled = referenceMaterialsCheckbox.checked;
+    formData.append('referencesEnabled', referenceMaterialsCheckbox.checked);
+
+    courseData.uploadsEnabled = uploadsCheckbox.checked;
+    formData.append('uploadsEnabled', uploadsCheckbox.checked);
 
     const mustComplete = document.querySelector('input[name="must_complete"]:checked').value;
     formData.append('must_complete', mustComplete === 'must_complete1' ? 'any_order' : 'by_chapter');
@@ -1534,9 +1592,11 @@ function generateCourseData(isSave) {
     // Handle Media (Thumbnail)
     const thumbnailInput = document.getElementById('thumbnailFileInput');
     const ThumbnailImagePreview = document.getElementById('ThumbnailImagePreview');
+    const thumbnailId = document.getElementById('thumbnailId');
 
     if (ThumbnailImagePreview.src.startsWith('https://')) {
         courseData.media.push({
+            id: thumbnailId,
             type: 'thumbnail',
             thumbnail_link: ThumbnailImagePreview.src,
             thumbnail_image: '' // Leave empty if using link
@@ -1578,7 +1638,7 @@ function generateCourseData(isSave) {
             window.location.href = data.redirect_url;
             console.log('publish');
         }
-        console.log(data.modules);
+        console.log(data, data.modules);
 
         data.modules.forEach(module => {
             const moduleContainer = document.querySelector(`[data-temp-id='${module.temp_id}']`);
@@ -1594,6 +1654,28 @@ function generateCourseData(isSave) {
                 });
             }
         });
+
+        data.references.forEach(reference => {
+            console.log(`Processing reference: temp_id: ${reference.temp_id}, id: ${reference.id}`);
+            const referenceContainer = document.querySelector(`.reference-card[data-temp-id='${reference.temp_id}']`);
+            if (referenceContainer) {
+                referenceContainer.setAttribute('data-id', reference.id);
+                console.log(`Updated reference card with temp_id ${reference.temp_id} to ID ${reference.id}`);
+            } else {
+                console.log(`No reference card found with temp_id ${reference.temp_id}`);
+            }
+        });
+
+        data.uploads.forEach(upload => {
+            console.log(`Processing upload: temp_id: ${upload.temp_id}, id: ${upload.id}`);
+            const uploadContainer = document.querySelector(`.upload-card[data-temp-id='${upload.temp_id}']`);
+            if (uploadContainer) {
+                uploadContainer.setAttribute('data-id', upload.id);
+                console.log(`Updated upload card with temp_id ${upload.temp_id} to ID ${upload.id}`);
+            } else {
+                console.log(`No upload card found with temp_id ${upload.temp_id}`);
+            }
+        });        
 
         // Handle success
         removeDisabledSaveBtns();
@@ -1972,6 +2054,28 @@ function initializeToggleOptions(){
                 }
             }
         });
+        // Find the closest .course-content-input container
+        const courseContentInput = toggleOption.closest('.course-content-input');
+            
+        if (courseContentInput) {
+            // Find the next .toggle-option-details sibling
+            const toggleOptionDetails = courseContentInput.nextElementSibling;
+            
+            if (toggleOptionDetails && toggleOptionDetails.classList.contains('toggle-option-details')) {
+                // Add or remove the 'show' class based on checkbox state
+                if (toggleOption.checked) {
+                    toggleOptionDetails.classList.add('show-toggle-option-details');
+                } else {
+                    toggleOptionDetails.classList.remove('show-toggle-option-details');
+                }
+            }
+            // Hiding and showing Edit Instructions Button for Course Uploads
+            if(toggleOption.id === 'courseUploads' && toggleOption.checked){
+                document.getElementById('editUploadInstructionBtn').style.display = 'flex';
+            }else{
+                document.getElementById('editUploadInstructionBtn').style.display = 'none';
+            }
+        }
     });
 }
 
@@ -2002,6 +2106,7 @@ function initializeRadioOptions() {
                 });
 
                 // Show the relevant .toggle-option-details if this radio is checked
+                console.log(targetId);
                 if (targetId && showOptionRadio.checked) {
                     const relatedDetailsElement = document.getElementById(targetId);
                     if (relatedDetailsElement) {
@@ -2010,6 +2115,34 @@ function initializeRadioOptions() {
                 }
             }
         });
+
+        // Find the closest .course-content-input container (which contains the radio buttons)
+        const contentInputContainer = showOptionRadio.closest('.course-content-input');
+            
+        if (contentInputContainer) {
+           // Find all radio buttons within this .course-content-input container
+           const relatedRadioButtons = contentInputContainer.querySelectorAll('.radio-option');
+           
+           // Hide all the toggle-option-details for the current group of radio buttons
+           relatedRadioButtons.forEach(function(radio) {
+               const relatedId = radio.getAttribute('data-target');
+               const relatedDetailsElement = document.getElementById(relatedId);
+               if (relatedDetailsElement) {
+                   relatedDetailsElement.classList.remove('show-toggle-option-details');
+               }
+           });
+
+           // Loop through all radio buttons to find the checked one and show its details
+           relatedRadioButtons.forEach(function(radio) {
+               if (radio.checked) {
+                   const relatedId = radio.getAttribute('data-target');
+                   const relatedDetailsElement = document.getElementById(relatedId);
+                   if (relatedDetailsElement) {
+                       relatedDetailsElement.classList.add('show-toggle-option-details');
+                   }
+               }
+           });
+       }
     });
 }
 
@@ -2018,18 +2151,26 @@ function initializeThumbnailPreview(){
     const thumbnailFileInput = document.getElementById('thumbnailFileInput');
     const imagePreview = document.getElementById('imagePreview');
     const thumbnailDelete = document.getElementById('thumbnailDelete');
+    const thumbnailConfirmDelete = document.getElementById('thumbnailConfirmDelete');
 
     // Open file dialog when dropzone is clicked
     dropzone.addEventListener('click', () => thumbnailFileInput.click());
 
     // Remove Current Thumbnail
-    thumbnailDelete.addEventListener('click', (e) => {
+    thumbnailConfirmDelete.addEventListener('click', (e) => {
+        if(document.getElementById('thumbnailId')){
+            let thumbnailId = document.getElementById('thumbnailId').value;
+            if(thumbnailId){deleteObject('Media', thumbnailId);}
+        }
+        
         e.preventDefault();
         imagePreview.style.display = "none";
         thumbnailDelete.style.display = "none";
         const ThumbnailImagePreview = document.getElementById('ThumbnailImagePreview');
         ThumbnailImagePreview.src = ''; // Clear the image
         thumbnailFileInput.value = ''; // This clears the selected file
+
+        closePopup('thumbnailDeleteConfirmation');
     });
 
     // Handle file selection
@@ -2081,7 +2222,7 @@ function initializeThumbnailPreview(){
 }
 
 
-function initializeUserDropdown(containerId) {
+function initializeUserDropdown(containerId, selectedUserIds = []) {
     const container = document.getElementById(containerId);
     const userSearchInput = container.querySelector('.userSearch');
     const userList = container.querySelector('.userList');
@@ -2106,7 +2247,7 @@ function initializeUserDropdown(containerId) {
         })
             .then(response => response.json())
             .then(data => {
-                if (resetList) {
+                if (resetList || selectedUserIds) {
                     userList.innerHTML = '';
                     page = 1;
                 }
@@ -2135,6 +2276,12 @@ function initializeUserDropdown(containerId) {
                     userList.appendChild(userItem);
     
                     const checkbox = checkboxWrapper.querySelector('.user-checkbox');
+                    // Pre-select users who are already approvers (based on selectedUserIds)
+                    if (selectedUserIds.includes(user.id)) {
+                        userItem.classList.add('selected');
+                        checkbox.checked = true;
+                        appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
+                    }
     
                     // Check if the user is already selected and mark the checkbox
                     if (selectedUsersList.querySelector(`[data-user-id="${user.id}"]`)) {
@@ -2355,12 +2502,14 @@ function initializeCategoryDropdown(containerId) {
                     categoryItem.click();  // Trigger the parent item click
                 });
 
-                // Mark the item as selected if it matches the input value
-                if (category.name === categorySearchInput.value) {
-                    appendSelectedCategory(category.name, category.id);
-                    checkbox.checked = true;
-                    categoryItem.classList.add('selected');
-                }
+                // Pre-select the category if the ID matches the one from the course
+                if(typeof course_category_id !== 'undefined' && course_category_id){
+                    if (category.id === course_category_id) {  // Use ID matching instead of name
+                        appendSelectedCategory(category.name, category.id);
+                        checkbox.checked = true;
+                        categoryItem.classList.add('selected');
+                    }
+                }        
             });
 
             if (data.categories.length === 0 && resetList) {
@@ -2516,3 +2665,34 @@ document.getElementById('createCategoryButton').addEventListener('click', functi
         alert('Please enter a category name.');
     }
 });
+
+const deleteObject = async (type, id) => {
+    const url = '/requests/delete-course-object/';  // Replace with your actual URL
+    const data = {
+        type: type,  // e.g., 'Course' or 'Certificate'
+        id: id      // e.g., 123 (the ID of the object you want to delete)
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // If using CSRF protection in Django
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            console.log(result.message);
+        } else {
+            console.error('Error:', result);
+        }
+    } catch (error) {
+        console.error('Request failed:', error);
+    }
+};
+
+// Example usage
+// deleteObject('Module', 161);
