@@ -1,6 +1,11 @@
+import os
+import uuid
+import zipfile
+import boto3
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
+from authentication.python.views import get_secret
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
@@ -8,6 +13,8 @@ from django.contrib import messages
 from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile
 from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
+
+from halo_lms import settings
 from .models import File
 from django.contrib.auth.models import User
 import json
@@ -16,7 +23,7 @@ from django.utils.dateformat import DateFormat
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.views.decorators.http import require_POST
-from django.core.files.storage import default_storage
+from django.core.files.storage import default_storage, FileSystemStorage
 from django.core.files.base import ContentFile
 from django.apps import apps
 
@@ -776,7 +783,7 @@ def create_category(request):
         }, status=201)  # HTTP 201 Created
 
     return JsonResponse({'error': 'Category name is required.'}, status=400)
-
+'''
 def upload_lesson_file(request):
     if request.method == 'POST':
         # Check if a file is uploaded
@@ -794,6 +801,147 @@ def upload_lesson_file(request):
         return JsonResponse({'file_id': uploaded_file.id})  # Return the ID of the uploaded file
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+'''
+''''''
+@login_required
+def upload_lesson_file(request):
+    if request.method == 'POST':
+        print("Received POST request")
+
+        # Check if a file is uploaded
+        if request.FILES.get('file'):
+            uploaded_file = request.FILES['file']
+            print(f"Uploaded file name: {uploaded_file.name}")
+
+            # Check if the uploaded file is a zip file
+            if uploaded_file.name.endswith('.zip'):
+                print("Uploaded file is a ZIP file")
+
+                # Save the uploaded zip file temporarily
+                fs = FileSystemStorage(location='/tmp')
+                filename = fs.save(uploaded_file.name, uploaded_file)
+                file_path = fs.path(filename)
+
+                # Define a consistent folder name for extraction
+                extract_folder_name = os.path.splitext(uploaded_file.name)[0]  # Use the file name without extension
+                extract_path = f'/tmp/{extract_folder_name}'
+
+                # Create folder if not exists
+                os.makedirs(extract_path, exist_ok=True)
+
+                # Extract the zip file
+                try:
+                    with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                        zip_ref.extractall(extract_path)
+                        print(f"Extracted ZIP file to: {extract_path}")
+                except zipfile.BadZipFile:
+                    return JsonResponse({'error': 'The uploaded file is not a valid ZIP file.'}, status=400)
+
+                # Locate the SCORM entry point (index.html)
+                scorm_entry_point_relative = None
+                scormcontent_folder = os.path.join(extract_path, 'scormcontent')
+                entry_file_path = os.path.join(scormcontent_folder, 'index.html')
+                
+                if os.path.exists(entry_file_path):
+                    scorm_entry_point_relative = f'{extract_folder_name}/scormcontent/index.html'
+                else:
+                    print("index.html not found in scormcontent folder")
+                    return JsonResponse({'error': 'The uploaded SCORM package does not contain a valid entry point in scormcontent/index.html.'}, status=400)
+
+                # Upload the extracted files to S3
+                secret_name = "COGNITO_SECRET"
+                secrets = get_secret(secret_name)
+
+                if not secrets:
+                    print("Failed to retrieve secrets.")
+                    return JsonResponse({'error': 'Failed to retrieve AWS credentials.'}, status=500)
+
+                aws_access_key_id = secrets.get('AWS_ACCESS_KEY_ID')
+                aws_secret_access_key = secrets.get('AWS_SECRET_ACCESS_KEY')
+
+                if aws_access_key_id is None or aws_secret_access_key is None:
+                    print("AWS credentials are not found in the secrets.")
+                    return JsonResponse({'error': 'AWS credentials are not found in the secrets.'}, status=500)
+
+                # Set up boto3 S3 client
+                s3_client = boto3.client(
+                    's3',
+                    aws_access_key_id=aws_access_key_id,
+                    aws_secret_access_key=aws_secret_access_key,
+                    region_name=settings.AWS_S3_REGION_NAME
+                )
+
+                bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+
+                # Upload the extracted files to S3 using the standardized folder name
+                for root, dirs, files in os.walk(extract_path):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        s3_key = f'media/default/uploads/{extract_folder_name}/{os.path.relpath(file_path, extract_path)}'
+                        print(f"Uploading file to S3 with key: {s3_key}")  # Debugging statement
+                        s3_client.upload_file(file_path, bucket_name, s3_key)
+
+                # Create a reference for the uploaded file in the database and save the SCORM entry point path
+                uploaded_file_entry = UploadedFile.objects.create(
+                    title=uploaded_file.name,
+                    file=None,
+                    scorm_entry_point=scorm_entry_point_relative  # Store the full entry point path relative to the bucket
+                )
+                print(f"Uploaded file entry created with ID: {uploaded_file_entry.id}, scorm_entry_point: {scorm_entry_point_relative}")
+
+                return JsonResponse({'file_id': uploaded_file_entry.id})
+            else:
+                # If not a zip file, save it directly
+                file_path = default_storage.save(f'lessons/{uploaded_file.name}', ContentFile(uploaded_file.read()))
+                uploaded_file_entry = UploadedFile.objects.create(title=uploaded_file.name, file=uploaded_file)
+                print(f"Uploaded non-ZIP file entry created with ID: {uploaded_file_entry.id}")
+
+                return JsonResponse({'file_id': uploaded_file_entry.id})
+        
+        # No file provided in the request
+        print("No file uploaded in the request.")
+        return JsonResponse({'error': 'No file uploaded.'}, status=400)
+
+    # If request method is not POST
+    print("Invalid request method")
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+# Helper function to upload extracted files to S3
+def upload_extracted_to_s3(directory, lesson_id):
+    # Set up S3 client with credentials
+    secret_name = "COGNITO_SECRET"
+    secrets = get_secret(secret_name)
+
+    if not secrets:
+        print("Failed to retrieve secrets.")
+        return
+
+    aws_access_key_id = secrets.get('AWS_ACCESS_KEY_ID')
+    aws_secret_access_key = secrets.get('AWS_SECRET_ACCESS_KEY')
+
+    if aws_access_key_id is None or aws_secret_access_key is None:
+        print("AWS credentials are not found in the secrets.")
+        return
+
+    # Set up boto3 S3 client
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        region_name=settings.AWS_S3_REGION_NAME
+    )
+
+    bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+
+    # Upload each file in the directory to S3
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            file_path = os.path.join(root, file)
+            s3_key = f'media/default/uploads/lesson_{lesson_id}/{os.path.relpath(file_path, directory)}'
+            s3_client.upload_file(file_path, bucket_name, s3_key)
+
+    print(f"Uploaded all files for lesson {lesson_id} to S3.")
 
 def get_file_id_from_path(file_path):
     # Check if a record for the file already exists in the database

@@ -354,6 +354,7 @@ def login_success_view(request):
     # Add any logic you need for after verification
     return redirect('dashboard')
 
+'''
 def addUserCognito(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -363,7 +364,7 @@ def addUserCognito(request):
         family_name = request.POST.get('last_name')
         id_photo = request.FILES.get('photoid') 
         reg_photo = request.FILES.get('passportphoto') 
-
+        print('reg+photo: ', reg_photo)
         try:
             # Define S3 bucket and folder paths
             s3_bucket = settings.AWS_STORAGE_BUCKET_NAME
@@ -386,8 +387,9 @@ def addUserCognito(request):
             client_id = settings.COGNITO_CLIENT_ID
             client_secret = COGNITO_CLIENT_SECRET
             secret_hash = generate_secret_hash(client_id, client_secret, username)
-
-            response = cognito_client.sign_up(
+            print('jkj')
+            try:
+                response = cognito_client.sign_up(
                 ClientId=settings.COGNITO_CLIENT_ID,
                 Username=username,
                 Password=password,
@@ -400,6 +402,90 @@ def addUserCognito(request):
                 ],
                 SecretHash=secret_hash
             )
+            except cognito_client.exceptions.ClientError as error:
+                print(f"Error: {error.response['Error']['Message']}")
+
+            # Add the user to a group
+            group_name = 'Test'  # Replace with your desired group name
+            cognito_client.admin_add_user_to_group(
+                UserPoolId=settings.COGNITO_USER_POOL_ID,
+                Username=username,
+                GroupName=group_name
+            )
+            messages.success(request, 'Registration successful. Please check your email to confirm your account.')
+            return redirect('dashboard/')
+        except cognito_client.exceptions.UsernameExistsException:
+            messages.error(request, 'Username already exists.')
+        except cognito_client.exceptions.InvalidParameterException as e:
+            messages.error(request, f'Invalid parameters provided: {e}')
+        except Exception as e:
+            messages.error(request, f'An error occurred: {e}')
+    
+    return render(request, 'main/register.html')
+'''
+def addUserCognito(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        email = request.POST.get('email')
+        given_name = request.POST.get('first_name')
+        family_name = request.POST.get('last_name')
+        id_photo = request.FILES.get('photoid')
+        reg_photo = request.FILES.get('passportphoto')
+
+        try:
+            # Define S3 bucket and folder paths
+            s3_bucket = settings.AWS_STORAGE_BUCKET_NAME
+
+            # Initialize photo URLs as empty strings
+            id_photo_url = ''
+            reg_photo_url = ''
+
+            # Upload the ID photo to S3 if present
+            if id_photo:
+                id_photo_name = id_photo.name
+                s3_key_id_photo = f"users/{username}/id_photo/{id_photo_name}"
+                id_photo.seek(0)  # Reset pointer to the beginning of the file
+                s3_client.upload_fileobj(id_photo, s3_bucket, s3_key_id_photo)
+                id_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_key_id_photo}"
+
+            # Upload the registration photo to S3 if present
+            if reg_photo:
+                reg_photo_name = reg_photo.name
+                s3_key_reg_photo = f"users/{username}/reg_photo/{reg_photo_name}"
+                reg_photo.seek(0)  # Reset pointer to the beginning of the file
+                s3_client.upload_fileobj(reg_photo, s3_bucket, s3_key_reg_photo)
+                reg_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_key_reg_photo}"
+
+            # Generate SECRET_HASH
+            client_id = settings.COGNITO_CLIENT_ID
+            client_secret = COGNITO_CLIENT_SECRET
+            secret_hash = generate_secret_hash(client_id, client_secret, username)
+            
+            try:
+                # Create user attributes dynamically, excluding empty photo URLs
+                user_attributes = [
+                    {'Name': 'email', 'Value': email},
+                    {'Name': 'given_name', 'Value': given_name},
+                    {'Name': 'family_name', 'Value': family_name},
+                ]
+                if id_photo_url:
+                    user_attributes.append({'Name': 'custom:id_photo', 'Value': id_photo_url})
+                if reg_photo_url:
+                    user_attributes.append({'Name': 'custom:reg_photo', 'Value': reg_photo_url})
+
+                # Sign up the user in Cognito
+                response = cognito_client.sign_up(
+                    ClientId=settings.COGNITO_CLIENT_ID,
+                    Username=username,
+                    Password=password,
+                    UserAttributes=user_attributes,
+                    SecretHash=secret_hash
+                )
+                print(f"Cognito sign_up response: {response}")
+
+            except cognito_client.exceptions.ClientError as error:
+                print(f"Error: {error.response['Error']['Message']}")
 
             # Add the user to a group
             group_name = 'Test'  # Replace with your desired group name
@@ -411,6 +497,7 @@ def addUserCognito(request):
 
             messages.success(request, 'Registration successful. Please check your email to confirm your account.')
             return redirect('dashboard/')
+
         except cognito_client.exceptions.UsernameExistsException:
             messages.error(request, 'Username already exists.')
         except cognito_client.exceptions.InvalidParameterException as e:

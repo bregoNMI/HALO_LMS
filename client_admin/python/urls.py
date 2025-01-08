@@ -49,4 +49,6 @@ urlpatterns = [
 
     path('impersonate/<int:profile_id>/', views.impersonate_user, name='impersonate_user'),
     path('stop-impersonating/', views.stop_impersonating, name='stop_impersonating'),
+
+    path('import-users/', views.import_user, name='import_user'),
 ]

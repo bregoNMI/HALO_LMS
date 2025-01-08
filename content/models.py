@@ -8,6 +8,8 @@ from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
+from halo_lms import settings
+
 class Category(models.Model):
     name = models.CharField(max_length=200, blank=True)
 
@@ -19,6 +21,7 @@ class UploadedFile(models.Model):
     title = models.CharField(max_length=200)
     file = models.FileField(upload_to='uploads/', null=True, blank=True)  # For uploaded files
     url = models.URLField(max_length=200, null=True, blank=True)  # For URLs
+    scorm_entry_point = models.CharField(max_length=512, null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -43,9 +46,65 @@ class File(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        if not self.file_type or self.file_type == 'other':
-            self.file_type = self.determine_file_type()
+        from authentication.python.views import get_secret
+        import boto3
+        from botocore.exceptions import ClientError
+        print('here')
+        # Save the model instance and upload the file
         super().save(*args, **kwargs)
+
+        secret_name = "COGNITO_SECRET"
+        secrets = get_secret(secret_name)
+
+        if not secrets:
+            print("Failed to retrieve secrets.")
+            return
+
+        aws_access_key_id = secrets.get('AWS_ACCESS_KEY_ID')
+        aws_secret_access_key = secrets.get('AWS_SECRET_ACCESS_KEY')
+
+        if aws_access_key_id is None or aws_secret_access_key is None:
+            print("AWS credentials are not found in the secrets.")
+            return
+
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            region_name=settings.AWS_S3_REGION_NAME
+        )
+
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        key = self.file.name  # This is the path where the file is stored in the bucket
+        print(key)
+        # Update the file metadata in S3
+        try:
+            print(f"Attempting to add metadata for file: {key}")
+            s3_client.copy_object(
+                Bucket=bucket_name,
+                CopySource={'Bucket': bucket_name, 'Key': key},
+                Key=key,
+                MetadataDirective='REPLACE',
+                Metadata={
+                    'file_id': str(self.id),
+                    'title': self.title,
+                }
+            )
+            print(f"Metadata updated for file: {key}")
+        except Exception as e:
+            print(f"Error updating metadata for {key}: {e}")
+            return
+
+        # Retrieve and print metadata to verify it was saved correctly
+        try:
+            response = s3_client.head_object(Bucket=bucket_name, Key=key)
+            metadata = response.get('Metadata', {})
+            if metadata:
+                print(f"Successfully retrieved metadata for {key}: {metadata}")
+            else:
+                print(f"No metadata found for {key}.")
+        except ClientError as e:
+            print(f"Error retrieving metadata for {key}: {e}")
 
     def determine_file_type(self):
         # Automatically determine the file type based on the file extension
@@ -62,7 +121,7 @@ class File(models.Model):
             if self.is_scorm_package():
                 return 'scorm'
         return 'other'
-    
+
     def is_scorm_package(self):
         # Check if the ZIP file contains SCORM-specific files
         if not self.file:
@@ -87,11 +146,12 @@ class File(models.Model):
         os.rmdir(temp_dir)
 
         return is_scorm
-    
+
     def clean(self):
         # Ensure that SCORM files are validated
         if self.file_type == 'scorm' and not self.is_scorm_package():
             raise ValidationError("The uploaded file is not a valid SCORM package.")
+
 
 # Define a Course model
 class Course(models.Model):
@@ -111,6 +171,7 @@ class Course(models.Model):
         ('by_chapter', 'All lessons, in order by chapter'),
     ]
 
+    scorm_id = models.CharField(max_length=255, null=True, blank=True)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -291,9 +352,18 @@ class Lesson(models.Model):
     content_type = models.CharField(max_length=200, default='file')
     file = models.ForeignKey(File, on_delete=models.CASCADE, null=True, blank=True)
     uploaded_file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE, null=True, blank=True)
+    scorm_id = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         ordering = ['order']
+
+    def save(self, *args, **kwargs):
+        # Automatically link an uploaded file if content_type is 'scorm' and no file is already linked
+        if self.content_type.lower() == 'scorm' and not self.uploaded_file:
+            uploaded_files = UploadedFile.objects.all()
+            if uploaded_files.exists():
+                self.uploaded_file = uploaded_files.first()  # Assign the first available uploaded file
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

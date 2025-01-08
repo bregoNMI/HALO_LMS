@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">  <!-- Adjust to your CSS file path -->
+</head>
+<body>
+    <h1>Oops! Page Not Found</h1>
+    <p>We're sorry, but the page you are looking for does not exist.</p>
+    <p>Error message: {{ error_message }}</p> <!-- This will display the error message -->
+    <a href="/">Go Back Home</a>
+</body>
+</html>
+

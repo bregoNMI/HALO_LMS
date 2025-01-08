@@ -2,19 +2,22 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.shortcuts import render
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.test import RequestFactory
 from django.http import HttpResponse, JsonResponse
-import logging
+import logging, csv
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpRequest
 from learner_dashboard.views import learner_dashboard
 from django.contrib import messages
 from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog
 from client_admin.forms import OrganizationSettingsForm
-from .forms import UserRegistrationForm, ProfileForm
+from .forms import UserRegistrationForm, ProfileForm, CSVUploadForm
 from django.contrib.auth import update_session_auth_hash, login
 from authentication.python.views import addUserCognito, modifyCognito, register_view
 from django.template.response import TemplateResponse
@@ -566,76 +569,7 @@ def message_users_request(request):
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
-"""
-@login_required
-def impersonate_user(request, profile_id):
-    # Ensure the user has permission to impersonate
-    if request.user.is_authenticated and request.user.is_superuser:
-        try:
-            # Retrieve the user associated with the given profile ID
-            user_to_impersonate = User.objects.get(profile__id=profile_id)
-            print("User found:", user_to_impersonate.username)
 
-            # Store the original user ID before impersonating
-            if 'original_user_id' not in request.session:
-                request.session['original_user_id'] = request.user.id
-                request.session.modified = True
-                print("Original user ID stored:", request.session['original_user_id'])
-
-            # Log in as the impersonated user
-            login(request, user_to_impersonate)
-
-            # Set the session variable for impersonation
-            request.session['impersonate_user_id'] = user_to_impersonate.id  
-            request.session.modified = True  # Ensure the session is marked as modified
-            print("Session data after impersonation:", request.session.items())
-
-            # Log the session data
-            impersonate_user_id = request.session.get('impersonate_user_id', None)
-            print("Assigned impersonate_user_id:", impersonate_user_id)
-            print("Session data before redirect:", impersonate_user_id)
-            #print("Orginal: ", request.session['original_user_id'])
-
-            # Redirect to the dashboard
-            return redirect('/dashboard')  # Update with the appropriate dashboard URL
-
-        except User.DoesNotExist:
-            print("User does not exist.")
-            return redirect('/login')
-        except ImpersonationError as e:
-            # Handle the impersonation error
-            messages.error(request, str(e))  # Use the error message from the exception
-            return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect back
-
-    print("Unauthorized access attempt.")
-    return redirect('/login')
-
-@login_required
-def stop_impersonating(request):
-
-    # Print session data before any operations
-    print("Session data before stopping impersonation:", dict(request.session.items()))
-    
-    if 'impersonate_user_id' in request.session:
-        del request.session['impersonate_user_id']
-
-        # Retrieve the original user ID from the session
-        original_user_id = request.session.pop('original_user_id', None)
-        print('herre')
-        print("d: ", original_user_id)
-        if original_user_id:
-            User = get_user_model()
-            try:
-                # Retrieve the original user and log them back in
-                original_user = User.objects.get(id=original_user_id)
-                login(request, original_user)
-                
-                messages.success(request, 'You have stopped impersonating the user and are now logged back in as yourself.')
-            except User.DoesNotExist:
-                messages.error(request, 'Original user not found. Please log in again.')
-
-    return redirect('/dashboard')  # Redirect to the appropriate page
-"""
 @login_required
 def impersonate_user(request, profile_id):
     # Ensure the user has permission to impersonate
@@ -708,3 +642,103 @@ def stop_impersonating(request):
 
     return redirect('/admin/users') 
 
+@login_required
+def import_user(request):
+    if request.method == 'POST':
+        form = CSVUploadForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            csv_file = form.cleaned_data['csv_file']
+
+            try:
+                decoded_file = csv_file.read().decode('utf-8').splitlines()
+                first_line = decoded_file[0]
+                delimiter = ',' if ',' in first_line else '\t'
+                reader = csv.DictReader(decoded_file, delimiter=delimiter)
+
+                for row in reader:
+                    username = row.get('username', '').strip()
+                    email = row.get('email', '').strip()
+                    password = row.get('password', '').strip()
+                    first_name = row.get('givenName', '').strip()
+                    last_name = row.get('familyName', '').strip()
+
+                    if not username:
+                        messages.error(request, f'Missing username for row: {row}')
+                        continue
+
+                    # Create or get the user
+                    user, created = User.objects.get_or_create(
+                        username=username,
+                        defaults={
+                            'email': email,
+                            'first_name': first_name,
+                            'last_name': last_name,
+                        }
+                    )
+
+                    if created:
+                        user.set_password(password)
+                        user.save()
+                        messages.success(request, f'User {username} created successfully in Django.')
+
+                        # Call the function to add the user to Cognito
+                        add_user_to_cognito(request, username, password, email, first_name, last_name)
+
+                        # Create the corresponding profile
+                        Profile.objects.create(
+                            user=user,
+                            username=user.username,  # Link the profile to the user object
+                            first_name=first_name,
+                            last_name=last_name,
+                            email=email
+                        )
+                        messages.success(request, f'Profile created for {username}.')
+
+                    else:
+                        messages.warning(request, f'User {username} already exists in Django.')
+
+            except Exception as e:
+                messages.error(request, f'Error processing CSV file: {e}')
+
+            return redirect('/admin/users/')
+
+    return redirect('/admin/users/')
+
+def add_user_to_cognito(original_request, username, password, email, first_name, last_name, id_photo=None, reg_photo=None):
+    # Prepare a mock request object
+    request = HttpRequest()
+    request.method = 'POST'
+    request.POST = {
+        'username': username,
+        'password': password,
+        'email': email,
+        'first_name': first_name,
+        'last_name': last_name,
+    }
+
+    # Attach user from the original request
+    request.user = original_request.user
+
+    # Manually create a session for the mock request
+    session = SessionStore()
+    session.create()  # Create a new session in the database
+    request.session = session
+
+    # Mocking the messages framework
+    setattr(request, 'session', original_request.session)
+    messages_storage = FallbackStorage(request)
+    setattr(request, '_messages', messages_storage)
+
+    # Add files if available
+    if id_photo:
+        request.FILES['photoid'] = id_photo
+    if reg_photo:
+        request.FILES['passportphoto'] = reg_photo
+
+    try:
+        # Call the existing addUserCognito function
+        addUserCognito(request)
+        logging.info(f"User {username} successfully added to Cognito.")
+    except Exception as e:
+        logging.error(f"Error adding user {username} to Cognito: {e}")

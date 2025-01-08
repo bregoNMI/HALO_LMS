@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available SCORM Lessons</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .file-list {
+            margin-top: 20px;
+        }
+        .file-card {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        .launch-button {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .launch-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Available SCORM Lessons</h1>
+        <div class="file-list">
+            {% if scorm_files %}
+                {% for file in scorm_files %}
+                    <div class="file-card">
+                        <h3>Lesson: {{ file.key }}</h3>
+                        <a href="{{ file.url }}" class="launch-button" target="_blank">Launch SCORM Lesson</a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No SCORM lessons available.</p>
+            {% endif %}
+        </div>
+    </div>    
+</body>
+</html>
