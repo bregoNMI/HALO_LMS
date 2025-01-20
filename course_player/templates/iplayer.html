@@ -8,6 +8,7 @@
     
     <!-- Testing HTML Rendering -->
     <p>If you can see this text, the HTML is rendering correctly.</p>
+    <p>Signed URL: {{ scorm_index_file_url }}</p>
 
     <!-- Include the SCORM API JavaScript wrapper -->
     <script src="{% static 'course_player/javascript/SCORM_API_wrapper.js' %}?v=2"></script>
@@ -18,104 +19,42 @@
         // Define the global lesson ID and user ID
         window.lessonId = "{{ lesson.id }}";
         window.userId = "{{ request.user.id }}";
-
-        try {
-            let attempts = 0;
-            let maxAttempts = 500;
-            let win = window;
-            let API = null;
-
-            console.log("Attempting to find SCORM API (`API_1484_11`) in parent window...");
-
-            // Traverse through parent frames to locate the SCORM API
-            while (!API && attempts < maxAttempts) {
-                attempts++;
-                if (win.parent && win.parent != win) {
-                    win = win.parent;
-                    console.log(`Attempt ${attempts}: Searching for SCORM API in parent frame...`);
-                    
-                    if (win.API_1484_11) {
-                        console.log("API_1484_11 found in parent frame after " + attempts + " attempts.");
-                        API = win.API_1484_11;
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            }
-
-            if (API) {
-                console.log("Successfully found the SCORM API (`API_1484_11`) in parent frame.");
-            } else {
-                console.error("Unable to find the SCORM API (`API_1484_11`) in any parent frames.");
-            }
-        } catch (e) {
-            console.error("Cross-origin issue while trying to access parent frame:", e);
-        }
-
-        // SCORM API global object
-        var API;
-        window.API = API;
-
-        pipwerks.SCORM.version = "2004";
-
-        document.addEventListener("DOMContentLoaded", function () {
-            // Set SCORM version, assuming it is SCORM 1.2 in this example
-            pipwerks.SCORM.version = "2004";
-
-            if (typeof pipwerks !== 'undefined' && pipwerks.SCORM) {
-                console.log("pipwerks SCORM API successfully loded.");
-
-                // Create the SCORM API object
-                API = pipwerks.SCORM;
-
-                // Check if API is found
-                console.log("Attempting to get API...");
-                var api = API.API.getHandle();
-                if (api) {
-                    console.log("API found successfully.");
-
-                    // Initialize SCORM API
-                    const initialized = pipwerks.SCORM.connection.initialize();
-                    if (initialized) {
-                        console.log("SCORM API initialized successfully.");
-                    } else {
-                        console.error("SCORM API initialization failed. The SCORM package might not be in an LMS.");
-                    }
-                } else {
-                    console.warn("No LMS API found. The course may not be running in an LMS.");
-                }
-            } else {
-                console.error("pipwerks SCORM API failed to load. Check the script source.");
-            }
-        });
-
-        function findAPI(win) {
-            let attempts = 0;
-            while ((!win.API_1484_11 && !win.API) &&
-                (win.parent != null) &&
-                (win.parent != win) &&
-                (attempts <= 500)) {
-                attempts++;
-                win = win.parent;
-            }
-            return win.API_1484_11 || win.API || null;
-        }
-
+        // Ensure SCORM API is available globally
+        window.API_1484_11 = window.API_1484_11 || {
+            Initialize: () => {
+                console.log("SCORM API: Initialize called");
+                return "true";
+            },
+            Terminate: () => {
+                console.log("SCORM API: Terminate called");
+                return "true";
+            },
+            GetValue: (key) => {
+                console.log(`SCORM API: GetValue called for key: ${key}`);
+                return "";
+            },
+            SetValue: (key, value) => {
+                console.log(`SCORM API: SetValue called for key: ${key}, value: ${value}`);
+                return "true";
+            },
+            Commit: () => {
+                console.log("SCORM API: Commit called");
+                return "true";
+            },
+            SetPassed: () => {
+                console.log("SCORM API: SetPassed called");
+                return "true";
+            },
+            GetLastError: () => "0",
+            GetErrorString: (errorCode) => "No error",
+            GetDiagnostic: (errorCode) => "",
+        };
 
         // This function allows SCORM content to find the API
-        function GetAPI() {
-            console.log("GetAPI function called");
-            if (typeof API !== 'undefined' && API !== null) {
-                console.log("Returning SCORM API object from GetAPI function.");
-            } else {
-                console.error("GetAPI: SCORM API object is not defined.");
-            }
-            return API;
-        }
-
-        // Make sure GetAPI is in the global scope
-        window.GetAPI = GetAPI;
+        window.GetAPI = function () {
+            console.log("Providing SCORM API to SCORM package.");
+            return window.API_1484_11 || null;
+        };
 
         // Function to get CSRF token
         function getCookie(name) {
@@ -135,14 +74,18 @@
 
         async function sendTrackingData(trackingData) {
             console.log("Preparing to send tracking data:", trackingData);
+            if (!trackingData.lesson_id) {
+                console.error("lesson_id is missing from tracking data!");
+                return;
+            }
             try {
-                const response = await fetch('/track-scorm-data/', {
+                const response = await fetch('/course_player/track-scorm-data/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
+                        'X-CSRFToken': getCookie('csrftoken'),
                     },
-                    body: JSON.stringify(trackingData)
+                    body: JSON.stringify(trackingData),
                 });
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -168,46 +111,35 @@
 
         // Override SCORM API methods to log their interactions and send tracking data
         document.addEventListener("DOMContentLoaded", function() {
-            if (API) {
-                console.log("Adding overrides to SCORM API methods.");
-                API.set = function(parameter, value) {
-                    console.log(`SCORM set called with parameter: ${parameter}, value: ${value}`);
-                    var result = pipwerks.SCORM.set(parameter, value);
-                    if (result) {
-                        console.log("SCORM set successful, sending tracking data...");
-                        var trackingData = {
-                            lesson_id: window.lessonId,
-                            user_id: window.userId,
-                            parameter: parameter,
-                            value: value
-                        };
-                        sendTrackingData(trackingData);
-                    } else {
-                        console.log("SCORM set failed");
-                    }
-                    return result;
-                };
+            console.log("Adding overrides to SCORM API methods.");
+            const originalSetValue = window.API_1484_11.SetValue;
+            window.API_1484_11.SetValue = (key, value) => {
+                console.log(`SetValue intercepted - Key: ${key}, Value: ${value}`);
+                const result = originalSetValue(key, value);
+                if (result === "true") {
+                    sendTrackingData({
+                        lesson_id: window.lessonId,
+                        user_id: window.userId,
+                        parameter: key,
+                        value: value
+                    });
+                }
+                return result;
+            };
 
-                API.finish = function() {
-                    console.log("SCORM finish called");
-                    var result = pipwerks.SCORM.finish();
-                    if (result) {
-                        console.log("SCORM finish successful, sending completion data...");
-                        var completionData = {
-                            lesson_id: window.lessonId,
-                            user_id: window.userId,
-                            completion_status: pipwerks.SCORM.get('cmi.core.lesson_status'),
-                            score: pipwerks.SCORM.get('cmi.core.score.raw')
-                        };
-                        sendTrackingData(completionData);
-                    } else {
-                        console.log("SCORM finish failed");
-                    }
-                    return result;
-                };
-            } else {
-                console.error("API is not defined. Cannot add overrides.");
-            }
+            const originalCommit = window.API_1484_11.Commit;
+            window.API_1484_11.Commit = () => {
+                console.log("Commit intercepted");
+                const result = originalCommit();
+                if (result === "true") {
+                    sendTrackingData({
+                        lesson_id: window.lessonId,
+                        user_id: window.userId,
+                        action: "commit",
+                    });
+                }
+                return result;
+            };
         });
 
     </script>    
@@ -223,30 +155,6 @@
             allowfullscreen>
         </iframe>
     </div>
-    <button onclick="testScormInit()">Test SCORM Initialization</button>
-    <script>
-        function testScormInit() {
-            console.log("Testing SCORM API initialization...");
-            var initialized = pipwerks.SCORM.connection.initialize();
-            if (initialized) {
-                console.log("SCORM initialized successfully.");
-            } else {
-                console.error("Failed to initialize SCORM.");
-            }
-        }
-    </script>
-
-    <script>
-        // Assuming that the LMS is supposed to provide this API for SCORM 2004
-        window.API_1484_11 = {
-            Initialize: function () {
-                console.log("Initializing SCORM 2004...");
-                return "true"; // Stub return value for now
-            },
-            // Add other required SCORM methods like `GetValue`, `SetValue`, etc.
-        };
-    </script>
-
-
+    <button onclick="sendTestTrackingData()">Test SCORM Tracking</button>
 </body>
 </html>

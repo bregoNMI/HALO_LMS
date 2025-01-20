@@ -41,7 +41,7 @@
                 {% for file in scorm_files %}
                     <div class="file-card">
                         <h3>Lesson: {{ file.title }}</h3>
-                        <a href="{% url 'launch_scorm' file_id=file.id %}" class="launch-button" target="_blank">Launch SCORM Lesson</a>
+                        <a href="{% url 'launch_scorm' lesson_id=file.id %}" class="launch-button" target="_blank">Launch SCORM Lesson</a>
                     </div>
                 {% endfor %}
             {% else %}
