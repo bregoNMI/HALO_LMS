@@ -111,6 +111,8 @@ def proxy_scorm_file(request, file_path):
 def launch_scorm_file(request, lesson_id):
     print('Lesson ID:', lesson_id)
     lesson = get_object_or_404(Lesson, pk=lesson_id)
+
+    profile = get_object_or_404(Profile, user=request.user)
     
     # Get the UploadedFile object
     uploaded_file = get_object_or_404(UploadedFile, pk=lesson_id)
@@ -130,7 +132,8 @@ def launch_scorm_file(request, lesson_id):
     # Render the SCORM player template with the proxied URL
     return render(request, 'iplayer.html', {
         'lesson': lesson,
-        'scorm_index_file_url': proxy_url
+        'scorm_index_file_url': proxy_url,
+        'profile_id': profile.id
     })
     """
     # Generate the pre-signed URL for the S3 object
@@ -245,33 +248,46 @@ def track_scorm_data(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            user_id = data.get("user_id")
+            profile_id  = data.get("user_id")
             lesson_id = data.get("lesson_id")
-            parameter = data.get("parameter")
-            value = data.get("value")
-            action = data.get("action", "update")
+            progress = data.get("progress")
+            completion_status = data.get("completion_status")
+            session_time = data.get("session_time")
+            score = data.get("score")
 
-            print(f"Tracking Data Received - User ID: {user_id}, Lesson ID: {lesson_id}, Parameter: {parameter}, Value: {value}, Action: {action}")
+            # Validate required fields
+            if not profile_id  or not lesson_id:
+                return JsonResponse({"error": "Missing required fields"}, status=400)
 
-            # Get user and lesson objects
-            profile = get_object_or_404(Profile, pk=user_id)
+            # Validate if score is numeric, if provided
+            if score is not None:
+                try:
+                    score = float(score)
+                except ValueError:
+                    return JsonResponse({"error": "Score must be a numeric value"}, status=400)
+
+            # Get user profile and lesson objects
+            profile = get_object_or_404(Profile, pk=profile_id)
             lesson = get_object_or_404(Lesson, pk=lesson_id)
 
-            # Save tracking data
+            # Update or create SCORM tracking data
             tracking_data, created = SCORMTrackingData.objects.update_or_create(
-                user=profile,
+                user=profile.user,
                 lesson=lesson,
-                defaults={"cmi_data": parameter, "score": value, "completion_status": action},
+                defaults={
+                    "progress": float(progress) if progress is not None else 0.0,
+                    "completion_status": completion_status or "incomplete",
+                    "session_time": session_time or "PT0H0M0S",
+                    "score": score,
+                },
             )
 
             status = "created" if created else "updated"
-            print(f"SCORMTrackingData {status} for User {profile.id} and Lesson {lesson.id}")
-
-            return JsonResponse({"status": "success", "tracking": status})
+            return JsonResponse({"status": "success", "action": status})
 
         except Exception as e:
-            print(f"Error processing tracking data: {e}")
-            return JsonResponse({"error": str(e)}, status=400)
+            print(f"Error in track_scorm_data: {e}")
+            return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 

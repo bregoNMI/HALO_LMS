@@ -11,10 +11,13 @@ from pytz import all_timezones
 
 class SCORMTrackingData(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    lesson = models.ForeignKey('content.Lesson', on_delete=models.CASCADE)
-    cmi_data = models.JSONField(null=True, blank=True)
-    score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    completion_status = models.CharField(max_length=20, null=True, blank=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    cmi_data = models.JSONField()  # Store raw SCORM interaction data in JSON format
+    score = models.FloatField(null=True, blank=True)
+    completion_status = models.CharField(max_length=50, choices=[('completed', 'Completed'), ('incomplete', 'Incomplete'), ('failed', 'Failed'), ('passed', 'Passed')])
+    session_time = models.DurationField(null=True, blank=True)
+    progress = models.FloatField(null=True, blank=True)  # Percentage
+    last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Tracking Data for User {self.user} - Lesson {self.lesson}"

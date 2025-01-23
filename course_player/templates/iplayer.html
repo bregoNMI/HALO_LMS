@@ -6,7 +6,6 @@
     <title>SCORM Player</title>
     {% load static %}
     
-    <!-- Testing HTML Rendering -->
     <p>If you can see this text, the HTML is rendering correctly.</p>
     <p>Signed URL: {{ scorm_index_file_url }}</p>
 
@@ -18,11 +17,21 @@
 
         // Define the global lesson ID and user ID
         window.lessonId = "{{ lesson.id }}";
-        window.userId = "{{ request.user.id }}";
+        window.userId = "{{ profile_id }}";
+
+        let totalPages = 0;
+        let pagesVisited = new Set();
+
+        console.log("Profile ID:", window.userId);
+
+        // Initialize session start time globally
+        let sessionStartTime = new Date();
+
         // Ensure SCORM API is available globally
         window.API_1484_11 = window.API_1484_11 || {
             Initialize: () => {
                 console.log("SCORM API: Initialize called");
+                sessionStartTime = new Date(); // Set the session start time
                 return "true";
             },
             Terminate: () => {
@@ -31,18 +40,31 @@
             },
             GetValue: (key) => {
                 console.log(`SCORM API: GetValue called for key: ${key}`);
-                return "";
+                
+                // Retrieve from mock data store
+                return this.dataStore ? this.dataStore[key] || "" : "";
             },
             SetValue: (key, value) => {
                 console.log(`SCORM API: SetValue called for key: ${key}, value: ${value}`);
+                
+                // Persist progress measure in a mock data store
+                if (!this.dataStore) {
+                    this.dataStore = {}; // Create a mock data store if it doesn't exist
+                }
+                this.dataStore[key] = value; // Store the key-value pair
+
                 return "true";
             },
             Commit: () => {
                 console.log("SCORM API: Commit called");
                 return "true";
             },
-            SetPassed: () => {
-                console.log("SCORM API: SetPassed called");
+            SetBookmark: () => {
+                console.log("SCORM API: SetBookmark called");
+                return "true";
+            },
+            CommitData: () => {
+                console.log("SCORM API: CommitData called");
                 return "true";
             },
             GetLastError: () => "0",
@@ -50,11 +72,17 @@
             GetDiagnostic: (errorCode) => "",
         };
 
-        // This function allows SCORM content to find the API
-        window.GetAPI = function () {
-            console.log("Providing SCORM API to SCORM package.");
-            return window.API_1484_11 || null;
-        };
+        // Function to calculate session time
+        function getSessionTime() {
+            const now = new Date();
+            const duration = Math.floor((now - sessionStartTime) / 1000); // Duration in seconds
+
+            const hours = Math.floor(duration / 3600);
+            const minutes = Math.floor((duration % 3600) / 60);
+            const seconds = duration % 60;
+
+            return `PT${hours}H${minutes}M${seconds}S`;
+        }
 
         // Function to get CSRF token
         function getCookie(name) {
@@ -72,12 +100,42 @@
             return cookieValue;
         }
 
+        function getTotalPagesFromIframe() {
+            const iframe = document.getElementById("scormContentIframe");
+            if (iframe && iframe.contentWindow) {
+                try {
+                    const iframeDocument = iframe.contentWindow.document;
+
+                    // Adjust selectors to match the structure of your SCORM content
+                    const slides = iframeDocument.querySelectorAll(".slide, .page"); // Example selectors
+                    console.log("Slides Found:", slides.length);
+
+                    return slides.length;
+                } catch (error) {
+                    console.error("Unable to access iframe content:", error);
+                }
+            }
+            return 0; // Default fallback if pages are not found
+        }
+
+        function updateTotalPages() {
+            const iframe = document.getElementById("scormContentIframe");
+            if (iframe) {
+                iframe.addEventListener("load", () => {
+                    totalPages = getTotalPagesFromIframe();
+                    console.log("Total Pages Updated:", totalPages); // Display total pages in the console
+                });
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            updateTotalPages(); // Initialize the process to count total pages
+        });
+
+        // Function to send SCORM tracking data to the server
         async function sendTrackingData(trackingData) {
             console.log("Preparing to send tracking data:", trackingData);
-            if (!trackingData.lesson_id) {
-                console.error("lesson_id is missing from tracking data!");
-                return;
-            }
+
             try {
                 const response = await fetch('/course_player/track-scorm-data/', {
                     method: 'POST',
@@ -87,62 +145,90 @@
                     },
                     body: JSON.stringify(trackingData),
                 });
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
+
                 const data = await response.json();
-                console.log('Successfully tracked SCORM data:', data);
+                console.log("Successfully tracked SCORM data:", data);
             } catch (error) {
-                console.error('Error tracking SCORM data:', error);
+                console.error("Error tracking SCORM data:", error);
             }
         }
 
-        // Function to test sending tracking data manually
-        function sendTestTrackingData() {
-            const trackingData = {
-                lesson_id: window.lessonId,
-                user_id: window.userId,
-                parameter: "test.param",
-                value: "test.value"
-            };
-            console.log("Sending test tracking data...");
-            sendTrackingData(trackingData);
+        //function updateProgress(currentPage) {
+            // Add current page to visited set
+            //pagesVisited.add(currentPage);
+
+            //if (totalPages > 0) {
+                //const progress = pagesVisited.size / totalPages;
+                //window.API_1484_11.SetValue("cmi.progress_measure", progress.toFixed(2));
+                //console.log(`Progress Updated: ${progress}`);
+                //trackProgress();
+            //}
+        //}
+
+        function trackProgress() {
+            try {
+
+                const simulatedProgress = parseFloat(window.API_1484_11.GetValue("cmi.progress_measure")) || 0;
+                const increment = 0.1; // Example: Increase by 10% per interval
+                const newProgress = Math.min(simulatedProgress + increment, 1); // Ensure progress does not exceed 1 (100%)
+
+                // Update the SCORM API progress measure
+                window.API_1484_11.SetValue("cmi.progress_measure", newProgress.toString());
+
+                const progressMeasure = window.API_1484_11.GetValue('cmi.progress_measure'); // Progress as a decimal
+                console.log(`Progress Measure After Update: ${progressMeasure}`);
+
+                let completionStatus = window.API_1484_11.GetValue('cmi.completion_status') || "incomplete";
+                const score = window.API_1484_11.GetValue('cmi.score.raw');
+                const sessionTime = getSessionTime();
+
+                if (parseFloat(progressMeasure) === 1) {
+                    completionStatus = "complete";
+                    window.API_1484_11.SetValue("cmi.completion_status", completionStatus);
+                    console.log("Completion Status Updated to: complete");
+                }
+
+                console.log(`Progress Measure: ${newProgress}`);
+                console.log(`Completion Status: ${completionStatus}`);
+                console.log(`Score: ${score}`);
+                console.log(`Session Time: ${sessionTime}`);
+
+                // Avoid redundant calls unless there's a change
+                if (
+                    progressMeasure !== lastProgress ||
+                    completionStatus !== lastCompletionStatus ||
+                    sessionTime !== lastSessionTime ||
+                    score !== lastScore
+                ) {
+                    lastProgress = progressMeasure;
+                    lastCompletionStatus = completionStatus;
+                    lastSessionTime = sessionTime;
+                    lastScore = score;
+
+                    sendTrackingData({
+                        lesson_id: window.lessonId,
+                        user_id: window.userId,
+                        progress: parseFloat(progressMeasure) || 0, // Send as a decimal value
+                        completion_status: completionStatus,
+                        session_time: sessionTime,
+                        score: parseFloat(score) || null,
+                    });
+                }
+            } catch (error) {
+                console.error("Error tracking progress:", error);
+            }
         }
 
-        // Override SCORM API methods to log their interactions and send tracking data
-        document.addEventListener("DOMContentLoaded", function() {
-            console.log("Adding overrides to SCORM API methods.");
-            const originalSetValue = window.API_1484_11.SetValue;
-            window.API_1484_11.SetValue = (key, value) => {
-                console.log(`SetValue intercepted - Key: ${key}, Value: ${value}`);
-                const result = originalSetValue(key, value);
-                if (result === "true") {
-                    sendTrackingData({
-                        lesson_id: window.lessonId,
-                        user_id: window.userId,
-                        parameter: key,
-                        value: value
-                    });
-                }
-                return result;
-            };
-
-            const originalCommit = window.API_1484_11.Commit;
-            window.API_1484_11.Commit = () => {
-                console.log("Commit intercepted");
-                const result = originalCommit();
-                if (result === "true") {
-                    sendTrackingData({
-                        lesson_id: window.lessonId,
-                        user_id: window.userId,
-                        action: "commit",
-                    });
-                }
-                return result;
-            };
+        // Set progress tracking interval
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("Adding progress tracking interval.");
+            setInterval(trackProgress, 30000); // Track progress every 60 seconds
         });
-
-    </script>    
+    </script>
 </head>
 <body>
     <div class="scorm-container">
@@ -155,6 +241,5 @@
             allowfullscreen>
         </iframe>
     </div>
-    <button onclick="sendTestTrackingData()">Test SCORM Tracking</button>
 </body>
 </html>
