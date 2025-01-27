@@ -169,54 +169,69 @@
             //}
         //}
 
+        function getProgressFromIframe() {
+            const iframe = document.getElementById("scormContentIframe");
+            console.log("Checking iframe for progress...");
+
+            if (iframe && iframe.contentWindow) {
+                try {
+                    const iframeDocument = iframe.contentWindow.document;
+
+                    // Select the element containing the progress text
+                    const progressElement = iframeDocument.querySelector(".nav-sidebar-header__progress-text");
+                    if (progressElement) {
+                        const progressText = progressElement.textContent.trim();
+                        console.log("Progress Element Text Found:", progressText);
+
+                        // Extract numeric value from progress text (e.g., "10% COMPLETE")
+                        const progressMatch = progressText.match(/(\d+)%/);
+                        if (progressMatch) {
+                            const progressValue = parseInt(progressMatch[1], 10);
+                            console.log("Extracted Progress Value:", progressValue);
+
+                            return progressValue / 100; // Convert to decimal (e.g., 0.1)
+                        }
+                    } else {
+                        console.warn("No progress element found matching the selector.");
+                    }
+                } catch (error) {
+                    console.error("Error accessing iframe content for progress:", error);
+                }
+            } else {
+                console.error("Iframe or iframe.contentWindow not available.");
+            }
+            return 0; // Default progress if not found
+        }
+
+
         function trackProgress() {
             try {
+                console.log("Attempting to track progress...");
+                const progressMeasure = getProgressFromIframe();
 
-                const simulatedProgress = parseFloat(window.API_1484_11.GetValue("cmi.progress_measure")) || 0;
-                const increment = 0.1; // Example: Increase by 10% per interval
-                const newProgress = Math.min(simulatedProgress + increment, 1); // Ensure progress does not exceed 1 (100%)
+                if (progressMeasure > 0) {
+                    // Update SCORM API with the progress
+                    window.API_1484_11.SetValue("cmi.progress_measure", progressMeasure.toFixed(2));
+                    console.log(`Progress Measure Updated: ${progressMeasure}`);
 
-                // Update the SCORM API progress measure
-                window.API_1484_11.SetValue("cmi.progress_measure", newProgress.toString());
+                    // Update completion status if progress is 100%
+                    if (progressMeasure === 1) {
+                        const completionStatus = "complete";
+                        window.API_1484_11.SetValue("cmi.completion_status", completionStatus);
+                        console.log("Completion Status Updated to: complete");
+                    }
 
-                const progressMeasure = window.API_1484_11.GetValue('cmi.progress_measure'); // Progress as a decimal
-                console.log(`Progress Measure After Update: ${progressMeasure}`);
-
-                let completionStatus = window.API_1484_11.GetValue('cmi.completion_status') || "incomplete";
-                const score = window.API_1484_11.GetValue('cmi.score.raw');
-                const sessionTime = getSessionTime();
-
-                if (parseFloat(progressMeasure) === 1) {
-                    completionStatus = "complete";
-                    window.API_1484_11.SetValue("cmi.completion_status", completionStatus);
-                    console.log("Completion Status Updated to: complete");
-                }
-
-                console.log(`Progress Measure: ${newProgress}`);
-                console.log(`Completion Status: ${completionStatus}`);
-                console.log(`Score: ${score}`);
-                console.log(`Session Time: ${sessionTime}`);
-
-                // Avoid redundant calls unless there's a change
-                if (
-                    progressMeasure !== lastProgress ||
-                    completionStatus !== lastCompletionStatus ||
-                    sessionTime !== lastSessionTime ||
-                    score !== lastScore
-                ) {
-                    lastProgress = progressMeasure;
-                    lastCompletionStatus = completionStatus;
-                    lastSessionTime = sessionTime;
-                    lastScore = score;
-
+                    // Optionally send the progress to your backend
                     sendTrackingData({
                         lesson_id: window.lessonId,
                         user_id: window.userId,
-                        progress: parseFloat(progressMeasure) || 0, // Send as a decimal value
-                        completion_status: completionStatus,
-                        session_time: sessionTime,
-                        score: parseFloat(score) || null,
+                        progress: progressMeasure,
+                        completion_status: progressMeasure === 1 ? "complete" : "incomplete",
+                        session_time: getSessionTime(),
+                        score: null, // Update if applicable
                     });
+                } else {
+                    console.warn("Progress measure not found or is 0.");
                 }
             } catch (error) {
                 console.error("Error tracking progress:", error);
@@ -231,70 +246,82 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             console.log("Adding progress tracking interval.");
-            setInterval(trackProgress, 30000); // Track progress every 60 seconds
+
+            // Existing interval for tracking progress
+            setInterval(trackProgress, 30000); // Track progress every 30 seconds
+
+            // Get the iframe element
             const iframe = document.getElementById("scormContentIframe");
 
-            if (iframe && iframe.contentWindow) {
-                console.log("iframe contentWindow properties:", Object.keys(iframe.contentWindow));
-            }
+            if (iframe) {
+                // Add the load event listener to track progress once iframe loads content
+                iframe.addEventListener("load", function () {
+                    const progress = getProgressFromIframe();
+                    console.log(`Current Progress: ${progress * 100}%`);
+                });
 
-            iframe.addEventListener("load", () => {
-                console.log("SCORM content iframe loaded");
-
-                try {
-                    // Wait for LMSProxy to load in the iframe
-                    const iframeWindow = iframe.contentWindow;
-
-                    if (iframeWindow && iframeWindow.LMSProxy) {
-                        console.log("LMSProxy detected. Wrapping SetDataChunk...");
-
-                        // Save a reference to the original SetDataChunk function
-                        const originalSetDataChunk = iframeWindow.LMSProxy.SetDataChunk;
-
-                        // Override SetDataChunk
-                        iframeWindow.LMSProxy.SetDataChunk = function (data) {
-                            console.log("SetDataChunk called with data:", data);
-
-                            // Inspect data for progress-related information
-                            if (data) {
-                                try {
-                                    const parsedData = JSON.parse(data); // Parse the data if it's stringified
-                                    console.log("Parsed SetDataChunk data:", parsedData);
-
-                                    // Example: Extract progress or total pages
-                                    if (parsedData.totalSlides) {
-                                        totalPages = parsedData.totalSlides; // Dynamically update totalPages
-                                        console.log("Total Slides Updated:", totalPages);
-                                    }
-
-                                    if (parsedData.currentSlide) {
-                                        const currentPage = parsedData.currentSlide;
-                                        pagesVisited.add(currentPage);
-                                        console.log("Current Slide Visited:", currentPage);
-
-                                        // Calculate and update progress
-                                        if (totalPages > 0) {
-                                            const progress = pagesVisited.size / totalPages;
-                                            window.API_1484_11.SetValue("cmi.progress_measure", progress.toFixed(2));
-                                            console.log(`Progress Updated: ${progress}`);
-                                        }
-                                    }
-                                } catch (error) {
-                                    console.error("Error parsing SetDataChunk data:", error);
-                                }
-                            }
-
-                            // Call the original SetDataChunk function
-                            return originalSetDataChunk.apply(this, arguments);
-                        };
-                    } else {
-                        console.warn("LMSProxy not found in iframe content.");
-                    }
-                } catch (error) {
-                    console.error("Error wrapping LMSProxy.SetDataChunk:", error);
+                // Log available iframe content (optional for debugging)
+                if (iframe.contentWindow) {
+                    console.log("iframe contentWindow properties:", Object.keys(iframe.contentWindow));
                 }
-            });
+
+                // Load event to handle specific SCORM interactions or content
+                iframe.addEventListener("load", () => {
+                    console.log("SCORM content iframe loaded");
+
+                    try {
+                        // Example of LMSProxy override (already in your script)
+                        const iframeWindow = iframe.contentWindow;
+
+                        if (iframeWindow && iframeWindow.LMSProxy) {
+                            console.log("LMSProxy detected. Wrapping SetDataChunk...");
+
+                            const originalSetDataChunk = iframeWindow.LMSProxy.SetDataChunk;
+
+                            iframeWindow.LMSProxy.SetDataChunk = function (data) {
+                                console.log("SetDataChunk called with data:", data);
+
+                                // Process SetDataChunk data and extract progress (your existing logic)
+                                if (data) {
+                                    try {
+                                        const parsedData = JSON.parse(data);
+                                        console.log("Parsed SetDataChunk data:", parsedData);
+
+                                        if (parsedData.totalSlides) {
+                                            totalPages = parsedData.totalSlides;
+                                            console.log("Total Slides Updated:", totalPages);
+                                        }
+
+                                        if (parsedData.currentSlide) {
+                                            const currentPage = parsedData.currentSlide;
+                                            pagesVisited.add(currentPage);
+                                            console.log("Current Slide Visited:", currentPage);
+
+                                            if (totalPages > 0) {
+                                                const progress = pagesVisited.size / totalPages;
+                                                window.API_1484_11.SetValue("cmi.progress_measure", progress.toFixed(2));
+                                                console.log(`Progress Updated: ${progress}`);
+                                            }
+                                        }
+                                    } catch (error) {
+                                        console.error("Error parsing SetDataChunk data:", error);
+                                    }
+                                }
+
+                                return originalSetDataChunk.apply(this, arguments);
+                            };
+                        } else {
+                            console.warn("LMSProxy not found in iframe content.");
+                        }
+                    } catch (error) {
+                        console.error("Error wrapping LMSProxy.SetDataChunk:", error);
+                    }
+                });
+            } else {
+                console.error("Iframe with ID 'scormContentIframe' not found.");
+            }
         });
+
     </script>
 </head>
 <body>
