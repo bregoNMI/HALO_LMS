@@ -224,9 +224,76 @@
         }
 
         // Set progress tracking interval
+        //document.addEventListener("DOMContentLoaded", function () {
+            //console.log("Adding progress tracking interval.");
+            //setInterval(trackProgress, 30000); // Track progress every 60 seconds
+        //});
+
         document.addEventListener("DOMContentLoaded", function () {
             console.log("Adding progress tracking interval.");
             setInterval(trackProgress, 30000); // Track progress every 60 seconds
+            const iframe = document.getElementById("scormContentIframe");
+
+            if (iframe && iframe.contentWindow) {
+                console.log("iframe contentWindow properties:", Object.keys(iframe.contentWindow));
+            }
+
+            iframe.addEventListener("load", () => {
+                console.log("SCORM content iframe loaded");
+
+                try {
+                    // Wait for LMSProxy to load in the iframe
+                    const iframeWindow = iframe.contentWindow;
+
+                    if (iframeWindow && iframeWindow.LMSProxy) {
+                        console.log("LMSProxy detected. Wrapping SetDataChunk...");
+
+                        // Save a reference to the original SetDataChunk function
+                        const originalSetDataChunk = iframeWindow.LMSProxy.SetDataChunk;
+
+                        // Override SetDataChunk
+                        iframeWindow.LMSProxy.SetDataChunk = function (data) {
+                            console.log("SetDataChunk called with data:", data);
+
+                            // Inspect data for progress-related information
+                            if (data) {
+                                try {
+                                    const parsedData = JSON.parse(data); // Parse the data if it's stringified
+                                    console.log("Parsed SetDataChunk data:", parsedData);
+
+                                    // Example: Extract progress or total pages
+                                    if (parsedData.totalSlides) {
+                                        totalPages = parsedData.totalSlides; // Dynamically update totalPages
+                                        console.log("Total Slides Updated:", totalPages);
+                                    }
+
+                                    if (parsedData.currentSlide) {
+                                        const currentPage = parsedData.currentSlide;
+                                        pagesVisited.add(currentPage);
+                                        console.log("Current Slide Visited:", currentPage);
+
+                                        // Calculate and update progress
+                                        if (totalPages > 0) {
+                                            const progress = pagesVisited.size / totalPages;
+                                            window.API_1484_11.SetValue("cmi.progress_measure", progress.toFixed(2));
+                                            console.log(`Progress Updated: ${progress}`);
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.error("Error parsing SetDataChunk data:", error);
+                                }
+                            }
+
+                            // Call the original SetDataChunk function
+                            return originalSetDataChunk.apply(this, arguments);
+                        };
+                    } else {
+                        console.warn("LMSProxy not found in iframe content.");
+                    }
+                } catch (error) {
+                    console.error("Error wrapping LMSProxy.SetDataChunk:", error);
+                }
+            });
         });
     </script>
 </head>
@@ -238,6 +305,7 @@
             frameborder="0" 
             width="100%" 
             height="800px" 
+            sandbox="allow-scripts allow-same-origin allow-forms"
             allowfullscreen>
         </iframe>
     </div>
