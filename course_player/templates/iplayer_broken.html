@@ -159,11 +159,6 @@
             }
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
-            console.log("Adding progress tracking interval.");
-            setInterval(trackProgress, 30000);  // Track progress and scroll position every 30 seconds
-        });
-
         //function updateProgress(currentPage) {
             // Add current page to visited set
             //pagesVisited.add(currentPage);
@@ -177,38 +172,47 @@
         //}
 
         function getProgressFromIframe() {
-            const iframe = document.getElementById("scormContentIframe");
-            console.log("Checking iframe for progress...");
+            return new Promise((resolve, reject) => {
+                const iframe = document.getElementById("scormContentIframe");
+                console.log("Checking iframe for progress...");
 
-            if (iframe && iframe.contentWindow) {
-                try {
-                    const iframeDocument = iframe.contentWindow.document;
+                if (iframe && iframe.contentWindow) {
+                    try {
+                        const iframeDocument = iframe.contentWindow.document;
+                        
+                        setTimeout(() => {
+                            const progressElement = iframeDocument.querySelector(".nav-sidebar-header__progress-text");
 
-                    // Select the element containing the progress text
-                    const progressElement = iframeDocument.querySelector(".nav-sidebar-header__progress-text");
-                    if (progressElement) {
-                        const progressText = progressElement.textContent.trim();
-                        console.log("Progress Element Text Found:", progressText);
+                            if (progressElement) {
+                                const progressText = progressElement.textContent.trim();
+                                console.log("📊 Found Progress Element:", progressText);
 
-                        // Extract numeric value from progress text (e.g., "10% COMPLETE")
-                        const progressMatch = progressText.match(/(\d+)%/);
-                        if (progressMatch) {
-                            const progressValue = parseInt(progressMatch[1], 10);
-                            console.log("Extracted Progress Value:", progressValue);
-
-                            return progressValue / 100; // Convert to decimal (e.g., 0.1)
-                        }
-                    } else {
-                        console.warn("No progress element found matching the selector.");
+                                const progressMatch = progressText.match(/(\d+)%/);
+                                if (progressMatch) {
+                                    const progressValue = parseInt(progressMatch[1], 10) / 100;
+                                    console.log("✅ Extracted Progress:", progressValue);
+                                    resolve(progressValue); // ✅ Properly return extracted progress
+                                } else {
+                                    console.warn("⚠️ No valid progress found.");
+                                    resolve(0);
+                                }
+                            } else {
+                                console.warn("⚠️ No progress element found.");
+                                resolve(0);
+                            }
+                        }, 2000); // Wait for content to load before extracting progress
+                        
+                    } catch (error) {
+                        console.error("❌ Error extracting progress:", error);
+                        reject(error);
                     }
-                } catch (error) {
-                    console.error("Error accessing iframe content for progress:", error);
+                } else {
+                    console.error("❌ Iframe or iframe.contentWindow not available.");
+                    resolve(0);
                 }
-            } else {
-                console.error("Iframe or iframe.contentWindow not available.");
-            }
-            return 0; // Default progress if not found
+            });
         }
+
 
         function updateSidebarProgress() {
             console.log("Updating sidebar progress...");
@@ -258,45 +262,37 @@
             }
         }
 
-
-        function trackProgress() {
+        async function trackProgress() {
             try {
-                console.log("Attempting to track progress...");
-                const iframe = document.getElementById("scormContentIframe");
+                console.log("⏳ Tracking progress...");
                 
-                if (!iframe || !iframe.contentWindow) {
-                    console.error("SCORM iframe not found.");
-                    return;
-                }
+                const progressMeasure = await getProgressFromIframe(); // ✅ Wait for extracted progress
 
-                const progressMeasure = getProgressFromIframe();
-                const lessonLocation = iframe.contentWindow.location.href;
-                const scrollPosition = iframe.contentWindow.scrollY || 0; // Capture scroll position
-
-                console.log(`Captured Scroll Position: ${scrollPosition}`); // Debugging output
+                console.log("📊 Extracted Progress:", progressMeasure);
 
                 if (progressMeasure > 0) {
                     window.API_1484_11.SetValue("cmi.progress_measure", progressMeasure.toFixed(2));
-                    window.API_1484_11.SetValue("cmi.location", lessonLocation);
-                    window.API_1484_11.SetValue("cmi.scroll_position", scrollPosition);
+                    console.log(`✅ Progress Updated: ${progressMeasure}`);
 
-                    console.log(`Progress: ${progressMeasure}, Location: ${lessonLocation}, Scroll: ${scrollPosition}`);
+                    if (progressMeasure === 1) {
+                        window.API_1484_11.SetValue("cmi.completion_status", "complete");
+                        console.log("✅ Completion Status Updated to: complete");
+                    }
 
+                    // Send tracking data to backend
                     sendTrackingData({
                         lesson_id: window.lessonId,
                         user_id: window.userId,
                         progress: progressMeasure,
-                        lesson_location: lessonLocation,
-                        scroll_position: scrollPosition,
                         completion_status: progressMeasure === 1 ? "complete" : "incomplete",
                         session_time: getSessionTime(),
                         score: null,
                     });
                 } else {
-                    console.warn("Progress measure not found or is 0.");
+                    console.warn("⚠️ Progress measure is 0, skipping tracking.");
                 }
             } catch (error) {
-                console.error("Error tracking progress:", error);
+                console.error("❌ Error in trackProgress:", error);
             }
         }
 
@@ -312,8 +308,19 @@
 
             const iframe = document.getElementById("scormContentIframe");
 
-            window.savedLocation = "{{ saved_location|escapejs }}";
-            window.savedScrollPosition = parseInt("{{ saved_scroll_position|escapejs }}", 10) || 0;
+            const progressElements = document.querySelectorAll(".lesson-progress");
+            progressElements.forEach((progressElement) => {
+                let progressValue = window.savedProgress * 100;
+                progressElement.textContent = `${progressValue}% COMPLETE`;
+
+                // Update progress bar UI
+                const progressBar = progressElement.querySelector(".progress-circle");
+                if (progressBar) {
+                    progressBar.style.strokeDasharray = `${progressValue}, 100`; // Update circular progress bar
+                }
+            });
+
+            console.log("✅ Sidebar progress updated before page load.");
 
             if (window.savedLocation) {
                 console.log(`Resuming at saved location: ${window.savedLocation}`);
@@ -323,20 +330,25 @@
                     iframe.contentWindow.location.href = window.savedLocation;
 
                     setTimeout(() => {
-                        console.log(`Restoring scroll position: ${window.savedScrollPosition}`);
                         iframe.contentWindow.scrollTo(0, window.savedScrollPosition);
-                    }, 1500); // ✅ Delay to ensure the content loads first
+                        console.log(`Restored scroll position: ${window.savedScrollPosition}`);
+                    }, 1000); // Allow time for page to load
                 });
             }
 
             console.log("Adding progress tracking interval.");
-            setInterval(trackProgress, 30000); // Track progress every 30 seconds
+            setInterval(() => {
+                console.log("🔄 Tracking progress automatically...");
+                trackProgress();
+            }, 30000);    // Track progress every 30 seconds
 
             if (iframe) {
-                // Add the load event listener to track progress once iframe loads content
                 iframe.addEventListener("load", function () {
                     const progress = getProgressFromIframe();
                     console.log(`Current Progress: ${progress * 100}%`);
+                    trackProgress();
+                    // 🔹 Call updateSidebarProgress() after iframe is fully loaded
+                    setTimeout(updateSidebarProgress, 1500);
                 });
 
                 // Log available iframe content (optional for debugging)
@@ -380,6 +392,8 @@
                                                 const progress = pagesVisited.size / totalPages;
                                                 window.API_1484_11.SetValue("cmi.progress_measure", progress.toFixed(2));
                                                 console.log(`Progress Updated: ${progress}`);
+
+                                                trackProgress();
                                             }
                                         }
                                     } catch (error) {

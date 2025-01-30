@@ -14,6 +14,8 @@ class SCORMTrackingData(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     cmi_data = models.JSONField()  # Store raw SCORM interaction data in JSON format
     score = models.FloatField(null=True, blank=True)
+    lesson_location = models.TextField(blank=True, null=True)
+    scroll_position = models.IntegerField(default=0)
     completion_status = models.CharField(max_length=50, choices=[('completed', 'Completed'), ('incomplete', 'Incomplete'), ('failed', 'Failed'), ('passed', 'Passed')])
     session_time = models.DurationField(null=True, blank=True)
     progress = models.FloatField(null=True, blank=True)  # Percentage

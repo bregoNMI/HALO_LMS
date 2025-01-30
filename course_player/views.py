@@ -126,6 +126,11 @@ def launch_scorm_file(request, lesson_id):
 
     proxy_url = f"/scorm-content/{iri_to_uri(scorm_entry_point)}"
 
+    saved_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=lesson).first()
+
+    lesson_location = saved_progress.lesson_location if saved_progress else ""
+    scroll_position = saved_progress.scroll_position if saved_progress and saved_progress.scroll_position is not None else 0  # Default to 0 if none
+
     # Debugging output for logging
     print(f"Proxy URL for SCORM entry point: {proxy_url}")
 
@@ -133,6 +138,9 @@ def launch_scorm_file(request, lesson_id):
     return render(request, 'iplayer.html', {
         'lesson': lesson,
         'scorm_index_file_url': proxy_url,
+        'saved_progress': saved_progress.progress if saved_progress else 0,
+        'saved_location': lesson_location,  # NEW: Pass saved lesson location (page)
+        'saved_scroll_position': scroll_position,  # NEW: Pass saved scroll position
         'profile_id': profile.id
     })
     """
@@ -248,48 +256,48 @@ def track_scorm_data(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            profile_id  = data.get("user_id")
+            profile_id = data.get("user_id")
             lesson_id = data.get("lesson_id")
-            progress = data.get("progress")
-            completion_status = data.get("completion_status")
-            session_time = data.get("session_time")
+            progress = data.get("progress", 0)
+            completion_status = data.get("completion_status", "incomplete")
+            session_time = data.get("session_time", "PT0H0M0S")
             score = data.get("score")
+            lesson_location = data.get("lesson_location", "")
+            scroll_position = data.get("scroll_position", 0)
 
-            # Validate required fields
-            if not profile_id  or not lesson_id:
+            if not profile_id or not lesson_id:
                 return JsonResponse({"error": "Missing required fields"}, status=400)
 
-            # Validate if score is numeric, if provided
             if score is not None:
                 try:
                     score = float(score)
                 except ValueError:
-                    return JsonResponse({"error": "Score must be a numeric value"}, status=400)
+                    return JsonResponse({"error": "Score must be numeric"}, status=400)
 
-            # Get user profile and lesson objects
             profile = get_object_or_404(Profile, pk=profile_id)
             lesson = get_object_or_404(Lesson, pk=lesson_id)
 
-            # Update or create SCORM tracking data
             tracking_data, created = SCORMTrackingData.objects.update_or_create(
                 user=profile.user,
                 lesson=lesson,
                 defaults={
-                    "progress": float(progress) if progress is not None else 0.0,
-                    "completion_status": completion_status or "incomplete",
-                    "session_time": session_time or "PT0H0M0S",
+                    "progress": float(progress),
+                    "completion_status": completion_status,
+                    "session_time": session_time,
+                    "scroll_position": scroll_position,
+                    "lesson_location": lesson_location if lesson_location else "/scorm-content/" + lesson.scorm_entry_point,
                     "score": score,
                 },
             )
 
-            status = "created" if created else "updated"
-            return JsonResponse({"status": "success", "action": status})
+            return JsonResponse({"status": "success", "action": "created" if created else "updated"})
 
         except Exception as e:
             print(f"Error in track_scorm_data: {e}")
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 def generate_cloudfront_url(key):
     # Define the CloudFront domain name
