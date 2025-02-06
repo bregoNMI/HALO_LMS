@@ -227,6 +227,7 @@
 
                     lessonProgressArray.push({
                         lesson_id: miniLessonId,  // ✅ Sending unique mini-lesson ID
+                        mini_lesson_index: index,
                         user_id: window.userId,
                         progress: progressText
                     });
@@ -350,16 +351,6 @@
             });
         });
 
-        // Ensure progress tracking starts only after iframe loads
-        document.addEventListener("DOMContentLoaded", function () {
-            let iframe = document.getElementById("scormContentIframe");
-
-            iframe.addEventListener("load", function () {
-                console.log("✅ SCORM content iframe loaded, starting progress tracking...");
-                setTimeout(() => trackMiniLessonProgress(), 3000); // Wait 3 seconds before first attempt
-            });
-        });
-
         function getMiniLessonProgress(scoIndex) {
             if (window.API_1484_11) {
                 let progress = window.API_1484_11.GetValue(`cmi.objectives.${scoIndex}.progress_measure`);
@@ -417,9 +408,6 @@
                 }
                 return cookieValue;
             }
-
-            // Automatically track progress every 30 seconds in case of updates
-            setInterval(trackMiniLessonProgress, 30000); // Runs every 30 seconds
 
             console.log("Adding progress tracking interval.");
             setInterval(trackProgress, 30000); // Track progress every 30 seconds

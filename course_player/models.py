@@ -32,7 +32,7 @@ class LessonProgress(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('user', 'lesson')  # Prevents duplicate entries for the same user & lesson
+        unique_together = ('user', 'lesson', 'mini_lesson_index')  # Prevents duplicate entries for the same user & lesson
 
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title} - {self.progress}"

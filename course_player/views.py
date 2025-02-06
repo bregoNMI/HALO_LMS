@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+from django.utils import timezone
 from shlex import quote
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
@@ -308,7 +309,7 @@ def track_mini_lesson_progress(request):
 
             for mini_lesson in lesson_progress_list:
                 lesson_id = mini_lesson.get("lesson_id")
-                mini_lesson_index = mini_lesson.get("mini_lesson_index")  # Added index
+                mini_lesson_index = mini_lesson.get("mini_lesson_index")  # Unique for each mini-lesson
                 progress = mini_lesson.get("progress")
 
                 if not lesson_id or progress is None:
@@ -318,16 +319,19 @@ def track_mini_lesson_progress(request):
                     lesson = Lesson.objects.get(pk=lesson_id)
                 except Lesson.DoesNotExist:
                     continue
-
-                # Update mini-lesson progress
+                
+                print("Mini Lesson: ", mini_lesson)
+                # ✅ Use `mini_lesson_index` to ensure uniqueness
                 LessonProgress.objects.update_or_create(
                     user=profile.user,
                     lesson=lesson,
+                    mini_lesson_index=mini_lesson_index,
                     defaults={
                         "progress": progress,
-                        "mini_lesson_index": mini_lesson_index  # Save index if needed
+                        "last_updated": timezone.now(),
                     }
                 )
+                print(f"✅ Saved progress for Mini Lesson Index: {mini_lesson_index}, Progress: {progress}")
 
             return JsonResponse({"status": "success"})
 
