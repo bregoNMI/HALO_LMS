@@ -227,7 +227,6 @@ def login_view(request):
 
     return render(request, 'main/login.html')
 
-
 cognito_client = boto3.client('cognito-idp', region_name=settings.AWS_REGION)
 logger = logging.getLogger(__name__)
 

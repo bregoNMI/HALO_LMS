@@ -22,7 +22,7 @@ from django.shortcuts import render
 import boto3
 from rsa import PrivateKey
 from botocore.exceptions import NoCredentialsError
-from course_player.models import SCORMTrackingData
+from course_player.models import LessonProgress, SCORMTrackingData
 from halo_lms.settings import AWS_S3_REGION_NAME, AWS_STORAGE_BUCKET_NAME
 
 secret_name = "COGNITO_SECRET"
@@ -268,16 +268,11 @@ def track_scorm_data(request):
             if not profile_id or not lesson_id:
                 return JsonResponse({"error": "Missing required fields"}, status=400)
 
-            if score is not None:
-                try:
-                    score = float(score)
-                except ValueError:
-                    return JsonResponse({"error": "Score must be numeric"}, status=400)
-
             profile = get_object_or_404(Profile, pk=profile_id)
             lesson = get_object_or_404(Lesson, pk=lesson_id)
 
-            tracking_data, created = SCORMTrackingData.objects.update_or_create(
+            # ✅ Only updating SCORM tracking data
+            SCORMTrackingData.objects.update_or_create(
                 user=profile.user,
                 lesson=lesson,
                 defaults={
@@ -285,19 +280,61 @@ def track_scorm_data(request):
                     "completion_status": completion_status,
                     "session_time": session_time,
                     "scroll_position": scroll_position,
-                    "lesson_location": lesson_location if lesson_location else "/scorm-content/" + lesson.scorm_entry_point,
+                    "lesson_location": lesson_location,
                     "score": score,
                 },
             )
 
-            return JsonResponse({"status": "success", "action": "created" if created else "updated"})
+            return JsonResponse({"status": "success"})
 
         except Exception as e:
-            print(f"Error in track_scorm_data: {e}")
+            print(f"🚨 Error in track_scorm_data: {e}")
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
+@csrf_exempt
+def track_mini_lesson_progress(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            user_id = data.get("user_id")
+            lesson_progress_list = data.get("lesson_progress", [])
+
+            if not user_id or not isinstance(lesson_progress_list, list):
+                return JsonResponse({"error": "Invalid data structure"}, status=400)
+
+            profile = get_object_or_404(Profile, pk=user_id)
+
+            for mini_lesson in lesson_progress_list:
+                lesson_id = mini_lesson.get("lesson_id")
+                mini_lesson_index = mini_lesson.get("mini_lesson_index")  # Added index
+                progress = mini_lesson.get("progress")
+
+                if not lesson_id or progress is None:
+                    continue
+
+                try:
+                    lesson = Lesson.objects.get(pk=lesson_id)
+                except Lesson.DoesNotExist:
+                    continue
+
+                # Update mini-lesson progress
+                LessonProgress.objects.update_or_create(
+                    user=profile.user,
+                    lesson=lesson,
+                    defaults={
+                        "progress": progress,
+                        "mini_lesson_index": mini_lesson_index  # Save index if needed
+                    }
+                )
+
+            return JsonResponse({"status": "success"})
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 
 def generate_cloudfront_url(key):
     # Define the CloudFront domain name

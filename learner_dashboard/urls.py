@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from halo_lms.main.python.views import login
-from course_player.views import proxy_scorm_file, track_scorm_data
+from course_player.views import proxy_scorm_file, track_scorm_data, track_mini_lesson_progress
 
 urlpatterns = [
     path('dashboard/', views.learner_dashboard, name='learner_dashboard'),
@@ -15,5 +15,6 @@ urlpatterns = [
     path('change-password/', views.change_password, name='change_password'),
     path('messages/read/<int:message_id>/', views.mark_message_as_read, name='mark_message_as_read'),
     path('scorm-content/<path:file_path>/', proxy_scorm_file, name='proxy_scorm_file'),
-    path('track-scorm-data/', track_scorm_data, name='track_scorm_data')
+    path('track-scorm-data/', track_scorm_data, name='track_scorm_data'),
+    path('track-scorm-data/', track_mini_lesson_progress, name='track_mini_lesson_progress')
 ]

@@ -23,3 +23,17 @@ class SCORMTrackingData(models.Model):
 
     def __str__(self):
         return f"Tracking Data for User {self.user} - Lesson {self.lesson}"
+    
+class LessonProgress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)  # Link to Lesson model
+    mini_lesson_index = models.IntegerField(null=True, blank=True)  # New field
+    progress = models.CharField(max_length=20)  # Example: "Completed", "99% Completed"
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'lesson')  # Prevents duplicate entries for the same user & lesson
+
+    def __str__(self):
+        return f"{self.user.username} - {self.lesson.title} - {self.progress}"
+    

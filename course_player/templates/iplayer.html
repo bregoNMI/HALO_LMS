@@ -19,7 +19,8 @@
         window.lessonId = "{{ lesson.id }}";
         window.userId = "{{ profile_id }}";
         window.savedLocation = "{{ saved_location|escapejs }}"; // Passed from Django
-        window.savedProgress = "{{ saved_progress|default:0 }}";
+        window.savedProgress = parseFloat("{{ saved_progress }}") || 0;
+        window.savedScrollPosition = parseInt("{{ saved_scroll_position|escapejs }}", 10) || 0;
 
         let totalPages = 0;
         let pagesVisited = new Set();
@@ -134,34 +135,116 @@
             updateTotalPages(); // Initialize the process to count total pages
         });
 
-        // Function to send SCORM tracking data to the server
-        async function sendTrackingData(trackingData) {
-            console.log("Preparing to send tracking data:", trackingData);
-
+        function trackProgress() {
             try {
-                const response = await fetch('/course_player/track-scorm-data/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken'),
-                    },
-                    body: JSON.stringify(trackingData),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                console.log("Attempting to track progress...");
+                const iframe = document.getElementById("scormContentIframe");
+                
+                if (!iframe || !iframe.contentWindow) {
+                    console.error("SCORM iframe not found.");
+                    return;
                 }
 
-                const data = await response.json();
-                console.log("Successfully tracked SCORM data:", data);
+                const progressMeasure = getProgressFromIframe();
+                const lessonLocation = iframe.contentWindow.location.href;
+                const scrollPosition = iframe.contentWindow.scrollY || 0; // ✅ Capture scroll position
+
+                console.log(`Captured Scroll Position: ${scrollPosition}`); // Debugging output
+
+                if (progressMeasure > 0) {
+                    window.API_1484_11.SetValue("cmi.progress_measure", progressMeasure.toFixed(2));
+                    window.API_1484_11.SetValue("cmi.location", lessonLocation);
+                    window.API_1484_11.SetValue("cmi.scroll_position", scrollPosition);
+
+                    console.log(`Progress: ${progressMeasure}, Location: ${lessonLocation}, Scroll: ${scrollPosition}`);
+
+                    sendTrackingData({
+                        lesson_id: window.lessonId,
+                        user_id: window.userId,
+                        progress: progressMeasure,
+                        lesson_location: lessonLocation,
+                        scroll_position: scrollPosition,  // ✅ Send scroll position to backend
+                        completion_status: progressMeasure === 1 ? "complete" : "incomplete",
+                        session_time: getSessionTime(),
+                        score: null,
+                    });
+                } else {
+                    console.warn("Progress measure not found or is 0.");
+                }
             } catch (error) {
-                console.error("Error tracking SCORM data:", error);
+                console.error("Error tracking progress:", error);
+            }
+        }
+
+        function sendTrackingData(trackingData) {
+            console.log("📡 Sending SCORM tracking data to server...");
+
+            fetch('/course_player/track-scorm-data/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify(trackingData),
+            })
+            .then(response => response.json())
+            .then(data => console.log("✅ SCORM progress updated:", data))
+            .catch(error => console.error("🚨 Error tracking SCORM data:", error));
+        }
+
+        function sendMiniLessonProgress(lessonProgressArray) {
+            console.log("📡 Sending mini-lesson progress to server...", lessonProgressArray);
+
+            fetch('/course_player/track-mini-lesson-progress/', {  // New API endpoint
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    user_id: window.userId,
+                    lesson_progress: lessonProgressArray
+                }),
+            })
+            .then(response => response.json())
+            .then(data => console.log("✅ Mini-lesson progress updated:", data))
+            .catch(error => console.error("🚨 Error tracking mini-lesson progress:", error));
+        }
+
+        function trackMiniLessonProgress() {
+            console.log("🔍 Checking mini-lesson progress...");
+
+            let lessonProgressArray = [];
+            const iframe = document.getElementById("scormContentIframe");
+
+            if (iframe && iframe.contentWindow) {
+                const progressElements = iframe.contentWindow.document.querySelectorAll('[aria-label*="Completed"], [aria-label*="% Completed"]');
+
+                progressElements.forEach((el, index) => {
+                    const progressText = el.getAttribute("aria-label") || "Unknown";
+                    const miniLessonId = el.getAttribute("data-lesson-id") || window.lessonId; 
+                    const miniLessonIndex = index;
+
+                    lessonProgressArray.push({
+                        lesson_id: miniLessonId,  // ✅ Sending unique mini-lesson ID
+                        user_id: window.userId,
+                        progress: progressText
+                    });
+                });
+
+                console.log("📊 Extracted Lesson Progress Data:", lessonProgressArray);
+
+                if (lessonProgressArray.length > 0) {
+                    console.log("🔍 BEFOOOOOOOOOOOOOOOOOOOOOOREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE..");
+                    sendMiniLessonProgress(lessonProgressArray);  // ✅ Send to backend
+                }
             }
         }
 
         document.addEventListener("DOMContentLoaded", function () {
             console.log("Adding progress tracking interval.");
             setInterval(trackProgress, 30000);  // Track progress and scroll position every 30 seconds
+            setInterval(trackMiniLessonProgress, 30000);
         });
 
         //function updateProgress(currentPage) {
@@ -211,101 +294,92 @@
         }
 
         function updateSidebarProgress() {
-            console.log("Updating sidebar progress...");
+            console.log("Updating sidebar progress on page load...");
 
+            let attemptCount = 0;
+            function tryUpdateProgress() {
+                let savedProgress = window.savedProgress;
+                const progressPercentage = Math.round(savedProgress * 100); // Convert decimal to percentage
+
+                // Get the progress bar elements inside the iframe
+                const iframe = document.getElementById("scormContentIframe");
+                if (iframe && iframe.contentWindow) {
+                    try {
+                        const iframeDocument = iframe.contentWindow.document;
+                        
+                        // Select the progress text and progress bar elements
+                        const progressTextElement = iframeDocument.querySelector(".nav-sidebar-header__progress-text");
+                        const progressBarElement = iframeDocument.querySelector(".nav-sidebar-header__progress-runner"); // Adjusted selector
+                        
+                        if (progressTextElement) {
+                            progressTextElement.textContent = `${progressPercentage}% COMPLETE`;
+                            console.log(`✅ Updated sidebar progress text to ${progressPercentage}%`);
+                        }
+
+                        if (progressBarElement) {
+                            progressBarElement.style.width = `${progressPercentage}%`;
+                            progressBarElement.style.transition = "width 0.5s ease-in-out"; // Smooth transition effect
+                            console.log(`✅ Updated sidebar progress bar width to ${progressPercentage}%`);
+                        } else if (attemptCount < 10) {
+                            attemptCount++;
+                            console.warn(`⚠️ Progress bar not found, retrying... (${attemptCount})`);
+                            setTimeout(tryUpdateProgress, 500); // Retry after 500ms
+                        } else {
+                            console.error("🚨 Failed to update progress bar after multiple attempts.");
+                        }
+                    } catch (error) {
+                        console.error("⚠️ Error accessing iframe content for progress update:", error);
+                    }
+                } else {
+                    console.warn("⚠️ Iframe not fully loaded, retrying...");
+                    setTimeout(tryUpdateProgress, 500);
+                }
+            }
+
+            // Start the retry mechanism
+            setTimeout(tryUpdateProgress, 500);
+        }
+
+        // Run this function when the SCORM iframe loads
+        document.addEventListener("DOMContentLoaded", function () {
             const iframe = document.getElementById("scormContentIframe");
 
-            if (iframe && iframe.contentWindow) {
-                try {
-                    // Wait until iframe loads fully
-                    iframe.addEventListener("load", function () {
-                        console.log("SCORM content loaded, checking sidebar...");
+            iframe.addEventListener("load", function () {
+                console.log("✅ SCORM content loaded, updating progress bar...");
+                updateSidebarProgress();
+            });
+        });
 
-                        const iframeDocument = iframe.contentWindow.document;
+        // Ensure progress tracking starts only after iframe loads
+        document.addEventListener("DOMContentLoaded", function () {
+            let iframe = document.getElementById("scormContentIframe");
 
-                        // Wait for the sidebar to be available
-                        setTimeout(() => {
-                            const progressElements = iframeDocument.querySelectorAll(".lesson-progress");
+            iframe.addEventListener("load", function () {
+                console.log("✅ SCORM content iframe loaded, starting progress tracking...");
+                setTimeout(() => trackMiniLessonProgress(), 3000); // Wait 3 seconds before first attempt
+            });
+        });
 
-                            if (progressElements.length > 0) {
-                                console.log(`Found ${progressElements.length} progress elements.`);
-
-                                progressElements.forEach((progressElement) => {
-                                    const progressText = progressElement.textContent.trim();
-
-                                    // Extract numeric progress percentage (e.g., "19% Completed")
-                                    const progressMatch = progressText.match(/(\d+)%/);
-                                    if (progressMatch) {
-                                        const progressValue = parseInt(progressMatch[1], 10);
-
-                                        // Update the progress bar dynamically
-                                        progressElement.style.width = `${progressValue}%`;
-                                        progressElement.setAttribute("data-progress", progressValue);
-
-                                        console.log(`Updated progress bar to ${progressValue}%`);
-                                    }
-                                });
-                            } else {
-                                console.warn("⚠️ No progress elements found in the sidebar. Double-check the selector.");
-                            }
-                        }, 1000); // Give it 1 second to ensure sidebar is fully rendered
-                    });
-                } catch (error) {
-                    console.error("Error updating sidebar progress:", error);
-                }
-            } else {
-                console.error("⚠️ Iframe or contentWindow not available.");
-            }
-        }
-
-
-        function trackProgress() {
-            try {
-                console.log("Attempting to track progress...");
-                const iframe = document.getElementById("scormContentIframe");
+        function getMiniLessonProgress(scoIndex) {
+            if (window.API_1484_11) {
+                let progress = window.API_1484_11.GetValue(`cmi.objectives.${scoIndex}.progress_measure`);
+                let completionStatus = window.API_1484_11.GetValue(`cmi.objectives.${scoIndex}.completion_status`);
                 
-                if (!iframe || !iframe.contentWindow) {
-                    console.error("SCORM iframe not found.");
-                    return;
-                }
-
-                const progressMeasure = getProgressFromIframe();
-                const lessonLocation = iframe.contentWindow.location.href;
-                const scrollPosition = iframe.contentWindow.scrollY || 0; // Capture scroll position
-
-                console.log(`Captured Scroll Position: ${scrollPosition}`); // Debugging output
-
-                if (progressMeasure > 0) {
-                    window.API_1484_11.SetValue("cmi.progress_measure", progressMeasure.toFixed(2));
-                    window.API_1484_11.SetValue("cmi.location", lessonLocation);
-                    window.API_1484_11.SetValue("cmi.scroll_position", scrollPosition);
-
-                    console.log(`Progress: ${progressMeasure}, Location: ${lessonLocation}, Scroll: ${scrollPosition}`);
-
-                    sendTrackingData({
-                        lesson_id: window.lessonId,
-                        user_id: window.userId,
-                        progress: progressMeasure,
-                        lesson_location: lessonLocation,
-                        scroll_position: scrollPosition,
-                        completion_status: progressMeasure === 1 ? "complete" : "incomplete",
-                        session_time: getSessionTime(),
-                        score: null,
-                    });
-                } else {
-                    console.warn("Progress measure not found or is 0.");
-                }
-            } catch (error) {
-                console.error("Error tracking progress:", error);
+                console.log(`📊 Mini-Lesson ${scoIndex}: Progress = ${progress}, Status = ${completionStatus}`);
+                
+                return {
+                    progress: progress ? parseFloat(progress) : 0,
+                    status: completionStatus || "unknown"
+                };
             }
+            return null;
         }
-
 
         // Set progress tracking interval
         //document.addEventListener("DOMContentLoaded", function () {
             //console.log("Adding progress tracking interval.");
             //setInterval(trackProgress, 30000); // Track progress every 60 seconds
-        //});
+        //});       
 
         document.addEventListener("DOMContentLoaded", function () {
             console.log("Checking for saved progress...");
@@ -329,8 +403,27 @@
                 });
             }
 
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            // Automatically track progress every 30 seconds in case of updates
+            setInterval(trackMiniLessonProgress, 30000); // Runs every 30 seconds
+
             console.log("Adding progress tracking interval.");
             setInterval(trackProgress, 30000); // Track progress every 30 seconds
+            console.log("HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
 
             if (iframe) {
                 // Add the load event listener to track progress once iframe loads content
