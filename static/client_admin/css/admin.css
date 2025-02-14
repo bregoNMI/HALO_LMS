@@ -300,6 +300,7 @@ html, body, button{
 
 .action-button-primary, .action-button-secondary{
     display: flex;
+    gap: 0.5rem;
     padding: var(--pad-xxxs) var(--pad-sm);
     border-radius: 6px;
     font-size: var(--btn-font);

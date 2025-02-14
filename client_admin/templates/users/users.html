@@ -31,7 +31,8 @@
                 <form method="post" enctype="multipart/form-data" action="{% url 'import_user' %}" id="importForm">
                     {% csrf_token %}
                     <input type="file" name="csv_file" accept=".csv" id="csvFileInput" style="display: none;" required>
-                    <button type="button" class="action-button-primary" onclick="document.getElementById('csvFileInput').click();">
+                    <button type="button" class="action-button-secondary" onclick="document.getElementById('csvFileInput').click();">
+                        <i class="fa-regular fa-arrow-down-to-bracket"></i>
                         <span>Import users</span>
                     </button>
                     <button type="submit" id="submitForm" style="display: none;">Submit</button>

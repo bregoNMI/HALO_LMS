@@ -257,14 +257,17 @@ def create_or_update_course(request):
 
                 # Handle file attachment for the lesson (either file_id or file_url)
                 file_id = lesson_data.get('file_id', None)
-                if file_id in lesson_data:
-                    print('file_id', file_id)
+                print('file_id yee yee', file_id)
+                if file_id:
+                    print('made it to file ID', file_id)
                     file_id = lesson_data.get('file_id')
                     file_instance = get_object_or_404(UploadedFile, id=file_id)
                     lesson.uploaded_file = file_instance
+                    print('file_instance', file_instance, ':' 'lesson.uploaded_file', lesson.uploaded_file)
                     lesson.save()
                     print(f"File '{file_instance.title}' associated with lesson ID: {lesson.id}")
                 elif 'file_url' in lesson_data:
+                    print('made it to file URL', file_id)
                     file_url = lesson_data.get('file_url')
 
                     # Attempt to match the file URL with an existing file in the File model
@@ -285,6 +288,8 @@ def create_or_update_course(request):
 
                     except File.DoesNotExist:
                         print(f"Error occurred when searching for file with URL '{file_url}' for lesson ID: {lesson.id}")
+
+                    print('passed file upload such')
 
         return module_response
 
