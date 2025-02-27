@@ -264,6 +264,8 @@ def create_or_update_course(request):
                     file_instance = get_object_or_404(UploadedFile, id=file_id)
                     lesson.uploaded_file = file_instance
                     print('file_instance', file_instance, ':' 'lesson.uploaded_file', lesson.uploaded_file)
+                    uploaded_file_name = str(lesson.uploaded_file)
+                    lesson.scorm_id = uploaded_file_name.replace(".zip", "/scormcontent/index.html")
                     lesson.save()
                     print(f"File '{file_instance.title}' associated with lesson ID: {lesson.id}")
                 elif 'file_url' in lesson_data:
@@ -853,6 +855,7 @@ def upload_lesson_file(request):
                     print("index.html not found in scormcontent folder")
                     return JsonResponse({'error': 'The uploaded SCORM package does not contain a valid entry point in scormcontent/index.html.'}, status=400)
 
+                scorm_entry_point_relative = scorm_entry_point_relative.replace("\\", "/")
                 # Upload the extracted files to S3
                 secret_name = "COGNITO_SECRET"
                 secrets = get_secret(secret_name)
@@ -883,6 +886,7 @@ def upload_lesson_file(request):
                     for file in files:
                         file_path = os.path.join(root, file)
                         s3_key = f'media/default/uploads/{extract_folder_name}/{os.path.relpath(file_path, extract_path)}'
+                        s3_key = s3_key.replace("\\", "/")
                         print(f"Uploading file to S3 with key: {s3_key}")  # Debugging statement
                         s3_client.upload_file(file_path, bucket_name, s3_key)
 
@@ -893,6 +897,7 @@ def upload_lesson_file(request):
                     scorm_entry_point=scorm_entry_point_relative  # Store the full entry point path relative to the bucket
                 )
                 print(f"Uploaded file entry created with ID: {uploaded_file_entry.id}, scorm_entry_point: {scorm_entry_point_relative}")
+
 
                 return JsonResponse({'file_id': uploaded_file_entry.id})
             else:
