@@ -54,7 +54,7 @@ def generate_presigned_url(key, expiration=3600):
         's3',
         aws_access_key_id=aws_access_key_id,
         aws_secret_access_key=aws_secret_access_key,
-        region_name=settings.AWS_S3_REGION_NAME
+        region_name=AWS_S3_REGION_NAME
     )
 
     # Create the presigned URL for the given key in S3
@@ -62,7 +62,7 @@ def generate_presigned_url(key, expiration=3600):
         response = s3_client.generate_presigned_url(
             'get_object',
             Params={
-                'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
+                'Bucket': AWS_STORAGE_BUCKET_NAME,
                 'Key': key,
                 'ResponseContentType': 'text/html'  # Set the Content-Type to text/html
             },
@@ -157,7 +157,7 @@ def proxy_scorm_file(request, file_path):
         elif s3_key.endswith(".js"):
             content_type = "application/javascript"
 
-        print(f"✅ Serving file from S3: {s3_key} with Content-Type: {content_type}")
+        #print(f"✅ Serving file from S3: {s3_key} with Content-Type: {content_type}")
 
         return FileResponse(file_data, content_type=content_type)
 
@@ -192,6 +192,15 @@ def launch_scorm_file(request, lesson_id):
     all_lessons = list(module_lessons)
     current_index = all_lessons.index(lesson) if lesson in all_lessons else -1
     next_lesson = all_lessons[current_index + 1] if current_index + 1 < len(all_lessons) else None
+    prev_lesson = all_lessons[current_index - 1] if current_index > 0 else None
+    is_last_lesson = next_lesson is None
+
+    # **Check if course is locked and if previous lesson is completed**
+    course_locked = lesson.module.course.locked
+    if course_locked and prev_lesson:
+        prev_lesson_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=prev_lesson, completion_status="completed").exists()
+        if not prev_lesson_progress:
+            return render(request, 'error.html', {'message': 'You must complete the previous lesson before proceeding.'})
 
     # ✅ Collect lesson progress data
     lesson_progress_data = []
@@ -204,6 +213,37 @@ def launch_scorm_file(request, lesson_id):
             "completed": is_completed
         })
 
+    print("🔍 All Lessons:", all_lessons)
+    for lesson in all_lessons:
+        print(f"Lesson: {lesson.title}, ID: {lesson.id}")
+
+    # ✅ Retrieve mini-lesson progress
+    mini_lesson_progress = list(LessonProgress.objects.filter(
+        user=request.user,
+        lesson=lesson
+    ).values("mini_lesson_index", "progress"))
+
+    print("✅ Mini-Lesson Progress Data:", mini_lesson_progress)
+
+    lesson_progress_data = []
+    previous_lesson_completed = True  # Assume first lesson is accessible
+
+    for module_lesson in module_lessons:
+        progress_entry = SCORMTrackingData.objects.filter(user=request.user, lesson=module_lesson).first()
+        is_completed = progress_entry.completion_status == "completed" if progress_entry else False
+
+        # If the course is locked, check if the previous lesson is completed
+        if course_locked:
+            if not previous_lesson_completed:
+                is_completed = False  # Lock this lesson if the previous one isn't completed
+            previous_lesson_completed = is_completed  # Update for next iteration
+
+        lesson_progress_data.append({
+            "id": module_lesson.id,
+            "title": module_lesson.title,
+            "completed": is_completed
+        })
+
     return render(request, 'iplayer.html', {
         'lesson': lesson,
         'scorm_index_file_url': proxy_url,
@@ -212,9 +252,13 @@ def launch_scorm_file(request, lesson_id):
         'saved_scroll_position': scroll_position,
         'profile_id': profile.id,
         'lesson_progress_data': json.dumps(lesson_progress_data),
+        'mini_lesson_progress': json.dumps(mini_lesson_progress),
         'all_lessons': all_lessons,
         'user_course': user_course,
-        'next_lesson': next_lesson,  # ✅ Pass next lesson for the button
+        'next_lesson': next_lesson,
+        'prev_lesson': prev_lesson,
+        'is_last_lesson': is_last_lesson,
+        'course_locked': course_locked
     })
 
 def get_s3_file_metadata(bucket_name, key):
@@ -226,7 +270,7 @@ def get_s3_file_metadata(bucket_name, key):
         's3',
         aws_access_key_id=secrets.get('AWS_ACCESS_KEY_ID'),
         aws_secret_access_key=secrets.get('AWS_SECRET_ACCESS_KEY'),
-        region_name=settings.AWS_S3_REGION_NAME
+        region_name=AWS_S3_REGION_NAME
     )
     
     try:

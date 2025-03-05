@@ -94,6 +94,7 @@ class UserCourse(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     progress = models.PositiveIntegerField(default=0)  # percentage of the course completed by the user
     lesson_id = models.PositiveIntegerField(default=0) #links o the individual lesson to launch the course
+    locked = models.BooleanField(default=False)
 
     def get_status(self):
         expiration_date = self.course.get_event_date('expiration_date')
@@ -109,7 +110,7 @@ class UserCourse(models.Model):
     
     def update_progress(self):
         """
-        Recalculates the user's progress in this course based on all lesson progress.
+        Recalculates the user's progress in this course based on the highest recorded progress per lesson.
         """
         lessons = Lesson.objects.filter(module__course=self.course)
         total_lessons = lessons.count()
@@ -119,12 +120,20 @@ class UserCourse(models.Model):
             self.save()
             return
 
-        total_progress = SCORMTrackingData.objects.filter(
-            user=self.user, lesson_id__in=lessons.values_list('id', flat=True)
-        ).aggregate(total=models.Sum('progress'))['total'] or 0.0
+        # Get max progress per lesson
+        lesson_progress = (
+            SCORMTrackingData.objects
+            .filter(user=self.user, lesson_id__in=lessons.values_list('id', flat=True))
+            .values('lesson_id')
+            .annotate(max_progress=models.Max('progress'))  # Get max progress per lesson
+        )
 
-        self.progress = (total_progress / total_lessons) * 100  # Convert to percentage
+        total_progress = sum(lp['max_progress'] for lp in lesson_progress)
+
+        # Normalize to 100%
+        self.progress = min((total_progress / total_lessons) * 100, 100)
         self.save()
+
 
     def __str__(self):
         return f"{self.user.username} - {self.course.title}"
