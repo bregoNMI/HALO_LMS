@@ -317,34 +317,42 @@
             .catch(error => console.error("🚨 Error tracking mini-lesson progress:", error));
         }
 
-        function waitForIframe(callback) {
-            let iframe = document.querySelector("iframe");  // Selects the first iframe on the page
-            
-            if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
-                console.log("✅ SCORM iframe found:", iframe);
+        function waitForSCORMUI(callback) {
+            let iframe = document.getElementById("scormContentIframe");
+            if (!iframe || !iframe.contentWindow || !iframe.contentWindow.document) {
+                console.warn("⚠️ SCORM iframe not found. Retrying in 2 seconds...");
+                setTimeout(() => waitForSCORMUI(callback), 2000);
+                return;
+            }
+
+            let iframeDocument = iframe.contentWindow.document;
+            let progressCircles = iframeDocument.querySelectorAll("svg.progress-circle--sidebar");
+
+            if (progressCircles.length > 0) {
+                console.log("✅ SCORM Progress Circles Found:", progressCircles);
                 callback(iframe);
             } else {
-                console.warn("⚠️ SCORM iframe not ready. Retrying in 2 seconds...");
-                setTimeout(() => waitForIframe(callback), 2000);
+                console.warn("⚠️ SCORM UI not fully loaded yet. Retrying...");
+                setTimeout(() => waitForSCORMUI(callback), 2000);
             }
         }
 
         function updateMiniLessonUI(iframe) {
             let iframeDocument = iframe.contentWindow.document;
-            let sidebarItems = iframeDocument.querySelectorAll('.progress-circle--sidebar');
+            let sidebarItems = iframeDocument.querySelectorAll("svg.progress-circle--sidebar");
 
             if (!sidebarItems.length) {
-                console.warn("⚠️ No sidebar progress circles found inside iframe. Retrying...");
+                console.warn("⚠️ No sidebar progress circles found inside SCORM iframe. Retrying...");
                 setTimeout(() => updateMiniLessonUI(iframe), 2000);
                 return;
             }
 
-            console.log("✅ Found Sidebar Progress Elements in Iframe:", sidebarItems);
+            console.log("✅ Found Sidebar Progress Elements in SCORM iframe:", sidebarItems);
 
             let miniLessonProgress = JSON.parse('{{ mini_lesson_progress|safe }}'.replace(/'/g, '"'));
             console.log("📊 Mini-Lesson Progress Data from Backend:", miniLessonProgress);
 
-            miniLessonProgress.forEach((miniLesson) => {
+            miniLessonProgress.forEach((miniLesson, index) => {
                 let { mini_lesson_index, progress } = miniLesson;
 
                 if (mini_lesson_index >= sidebarItems.length) {
@@ -355,23 +363,53 @@
                 let sidebarItem = sidebarItems[mini_lesson_index];
 
                 if (sidebarItem) {
-                    console.log(`✅ Updating sidebar item ${mini_lesson_index} with progress: ${progress}`);
+                    console.log(`✅ Updating sidebar item ${mini_lesson_index} to Completed`);
 
                     sidebarItem.setAttribute("aria-label", "Completed");
 
-                    let progressCircle = sidebarItem.querySelector('.progress-circle_runner-unstyled, .progress-circle_runner');
+                    // Find the correct progress circle inside the sidebar item
+                    let progressCircle = sidebarItem.querySelector("circle.progress-circle__runner, circle");
 
                     if (progressCircle) {
-                        progressCircle.classList.remove('progress-circle_runner-unstyled');
-                        progressCircle.classList.add('progress-circle_runner');
+                        console.log(`🔄 Updating progress circle for mini-lesson index ${mini_lesson_index}`);
+
+                        // Set stroke-dashoffset to 0 to visually complete the circle
                         progressCircle.setAttribute("stroke-dashoffset", "0");
+
+                        // Ensure the correct class is applied for completion
+                        progressCircle.classList.remove("progress-circle__runner--unstarted");
+                        progressCircle.classList.add("progress-circle__runner--completed");
+
+                        // Force re-render
+                        progressCircle.style.fill = "#162c53"; // Update fill color to match completed state
+                    } else {
+                        console.warn(`⚠️ No <circle> found inside sidebar item ${mini_lesson_index}`);
+                    }
+
+                    // **Find and Show the Checkmark Inside the Progress Circle**
+                    let checkmark = sidebarItem.querySelector("path.progress-circle__pass");
+                    if (checkmark) {
+                        console.log(`✅ Adding checkmark for mini-lesson ${mini_lesson_index}`);
+                        checkmark.style.display = "block"; // Ensure checkmark is visible
+                        checkmark.style.opacity = "1"; // Ensure it's fully visible
+                    } else {
+                        console.warn(`⚠️ No checkmark found inside sidebar item ${mini_lesson_index}`);
                     }
                 }
             });
+
+            // **Try forcing SCORM UI to refresh**
+            if (iframeDocument.body) {
+                iframeDocument.body.style.display = "none";
+                setTimeout(() => {
+                    iframeDocument.body.style.display = "";
+                    console.log("🔄 SCORM UI refreshed to apply changes.");
+                }, 500);
+            }
         }
 
-        // Wait for iframe to be ready, then update mini-lesson progress
-        waitForIframe(updateMiniLessonUI);
+        // Wait for SCORM UI before updating progress
+        waitForSCORMUI(updateMiniLessonUI);
 
         function trackMiniLessonProgress() {
             console.log("🔍 Checking mini-lesson progress...");
