@@ -411,6 +411,65 @@
         // Wait for SCORM UI before updating progress
         waitForSCORMUI(updateMiniLessonUI);
 
+        function waitForSCORMIframe(callback, attempts = 10) {
+            let iframe = document.getElementById("scormContentIframe");
+            if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
+                console.log("✅ SCORM iframe is now accessible.");
+                callback(iframe);
+            } else if (attempts > 0) {
+                console.warn(`⚠️ SCORM iframe not ready yet. Retrying... (${attempts} attempts left)`);
+                setTimeout(() => waitForSCORMIframe(callback, attempts - 1), 1000);
+            } else {
+                console.error("❌ SCORM iframe could not be accessed after multiple attempts.");
+            }
+        }
+
+        function showSCORMCheckmarks(iframe) {
+            let iframeDocument = iframe.contentWindow.document;
+            let checkmarks = iframeDocument.querySelectorAll("path.progress-circle__pass");
+
+            if (checkmarks.length === 0) {
+                console.warn("⚠️ No checkmarks found. Make sure SCORM has loaded.");
+                return;
+            }
+
+            checkmarks.forEach((checkmark) => {
+                console.log("✅ Making checkmark visible:", checkmark);
+
+                checkmark.style.display = "block";
+                checkmark.style.opacity = "1";
+                checkmark.style.visibility = "visible";
+
+                // Ensure it's not hidden by SCORM's CSS
+                let parentSVG = checkmark.closest("svg.progress-circle--sidebar");
+                if (parentSVG) {
+                    parentSVG.style.display = "block";
+                    parentSVG.style.opacity = "1";
+                    parentSVG.style.visibility = "visible";
+                }
+            });
+
+            console.log("✅ All checkmarks should now be visible.");
+        }
+
+        function observeSCORMCheckmarks(iframe) {
+            let iframeDocument = iframe.contentWindow.document;
+            let observer = new MutationObserver(() => {
+                console.log("🔄 SCORM UI updated, ensuring checkmarks remain visible...");
+                showSCORMCheckmarks(iframe);
+            });
+
+            observer.observe(iframeDocument.body, {
+                childList: true,
+                subtree: true
+            });
+        }
+
+        waitForSCORMIframe((iframe) => {
+            showSCORMCheckmarks(iframe);
+            observeSCORMCheckmarks(iframe);
+        });
+
         function trackMiniLessonProgress() {
             console.log("🔍 Checking mini-lesson progress...");
 
