@@ -13,6 +13,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.http import HttpResponseForbidden, HttpRequest
+from content.models import Lesson
 from learner_dashboard.views import learner_dashboard
 from django.contrib import messages
 from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog
@@ -383,6 +384,12 @@ def enroll_users_request(request):
 
             if created:
                 # Create UserModuleProgress instances for each module in the course
+                first_lesson = Lesson.objects.filter(module__course=course).order_by('module__order', 'order').first()
+
+                if first_lesson:
+                    user_course.lesson_id = first_lesson.id  # ✅ Assign the first lesson
+                    user_course.save()
+
                 for module in course.modules.all():
                     UserModuleProgress.objects.create(
                         user_course=user_course,
@@ -402,7 +409,8 @@ def enroll_users_request(request):
                 response_data['enrolled'].append({
                     'user_id': user.id,
                     'course_id': course.id,
-                    'progress': user_course.progress
+                    'progress': user_course.progress,
+                    'lesson_id': user_course.lesson_id
                 })
                 try:
                     # Log the activity in the ActivityLog

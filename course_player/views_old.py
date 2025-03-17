@@ -8,7 +8,7 @@ from cryptography.hazmat.backends import default_backend
 import rsa
 from django.utils.encoding import iri_to_uri
 from urllib.parse import quote, unquote
-from client_admin.models import Profile
+from client_admin.models import Profile, UserCourse
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -279,8 +279,25 @@ def track_scorm_data(request):
                     "scroll_position": scroll_position,
                     "lesson_location": lesson_location,
                     "score": score,
+                    "cmi_data": data.get("cmi_data", "{}"),
                 },
             )
+
+            # ✅ Ensure `UserCourse` is updated with the latest lesson
+            user_course, created = UserCourse.objects.get_or_create(
+                user=profile.user,
+                course=lesson.module.course,
+                defaults={"lesson_id": lesson.id}  # Set the lesson_id if the course is new
+            )
+
+            # If `UserCourse` already exists, update `lesson_id`
+            if not created and user_course.lesson_id != lesson.id:
+                user_course.lesson_id = lesson.id
+                user_course.save()
+
+            # ✅ Update course progress
+            user_course.update_progress()
+            print(f"📌 Updated UserCourse: User {profile.user.id} - Course {lesson.module.course.id} - Lesson {lesson.id}")
 
             return JsonResponse({"status": "success"})
 
