@@ -1,3 +1,6 @@
+from io import BytesIO
+import boto3
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
@@ -5,10 +8,14 @@ from django.shortcuts import render
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.auth import get_user_model
+from django.core.files.base import File
 from django.db.models import Q
 from django.test import RequestFactory
 from django.http import HttpResponse, JsonResponse
 import logging, csv
+from authentication.python.views import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
@@ -241,11 +248,10 @@ def edit_user(request, user_id):
 @login_required
 def edit_user(request, user_id):
     if request.is_impersonating:
-        return  messages.error(request, 'Cannot edit while impersonating')
+        return messages.error(request, 'Cannot edit while impersonating')
 
     user = get_object_or_404(Profile, pk=user_id)
 
-    # Store original values for comparison
     original_values = {
         'username': user.username,
         'email': user.email,
@@ -273,7 +279,7 @@ def edit_user(request, user_id):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         role = request.POST.get('role')
-        archived = request.POST.get('archived') == 'on'  # Check if checkbox is checked
+        archived = request.POST.get('archived') == 'on'
         country = request.POST.get('country')
         city = request.POST.get('city')
         state = request.POST.get('state')
@@ -285,10 +291,8 @@ def edit_user(request, user_id):
         referral = request.POST.get('referral')
         associate_school = request.POST.get('associate_school')
 
-        # Initialize birth_date with None or an existing value from the user
-        birth_date = user.birth_date if hasattr(user, 'birth_date') else None
-        
-        # Parse and format birth_date
+        # Parse birth_date
+        birth_date = user.birth_date
         if birth_date_str:
             parsed_birth_date = parse_date(birth_date_str)
             if parsed_birth_date:
@@ -298,13 +302,14 @@ def edit_user(request, user_id):
         # Handle password change
         if password and confirm_password:
             if password == confirm_password:
-                user.user.set_password(password)  # Assuming 'user' is a Profile object with a related User
+                user.user.set_password(password)
                 user.user.save()
-                update_session_auth_hash(request, user.user)  # Keeps the user logged in after password change
+                update_session_auth_hash(request, user.user)
                 messages.success(request, 'Password updated successfully.')
             else:
                 messages.error(request, 'Passwords do not match.')
 
+        # Update user fields
         user.username = username
         user.email = email
         user.first_name = first_name
@@ -321,47 +326,48 @@ def edit_user(request, user_id):
         user.sex = sex
         user.referral = referral
         user.associate_school = associate_school
-        modifyCognito(request)
+
+        # Handle file uploads (no manual S3 upload, let Django handle it)
+        if 'photoid' in request.FILES:
+            id_photo = request.FILES['photoid']
+            id_photo.name = f'users/{username}/id_photo/{id_photo.name}'
+            user.photoid = id_photo
+
+        if 'passportphoto' in request.FILES:
+            passport_photo = request.FILES['passportphoto']
+            passport_photo.name = f'users/{username}/passport_photo/{passport_photo.name}'
+            user.passportphoto = passport_photo
+
         user.save()
-        
-        # Prepare the changes log
+        modifyCognito(request)
+
+        # Log changes
         changes = []
         for field, original_value in original_values.items():
             new_value = getattr(user, field)
             if original_value != new_value:
                 changes.append(f"Changed {field} from '{original_value}' to '{new_value}'")
-
         changes_log = "; ".join(changes) if changes else "No changes made."
 
-        # Log the activity in the ActivityLog
         ActivityLog.objects.create(
-            user=user.user,  # Assuming this is the user being edited
-            action_performer=request.user.username,  # Store the username
-            action_target=user.user.username,  # Store the username of the user being edited
+            user=user.user,
+            action_performer=request.user.username,
+            action_target=user.user.username,
             action=f'Updated User Information: {changes_log}',
-            user_groups=', '.join(group.name for group in request.user.groups.all()),  # User groups
+            user_groups=', '.join(group.name for group in request.user.groups.all()),
         )
 
         messages.success(request, 'User information updated successfully')
-        # Determine where to redirect
-        referer = request.META.get('HTTP_REFERER')
-        if referer:
-            return redirect(referer)
-        else:
-            # Default redirect
-            return redirect('user_details', user_id=user.id)
 
-    # Determine which template to use
+        referer = request.META.get('HTTP_REFERER')
+        return redirect(referer if referer else 'user_details', user_id=user.id)
+
+    # Determine template
     referer = request.META.get('HTTP_REFERER', '')
-    if 'transcript' in referer:
-        template = 'users/user_transcript.html'
-    else:
-        template = 'users/user_details.html'
+    template = 'users/user_transcript.html' if 'transcript' in referer else 'users/user_details.html'
     
-    context = {
-        'profile': user
-    }
-    return render(request, template, context)
+    return render(request, template, {'profile': user})
+
 
 @login_required
 def enroll_users_request(request):
@@ -513,10 +519,28 @@ def add_user(request):
                 first_name=first_name,
                 last_name=last_name,
             )
-
-            # Save the profile linked to the user
             profile = profile_form.save(commit=False)
             profile.user = user  # Link profile to user
+            s3_client = boto3.client(
+                's3',
+                aws_access_key_id=AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+                region_name=settings.AWS_S3_REGION_NAME
+            )
+
+            # >>> START FILE UPLOAD TO S3 <<<
+            id_photo = request.FILES.get('photoid')
+            passport_photo = request.FILES.get('passportphoto')
+
+            # Skip uploading via boto3 if files are already in S3.
+            # Set custom S3 key by overriding the file name BEFORE save()
+            if id_photo:
+                id_photo.name = f'users/{username}/id_photo/{id_photo.name}'
+            if passport_photo:
+                passport_photo.name = f'users/{username}/passport_photo/{passport_photo.name}'
+
+            profile = profile_form.save(commit=False)
+            profile.user = user
             profile.save()
 
             # Additional operations like Cognito integration

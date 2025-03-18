@@ -3,12 +3,16 @@ from django.contrib.auth.models import User
 from content.models import Course, Module, Lesson
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from storages.backends.s3boto3 import S3Boto3Storage
 from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
 from datetime import datetime
 from pytz import all_timezones
 from course_player.models import SCORMTrackingData 
+
+no_prefix_storage = S3Boto3Storage()
+no_prefix_storage.location = ''  # Disable tenant prefix
 
 def resize_image(image_field, size=(300, 300)):
     # Check if the image field has a file
@@ -65,8 +69,8 @@ class Profile(models.Model):
     delivery_method = models.CharField(max_length=64, blank=True)
     referral = models.CharField(max_length=512, blank=True)
     initials = models.CharField(max_length=5, default='ABC')
-    photoid = models.ImageField()
-    passportphoto = models.ImageField()
+    photoid = models.ImageField(storage=no_prefix_storage)
+    passportphoto = models.ImageField(storage=no_prefix_storage)
     date_joined = models.DateTimeField(('date joined'), auto_now_add=True)
     last_opened_course = models.OneToOneField(Course, on_delete=models.CASCADE, null=True, blank=True)
     timezone = models.CharField(
