@@ -12,7 +12,7 @@ from pytz import all_timezones
 class SCORMTrackingData(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
-    cmi_data = models.JSONField()  # Store raw SCORM interaction data in JSON format
+    cmi_data = models.JSONField(null=True, blank=True)  # Store raw SCORM interaction data in JSON format
     score = models.FloatField(null=True, blank=True)
     lesson_location = models.TextField(blank=True, null=True)
     scroll_position = models.IntegerField(default=0)
@@ -36,4 +36,3 @@ class LessonProgress(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title} - {self.progress}"
-    

@@ -135,15 +135,17 @@
                                     {% endif %}
                                     <!-- Button To Start Course -->
                                     {% if user_course.get_status == 'Not Started' %}
-                                        <div class="start-course-btn">
+                                        <button class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
                                             <i class="fa-regular fa-rocket-launch"></i>
                                             <span> Start Course</span>
-                                        </div>
+                                        </button>
+                                        <script src="{% static 'learner_dashboard/javascript/learner.js' %}"></script>
                                     {% elif user_course.get_status == 'Started' %}
-                                        <div class="start-course-btn">
+                                        <div class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
                                             <i class="fa-regular fa-circle-play"></i>
                                             <span> Resume Course</span>
                                         </div>
+                                        <script src="{% static 'learner_dashboard/javascript/learner.js' %}"></script>
                                     {% elif user_course.get_status == 'Completed' %}
                                         <div class="start-course-btn">
                                             <i class="fa-regular fa-glasses"></i>

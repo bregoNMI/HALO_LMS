@@ -315,3 +315,13 @@ function checkOverflow() {
         }
     });
 }
+
+function launchCourse(lessonId){
+    if (!lessonId) {
+        console.log("LessonID: ", lessonId)
+        console.error("Lesson ID is missing!");
+        return;
+    }
+    console.log(`Launching course with Lesson ID: ${lessonId}`);
+    window.location.href = `/launch_scorm_file/${lessonId}/`;
+}

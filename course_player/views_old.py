@@ -1,6 +1,5 @@
 import datetime
 import json
-import mimetypes
 import os
 from django.utils import timezone
 from shlex import quote
@@ -8,7 +7,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 import rsa
 from django.utils.encoding import iri_to_uri
-from urllib.parse import quote, unquote, unquote_plus
+from urllib.parse import quote, unquote
 from client_admin.models import Profile, UserCourse
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, Http404, JsonResponse
@@ -54,7 +53,7 @@ def generate_presigned_url(key, expiration=3600):
         's3',
         aws_access_key_id=aws_access_key_id,
         aws_secret_access_key=aws_secret_access_key,
-        region_name=AWS_S3_REGION_NAME
+        region_name=settings.AWS_S3_REGION_NAME
     )
 
     # Create the presigned URL for the given key in S3
@@ -62,7 +61,7 @@ def generate_presigned_url(key, expiration=3600):
         response = s3_client.generate_presigned_url(
             'get_object',
             Params={
-                'Bucket': AWS_STORAGE_BUCKET_NAME,
+                'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
                 'Key': key,
                 'ResponseContentType': 'text/html'  # Set the Content-Type to text/html
             },
@@ -74,11 +73,11 @@ def generate_presigned_url(key, expiration=3600):
         response = None
 
     return response
-"""
+
 def proxy_scorm_file(request, file_path):
-
+    """
     Proxy SCORM file from S3 to serve it through the LMS domain.
-
+    """
     decoded_file_path = unquote(file_path)
     print(f"Incoming SCORM request: {decoded_file_path}")
 
@@ -86,10 +85,6 @@ def proxy_scorm_file(request, file_path):
         decoded_file_path = decoded_file_path.replace("index.html/", "")
 
     print(f"Corrected file path: {decoded_file_path}")
-    # Ensure correct S3 key
-    s3_key = f"media/default/uploads/{decoded_file_path}".replace("\\", "/")
-
-    print(f"Updated file path for S3 fetch: {s3_key}")
 
     s3_client = boto3.client(
         's3',
@@ -101,8 +96,7 @@ def proxy_scorm_file(request, file_path):
 
     try:
         # Fetch the file from S3
-        #s3_response = s3_client.get_object(Bucket=bucket_name, Key=decoded_file_path)
-        s3_response = s3_client.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=s3_key)
+        s3_response = s3_client.get_object(Bucket=bucket_name, Key=decoded_file_path)
         print(f"Serving file: {decoded_file_path}")
 
         # Return the file as an HTTP response
@@ -113,154 +107,96 @@ def proxy_scorm_file(request, file_path):
     except ClientError as e:
         print(f"Error fetching file {decoded_file_path} from S3: {e}")
         raise Http404("SCORM file not found")
-"""
-def proxy_scorm_file(request, file_path):
-    """
-    Proxy SCORM file from S3 to serve it through the LMS domain.
-    """
-    decoded_file_path = unquote_plus(file_path).strip()
-    print(f"🔍 Incoming SCORM request: {decoded_file_path}")
 
-    # Fix cases where "index.html/" is mistakenly inserted in asset URLs
-    if "index.html/" in decoded_file_path:
-        decoded_file_path = decoded_file_path.replace("index.html/", "")
-
-    # Ensure correct S3 key format
-    s3_key = f"media/default/uploads/{decoded_file_path}".replace("\\", "/").strip()
-    print(f"📂 Updated file path for S3 fetch: {s3_key}")
-
-    s3_client = boto3.client(
-        's3',
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        region_name=AWS_S3_REGION_NAME
-    )
-    bucket_name = AWS_STORAGE_BUCKET_NAME
-
-    try:
-        # Fetch the file from S3
-        s3_response = s3_client.get_object(Bucket=bucket_name, Key=s3_key)
-        file_data = s3_response['Body']
-
-        # **Determine the correct Content-Type**
-        content_type = s3_response.get('ContentType', None)
-        if not content_type:
-            content_type, _ = mimetypes.guess_type(s3_key)
-            if not content_type:
-                content_type = "application/octet-stream"  # Default
-
-        # **Force correct MIME types for HTML, JS, and CSS**
-        if s3_key.endswith(".html"):
-            content_type = "text/html"
-        elif s3_key.endswith(".css"):
-            content_type = "text/css"
-        elif s3_key.endswith(".js"):
-            content_type = "application/javascript"
-
-        #print(f"✅ Serving file from S3: {s3_key} with Content-Type: {content_type}")
-
-        return FileResponse(file_data, content_type=content_type)
-
-    except ClientError as e:
-        print(f"❌ Error fetching file {decoded_file_path} from S3: {e}")
-        raise Http404("SCORM file not found")
-    
 @login_required
 def launch_scorm_file(request, lesson_id):
     print('Lesson ID:', lesson_id)
     lesson = get_object_or_404(Lesson, pk=lesson_id)
 
     profile = get_object_or_404(Profile, user=request.user)
-    uploaded_file = lesson.uploaded_file  
-
-    user_course = UserCourse.objects.filter(user=request.user, course=lesson.module.course).first()
+    
+    # Get the UploadedFile object
+    uploaded_file = get_object_or_404(UploadedFile, pk=lesson_id)
 
     if not uploaded_file.scorm_entry_point:
         return render(request, 'error.html', {'message': 'No valid SCORM entry point found for this file.'})
-
-    scorm_entry_point = uploaded_file.scorm_entry_point.replace("\\", "/")
-    proxy_url = f"/scorm-content/{iri_to_uri(scorm_entry_point)}"
     
-    saved_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=lesson).first()
-    lesson_location = saved_progress.lesson_location if saved_progress else ""
-    scroll_position = saved_progress.scroll_position if saved_progress else 0  
+    # Ensure the key uses forward slashes only and is URL-encoded
+    scorm_entry_point = uploaded_file.scorm_entry_point.replace("\\", "/")
+    print(f"Retrieved SCORM entry point: {scorm_entry_point}")
 
-    # ✅ Retrieve all lessons in the same module
-    module_lessons = Lesson.objects.filter(module=lesson.module).order_by("order")
+    proxy_url = f"/scorm-content/{iri_to_uri(scorm_entry_point)}"
 
-    # ✅ Find next lesson
-    all_lessons = list(module_lessons)
-    current_index = all_lessons.index(lesson) if lesson in all_lessons else -1
-    next_lesson = all_lessons[current_index + 1] if current_index + 1 < len(all_lessons) else None
-    prev_lesson = all_lessons[current_index - 1] if current_index > 0 else None
-    is_last_lesson = next_lesson is None
 
-    # **Check if course is locked and if previous lesson is completed**
-    course_locked = lesson.module.course.locked
-    if course_locked and prev_lesson:
-        prev_lesson_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=prev_lesson, completion_status="completed").exists()
-        if not prev_lesson_progress:
-            return render(request, 'error.html', {'message': 'You must complete the previous lesson before proceeding.'})
+    # Debugging output for logging
+    print(f"Proxy URL for SCORM entry point: {proxy_url}")
 
-    # ✅ Collect lesson progress data
-    lesson_progress_data = []
-    for module_lesson in module_lessons:
-        progress_entry = SCORMTrackingData.objects.filter(user=request.user, lesson=module_lesson).first()
-        is_completed = progress_entry.completion_status == "completed" if progress_entry else False
-
-        lesson_progress_data.append({
-            "title": module_lesson.title,
-            "completed": is_completed
-        })
-
-    print("🔍 All Lessons:", all_lessons)
-    for lesson in all_lessons:
-        print(f"Lesson: {lesson.title}, ID: {lesson.id}")
-
-    # ✅ Retrieve mini-lesson progress
-    mini_lesson_progress = list(LessonProgress.objects.filter(
-        user=request.user,
-        lesson=lesson
-    ).values("mini_lesson_index", "progress"))
-
-    print("✅ Mini-Lesson Progress Data:", mini_lesson_progress)
-
-    lesson_progress_data = []
-    previous_lesson_completed = True  # Assume first lesson is accessible
-
-    for module_lesson in module_lessons:
-        progress_entry = SCORMTrackingData.objects.filter(user=request.user, lesson=module_lesson).first()
-        is_completed = progress_entry.completion_status == "completed" if progress_entry else False
-
-        # If the course is locked, check if the previous lesson is completed
-        if course_locked:
-            if not previous_lesson_completed:
-                is_completed = False  # Lock this lesson if the previous one isn't completed
-            previous_lesson_completed = is_completed  # Update for next iteration
-
-        lesson_progress_data.append({
-            "id": module_lesson.id,
-            "title": module_lesson.title,
-            "completed": is_completed
-        })
-
+    # Render the SCORM player template with the proxied URL
     return render(request, 'iplayer.html', {
         'lesson': lesson,
         'scorm_index_file_url': proxy_url,
         'saved_progress': saved_progress.progress if saved_progress else 0,
-        'saved_location': lesson_location,
-        'saved_scroll_position': scroll_position,
-        'profile_id': profile.id,
-        'lesson_progress_data': json.dumps(lesson_progress_data),
-        'mini_lesson_progress': json.dumps(mini_lesson_progress),
-        'all_lessons': all_lessons,
-        'user_course': user_course,
-        'next_lesson': next_lesson,
-        'prev_lesson': prev_lesson,
-        'is_last_lesson': is_last_lesson,
-        'course_locked': course_locked
+        'saved_location': lesson_location,  # NEW: Pass saved lesson location (page)
+        'saved_scroll_position': scroll_position,  # NEW: Pass saved scroll position
+        'profile_id': profile.id
     })
+    """
+    # Generate the pre-signed URL for the S3 object
+    try:
+        presigned_url = generate_presigned_url(
+            key=scorm_entry_point,  # Path to the SCORM entry point in the bucket
+            expiration=3600  # Expiration time in seconds (1 hour)
+        )
+    except Exception as e:
+        print(f"Error generating pre-signed URL: {e}")
+        return render(request, 'error.html', {'message': 'Unable to generate a link to the SCORM content.'})
+    
+    if not presigned_url:
+        return render(request, 'error.html', {'message': 'Unable to generate a link to the SCORM content.'})
 
+    print(f"Generated SCORM Pre-signed URL: {presigned_url}")
+
+    # Render the SCORM player template with the pre-signed URL for the SCORM content
+    return render(request, 'iplayer.html', {'scorm_index_file_url': presigned_url})
+    """
+
+"""
+@login_required
+def launch_scorm_file(request, lesson_id):
+    print('Lesson ID:', lesson_id)
+    
+    # Get the UploadedFile object
+    uploaded_file = get_object_or_404(UploadedFile, pk=lesson_id)
+
+    if not uploaded_file.scorm_entry_point:
+        return render(request, 'error.html', {'message': 'No valid SCORM entry point found for this file.'})
+    
+    from urllib.parse import quote
+    scorm_entry_point = quote(uploaded_file.scorm_entry_point)  # URL-encode the entry point
+    print(f"Retrieved SCORM entry point: {scorm_entry_point}")
+
+    # Retrieve CloudFront keys
+    secret_name = "CLOUDFRONT_KEY_PAIR"
+    cloudfront_keys = get_cloudfront_keys(secret_name)
+    private_key = cloudfront_keys.get('cloudfront_private_key')
+    key_pair_id = "KIHDC04PK54LS"
+
+    # Generate the signed CloudFront URL
+    cloudfront_url = f"https://d253588t4hyqvi.cloudfront.net/{scorm_entry_point}"
+    index_file_url = generate_signed_cloudfront_url(
+        cloudfront_url=cloudfront_url,
+        key_pair_id=key_pair_id,
+        private_key=private_key
+    )
+    print(f"Generated Signed URL: {index_file_url}")
+
+    if not index_file_url:
+        return render(request, 'error.html', {'message': 'Unable to generate a link to the SCORM content.'})
+
+    print(f"Generated SCORM URL: {index_file_url}")
+
+    return render(request, 'iplayer.html', {'scorm_index_file_url': index_file_url})
+"""
 def get_s3_file_metadata(bucket_name, key):
     """ Retrieve metadata from a specific S3 object """
     secret_name = "COGNITO_SECRET"
@@ -270,7 +206,7 @@ def get_s3_file_metadata(bucket_name, key):
         's3',
         aws_access_key_id=secrets.get('AWS_ACCESS_KEY_ID'),
         aws_secret_access_key=secrets.get('AWS_SECRET_ACCESS_KEY'),
-        region_name=AWS_S3_REGION_NAME
+        region_name=settings.AWS_S3_REGION_NAME
     )
     
     try:
@@ -343,14 +279,25 @@ def track_scorm_data(request):
                     "scroll_position": scroll_position,
                     "lesson_location": lesson_location,
                     "score": score,
-                    "cmi_data": data.get("cmi_data", "{}"),  # ✅ Store cmi_data as JSON
+                    "cmi_data": data.get("cmi_data", "{}"),
                 },
             )
 
-             # Update UserCourse progress
-            user_course, _ = UserCourse.objects.get_or_create(user=profile.user, course=lesson.module.course)
+            # ✅ Ensure `UserCourse` is updated with the latest lesson
+            user_course, created = UserCourse.objects.get_or_create(
+                user=profile.user,
+                course=lesson.module.course,
+                defaults={"lesson_id": lesson.id}  # Set the lesson_id if the course is new
+            )
+
+            # If `UserCourse` already exists, update `lesson_id`
+            if not created and user_course.lesson_id != lesson.id:
+                user_course.lesson_id = lesson.id
+                user_course.save()
+
+            # ✅ Update course progress
             user_course.update_progress()
-            print('HERE')
+            print(f"📌 Updated UserCourse: User {profile.user.id} - Course {lesson.module.course.id} - Lesson {lesson.id}")
 
             return JsonResponse({"status": "success"})
 
@@ -415,6 +362,11 @@ def generate_cloudfront_url(key):
 
     # Construct the CloudFront URL
     return f"{cloudfront_domain}/{key}"
+
+# Constants for Secrets Manager
+#secret_name = "CLOUDFRONT_KEY_PAIR"
+#region_name = "us-east-1"  # Replace with your AWS region, e.g., "us-west-2"
+#key_pair_id = "KIHDC04PK54LS"  # Replace this with your actual CloudFront Key Pair ID
 
 def get_cloudfront_keys(secret_name):
     """

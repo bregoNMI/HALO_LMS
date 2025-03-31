@@ -3,11 +3,16 @@ from django.contrib.auth.models import User
 from content.models import Course, Module, Lesson
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from storages.backends.s3boto3 import S3Boto3Storage
 from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
 from datetime import datetime
 from pytz import all_timezones
+from course_player.models import SCORMTrackingData 
+
+no_prefix_storage = S3Boto3Storage()
+no_prefix_storage.location = ''  # Disable tenant prefix
 
 def resize_image(image_field, size=(300, 300)):
     # Check if the image field has a file
@@ -64,8 +69,8 @@ class Profile(models.Model):
     delivery_method = models.CharField(max_length=64, blank=True)
     referral = models.CharField(max_length=512, blank=True)
     initials = models.CharField(max_length=5, default='ABC')
-    photoid = models.ImageField()
-    passportphoto = models.ImageField()
+    photoid = models.ImageField(storage=no_prefix_storage)
+    passportphoto = models.ImageField(storage=no_prefix_storage)
     date_joined = models.DateTimeField(('date joined'), auto_now_add=True)
     last_opened_course = models.OneToOneField(Course, on_delete=models.CASCADE, null=True, blank=True)
     timezone = models.CharField(
@@ -92,6 +97,8 @@ class UserCourse(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     progress = models.PositiveIntegerField(default=0)  # percentage of the course completed by the user
+    lesson_id = models.PositiveIntegerField(default=0) #links o the individual lesson to launch the course
+    locked = models.BooleanField(default=False)
 
     def get_status(self):
         expiration_date = self.course.get_event_date('expiration_date')
@@ -104,9 +111,37 @@ class UserCourse(models.Model):
             return 'Completed'
         else:
             return 'Started'
+    
+    def update_progress(self):
+        """
+        Recalculates the user's progress in this course based on the highest recorded progress per lesson.
+        """
+        lessons = Lesson.objects.filter(module__course=self.course)
+        total_lessons = lessons.count()
+
+        if total_lessons == 0:
+            self.progress = 0.0
+            self.save()
+            return
+
+        # Get max progress per lesson
+        lesson_progress = (
+            SCORMTrackingData.objects
+            .filter(user=self.user, lesson_id__in=lessons.values_list('id', flat=True))
+            .values('lesson_id')
+            .annotate(max_progress=models.Max('progress'))  # Get max progress per lesson
+        )
+
+        total_progress = sum(lp['max_progress'] for lp in lesson_progress)
+
+        # Normalize to 100%
+        self.progress = min((total_progress / total_lessons) * 100, 100)
+        self.save()
+
 
     def __str__(self):
         return f"{self.user.username} - {self.course.title}"
+
 
 class UserModuleProgress(models.Model):
     user_course = models.ForeignKey(UserCourse, related_name='module_progresses', on_delete=models.CASCADE)

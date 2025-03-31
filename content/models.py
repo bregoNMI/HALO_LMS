@@ -182,6 +182,7 @@ class Course(models.Model):
     thumbnail = models.ForeignKey('Media', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_thumbnail')
     credential = models.OneToOneField('Credential', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_credential')
     upload_instructions = models.TextField(blank=True)
+    locked = models.BooleanField(default=False)
     estimated_completion_time = models.DurationField(null=True, blank=True, help_text="Estimated time to complete the course (e.g., 3 hours)")
     terms_and_conditions = models.BooleanField(default=False)
     must_complete = models.CharField(
