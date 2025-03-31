@@ -21,6 +21,8 @@ from .forms import UserRegistrationForm, ProfileForm, CSVUploadForm
 from django.contrib.auth import update_session_auth_hash, login
 from authentication.python.views import addUserCognito, modifyCognito, register_view
 from django.template.response import TemplateResponse
+import json
+from django.db import IntegrityError, transaction
 #from models import Profile
 #from authentication.python import views
 
@@ -486,11 +488,8 @@ def add_user(request):
         user_form = UserRegistrationForm(request.POST)
         profile_form = ProfileForm(request.POST, request.FILES)
 
-        # Validate both forms
         if user_form.is_valid() and profile_form.is_valid():
-            print('Both forms are valid')
 
-            # Extract the cleaned data from the user form
             username = user_form.cleaned_data.get('username')
             password = user_form.cleaned_data.get('password')
             email = user_form.cleaned_data.get('email')
@@ -522,13 +521,11 @@ def add_user(request):
             # Handle form errors and log them
             if not user_form.is_valid():
                 print('User form errors:', user_form.errors)
-                logger.error('User form errors: %s', user_form.errors)
+                messages.error(request, user_form.errors)
 
             if not profile_form.is_valid():
                 print('Profile form errors:', profile_form.errors)
-                logger.error('Profile form errors: %s', profile_form.errors)
-
-            messages.error(request, 'We were unable to create a user. Please enter required fields and try again.')
+                messages.error(request, profile_form.errors)
 
     return redirect('add_user_page')
 
@@ -742,3 +739,25 @@ def add_user_to_cognito(original_request, username, password, email, first_name,
         logging.info(f"User {username} successfully added to Cognito.")
     except Exception as e:
         logging.error(f"Error adding user {username} to Cognito: {e}")
+
+def delete_users(request):
+    data = json.loads(request.body)
+    user_ids = data['ids']
+    try:
+        with transaction.atomic():
+            for user_id in user_ids:
+                user = User.objects.filter(id=user_id)
+                if not user.exists():
+                    raise ValueError(f"No user found with ID {user_id}")
+                user.delete()
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': '/admin/courses/',
+                'message': 'All selected users deleted successfully'
+            })
+    except ValueError as e:
+        logger.error(f"Deletion error: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)

@@ -81,10 +81,12 @@ html, body, button{
     width: 1.5rem;
     align-items: center;
     justify-content: center;
-}
-
-.admin-header-user-icon:hover{
+    transition: all 0.2s linear;
+}.admin-header-user-icon:hover{
     background-color: #333333;
+}.admin-header-user-icon i{
+    height: 32px;
+    width: 32px;
 }
 
 .admin-header-name{
@@ -585,7 +587,7 @@ tr.selected-option th, tr.selected-option td{
     background-color: white;
     border: 2px solid #ccc;
     transition: all 0.3s;
-    border-radius: 4px;
+    border-radius: 6px;
 }
 
 .checkmark:hover{
@@ -698,10 +700,12 @@ tr.selected-option th, tr.selected-option td{
     flex-direction: row;
     gap: 0.6rem;
     padding: var(--pad-xxs) var(--pad-sm);
-    color: #6b6b6b;
+    /* color: #6b6b6b; */
+    color: var(--text-color4);
     align-items: center;
     border-radius: 8px;
     cursor: pointer;
+    transition: all 0.2s linear;
 }
 
 .options-sidebar-item:hover{
@@ -972,7 +976,7 @@ tr.selected-option th, tr.selected-option td{
     margin: 20px 0;
     right: -70rem;
     transition: all 0.5s ease-in-out;
-    z-index: 99;
+    z-index: 9999;
 }
 
 .alert {

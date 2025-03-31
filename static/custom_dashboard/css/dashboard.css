@@ -362,7 +362,7 @@
     position: absolute;
     align-items: center;
     justify-content: center;
-    bottom: 0.16rem;
+    bottom: 0.17rem;
     right: 0.3rem;
     padding: var(--pad-xxs) var(--pad-xs);
     background-color: var(--primary-blue);

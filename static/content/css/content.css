@@ -991,6 +991,10 @@ input[type="text"], input[type="number"]{
     overflow-x: hidden;
 }
 
+.categoryList .container{
+    padding-bottom: 0;
+}
+
 .userList .dropdown-item, .timezoneList .dropdown-item, .categoryList .dropdown-item {
     padding: 8px;
     cursor: pointer;
