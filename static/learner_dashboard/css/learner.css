@@ -41,6 +41,7 @@ html, body, button{
     overflow-y: auto;
     overflow-x: hidden;
     outline: none;
+    margin-bottom: 2rem;
 }
 
 
@@ -74,7 +75,8 @@ html, body, button{
 }
 
 .learner-header-icon{
-    display: flex;
+    position: relative;
+    /* display: flex; */
     justify-content: center;
     align-items: center;
     padding: var(--pad-xxs);
@@ -82,6 +84,10 @@ html, body, button{
     font-size: 1.2rem;
     transition: all 0.2s linear;
     color: white;
+    height: 1.3rem;
+    width: 1.3rem;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .learner-header-icon:hover{
@@ -834,8 +840,9 @@ html, body, button{
 
 .course-item-module-title{
     line-height: 1.4;
-    color: #555961;
-    font-size: 1rem;
+    /* color: #555961; */
+    color: var(--text-color2);
+    font-size: 0.9rem;
     font-weight: 600;
 }
 
@@ -887,6 +894,7 @@ html, body, button{
     line-height: 1.2;
     color: #5e5e5e;
     font-size: 0.9rem;
+    font-weight: 400;
 }
 
 .course-item-lesson-complete-icon{
@@ -918,7 +926,7 @@ html, body, button{
 .notification-icon{
     display: flex;
     position: absolute;
-    right: 0.3rem;
+    right: 0.35rem;
     /* bottom: 0.45rem; */
     padding: 0.15rem;
     color: red;

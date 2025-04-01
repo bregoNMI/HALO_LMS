@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     /* Select Table Options */
     let checkedOptionsList = [];
     let selectedIds = [];
+    let selectedCourseIds = [];
     const tableOptions = document.querySelectorAll('.table-select-option');
     const tableSelectAllOption = document.querySelector('.table-select-all-option');
 
@@ -48,6 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectedOptionsWrapper = document.getElementById('selectedOptionsWrapper');
     const selectedOptionsCount = document.getElementById('selectedOptionsCount');
     function countSelectedOptions(){
+        updateSelectedIds();
         console.log(checkedOptionsList);
         if(checkedOptionsList.length < 1){
             selectedOptionsWrapper.style.display = 'none';
@@ -81,18 +83,11 @@ document.addEventListener("DOMContentLoaded", function () {
             if (matchingAttribute) {
                 // Add click event listener to redirect to the matching URL
                 item.addEventListener('click', () => {
-                    // Clear the array to avoid duplicate entries
-                    selectedIds = [];        
-                    // Collect all the selected IDs
-                    checkedOptionsList.forEach(option => {
-                        const id = option.getAttribute('data-id');
-                        if (!selectedIds.includes(id)) {
-                            selectedIds.push(id);
-                        }
-                    });               
+                    updateSelectedIds();              
                     console.log(checkedOptionsList, selectedIds);                
                     // Store the unique IDs in localStorage
-                    localStorage.setItem('selectedUserIds', JSON.stringify(selectedIds));          
+                    localStorage.setItem('selectedUserIds', JSON.stringify(selectedIds)); 
+                    localStorage.setItem('selectedCourseIds', JSON.stringify(selectedCourseIds));          
                     // Redirect to the matching URL
                     window.location.href = matchingAttribute;
                 });
@@ -109,6 +104,23 @@ document.addEventListener("DOMContentLoaded", function () {
         if (multiOptionsSelect) {
             multiOptionsSelect.style.display = 'none';
         }
+    }
+
+    function updateSelectedIds(){
+        // Clear the array to avoid duplicate entries
+        selectedIds = [];  
+        selectedCourseIds = [];      
+        // Collect all the selected IDs
+        checkedOptionsList.forEach(option => {
+            const id = option.getAttribute('data-id');
+            const courseId = option.getAttribute('data-course-id');
+            if (!selectedIds.includes(id)) {
+                selectedIds.push(id);
+            }
+            if (!selectedCourseIds.includes(courseId)) {
+                selectedCourseIds.push(courseId);
+            }
+        }); 
     }
 
     function multiOptionsSelect(){
@@ -351,6 +363,110 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 8000);
         }
     });
+
+    document.querySelectorAll('#data-delete-users').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('userDeleteConfirmation');
+        });
+    });
+    const deleteUserConfirmation = document.getElementById('deleteUserConfirmation');
+    if(deleteUserConfirmation){
+        deleteUserConfirmation.addEventListener('click', () => {
+            console.log(selectedIds);
+            const url = '/admin/users/delete-users/';  // Change this to your actual endpoint
+    
+            fetch(url, {
+                method: 'POST',   // or 'DELETE', depending on how your API is set up
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())  // Assuming the server responds with JSON
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    // Redirect to the new page where messages will be shown
+                    window.location.href = data.redirect_url;
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                // Handle errors here, such as displaying a message to the user
+            });
+        });
+    }
+
+    // Deleting Courses
+    document.querySelectorAll('#data-delete-courses').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('courseDeleteConfirmation');
+        });
+    });
+
+    const deleteCourseConfirmation = document.getElementById('deleteCourseConfirmation');
+    if(deleteCourseConfirmation){
+        deleteCourseConfirmation.addEventListener('click', () => {
+            console.log(selectedCourseIds);
+            const url = '/admin/courses/delete-courses/';  // Change this to your actual endpoint
+    
+            fetch(url, {
+                method: 'POST',   // or 'DELETE', depending on how your API is set up
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedCourseIds })
+            })
+            .then(response => response.json())  // Assuming the server responds with JSON
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                // Handle errors here, such as displaying a message to the user
+            });
+        });
+    }
+
+    function getCsrfToken() {
+        const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
+        return cookieValue;
+    }
+
+    const validationMessageContainer = document.getElementById('validation-message-container');
+    const validationMessageInner = document.getElementById('validation-message-inner');
+    const validationMessage = document.getElementById('validation-message');
+    const validationIcon = document.getElementById('validation-icon');
+
+    function displayValidationMessage(message, isSuccess) {
+        validationMessage.textContent = message;
+        validationMessageContainer.style.display = 'flex';
+        setTimeout(() => {
+            validationMessageContainer.className = isSuccess ? 'alert-container animate-alert-container' : 'alert-container animate-alert-container';
+        }, 100);
+        validationMessageInner.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
+        setTimeout(() => {
+            validationMessageContainer.classList.remove('animate-alert-container');
+        }, 10000);
+        if(isSuccess){
+            validationIcon.className = 'fa-solid fa-circle-check';
+        }else{
+            validationIcon.className = 'fa-solid fa-triangle-exclamation';
+        }
+    }
+    
 });
 
 // Dynamically Opening Popups

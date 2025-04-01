@@ -189,7 +189,8 @@ function initializeCourseDropdown(containerId) {
     let isLoading = false;
     let hasMoreCourses = true;
 
-    // Function to fetch courses from the backend
+    let selectedCourseIds = JSON.parse(localStorage.getItem('selectedCourseIds') || '[]');
+
     function fetchCourses(searchTerm = '', resetList = false) {
         if (isLoading || !hasMoreCourses) return;
 
@@ -201,78 +202,76 @@ function initializeCourseDropdown(containerId) {
                 'X-Requested-With': 'XMLHttpRequest',
             }
         })
-            .then(response => response.json())
-            .then(data => {
-                if (resetList) {
-                    courseList.innerHTML = '';
-                    page = 1;
+        .then(response => response.json())
+        .then(data => {
+            if (resetList) {
+                courseList.innerHTML = '';
+                page = 1;
+            }
+
+            data.courses.forEach(course => {
+                const courseItem = document.createElement('div');
+                courseItem.classList.add('dropdown-item');
+                courseItem.innerHTML = `
+                    <div class="dropdown-item-inner">
+                        <h5>${course.title}</h5>
+                    </div>
+                `;
+                courseItem.dataset.courseId = course.id;
+
+                const checkboxWrapper = document.createElement('div');
+                checkboxWrapper.innerHTML = `
+                    <label class="container">
+                        <input value="${course.id}" class="course-checkbox" type="checkbox">
+                        <div class="checkmark"></div>
+                    </label>
+                `;
+
+                courseItem.prepend(checkboxWrapper);
+                courseList.appendChild(courseItem);
+
+                const checkbox = checkboxWrapper.querySelector('.course-checkbox');
+
+                // Pre-select the checkbox if the course ID is in the selected IDs array
+                if (selectedCourseIds.includes(String(course.id))) {
+                    checkbox.checked = true;
+                    courseItem.classList.add('selected');
+                    appendSelectedCourse(course.title, course.id);
+                    selectedCourseIds = selectedCourseIds.filter(id => id !== String(course.id));
                 }
 
-                // Append courses to the dropdown list
-                data.courses.forEach(course => {
-                    const courseItem = document.createElement('div');
-                    courseItem.classList.add('dropdown-item');
-                    courseItem.innerHTML = `
-                        <div class="dropdown-item-inner">
-                            <h5>${course.title}</h5>
-                        </div>
-                    `;
-                    courseItem.dataset.courseId = course.id;
-
-                    // Create the checkbox with the proper structure
-                    const checkboxWrapper = document.createElement('div');
-                    checkboxWrapper.innerHTML = `
-                        <label class="container">
-                            <input value="${course.id}" class="course-checkbox" type="checkbox">
-                            <div class="checkmark"></div>
-                        </label>
-                    `;
-
-                    courseItem.prepend(checkboxWrapper);
-                    courseList.appendChild(courseItem);
-
-                    const checkbox = checkboxWrapper.querySelector('.course-checkbox');
-
-                    // Check if the course is already selected and mark the checkbox
-                    if (selectedCoursesList.querySelector(`[data-course-id="${course.id}"]`)) {
+                courseItem.addEventListener('click', function () {
+                    if (checkbox.checked) {
+                        removeSelectedCourse(course.id);
+                        checkbox.checked = false;
+                        courseItem.classList.remove('selected');
+                    } else {
+                        appendSelectedCourse(course.title, course.id);
+                        checkbox.checked = true;
                         courseItem.classList.add('selected');
-                        checkbox.checked = true; // Ensure the checkbox is checked
                     }
-
-                    // Click event for the entire item
-                    courseItem.addEventListener('click', function (event) {
-                        if (checkbox.checked) {
-                            removeSelectedCourse(course.id);
-                            checkbox.checked = false;
-                            courseItem.classList.remove('selected');
-                        } else {
-                            appendSelectedCourse(course.title, course.id);
-                            checkbox.checked = true;
-                            courseItem.classList.add('selected');
-                        }
-                    });
-
-                    // Ensure checkbox triggers parent item click
-                    checkbox.addEventListener('click', function (event) {
-                        event.stopPropagation();  // Prevent checkbox click from triggering twice
-                        courseItem.click();  // Trigger the parent item click
-                    });
                 });
 
-                if (data.courses.length === 0 && resetList) {
-                    courseList.innerHTML = '<div class="no-results">No results found</div>';
-                }
-
-                hasMoreCourses = data.has_more;
-                isLoading = false;
-                loadingIndicator.style.display = 'none';
-                page += 1;
-            })
-            .catch(error => {
-                console.error('Error fetching courses:', error);
-                isLoading = false;
-                loadingIndicator.style.display = 'none';
+                checkbox.addEventListener('click', function (event) {
+                    event.stopPropagation(); // Prevent checkbox click from triggering twice
+                    courseItem.click(); // Trigger the parent item click
+                });
             });
+
+            isLoading = false;
+            loadingIndicator.style.display = 'none';
+            page += 1;
+
+            // Fetch more courses automatically if there are still IDs to process and more courses to load
+            if (selectedCourseIds.length > 0 && hasMoreCourses && data.courses.length > 0) {
+                fetchCourses(searchTerm);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching courses:', error);
+            isLoading = false;
+            loadingIndicator.style.display = 'none';
+        });
     }
 
     // Function to append selected course to the list
@@ -285,10 +284,10 @@ function initializeCourseDropdown(containerId) {
         const removeButton = document.createElement('div');
         removeButton.classList.add('remove-course');
         removeButton.innerHTML = `
-        <div class="upload-delete tooltip" data-tooltip="Remove Course">
-            <span class="tooltiptext">Remove Course</span>
-            <i class="fa-regular fa-trash"></i>
-        </div>
+            <div class="upload-delete tooltip" data-tooltip="Remove Course">
+                <span class="tooltiptext">Remove Course</span>
+                <i class="fa-regular fa-trash"></i>
+            </div>
         `;
         removeButton.addEventListener('click', function () {
             removeSelectedCourse(courseId);
@@ -305,7 +304,6 @@ function initializeCourseDropdown(containerId) {
             courseItem.remove();
         }
 
-        // Uncheck the corresponding item in the dropdown
         const dropdownItem = courseList.querySelector(`[data-course-id="${courseId}"]`);
         if (dropdownItem) {
             dropdownItem.classList.remove('selected');
@@ -313,28 +311,24 @@ function initializeCourseDropdown(containerId) {
         }
     }
 
-    // Event listener for scrolling in the dropdown list (infinite scroll)
     courseList.addEventListener('scroll', function () {
         if (courseList.scrollTop + courseList.clientHeight >= courseList.scrollHeight) {
             fetchCourses(courseSearchInput.value);
         }
     });
 
-    // Event listener for the search input
     courseSearchInput.addEventListener('input', function () {
         page = 1;
         hasMoreCourses = true;
         fetchCourses(courseSearchInput.value, true);
     });
 
-    // Event listener to display the dropdown list when focusing the search input
     courseSearchInput.addEventListener('focus', function () {
         courseSearchInput.style.borderRadius = '8px 8px 0 0';
         courseList.style.display = 'block';
         courseSearchInput.style.border = '2px solid #c7c7db';
     });
 
-    // Hide the dropdown list when clicking outside
     document.addEventListener('click', function (event) {
         if (!container.contains(event.target)) {
             courseList.style.display = 'none';
@@ -701,11 +695,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Retrieve the selected IDs from localStorage
     const selectedIds = JSON.parse(localStorage.getItem('selectedUserIds') || '[]');
+    const selectedCourseIds = JSON.parse(localStorage.getItem('selectedCourseIds') || '[]'); 
 
     if (selectedIds.length > 0) {
         console.log('Selected user IDs:', selectedIds);
-
-        // Check off the corresponding user item boxes
         selectedIds.forEach(id => {
             const userCheckbox = document.querySelector(`input.user-checkbox[value="${id}"]`);
             if (userCheckbox) {
@@ -715,6 +708,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     } else {
         console.log('No users selected');
+    }
+    // Getting Course IDs from Local Storage
+    if (selectedCourseIds.length > 0) {
+        console.log('Selected course IDs:', selectedCourseIds);
+        selectedCourseIds.forEach(id => {
+            const courseCheckbox = document.querySelector(`input.course-checkbox[value="${id}"]`);
+            if (courseCheckbox) {
+                courseCheckbox.checked = true;
+                courseCheckbox.closest('.dropdown-item').classList.add('selected'); // Add 'selected' class for styling
+            }
+        });
+    } else {
+        console.log('No courses selected');
     }
 });
 

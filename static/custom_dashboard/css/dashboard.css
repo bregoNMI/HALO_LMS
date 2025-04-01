@@ -121,7 +121,7 @@
     align-items: center;
 }.widget-bottom span{
     text-wrap: nowrap;
-    font-size: var(--btn-font);
+    font-size: 0.9rem;
     color: #6b6b6b;
     font-weight: 600;
 }
@@ -138,6 +138,7 @@
     text-wrap: nowrap;
     text-overflow: ellipsis;
     color: black;
+    font-size: 1.05rem;
 }
 
 .resume-course .widget-icon, .my-courses .widget-icon{
@@ -152,7 +153,7 @@
     font-size: 1.6rem;
 }.resume-course .widget-inner-right span, .my-courses .widget-inner-right span{
     color: #6b6b6b;
-    font-size: var(--btn-font);
+    font-size: 0.9rem;
     display: flex;
     align-items: baseline;
     gap: 0.3rem;
@@ -181,7 +182,7 @@
 }
 
 .progress-bar {
-    height: 10px;
+    height: 7px;
     background-color: #4caf50;
     width: 0%;
     border-radius: 5px;
@@ -362,7 +363,7 @@
     position: absolute;
     align-items: center;
     justify-content: center;
-    bottom: 0.16rem;
+    bottom: 0.17rem;
     right: 0.3rem;
     padding: var(--pad-xxs) var(--pad-xs);
     background-color: var(--primary-blue);
@@ -607,9 +608,10 @@
 
 .template-option-text h3{
     color: var(--text-color5);
+    font-size: 1.1rem;
 }.template-option-text span{
     color: var(--text-color4);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     margin-top: 0.3rem;
 }
 

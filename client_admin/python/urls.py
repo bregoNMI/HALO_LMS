@@ -16,13 +16,15 @@ urlpatterns = [
     path('users/enroll-user-request/', views.enroll_users_request, name='enroll_user_request'),
     path('users/message-users/', views.message_users, name='message_users'),
     path('users/message-user-request/', views.message_users_request, name='message_users'),
+    path('users/delete-users/', views.delete_users, name='delete_users'),
     
-    path('add', views.add_user, name='add_user'),
-    path('users/add',views.add_user_page, name='add_user_page'),
+    path('add/', views.add_user, name='add_user'),
+    path('users/add/', views.add_user_page, name='add_user_page'),
     # Courses
     path('courses/', content_views.admin_courses, name='admin_courses'),
     path('courses/online/add/', content_views.add_online_courses, name='add_online_courses'),
     path('courses/online/edit/<int:course_id>/', content_views.edit_online_courses, name='edit_online_courses'),
+    path('courses/delete-courses/', views.delete_courses, name='delete_courses'),
 
     # Settings
     path('settings/', views.admin_settings, name='admin_settings'), 

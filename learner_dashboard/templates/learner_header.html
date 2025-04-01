@@ -16,8 +16,7 @@
             </div>
             {% endif %}            
             <div class="learner-header-icons">             
-                <a href="/notifications/" class="learner-header-icon tooltip" data-tooltip="Notifications" style="color: {{ header.header_text_color }};" onmouseover="this.style.backgroundColor='{{ header.header_text_background_color }}'; this.style.color='{{ header.header_text_hover_color }}';" onmouseout="this.style.backgroundColor='';" onmouseout="this.style.color='';">
-                    <span class="tooltiptext">Notifications</span>
+                <a href="/notifications/" class="learner-header-icon" style="color: {{ header.header_text_color }};" onmouseover="this.style.backgroundColor='{{ header.header_text_background_color }}'; this.style.color='{{ header.header_text_hover_color }}';" onmouseout="this.style.backgroundColor='';" onmouseout="this.style.color='';">
                     {% if unread_messages_exist %}
                         <div class="notification-icon" style="background-color: {{ header.header_background_color }};">
                             <i class="fa-solid fa-circle-small"></i>
@@ -30,7 +29,7 @@
             </div>
             <div class="learner-dropdown-menu">
                 <div class="learner-dropdown-menu-icon" onclick="toggleDropdown()" style="color: {{ header.header_text_color }};" onmouseover="this.style.backgroundColor='{{ header.header_text_background_color }}'; this.style.color='{{ header.header_text_hover_color }}';" onmouseout="this.style.backgroundColor='';" onmouseout="this.style.color='';">
-                    <i class="fa-regular fa-bars"></i>
+                    <i class="fa-light fa-bars"></i>
                 </div>
                 <div id="learnerDropdownContent" class="dropdown-content">
                     <div class="dropdown-user-information">                  

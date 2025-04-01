@@ -2,6 +2,13 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
+    <!-- Message Wrapper -->
+    <div id="validation-message-container" class="alert-container" style="display: none;">   
+        <div id="validation-message-inner">
+            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
+            <span id="validation-message"></span>
+        </div>
+    </div>
     {% if messages %}
         <div class="alert-container">
             {% for message in messages %}
@@ -45,12 +52,9 @@
                     });
                 </script>                
                 
-                <form method="post" enctype="multipart/form-data" action="{% url 'add_user' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="action-button-primary">
-                        <span>Add user</span>
-                    </button>
-                </form>
+                <a href="/admin/users/add/" class="action-button-primary">
+                    <span>Add user</span>
+                </a>
             </div>
         </div>
         <div class="table-container">
@@ -227,7 +231,7 @@
                     </thead>
                     <tbody>     
                         {% for profile in page_obj %}
-                            <tr data-id="{{ profile.id }}" data-history="{% url 'user_history' profile.id %}" data-details="{% url 'user_details' profile.id %}" data-transcript="{% url 'user_transcript' profile.id %}" data-enroll-users="/admin/users/enroll-users/" data-message-users="/admin/users/message-users/" impersonate-user="{% url 'impersonate_user' profile.id %}" class="table-select-option">
+                            <tr data-id="{{ profile.user.id }}" data-history="{% url 'user_history' profile.id %}" data-details="{% url 'user_details' profile.id %}" data-transcript="{% url 'user_transcript' profile.id %}" data-enroll-users="/admin/users/enroll-users/" data-message-users="/admin/users/message-users/" impersonate-user="{% url 'impersonate_user' profile.id %}" class="table-select-option">
                                 <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
                                 <td>{{ profile.last_name }}</td>
                                 <td>{{ profile.first_name }}</td>                 
@@ -275,5 +279,6 @@
     </div>
     {% include 'optionsSidebar/user_options_sidebar.html' %}
     {% include 'popups/filters_popup.html' %}
+    {% include 'popups/delete_user_popup.html' %}
     <script src="{% static 'client_admin\javascript\admin.js' %}"></script>
 {% endblock content %}
