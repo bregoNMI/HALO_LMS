@@ -141,24 +141,16 @@
                                 <label class="edit-user-label">Must Complete</label>
                                 <div class="content-input-options-row">
                                     <label class="custom-radio">
-                                        {% if course.must_complete == 'any_order' %}
-                                            <input type="radio" name="must_complete" value="must_complete1" checked>
-                                        {% else %}
-                                            <input type="radio" name="must_complete" value="must_complete1">
-                                        {% endif %}
+                                        <input type="radio" name="must_complete" value="any_order" {% if not course.locked %}checked{% endif %}>
                                         <span class="custom-radio-button"></span>
                                         All lessons, in any order
                                     </label>
                                     <label class="custom-radio">
-                                        {% if course.must_complete == 'by_chapter' %}
-                                            <input type="radio" name="must_complete" value="must_complete2" checked>
-                                        {% else %}
-                                            <input type="radio" name="must_complete" value="must_complete2">
-                                        {% endif %}
+                                        <input type="radio" name="must_complete" value="in_order" {% if course.locked %}checked{% endif %}>
                                         <span class="custom-radio-button"></span>
                                         All lessons, in order by chapter
                                     </label>
-                                </div>  
+                                </div>                               
                             </div>
                             <div class="course-content-input course-content-row" style="flex-wrap: wrap;">
                                 <div class="edit-user-input" style="flex: 1 1 35%;">

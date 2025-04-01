@@ -57,6 +57,10 @@ def generate_presigned_url(key, expiration=3600):
         region_name=AWS_S3_REGION_NAME
     )
 
+    content_type, _ = mimetypes.guess_type(key)
+    if not content_type:
+        content_type = "application/octet-stream"  # fallback
+
     # Create the presigned URL for the given key in S3
     try:
         response = s3_client.generate_presigned_url(
@@ -64,7 +68,7 @@ def generate_presigned_url(key, expiration=3600):
             Params={
                 'Bucket': AWS_STORAGE_BUCKET_NAME,
                 'Key': key,
-                'ResponseContentType': 'text/html'  # Set the Content-Type to text/html
+                'ResponseContentType': content_type  # Set the Content-Type to text/html
             },
             ExpiresIn=expiration,
             HttpMethod='GET'
@@ -164,11 +168,12 @@ def proxy_scorm_file(request, file_path):
     except ClientError as e:
         print(f"❌ Error fetching file {decoded_file_path} from S3: {e}")
         raise Http404("SCORM file not found")
-    
+"""
 @login_required
 def launch_scorm_file(request, lesson_id):
     print('Lesson ID:', lesson_id)
     lesson = get_object_or_404(Lesson, pk=lesson_id)
+    course = lesson.module.course
 
     profile = get_object_or_404(Profile, user=request.user)
     uploaded_file = lesson.uploaded_file  
@@ -180,6 +185,22 @@ def launch_scorm_file(request, lesson_id):
 
     scorm_entry_point = uploaded_file.scorm_entry_point.replace("\\", "/")
     proxy_url = f"/scorm-content/{iri_to_uri(scorm_entry_point)}"
+
+    print("SCOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOORM")
+    print(proxy_url)
+
+    # ✅ Determine the correct entry point for SCORM or File-type content
+    if lesson.content_type == 'SCORM2004' and uploaded_file.scorm_entry_point:
+        entry_key = uploaded_file.scorm_entry_point.replace("\\", "/")
+    elif uploaded_file.file:
+        entry_key = uploaded_file.file.name.replace("\\", "/")
+    else:
+        return render(request, 'error.html', {'message': 'No valid file entry point found for this lesson.'})
+
+    new_proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}"
+
+    print("NEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEW")
+    print(new_proxy_url)
     
     saved_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=lesson).first()
     lesson_location = saved_progress.lesson_location if saved_progress else ""
@@ -226,39 +247,140 @@ def launch_scorm_file(request, lesson_id):
     print("✅ Mini-Lesson Progress Data:", mini_lesson_progress)
 
     lesson_progress_data = []
-    previous_lesson_completed = True  # Assume first lesson is accessible
+    previous_lesson_completed = not course_locked  # False if course is locked
 
     for module_lesson in module_lessons:
         progress_entry = SCORMTrackingData.objects.filter(user=request.user, lesson=module_lesson).first()
         is_completed = progress_entry.completion_status == "completed" if progress_entry else False
 
-        # If the course is locked, check if the previous lesson is completed
-        if course_locked:
-            if not previous_lesson_completed:
-                is_completed = False  # Lock this lesson if the previous one isn't completed
-            previous_lesson_completed = is_completed  # Update for next iteration
+        # Determine lock status BEFORE updating `previous_lesson_completed`
+        locked_status = course_locked and not previous_lesson_completed
 
         lesson_progress_data.append({
             "id": module_lesson.id,
             "title": module_lesson.title,
-            "completed": is_completed
+            "completed": is_completed,
+            "locked": locked_status
         })
 
+        # Now update for next loop
+        previous_lesson_completed = is_completed
+
+    print("Lesson Progress Data:", lesson_progress_data)
+    
+
     return render(request, 'iplayer.html', {
+        'lessons': all_lessons,
         'lesson': lesson,
         'scorm_index_file_url': proxy_url,
         'saved_progress': saved_progress.progress if saved_progress else 0,
         'saved_location': lesson_location,
         'saved_scroll_position': scroll_position,
         'profile_id': profile.id,
+        #'lesson_progress_data': json.dumps(lesson_progress_data),
+        'lesson_progress_data': lesson_progress_data,  # ❌ No json.dumps here
+        'mini_lesson_progress': json.dumps(mini_lesson_progress),
+        'all_lessons': all_lessons,
+        'user_course': user_course,
+        'course_locked': course.locked,  # ✅ Add this line
+        'next_lesson': next_lesson,
+        'prev_lesson': prev_lesson,
+        'is_last_lesson': is_last_lesson,
+        'course_locked': course_locked,
+        'lesson_progress_data': json.dumps(lesson_progress_data),
+    })
+"""
+@login_required
+def launch_scorm_file(request, lesson_id):
+    print('Lesson ID:', lesson_id)
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    course = lesson.module.course
+    profile = get_object_or_404(Profile, user=request.user)
+    uploaded_file = lesson.uploaded_file
+    user_course = UserCourse.objects.filter(user=request.user, course=course).first()
+
+    entry_key = None
+
+    if lesson.content_type == 'SCORM2004':
+        if lesson.uploaded_file and lesson.uploaded_file.scorm_entry_point:
+            entry_key = lesson.uploaded_file.scorm_entry_point.replace("\\", "/")
+            proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}"
+        else:
+            return render(request, 'error.html', {'message': 'No valid SCORM entry point found for this lesson.'})
+
+    elif lesson.file and lesson.file.file:
+        entry_key = lesson.file.file.name.replace("\\", "/")
+        proxy_url = generate_presigned_url(entry_key)
+    else:
+        return render(request, 'error.html', {'message': 'No valid file found for this lesson.'})
+
+    print(f"Entry Key for Proxy: {entry_key}")
+    if lesson.content_type == 'SCORM2004':
+        proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}"
+    else:
+        proxy_url = generate_presigned_url(entry_key)
+
+    print("▶ Proxy URL:", proxy_url)
+
+    saved_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=lesson).first()
+    lesson_location = saved_progress.lesson_location if saved_progress else ""
+    scroll_position = saved_progress.scroll_position if saved_progress else 0
+
+    module_lessons = Lesson.objects.filter(module=lesson.module).order_by("order")
+    all_lessons = list(module_lessons)
+    current_index = all_lessons.index(lesson) if lesson in all_lessons else -1
+    next_lesson = all_lessons[current_index + 1] if current_index + 1 < len(all_lessons) else None
+    prev_lesson = all_lessons[current_index - 1] if current_index > 0 else None
+    is_last_lesson = next_lesson is None
+
+    course_locked = course.locked
+    if course_locked and prev_lesson:
+        prev_lesson_progress = SCORMTrackingData.objects.filter(
+            user=request.user,
+            lesson=prev_lesson,
+            completion_status="completed"
+        ).exists()
+        if not prev_lesson_progress:
+            return render(request, 'error.html', {'message': 'You must complete the previous lesson before proceeding.'})
+
+    mini_lesson_progress = list(LessonProgress.objects.filter(
+        user=request.user,
+        lesson=lesson
+    ).values("mini_lesson_index", "progress"))
+
+    lesson_progress_data = []
+    previous_lesson_completed = not course_locked
+
+    for module_lesson in module_lessons:
+        progress_entry = SCORMTrackingData.objects.filter(user=request.user, lesson=module_lesson).first()
+        is_completed = progress_entry.completion_status == "completed" if progress_entry else False
+        locked_status = course_locked and not previous_lesson_completed
+
+        lesson_progress_data.append({
+            "id": module_lesson.id,
+            "title": module_lesson.title,
+            "completed": is_completed,
+            "locked": locked_status
+        })
+
+        previous_lesson_completed = is_completed
+
+    return render(request, 'iplayer.html', {
+        'lessons': all_lessons,
+        'lesson': lesson,
+        'scorm_index_file_url': proxy_url,  # Used by iframe
+        'saved_progress': saved_progress.progress if saved_progress else 0,
+        'lesson_location': lesson_location,
+        'saved_scroll_position': scroll_position,
+        'profile_id': profile.id,
         'lesson_progress_data': json.dumps(lesson_progress_data),
         'mini_lesson_progress': json.dumps(mini_lesson_progress),
         'all_lessons': all_lessons,
         'user_course': user_course,
+        'course_locked': course_locked,
         'next_lesson': next_lesson,
         'prev_lesson': prev_lesson,
         'is_last_lesson': is_last_lesson,
-        'course_locked': course_locked
     })
 
 def get_s3_file_metadata(bucket_name, key):

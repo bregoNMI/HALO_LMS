@@ -523,6 +523,11 @@ def create_or_update_course(request):
             course.type = data.get('type', 'bundle')
             course.terms_and_conditions = data.get('terms_and_conditions', 'false') == 'true'
             course.must_complete = data.get('must_complete', 'any_order')
+            locked_value = data.get('locked', 'false') == 'true'
+            locked_value = data.get('locked', 'false')
+            print("🔍 Locked Value Received:", locked_value)
+
+            course.locked = locked_value == 'true'  # Ensures string 'true' sets boolean True
             course.estimated_completion_time = data.get('estimated_completion_time', '')
             course.status = data.get('status', '')
             course.referencesEnabled = data.get('referencesEnabled', 'false') == 'true'

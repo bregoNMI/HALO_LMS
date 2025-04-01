@@ -78,6 +78,17 @@ class File(models.Model):
         key = self.file.name  # This is the path where the file is stored in the bucket
         print(key)
         # Update the file metadata in S3
+
+        # Upload the file to S3 manually
+        try:
+            print(f"Uploading file to S3: {key}")
+            self.file.seek(0)  # Ensure pointer is at beginning
+            s3_client.upload_fileobj(self.file.file, bucket_name, key)
+            print(f"Upload successful: {key}")
+        except Exception as e:
+            print(f"Error uploading file to S3: {e}")
+            return
+
         try:
             print(f"Attempting to add metadata for file: {key}")
             s3_client.copy_object(
