@@ -782,10 +782,34 @@ def delete_users(request):
                 if not user.exists():
                     raise ValueError(f"No user found with ID {user_id}")
                 user.delete()
+            messages.success(request, 'All selected Users deleted successfully.')
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': '/admin/users/',
+                'message': 'All selected users deleted successfully'
+            })
+    except ValueError as e:
+        logger.error(f"Deletion error: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+    
+def delete_courses(request):
+    data = json.loads(request.body)
+    course_ids = data['ids']
+    try:
+        with transaction.atomic():
+            for course_id in course_ids:
+                course = Course.objects.filter(id=course_id)
+                if not course.exists():
+                    raise ValueError(f"No course found with ID {course_id}")
+                course.delete()
+            messages.success(request, 'All selected Courses deleted successfully.')
             return JsonResponse({
                 'status': 'success',
                 'redirect_url': '/admin/courses/',
-                'message': 'All selected users deleted successfully'
+                'message': 'All selected courses deleted successfully'
             })
     except ValueError as e:
         logger.error(f"Deletion error: {e}")

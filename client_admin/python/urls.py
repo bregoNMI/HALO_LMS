@@ -24,6 +24,7 @@ urlpatterns = [
     path('courses/', content_views.admin_courses, name='admin_courses'),
     path('courses/online/add/', content_views.add_online_courses, name='add_online_courses'),
     path('courses/online/edit/<int:course_id>/', content_views.edit_online_courses, name='edit_online_courses'),
+    path('courses/delete-courses/', views.delete_courses, name='delete_courses'),
 
     # Settings
     path('settings/', views.admin_settings, name='admin_settings'), 

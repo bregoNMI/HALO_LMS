@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     /* Select Table Options */
     let checkedOptionsList = [];
     let selectedIds = [];
+    let selectedCourseIds = [];
     const tableOptions = document.querySelectorAll('.table-select-option');
     const tableSelectAllOption = document.querySelector('.table-select-all-option');
 
@@ -85,7 +86,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     updateSelectedIds();              
                     console.log(checkedOptionsList, selectedIds);                
                     // Store the unique IDs in localStorage
-                    localStorage.setItem('selectedUserIds', JSON.stringify(selectedIds));          
+                    localStorage.setItem('selectedUserIds', JSON.stringify(selectedIds)); 
+                    localStorage.setItem('selectedCourseIds', JSON.stringify(selectedCourseIds));          
                     // Redirect to the matching URL
                     window.location.href = matchingAttribute;
                 });
@@ -106,12 +108,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateSelectedIds(){
         // Clear the array to avoid duplicate entries
-        selectedIds = [];        
+        selectedIds = [];  
+        selectedCourseIds = [];      
         // Collect all the selected IDs
         checkedOptionsList.forEach(option => {
             const id = option.getAttribute('data-id');
+            const courseId = option.getAttribute('data-course-id');
             if (!selectedIds.includes(id)) {
                 selectedIds.push(id);
+            }
+            if (!selectedCourseIds.includes(courseId)) {
+                selectedCourseIds.push(courseId);
             }
         }); 
     }
@@ -362,35 +369,76 @@ document.addEventListener("DOMContentLoaded", function () {
             openPopup('userDeleteConfirmation');
         });
     });
+    const deleteUserConfirmation = document.getElementById('deleteUserConfirmation');
+    if(deleteUserConfirmation){
+        deleteUserConfirmation.addEventListener('click', () => {
+            console.log(selectedIds);
+            const url = '/admin/users/delete-users/';  // Change this to your actual endpoint
+    
+            fetch(url, {
+                method: 'POST',   // or 'DELETE', depending on how your API is set up
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())  // Assuming the server responds with JSON
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    // Redirect to the new page where messages will be shown
+                    window.location.href = data.redirect_url;
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                // Handle errors here, such as displaying a message to the user
+            });
+        });
+    }
 
-    document.getElementById('deleteUserConfirmation').addEventListener('click', () => {
-        console.log(selectedIds);
-        const url = '/admin/users/delete-users/';  // Change this to your actual endpoint
-
-        fetch(url, {
-            method: 'POST',   // or 'DELETE', depending on how your API is set up
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCsrfToken()
-            },
-            body: JSON.stringify({ ids: selectedIds })
-        })
-        .then(response => response.json())  // Assuming the server responds with JSON
-        .then(data => {
-            console.log('Success:', data);
-            if (data.redirect_url) {
-                // Redirect to the new page where messages will be shown
-                window.location.href = data.redirect_url;
-            } else {
-                console.log('show error');
-                displayValidationMessage(data.message, false);  // Error message
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            // Handle errors here, such as displaying a message to the user
+    // Deleting Courses
+    document.querySelectorAll('#data-delete-courses').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('courseDeleteConfirmation');
         });
     });
+
+    const deleteCourseConfirmation = document.getElementById('deleteCourseConfirmation');
+    if(deleteCourseConfirmation){
+        deleteCourseConfirmation.addEventListener('click', () => {
+            console.log(selectedCourseIds);
+            const url = '/admin/courses/delete-courses/';  // Change this to your actual endpoint
+    
+            fetch(url, {
+                method: 'POST',   // or 'DELETE', depending on how your API is set up
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedCourseIds })
+            })
+            .then(response => response.json())  // Assuming the server responds with JSON
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                // Handle errors here, such as displaying a message to the user
+            });
+        });
+    }
 
     function getCsrfToken() {
         const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];

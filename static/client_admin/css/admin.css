@@ -521,6 +521,7 @@ th, td {
 th {
     background-color: #f2f2f2;
     color: gray;
+    cursor: auto;
 }
 td:first-child, th:first-child{
     padding: var(--pad-xs);
@@ -1085,6 +1086,8 @@ tr.selected-option th, tr.selected-option td{
     top: 0.65rem;
     color: gray;
     font-size: 0.8rem;
+    user-select: none;
+    pointer-events: none;
 }
 
 .course-dropdown input, .singular-course-dropdown input{
@@ -1119,7 +1122,7 @@ tr.selected-option th, tr.selected-option td{
     cursor: pointer;
     border-bottom: 1px solid #ececf1;
     display: flex;
-    gap: 0.8rem;
+    gap: 1rem;
     align-items: center;
 }
 
@@ -1177,7 +1180,7 @@ tr.selected-option th, tr.selected-option td{
 .selected-course-details {
     font-weight: 600;
     color: #41454d;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
 }
 
 .selectedCourse .remove-course {

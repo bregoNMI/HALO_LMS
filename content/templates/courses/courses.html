@@ -2,6 +2,13 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
+    <!-- Message Wrapper -->
+    <div id="validation-message-container" class="alert-container" style="display: none;">   
+        <div id="validation-message-inner">
+            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
+            <span id="validation-message"></span>
+        </div>
+    </div>
     {% if messages %}
         <div class="alert-container">
             {% for message in messages %}
@@ -153,7 +160,7 @@
                     </thead>
                     <tbody>     
                         {% for course in page_obj %}
-                            <tr data-id="{{ course.id }}" data-details="{% url 'edit_online_courses' course.id %}" class="table-select-option">
+                            <tr data-course-id="{{ course.id }}" data-enroll-courses="/admin/users/enroll-users/" data-details="{% url 'edit_online_courses' course.id %}" class="table-select-option">
                                 <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
                                 <td>{{ course.title }}</td>
                                 <td>{{ course.type }}</td>                 
@@ -201,5 +208,6 @@
     </div>
     {% include 'optionsSidebar/course_options_sidebar.html' %}
     {% include 'popups/course_filters_popup.html' %}
+    {% include 'popups/delete_course_popup.html' %}
     <script src="{% static 'client_admin\javascript\admin.js' %}"></script>
 {% endblock content %}
