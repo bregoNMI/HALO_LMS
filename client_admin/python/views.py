@@ -34,6 +34,8 @@ from django.db import IntegrityError, transaction
 #from models import Profile
 #from authentication.python import views
 
+cognito_client = boto3.client('cognito-idp', region_name=settings.AWS_REGION)
+
 # Define the custom exception at the top of your views file
 class ImpersonationError(Exception):
     """Custom exception for impersonation errors."""
@@ -778,21 +780,32 @@ def delete_users(request):
     try:
         with transaction.atomic():
             for user_id in user_ids:
-                user = User.objects.filter(id=user_id)
-                if not user.exists():
+                user = User.objects.filter(id=user_id).first()
+                if not user:
                     raise ValueError(f"No user found with ID {user_id}")
+
+                try:
+                    cognito_client.admin_delete_user(
+                        UserPoolId=settings.COGNITO_USER_POOL_ID,
+                        Username=user.username.lower()  # Normalize username for Cognito
+                    )
+                except cognito_client.exceptions.UserNotFoundException:
+                    logger.warning(f"User {user.username} not found in Cognito — continuing.")
+
                 user.delete()
+
             messages.success(request, 'All selected Users deleted successfully.')
             return JsonResponse({
                 'status': 'success',
                 'redirect_url': '/admin/users/',
                 'message': 'All selected users deleted successfully'
             })
+
     except ValueError as e:
         logger.error(f"Deletion error: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"Unexpected error: {e}", exc_info=True)
         return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
     
 def delete_courses(request):
