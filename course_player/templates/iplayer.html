@@ -111,6 +111,7 @@
     window.miniLessonProgress = {{ mini_lesson_progress|default:"[]"|safe }};
     window.lessonContentType = "{{ lesson.content_type }}";
     window.lessonLocation = "{{ lesson.lesson_location }}";
+    window.savedProgress = {{ saved_progress|default:0 }};
 
     document.addEventListener("DOMContentLoaded", function () {
         try {

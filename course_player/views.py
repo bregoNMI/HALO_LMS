@@ -355,12 +355,13 @@ def launch_scorm_file(request, lesson_id):
         progress_entry = SCORMTrackingData.objects.filter(user=request.user, lesson=module_lesson).first()
         is_completed = progress_entry.completion_status == "completed" if progress_entry else False
         locked_status = course_locked and not previous_lesson_completed
-
+        progress_value = progress_entry.progress if progress_entry else 0
         lesson_progress_data.append({
             "id": module_lesson.id,
             "title": module_lesson.title,
             "completed": is_completed,
-            "locked": locked_status
+            "locked": locked_status,
+            "progress": int(progress_value * 100)
         })
 
         previous_lesson_completed = is_completed
