@@ -8,6 +8,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aws-sdk/2.102.0/aws-sdk.min.js"></script>
 </head>
 <body>
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
     <div class="body-content">
         <div class="login-container">
             <div class="loginForm">

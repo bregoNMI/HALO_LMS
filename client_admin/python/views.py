@@ -359,7 +359,7 @@ def edit_user(request, user_id):
             user_groups=', '.join(group.name for group in request.user.groups.all()),
         )
 
-        messages.success(request, 'User information updated successfully')
+        messages.success(request, 'Information updated successfully')
 
         referer = request.META.get('HTTP_REFERER')
         return redirect(referer if referer else 'user_details', user_id=user.id)

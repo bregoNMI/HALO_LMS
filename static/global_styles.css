@@ -189,7 +189,10 @@ h1,h2,h3,h4,h5,h6{
 .custom-select i{
   position: absolute;
   right: 0.6rem;
-  top: 0.5rem;
+  top: 0.55rem;
+  color: #808080;
+  pointer-events: none;
+  font-size: 0.9rem;
 }
 
 .sort-options{
@@ -300,8 +303,8 @@ h1,h2,h3,h4,h5,h6{
   background-color: #ffd281;
   color: #a66c01;
 }.pastel-green{
-  background-color: #bdf8d2;
-  color: #17a34a;
+  background-color: #b3ecb3;
+  color: #059f48;
 }.pastel-purple{
   background-color: #e5caff;
   color: blueviolet;

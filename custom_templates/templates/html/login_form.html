@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<!-- Message Wrapper -->
+<div id="validation-message-container" class="alert-container" style="display: none;">   
+    <div id="validation-message-inner">
+        <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
+        <span id="validation-message"></span>
+    </div>
+</div>
+
+<div class="login-form-body-container">
+    <div class="login-form-header">
+        <div class="details-top-row">
+            <div class="details-top-row-left">
+                <a href="/admin/templates/" class="back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <h3> Customize Portal </h3>
+            </div>
+            <div class="login-form-device-scaling"></div>
+            <div class="details-top-row-right">
+                <button class="action-button-primary course-save-btns">
+                    <!-- <i class="fa-regular fa-paper-plane"></i> -->
+                    <span>Publish</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="admin-body align-center scrollable-content">
+    
+    </div>
+</div>
+<div class="options-sidebar-container login-form-sidebar"> 
+    <div class="details-info-card">
+        <div class="info-card-header collapsable-header">
+            <div class="card-header-left">
+                <i class="fa-regular fa-image"></i>
+                <span> Logo </span>
+            </div>
+            <div class="card-header-right active">
+                <i class="fa-regular fa-angle-down"></i>
+            </div>
+        </div>
+        <div class="info-card-body hidden">                         
+            <div class="settings-card-wrapper">
+                <div class="edit-settings-row">
+                    <div class="edit-settings-input">
+                        <label for="id_lms_name">LMS Name</label>
+                        <input type="text" id="id_lms_name" name="lms_name" value="HALO LMS" placeholder="LMS Name" required="">
+                    </div>
+                </div>
+                <div class="edit-settings-row">
+                    <div class="edit-settings-input">
+                        <label for="id_organization_name">Organization Name</label>
+                        <input type="text" id="id_organization_name" name="organization_name" value="" placeholder="Organization Name">
+                    </div>
+                </div> 
+            </div>                 
+        </div>
+    </div> 
+</div>
+
+{% include 'popups/file_library.html' %}
+<script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
+<script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+<script src="{% static 'client_admin/javascript/user_details.js' %}"></script>
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/login.css' %}">
+{% endblock %}

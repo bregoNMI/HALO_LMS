@@ -21,7 +21,7 @@ class Dashboard(models.Model):
 class Widget(models.Model):
     dashboard = models.ForeignKey(Dashboard, on_delete=models.CASCADE, related_name='widgets')
     widget_title = models.CharField(max_length=255, blank=True, null=True)
-    widget_title_color = models.CharField(max_length=7, default='#000000')
+    widget_title_color = models.CharField(max_length=7, default='#333333')
     widget_subtext = models.CharField(max_length=255, blank=True, null=True)
     widget_subtext_color = models.CharField(max_length=7, default='#6b6b6b')
     widget_icon = models.CharField(max_length=100, blank=True, null=True)
@@ -71,3 +71,25 @@ class Footer(models.Model):
 
     def __str__(self):
         return "Footer Configuration"
+    
+class LoginForm(models.Model):
+    layout = models.CharField(max_length=50, default='layout1')
+
+    is_logo_disabled = models.BooleanField(default=False)
+    login_logo = models.URLField(max_length=1024, default='/static/images/logo/HALO LMS Logo-03.png', blank=True, null=True)
+    logo_width = models.CharField(max_length=7, default='250px')
+    logo_height = models.CharField(max_length=7, default='250px')
+    logo_space_bottom = models.CharField(max_length=7, default='250px')
+
+    def save(self, *args, **kwargs):
+        if not self.pk and LoginForm.objects.exists():
+            raise ValidationError('There is already a Login Form instance. You cannot create another one.')
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def get_instance(cls):
+        instance, created = cls.objects.get_or_create(id=1)
+        return instance
+
+    def __str__(self):
+        return "Login Form"

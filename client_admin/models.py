@@ -74,7 +74,7 @@ class Profile(models.Model):
     date_joined = models.DateTimeField(('date joined'), auto_now_add=True)
     last_opened_course = models.OneToOneField(Course, on_delete=models.CASCADE, null=True, blank=True)
     timezone = models.CharField(
-        max_length=50,
+        max_length=500,
         choices=[(tz, tz) for tz in all_timezones],
         default='UTC'
     )
@@ -226,7 +226,7 @@ class ActivityLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Assuming you want to log the user as well
     action_performer = models.CharField(max_length=150)  # Changed from ForeignKey to CharField
     action_target = models.CharField(max_length=150)  # Changed from ForeignKey to CharField
-    action = models.CharField(max_length=50)
+    action = models.CharField(max_length=500)
     timestamp = models.DateTimeField(auto_now_add=True)
     user_groups = models.CharField(max_length=255, null=True, blank=True)
 

@@ -1,0 +1,50 @@
+.login-form-body-container{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    background-color: var(--bg-color6);
+    border-top: 1px solid #ececf1;
+    border-left: 1px solid #ececf1;
+    height: calc(100vh - 74.36px);
+    box-sizing: border-box;
+    overflow-y: auto;
+    outline: none;
+}
+
+.login-form-header{
+    display: flex;
+    z-index: 3;
+    justify-content: space-evenly;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+    padding: 0.6rem 2rem 0.6rem 2rem;
+    padding-right: 46px;
+    border-right: 1px solid #ececf1;
+}.login-form-header .details-top-row{
+    flex: 1;
+}
+
+.options-sidebar-container.login-form-sidebar{
+    margin-right: 0;
+    box-shadow: rgba(0, 0, 0, 0.03) 0px 0px 0px 1px;
+    border-left: 1px solid #ececf1;
+    width: 18rem;
+    z-index: 3;
+}
+
+.login-form-sidebar .details-info-card{
+    border-radius: unset;
+    box-shadow: unset;
+}.login-form-sidebar .info-card-header{
+    border-bottom: 1px solid #d7d7d7;
+}.login-form-sidebar .info-card-header.collapsable-header {
+    padding: 0.6rem var(--pad-sm);
+    cursor: pointer;
+}.login-form-sidebar .info-card-header.collapsable-header:hover {
+    background-color: #f2f2f2;
+}.login-form-sidebar .info-card-body{
+    border-top: unset;
+    border-bottom: 1px solid #ececf1;
+} 

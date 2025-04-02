@@ -568,7 +568,7 @@ def modifyCognito(request):
                     Username=username,  # Use Cognito username from session
                     UserAttributes=user_attributes
                 )
-                messages.success(request, 'User details updated successfully.')
+                # messages.success(request, 'User details updated successfully.')
             else:
                 messages.info(request, 'No user details were updated.')
 

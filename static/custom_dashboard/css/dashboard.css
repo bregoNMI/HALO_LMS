@@ -608,10 +608,10 @@
 
 .template-option-text h3{
     color: var(--text-color5);
-    font-size: 1.1rem;
+    font-size: 1.05rem;
 }.template-option-text span{
     color: var(--text-color4);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-top: 0.3rem;
 }
 
@@ -624,6 +624,9 @@
 }.template-option-card:has(.pastel-orange):hover{
     outline-color: #ef955a;
     background-color: #ffedda;
+}.template-option-card:has(.pastel-green):hover{
+    outline-color: #059f48;
+    background-color: #e9f4ec;
 }
 
 .color-picker-container{

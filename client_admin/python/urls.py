@@ -38,6 +38,8 @@ urlpatterns = [
     path('templates/widgets/edit/<int:widget_id>/', custom_template_views.edit_widget, name='edit_widget'),
     path('templates/widgets/reorder/', custom_template_views.widget_reorder, name='widget_reorder'),
     path('templates/dashboards/<int:dashboard_id>/preview/', custom_template_views.dashboard_preview, name='dashboard_preview'),
+    # Custom Login Page
+    path('templates/login/', custom_template_views.login_form, name='login_form'),
     # Requests
     path('templates/widgets/<int:widget_id>/data/', custom_template_views.get_widget_data, name='get_widget_data'),
     path('templates/widgets/delete/<int:widget_id>/', custom_template_views.delete_widget, name='delete_widget'),

@@ -18,6 +18,8 @@
     align-items: center;
     gap: 0.4rem;
     color: var(--text-color5);
+}.details-top-row-left h3{
+    font-size: 1.1rem;
 }
 
 .details-top-row-left .back-btn{

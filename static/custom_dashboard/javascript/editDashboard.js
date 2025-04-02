@@ -61,7 +61,7 @@ function initializeAddWidgets() {
                 widget_icon_color = '#1863dc';
                 widget_icon_background_color = '#d0e0ff';
             } 
-            let widget_title_color = '#000000'; 
+            let widget_title_color = '#333333'; 
             let widget_subtext_color = '#6b6b6b';
 
             if (dashboardIdInput && type) {  // Updated to include type check

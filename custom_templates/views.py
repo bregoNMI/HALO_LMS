@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponseNotFound
 import json
-from .models import Dashboard, Widget, Header, Footer
+from .models import Dashboard, Widget, Header, Footer, LoginForm
 from .forms import DashboardForm
 
 @login_required
@@ -58,10 +58,10 @@ def dashboard_create(request):
                 
                 # Create Default Template
                 if data['layout'] == 'layout2':
-                    Widget.objects.create(dashboard=dashboard, type='resumeCourses', widget_title='Course Name', widget_title_color='#000000', widget_subtext='Resume', widget_subtext_color='#6b6b6b', widget_icon='fa-solid fa-play', widget_icon_color='#8a2be2', widget_icon_background_color='#e5caff', widget_external_link=None)
-                    Widget.objects.create(dashboard=dashboard, type='myCourses', widget_title='My Courses', widget_title_color='#000000', widget_subtext='See courses you are enrolled in', widget_subtext_color='#6b6b6b', widget_icon='fa-solid fa-book-open-cover', widget_icon_color='#dc6618', widget_icon_background_color='#ffbf7c', widget_external_link=None)
-                    Widget.objects.create(dashboard=dashboard, type='enrollmentKey', widget_title='Enrollment Key', widget_title_color='#000000', widget_subtext='Have an Enrollment Key?', widget_subtext_color='#6b6b6b', widget_icon='fa-solid fa-key', widget_icon_color='#e03a59', widget_icon_background_color='#ffc9d2', widget_external_link=None)
-                    Widget.objects.create(dashboard=dashboard, type='externalLink', widget_title='External Link', widget_title_color='#000000', widget_subtext='Link to an external source', widget_subtext_color='#6b6b6b', widget_icon='fa-solid fa-link', widget_icon_color='#1863dc', widget_icon_background_color='#d0e0ff', widget_external_link=None)
+                    Widget.objects.create(dashboard=dashboard, type='resumeCourses', widget_title='Course Name', widget_title_color='#333333', widget_subtext='Resume', widget_subtext_color='#6b6b6b', widget_icon='fa-solid fa-play', widget_icon_color='#8a2be2', widget_icon_background_color='#e5caff', widget_external_link=None)
+                    Widget.objects.create(dashboard=dashboard, type='myCourses', widget_title='My Courses', widget_title_color='#333333', widget_subtext='See courses you are enrolled in', widget_subtext_color='#6b6b6b', widget_icon='fa-solid fa-book-open-cover', widget_icon_color='#dc6618', widget_icon_background_color='#ffbf7c', widget_external_link=None)
+                    Widget.objects.create(dashboard=dashboard, type='enrollmentKey', widget_title='Enrollment Key', widget_title_color='#333333', widget_subtext='Have an Enrollment Key?', widget_subtext_color='#6b6b6b', widget_icon='fa-solid fa-key', widget_icon_color='#e03a59', widget_icon_background_color='#ffc9d2', widget_external_link=None)
+                    Widget.objects.create(dashboard=dashboard, type='externalLink', widget_title='External Link', widget_title_color='#333333', widget_subtext='Link to an external source', widget_subtext_color='#6b6b6b', widget_icon='fa-solid fa-link', widget_icon_color='#1863dc', widget_icon_background_color='#d0e0ff', widget_external_link=None)
                     
                 return JsonResponse({'success': True, 'dashboard_id': dashboard.id})
             else:
@@ -276,3 +276,9 @@ def update_footer(request):
         return JsonResponse({'success': True, 'message': 'Footer updated successfully'})
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+@login_required
+def login_form(request):
+    login_form = LoginForm.objects.first()
+
+    return render(request, 'html/login_form.html', {'login_form': login_form})
