@@ -111,6 +111,7 @@ console.log("iplayer.html script loaded");
     }
 
     function getTotalPagesFromIframe() {
+        if (!isScormLesson()) return;
         const iframe = document.getElementById("scormContentIframe");
         if (iframe && iframe.contentWindow) {
             try {
@@ -168,25 +169,21 @@ console.log("iplayer.html script loaded");
             console.warn("⚠️ No valid lesson data to process");
         }
 
-        if (Array.isArray(parsedData)) {
-            document.querySelectorAll('.lesson-item').forEach(item => {
-                const lessonId = parseInt(item.dataset.lessonId);
-                const lessonInfo = parsedData.find(l => l.id === lessonId);
-        
-                if (lessonInfo?.completed) {
-                    item.classList.add("lesson-completed");
-                }
-        
-                if (lessonInfo?.progress != null) {
-                    const progressText = document.createElement("span");
-                    progressText.className = "lesson-progress";
-                    progressText.textContent = `${lessonInfo.progress}%`;
-                    item.appendChild(progressText);
-                }
-            });
-        } else {
-            console.warn("⚠️ parsedData is not an array, skipping sidebar lesson processing.");
-        }        
+        document.querySelectorAll('.lesson-item').forEach(item => {
+            const lessonId = parseInt(item.dataset.lessonId);
+            const lessonInfo = parsedData.find(l => l.id === lessonId);
+
+            if (lessonInfo?.completed) {
+                item.classList.add("lesson-completed");
+            }
+
+            if (lessonInfo?.progress != null) {
+                const progressText = document.createElement("span");
+                progressText.className = "lesson-progress";
+                progressText.textContent = `${lessonInfo.progress}%`;
+                item.appendChild(progressText);
+            }
+        });
     });
     
     document.addEventListener("DOMContentLoaded", function () {
@@ -213,6 +210,8 @@ console.log("iplayer.html script loaded");
     
     function trackScrollPosition() {
         try {
+            if (!isScormLesson()) return;
+
             var iframe = document.getElementById("scormContentIframe");
             if (iframe && iframe.contentWindow) {
                 var scrollPos = iframe.contentWindow.scrollY || iframe.contentWindow.document.documentElement.scrollTop || iframe.contentWindow.document.body.scrollTop || 0;
@@ -304,58 +303,89 @@ console.log("iplayer.html script loaded");
         try {
             console.log("Attempting to track progress...");
             const iframe = document.getElementById("scormContentIframe");
-
+    
             if (!iframe || !iframe.contentWindow) {
                 console.error("SCORM iframe not found.");
                 return;
             }
-
-            const progressMeasure = getProgressFromIframe();
+    
             const lessonLocation = iframe.contentWindow.location.href;
-
-            // 🔹 Wait for SCORM to send back the scroll position
+            const sessionTime = getSessionTime();
+    
+            // ✅ For non-SCORM lessons (e.g., PDFs)
+            if (!isScormLesson()) {
+                console.log("📄 Non-SCORM lesson — tracking simple progress");
+    
+                sendTrackingData({
+                    lesson_id: window.lessonId,
+                    user_id: window.userId,
+                    progress: 1, // always complete for PDFs
+                    lesson_location: getLessonLocation(),
+                    scroll_position: 0,
+                    completion_status: "complete",
+                    session_time: sessionTime,
+                    score: null,
+                    cmi_data: JSON.stringify({
+                        type: "pdf",
+                        completed: true,
+                        lesson_location: getLessonLocation(),
+                        scroll_position: 0
+                    })
+                });
+    
+                return;
+            }
+    
+            // 🔐 SCORM-specific logic below this point
+            const progressMeasure = getProgressFromIframe();
+    
+            // Listen for scrollPosition from iframe postMessage
             window.addEventListener("message", function(event) {
                 if (event.data.type === "scrollPositionResponse") {
                     let scrollPosition = event.data.scrollPos;
-                    
-                    var scrollPos = window.scrollY;
-                    console.log("📌 SCORM Saving Scroll Position:", scrollPos);
-
-                    // Store scroll position in SCORM API
-                    window.API_1484_11.SetValue("cmi.scroll_position", scrollPosition.toString());
-
-                    if (progressMeasure > 0) {
-                        window.API_1484_11.SetValue("cmi.progress_measure", progressMeasure.toFixed(2));
-                        window.API_1484_11.SetValue("cmi.location", lessonLocation);
+    
+                    console.log("📌 SCORM Saving Scroll Position:", scrollPosition);
+    
+                    // Store scroll position and progress in SCORM API
+                    if (window.API_1484_11) {
                         window.API_1484_11.SetValue("cmi.scroll_position", scrollPosition.toString());
-
+    
+                        if (progressMeasure > 0) {
+                            window.API_1484_11.SetValue("cmi.progress_measure", progressMeasure.toFixed(2));
+                            window.API_1484_11.SetValue("cmi.location", lessonLocation);
+                            window.API_1484_11.SetValue("cmi.scroll_position", scrollPosition.toString());
+                        }
+                    }
+    
+                    // Send SCORM-style tracking
+                    if (progressMeasure > 0) {
                         console.log(`Progress: ${progressMeasure}, Location: ${lessonLocation}, Scroll: ${scrollPosition}`);
-
+    
                         sendTrackingData({
                             lesson_id: window.lessonId,
                             user_id: window.userId,
                             progress: progressMeasure,
                             lesson_location: lessonLocation,
-                            scroll_position: scrollPosition,  
+                            scroll_position: scrollPosition,
                             completion_status: progressMeasure === 1 ? "complete" : "incomplete",
-                            session_time: getSessionTime(),
+                            session_time: sessionTime,
                             score: null,
                             cmi_data: JSON.stringify({
                                 progress_measure: progressMeasure,
                                 lesson_location: lessonLocation,
-                                scroll_position: scrollPosition,
-                            }) // ✅ Send structured SCORM data
+                                scroll_position: scrollPosition
+                            })
                         });
                     } else {
                         console.warn("Progress measure not found or is 0.");
                     }
                 }
             });
-
+    
         } catch (error) {
             console.error("Error tracking progress:", error);
         }
-    }
+    }    
     
     function sendTrackingData(trackingData) {
         console.log("📡 Sending SCORM tracking data to server...");
@@ -393,6 +423,7 @@ console.log("iplayer.html script loaded");
     }
 
     function waitForSCORMUI(callback) {
+        if (!isScormLesson()) return;
         let iframe = document.getElementById("scormContentIframe");
         if (!iframe || !iframe.contentWindow || !iframe.contentWindow.document) {
             console.warn("⚠️ SCORM iframe not found. Retrying in 2 seconds...");
@@ -413,6 +444,7 @@ console.log("iplayer.html script loaded");
     }
 
     function waitForSCORMIframe(callback, attempts = 10) {
+        if (!isScormLesson()) return;
         let iframe = document.getElementById("scormContentIframe");
         if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
             console.log("✅ SCORM iframe is now accessible.");
@@ -455,6 +487,8 @@ console.log("iplayer.html script loaded");
     }
 
     function updateSCORMProgress(iframe) {
+        if (!isScormLesson()) return;
+
         let iframeDocument = iframe.contentWindow.document;
         let sidebarItems = iframeDocument.querySelectorAll("svg.progress-circle--sidebar");
 
@@ -618,10 +652,11 @@ console.log("iplayer.html script loaded");
         const iframe = document.getElementById("scormContentIframe");
     
         iframe.addEventListener("load", function () {
-            const iframeUrl = iframe.src.toLowerCase();
+            const iframeUrl = iframe.contentWindow?.location?.href || iframe.src;
             console.log("📄 Loaded content:", iframeUrl);
+            console.log("HERE");
     
-            // ✅ Detect if it's a PDF
+            // ✅ Detect if it's a PDFs
             if (iframeUrl.endsWith(".pdf")) {
                 console.log("✅ PDF detected — marking as complete");
                 markPdfLessonComplete();
@@ -631,8 +666,10 @@ console.log("iplayer.html script loaded");
 
     // [Line ~530] - Update this or add if missing
     function restoreLessonProgress(iframe, suspendData) {
+        if (!isScormLesson()) return;
+    
         if (!suspendData) return;
-
+    
         let parsedData;
         try {
             parsedData = JSON.parse(suspendData);
@@ -640,24 +677,24 @@ console.log("iplayer.html script loaded");
             console.warn("⚠️ Invalid suspend data:", suspendData);
             return;
         }
-
+    
         const { scrollPos, lessonLocation } = parsedData;
         console.log("📌 Restoring scroll position:", scrollPos);
         console.log("📌 Restoring lesson location:", lessonLocation);
-
+    
         try {
             if (lessonLocation && iframe?.contentWindow?.location) {
-                iframe.contentWindow.location.hash = lessonLocation;
+                iframe.contentWindow.location.href = lessonLocation;
             }
         } catch (err) {
             console.error("🚨 Error applying lesson location:", err);
         }
-
-        // Scroll inside iframe if needed
+    
         if (scrollPos !== undefined) {
             iframe.contentWindow.scrollTo(0, scrollPos);
         }
     }
+    
 
     function observeSCORMChanges(iframe) {
         let iframeDocument = iframe.contentWindow.document;
@@ -684,6 +721,7 @@ console.log("iplayer.html script loaded");
 
     function updateProgressCircles() {
         let iframe = document.getElementById("scormContentIframe");
+        if (!isScormLesson()) return;
         if (!iframe || !iframe.contentWindow || !iframe.contentWindow.document) {
             console.warn("⚠️ SCORM iframe not fully loaded. Retrying in 2 seconds...");
             setTimeout(updateProgressCircles, 2000);
@@ -753,6 +791,7 @@ console.log("iplayer.html script loaded");
     waitForSCORMIframe(updateProgressCircles);
 
     function showSCORMCheckmarks(iframe) {
+        if (!isScormLesson()) return;
 
         let iframeDocument = iframe.contentWindow.document;
         let checkmarks = iframeDocument.querySelectorAll("path.progress-circle__pass");
@@ -782,6 +821,7 @@ console.log("iplayer.html script loaded");
     }
 
     function observeSCORMCheckmarks(iframe) {
+        if (!isScormLesson()) return;
         let iframeDocument = iframe.contentWindow.document;
         let observer = new MutationObserver(() => {
             console.log("🔄 SCORM UI updated, ensuring checkmarks remain visible...");
@@ -800,6 +840,8 @@ console.log("iplayer.html script loaded");
     });
 
     function trackMiniLessonProgress() {
+        if (!isScormLesson()) return;
+
         console.log("🔍 Checking mini-lesson progress...");
 
         let lessonProgressArray = [];
@@ -845,6 +887,7 @@ console.log("iplayer.html script loaded");
 
 
         function applySavedProgress() {
+            if (!isScormLesson()) return;
             const iframe = document.getElementById("scormContentIframe");
             if (iframe && iframe.contentWindow) {
                 const iframeDocument = iframe.contentWindow.document;
@@ -889,6 +932,7 @@ console.log("iplayer.html script loaded");
     //}
 
     function getProgressFromIframe() {
+        if (!isScormLesson()) return;
         const iframe = document.getElementById("scormContentIframe");
         console.log("Checking iframe for progress...");
 
@@ -921,7 +965,7 @@ console.log("iplayer.html script loaded");
         }
         return 0; // Default progress if not found
     }
-
+    /*
     function getLessonLocation() {
         try {
             const iframe = document.getElementById("scormContentIframe");
@@ -938,8 +982,25 @@ console.log("iplayer.html script loaded");
             return "";
         }
     }
-    
+    */
 
+    function getLessonLocation() {
+        try {
+            const iframe = document.getElementById("scormContentIframe");
+            if (!iframe) return "";
+    
+            // ✅ Fallback to safe src for PDFs
+            if (!isScormLesson() || !iframe.contentWindow) {
+                return iframe.src || "";
+            }
+    
+            return iframe.contentWindow.location.href;
+        } catch (error) {
+            console.error("🚨 Error retrieving lesson location:", error);
+            return "";
+        }
+    }    
+    /*
     function saveLessonProgress() {
         let lessonId = window.lessonId;
         if (!lessonId) {
@@ -950,6 +1011,7 @@ console.log("iplayer.html script loaded");
         try {
             let iframe = document.getElementById("scormContentIframe");
             let scrollPosition = 0;
+            
 
             if (iframe && iframe.contentWindow) {
                 scrollPosition = iframe.contentWindow.scrollY || 
@@ -979,9 +1041,51 @@ console.log("iplayer.html script loaded");
             console.error("🚨 Error saving lesson progress:", error);
         }
     }
+    */
 
+    function saveLessonProgress() {
+        let lessonId = window.lessonId;
+        if (!lessonId) {
+            console.warn("⚠️ No active lesson found, skipping progress save.");
+            return;
+        }
+    
+        const iframe = document.getElementById("scormContentIframe");
+        let scrollPosition = 0;
+        let lessonLocation = getLessonLocation();  // ✅ now safely returns iframe.src for PDFs
+    
+        if (isScormLesson()) {
+            try {
+                if (iframe && iframe.contentWindow) {
+                    scrollPosition = iframe.contentWindow.scrollY ||
+                                     iframe.contentWindow.document.documentElement.scrollTop ||
+                                     iframe.contentWindow.document.body.scrollTop || 0;
+                }
+            } catch (e) {
+                console.warn("⚠️ Error reading scroll position (SCORM):", e);
+            }
+        }
+    
+        // Save scroll + location
+        lessonScrollPositions[lessonId] = { scrollPosition, lessonLocation };
+        localStorage.setItem("lessonScrollPositions", JSON.stringify(lessonScrollPositions));
+    
+        console.log(`✅ Progress Saved for Lesson ${lessonId}:`, lessonScrollPositions[lessonId]);
+    
+        sendTrackingData({
+            lesson_id: lessonId,
+            user_id: window.userId,
+            progress: isScormLesson() ? getProgressFromIframe() : 1,
+            lesson_location: lessonLocation,
+            scroll_position: scrollPosition,
+            completion_status: isScormLesson() ? "incomplete" : "complete",
+            session_time: getSessionTime(),
+            score: null,
+        });
+    }    
 
     function updateSidebarProgress() {
+        if (!isScormLesson()) return;
         console.log("Updating sidebar progress on page load...");
 
         let attemptCount = 0;
@@ -1043,7 +1147,7 @@ console.log("iplayer.html script loaded");
                 //restoreScrollPosition();
                 restoreLessonProgress();
                 // Fire tracking explicitly
-                saveLessonProgress();  // Already sends scroll & location
+                //saveLessonProgress();  // Already sends scroll & location
             }, 3000);
             
         });
@@ -1271,7 +1375,6 @@ console.log("iplayer.html script loaded");
 
             iframe.addEventListener("load", function () {
                 console.log(`Navigating to saved location: ${window.savedLocation}`);
-                iframe.contentWindow.location.href = window.savedLocation;
 
                 console.log("SCORM content loaded. Applying mini-lesson progress.");
                 setTimeout(() => {

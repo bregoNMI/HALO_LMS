@@ -46,13 +46,15 @@
     <div class="row">
         <!-- SCORM iframe area -->
         <div class="col-md-9">
-            <iframe id="scormContentIframe"
-                    src="{{ lesson_location|default:scorm_index_file_url|escape }}"
-                    frameborder="0"
-                    width="100%"
-                    height="1200px"
-                    allowfullscreen>
-            </iframe>
+            {% if lesson.content_type == 'SCORM2004' %}
+                <iframe id="scormContentIframe"
+                        src="{{ lesson_location|default:scorm_index_file_url }}"
+                        width="100%" height="1200px" frameborder="0" allowfullscreen></iframe>
+            {% else %}
+                <iframe id="scormContentIframe"
+                        src="{{ scorm_index_file_url }}"
+                        width="100%" height="1200px" frameborder="0" allowfullscreen></iframe>
+            {% endif %}
         </div>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
@@ -60,10 +62,11 @@
                 const intendedUrl = "{{ lesson_location|escapejs }}";
             
                 // ✅ Force iframe to exact saved lesson location on load
-                if (iframe && intendedUrl && iframe.src !== intendedUrl) {
-                    console.log("⏩ Forcing iframe to saved lesson location:", intendedUrl);
+                if ("{{ lesson.content_type }}" === "SCORM2004" && iframe && intendedUrl && iframe.src !== intendedUrl) {
+                    console.log("⏩ Forcing SCORM iframe to saved lesson location:", intendedUrl);
                     iframe.src = intendedUrl;
                 }
+
             });
         </script>    
 
@@ -80,7 +83,7 @@
                 Next Lesson
             </button>
             {% else %}
-            <button id="finishCourseBtn" class="btn btn-success w-100 mb-3" onclick="finishCourse()" style="display: none;">
+            <button id="finishCourseBtn" class="btn btn-success w-100 mb-3" onclick="window.location.href='{% url 'learner_dashboard' %}'" style="display: none;">
                 Finish Course
             </button>
             {% endif %}
@@ -139,6 +142,27 @@
         }
     });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const courseProgressBar = document.getElementById("courseProgressBar");
+        const courseProgressText = document.getElementById("courseProgressText");
+    
+        if (courseProgressBar && courseProgressText) {
+            // Extract numeric value from "50%" string
+            const percentMatch = courseProgressText.textContent.match(/(\d+)%/);
+            if (percentMatch) {
+                const progress = parseInt(percentMatch[1], 10);
+                courseProgressBar.style.width = `${progress}%`;
+            }
+        }
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        const finishBtn = document.getElementById("finishCourseBtn");
+        if (finishBtn) {
+            finishBtn.style.display = "block";
+        }
+    });
+</script>    
 <script src="{% static 'course_player/javascript/scorm_player.js' %}?v=2"></script>
 </body>
 </html>
