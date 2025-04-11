@@ -772,6 +772,21 @@ console.log("iplayer.html script loaded");
         });  
     });
 
+    function annotateSidebarCircles() {
+        const iframe = document.getElementById("scormContentIframe");
+        if (!iframe || !iframe.contentWindow || !iframe.contentWindow.document) return;
+    
+        const iframeDocument = iframe.contentWindow.document;
+        const sidebarSVGs = iframeDocument.querySelectorAll("svg.progress-circle--sidebar");
+    
+        sidebarSVGs.forEach((svg, index) => {
+            svg.setAttribute("data-lesson-index", index.toString());
+        });
+    
+        console.log("✅ Annotated sidebar progress circles with data-lesson-index.");
+    }
+    
+
     function updateProgressCircles() {
         if (!isScormLesson()) return;
     
@@ -803,38 +818,51 @@ console.log("iplayer.html script loaded");
     
         console.log("📊 Mini-Lesson Progress Data:", miniLessonProgress);
     
-        miniLessonProgress.forEach((item, index) => {
-            const progress = item.progress || 0;
-            const mini_lesson_index = index;
+        miniLessonProgress.forEach((item) => {
+            const mini_lesson_index = item.mini_lesson_index;
+            const rawProgress = item.progress || "0%";
         
-            if (mini_lesson_index >= progressCircles.length) {
-                console.warn(`⚠️ No matching circle for mini_lesson_index ${mini_lesson_index}`);
+            // Match SVG by data-lesson-index
+            const svg = iframeDocument.querySelector(`svg.progress-circle--sidebar[data-lesson-index="${mini_lesson_index}"]`);
+            if (!svg) {
+                console.warn(`⚠️ No sidebar SVG found for mini_lesson_index ${mini_lesson_index}`);
                 return;
             }
         
-            const circle = progressCircles[mini_lesson_index];
-            const progressPercentage = Math.round(progress);
+            const circle = svg.querySelector("circle.progress-circle__runner");
+            if (!circle) {
+                console.warn(`⚠️ No progress circle found inside SVG at index ${mini_lesson_index}`);
+                return;
+            }
+        
+            // Convert progress string to percent
+            let progressPercentage = 0;
+            if (rawProgress.includes("Completed")) {
+                progressPercentage = 100;
+            } else {
+                const match = rawProgress.match(/(\d+)%/);
+                if (match) {
+                    progressPercentage = parseInt(match[1], 10);
+                }
+            }
+        
             const totalStroke = 43.982297150257104;
             const strokeOffset = totalStroke * (1 - (progressPercentage / 100));
         
             circle.setAttribute("stroke-dashoffset", strokeOffset);
             circle.style.transition = "stroke-dashoffset 0.5s ease-in-out";
-
+        
             if (progressPercentage === 100) {
                 circle.classList.remove("progress-circle__runner--unstarted");
                 circle.classList.add("progress-circle__runner--completed");
-                console.log(`🏁 Circle ${mini_lesson_index} marked as completed.`);
+                console.log(`✅ Circle for index ${mini_lesson_index} marked as completed`);
             }
-        
-            setTimeout(() => {
-                circle.setAttribute("stroke-dashoffset", strokeOffset);
-            }, 1000);
         
             console.log(`🔄 Circle ${mini_lesson_index} set to ${progressPercentage}%`);
         });        
     
         console.log("🎯 Progress circles inside iframe updated.");
-    }    
+    }        
         
     document.addEventListener("DOMContentLoaded", function () {
         setTimeout(updateProgressCircles, 1000);  // wait a bit to ensure sidebar renders
@@ -1535,6 +1563,7 @@ console.log("iplayer.html script loaded");
         iframe.addEventListener("load", function () {
             console.log("✅ SCORM iframe loaded, restoring lesson progress...");
             restoreLessonProgress();
+            annotateSidebarCircles();
             updateProgressCircles();
             try {
                 iframe.contentWindow.addEventListener("scroll", function () {
