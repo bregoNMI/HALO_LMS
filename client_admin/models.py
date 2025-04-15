@@ -220,6 +220,16 @@ class OrganizationSettings(models.Model):
     # Portal
     portal_favicon = models.ImageField(upload_to='logos/', blank=True, null=True)
     allowed_id_photos = models.ManyToManyField(AllowedIdPhotos, related_name='OrganizationSettings')
+    
+    def save(self, *args, **kwargs):
+        if not self.pk and OrganizationSettings.objects.exists():
+            raise ValidationError('There is already a Login Settings instance. You cannot create another one.')
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def get_instance(cls):
+        instance, created = cls.objects.get_or_create(id=1)
+        return instance
 
     def __str__(self):
         return self.lms_name
