@@ -219,7 +219,7 @@ class OrganizationSettings(models.Model):
 
     # Portal
     portal_favicon = models.ImageField(upload_to='logos/', blank=True, null=True)
-    allowed_id_photos = models.ManyToManyField(AllowedIdPhotos, related_name='OrganizationSettings')
+    allowed_id_photos = models.ManyToManyField(AllowedIdPhotos, related_name='OrganizationSettings', blank=True, null=True)
     
     def save(self, *args, **kwargs):
         if not self.pk and OrganizationSettings.objects.exists():

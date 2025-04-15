@@ -72,6 +72,8 @@ input[type="text"], input[type="number"]{
     font-size: var(--btn-font);
     color: var(--text-color8);
     flex: 1;
+}.course-content-input input::placeholder{
+    color: var(--text-color3);
 }
 
 .course-content-input input:hover {

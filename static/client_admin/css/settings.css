@@ -221,6 +221,8 @@
     text-overflow: ellipsis;
     width: 100%;
     box-sizing: border-box;
+}.edit-settings-input input::placeholder{
+    color: var(--text-color3);
 }
 
 .edit-settings-input input:hover {
