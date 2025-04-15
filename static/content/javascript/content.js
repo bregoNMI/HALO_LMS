@@ -1503,7 +1503,14 @@ function generateCourseData(isSave) {
     formData.append('uploadsEnabled', uploadsCheckbox.checked);
 
     const mustComplete = document.querySelector('input[name="must_complete"]:checked').value;
-    formData.append('must_complete', mustComplete === 'must_complete1' ? 'any_order' : 'by_chapter');
+    formData.append('must_complete', mustComplete);
+
+    // ✅ Correct comparison:
+    const isLocked = mustComplete === 'in_order';  // this means by_chapter
+    formData.append('locked', isLocked.toString());  // string "true"/"false"
+    console.log("🔍 must_complete:", mustComplete);  // should show "in_order" or "any_order"
+    console.log("🔍 locked (to send):", isLocked.toString());  // should show "true" or "false"
+
 
     eventDateSections.forEach((section) => {
         const selectedOption = document.querySelector(`input[name="${section.name}"]:checked`);
