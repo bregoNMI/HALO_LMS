@@ -18,54 +18,1101 @@
                 </a>
                 <h3> Customize Portal </h3>
             </div>
-            <div class="login-form-device-scaling"></div>
+            <div class="login-form-device-scaling">
+                <label id="desktopLabel" class="device-selection-item tooltip" for="desktop" data-tooltip="Desktop">
+                    <input id="desktop" type="radio" name="device-selection" hidden="" checked="" data-device="desktop">
+                    <div class="device-selection-icon">
+                        <i class="fa-regular fa-desktop"></i>
+                    </div>
+                    <span class="tooltiptext"></span>
+                </label>
+                <label id="tabletLabel" class="device-selection-item tooltip" for="tablet" data-tooltip="Tablet Portrait">
+                    <input id="tablet" type="radio" name="device-selection" hidden="" data-device="tablet">
+                    <div class="device-selection-icon">
+                        <i class="fa-regular fa-tablet-button"></i>
+                    </div>
+                    <span class="tooltiptext"></span>
+                </label>
+                <label id="mobileLabel" class="device-selection-item tooltip" for="mobile" data-tooltip="Mobile Portrait">
+                    <input id="mobile" type="radio" name="device-selection" hidden="" data-device="mobile">
+                    <div class="device-selection-icon">
+                        <i class="fa-regular fa-mobile-button"></i>
+                    </div>
+                    <span class="tooltiptext"></span>
+                </label> 
+            </div>
             <div class="details-top-row-right">
-                <button class="action-button-primary course-save-btns">
+                <button onclick="saveLoginForm()" class="action-button-primary course-save-btns">
                     <!-- <i class="fa-regular fa-paper-plane"></i> -->
                     <span>Publish</span>
                 </button>
             </div>
         </div>
     </div>
-    <div class="admin-body align-center scrollable-content">
-    
-    </div>
-</div>
-<div class="options-sidebar-container login-form-sidebar"> 
-    <div class="details-info-card">
-        <div class="info-card-header collapsable-header">
-            <div class="card-header-left">
-                <i class="fa-regular fa-image"></i>
-                <span> Logo </span>
-            </div>
-            <div class="card-header-right active">
-                <i class="fa-regular fa-angle-down"></i>
+    <div class="login-form-body-inner">
+
+        <!-- This is the real login form  -->
+        <div id="previewContainer" class="login-form-body-wrapper scrollable-content" style=" {% if login_form.layout == 'layout3' %} flex-direction: row; {% elif login_form.layout == 'layout1' %} flex-direction: row-reverse; {% endif %}" data-item-to-update="loginformwrapper">
+            <div class="login-form-background" style="{% if login_form.is_background_disabled %} background-image: url({{ login_form.background_image }}); {% endif %} background-color: {{ login_form.background_color }}; background-position: {{ login_form.background_position }}; background-repeat: {{ login_form.background_repeat }}; background-size: {{ login_form.background_size }};" data-item-to-update="background"></div>
+            <div class="login-form-content {{ login_form.layout }}" data-item-to-update="loginform" style="background-color: {{ login_form.form_background_color }}; {% if login_form.form_background_image and login_form.form_background_image != 'None'%} background-image: url({{ login_form.form_background_image }}){% endif %}; border-radius: {{ login_form.form_radius }}px; max-width: {{ login_form.form_max_width }}px; box-shadow: rgba(0, 0, 0, {{ login_form.form_shadow_opacity}}%) 0px 0px {{ login_form.form_shadow}}px; padding-top: {{ login_form.form_padding_top}}px; padding-right: {{ login_form.form_padding_right}}px; padding-bottom: {{ login_form.form_padding_bottom}}px; padding-left: {{ login_form.form_padding_left}}px; border-width: {{ login_form.form_border_width }}px; border-style: {{ login_form.form_border_style }}; border-color: {{ login_form.form_border_color }};">
+                <div class="login-form-logo-wrapper">
+                    <a href="{{ login_form.logo_url }}" class="login-form-logo {% if login_form.is_logo_disabled %} hidden {% endif %}" style=" background-image: url({{ login_form.login_logo }}); width: {{ login_form.logo_width }}px; height: {{ login_form.logo_height }}px; margin-bottom: {{ login_form.logo_space_bottom}}px;" data-item-to-update="logo"></a>
+                </div>
+                <!-- <h1>Login</h1> -->
+                <form id="loginForm" class="login-form-inputs-container" method="post" action="{% url 'login_view' %}">
+                    {% csrf_token %}
+                    <div class="login-form-inputs-wrapper" data-item-to-update="forminputlabelWrapper" style="gap: {{ login_form.input_space_between }}px;">
+                        <div class="login-form-field" data-item-to-update="forminputwrapper" style="width: {{ login_form.input_width }}%;">
+                            <label data-item-to-update="forminputlabel" style="color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Username or Email:</label>
+                            <input data-item-to-update="forminput" style="padding-top: {{ login_form.input_padding_top}}px; padding-right: {{ login_form.input_padding_right}}px; padding-bottom: {{ login_form.input_padding_bottom}}px; padding-left: {{ login_form.input_padding_left}}px; background-color: {{ login_form.input_background_color}}; color: {{ login_form.input_text_color}}; border-color: {{ login_form.input_border_color }}; border-radius: {{ login_form.input_radius }}px; font-size: {{ login_form.input_font_size}}px;" required>
+                        </div>
+                        <div class="login-form-field" data-item-to-update="forminputwrapper" style="width: {{ login_form.input_width }}%;">
+                            <label data-item-to-update="forminputlabel" style="color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Password:</label>
+                            <input data-item-to-update="forminput" style="padding-top: {{ login_form.input_padding_top}}px; padding-right: {{ login_form.input_padding_right}}px; padding-bottom: {{ login_form.input_padding_bottom}}px; padding-left: {{ login_form.input_padding_left}}px; background-color: {{ login_form.input_background_color}}; color: {{ login_form.input_text_color}}; border-color: {{ login_form.input_border_color }}; border-radius: {{ login_form.input_radius }}px; font-size: {{ login_form.input_font_size}}px;" required>
+                        </div>
+                    </div>
+                    <div class="button-container forgot-password-container">
+                        <a id="loginFormForgetButton" href="{% url 'password_reset' %}" data-item-to-update="forgetLink" class="scale-button {% if login_form.is_forgot_disabled %} hidden {% endif %}" style="text-decoration: {{ login_form.forgot_text_decoration }}; font-size: {{ login_form.forgot_font_size }}px; margin-top: {{ login_form.forgot_space_above }}px; color: {{ login_form.forgot_link_color }};">Forgot Password?</a>
+                    </div>
+                    <div class="login-form-footer-container">
+                        <button id="loginFormButton" type="button" class="login-form-button scale-button" data-item-to-update="loginButton" style="background-color: {{ login_form.button_color}}; color: {{ login_form.button_text }}; border-color: {{ login_form.button_border_color}}; margin-top: {{ login_form.button_space_above }}px; width: {{ login_form.button_width }}%; border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Login</button>
+                        <div data-item-to-update="signupContainer" class="button-container {% if login_form.is_signup_disabled %} hidden {% endif %}" style="font-size: {{ login_form.signup_font_size }}px; margin-top: {{ login_form.signup_space_above }}px; font-weight: {{ login_form.signup_font_weight }};">
+                            <span data-item-to-update="signupText" style="color: {{ login_form.signup_text_color }};"> Don't have an account? </span>
+                            <a id="loginFormRegisterButton" href="{% url 'register_view' %}" data-item-to-update="signupLink" class="scale-button" style="text-decoration: {{ login_form.signup_text_decoration }}; color: {{ login_form.signup_link_color }};"> Sign Up</a>
+                        </div>
+                    </div>
+                </form>                
             </div>
         </div>
-        <div class="info-card-body hidden">                         
-            <div class="settings-card-wrapper">
-                <div class="edit-settings-row">
-                    <div class="edit-settings-input">
-                        <label for="id_lms_name">LMS Name</label>
-                        <input type="text" id="id_lms_name" name="lms_name" value="HALO LMS" placeholder="LMS Name" required="">
+        
+        <div class="login-form-sidebar scrollable-content">
+            <div class="details-info-card">
+                <div class="info-card-header collapsable-header">
+                    <div class="card-header-left">
+                        <i class="fa-regular fa-table-layout"></i>
+                        <span> Layout </span>
+                    </div>
+                    <div class="card-header-right active">
+                        <i class="fa-regular fa-angle-down"></i>
                     </div>
                 </div>
-                <div class="edit-settings-row">
-                    <div class="edit-settings-input">
-                        <label for="id_organization_name">Organization Name</label>
-                        <input type="text" id="id_organization_name" name="organization_name" value="" placeholder="Organization Name">
+                <div class="info-card-body hidden">                         
+                    <div class="login-edit-options-section">
+                        <div class="edit-user-input">
+                            <div class="lesson-selection-container padding-bottom-1">
+                                <label id="layout1Label" class="lesson-selection-item blue" for="layout1">
+                                    <input id="layout1" type="radio" name="layout-selection" hidden="" checked="" data-layout="layout1" data-update-item="loginformwrapper" data-update-type="flexDirection">
+                                    <div class="lesson-selection-icon pastel-blue layout1">
+                                        <!-- <i class="fa-regular fa-table-rows"></i> -->
+                                    </div>
+                                    <h4>Login Left</h4>
+                                </label>
+                                <label id="layout2Label" class="lesson-selection-item blue" for="layout2">
+                                    <input id="layout2" type="radio" name="layout-selection" hidden="" data-layout="layout2" data-update-item="loginformwrapper" data-update-type="flexDirection">
+                                    <div class="lesson-selection-icon pastel-blue layout2">
+                                        <!-- <i class="fa-regular fa-table-columns"></i> -->
+                                    </div>
+                                    <h4>Login Center</h4>
+                                </label>       
+                            </div>
+                            <div class="lesson-selection-container">
+                                <label id="layout3Label" class="lesson-selection-item blue" for="layout3">
+                                    <input id="layout3" type="radio" name="layout-selection" hidden="" data-layout="layout3" data-update-item="loginformwrapper" data-update-type="flexDirection">
+                                    <div class="lesson-selection-icon pastel-blue layout3">
+                                        <!-- <i style="rotate: 180deg;" class="fa-regular fa-table-rows"></i> -->
+                                    </div>
+                                    <h4>Login Right</h4>
+                                </label>
+                                <label id="layout4Label" class="lesson-selection-item blue" for="layout4" style="visibility: hidden; pointer-events: none;">
+                                    <input id="layout4" type="radio" name="layout-selection" hidden="" data-layout="layout4" data-update-item="loginformwrapper" data-update-type="flexDirection">
+                                    <div class="lesson-selection-icon pastel-blue layout4">
+                                        <!-- <i style="rotate: 180deg;" class="fa-regular fa-table-rows"></i> -->
+                                    </div>
+                                    <h4>Login Right</h4>
+                                </label>   
+                            </div>
+                        </div>
+                    </div>                 
+                </div>
+            </div> 
+            <div class="details-info-card">
+                <div class="info-card-header collapsable-header">
+                    <div class="card-header-left">
+                        <i class="fa-regular fa-image"></i>
+                        <span> Logo </span>
                     </div>
-                </div> 
-            </div>                 
+                    <div class="card-header-right active">
+                        <i class="fa-regular fa-angle-down"></i>
+                    </div>
+                </div>
+                <div class="info-card-body hidden">                         
+                    <div class="login-edit-options-section">
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="is_logo_disabled">Disable Logo?</label>
+                            <label class="toggle-switch">
+                                <input class="toggle-hidden-settings-input" type="checkbox" id="is_logo_disabled" name="is_logo_disabled" {% if login_form.is_logo_disabled %}checked{% endif %} data-update-item="logo" data-update-type="hidden">
+                                <div class="toggle-switch-background">
+                                <div class="toggle-switch-handle"></div>
+                                </div>
+                            </label>
+                        </div>
+                        <div id="toggleLogoOptions" class="login-edit-options-section">
+                            <div class="course-content-input">
+                                <label style="padding: 0;" class="edit-user-label">Logo</label>
+                                <img id="loginLogoPreview" src="{{ login_form.login_logo }}" alt="Login form logo">
+                                <div onclick="openFileLibrary('loginLogo')" for="loginLogoImage" class="custom-file-upload-container">
+                                    <div class="custom-file-upload">
+                                        <input type="file" id="loginLogoImage" name="loginLogoImage" style="display: none;" readonly="">
+                                        <i class="fa-regular fa-folder-open"></i> Choose <!-- Choose File -->
+                                    </div>
+                                    <div class="custom-file-title">
+                                        <span id="loginLogoImageDisplay" class="file-name-display">{% if login_form.login_logo_title %}{{ login_form.login_logo_title }}{%else%}No File Selected {%endif%}</span>
+                                    </div>
+                                    <!-- This is where the Logo File Lives -->
+                                    <input class="file-url-input-hidden" type="hidden" id="loginLogoURLInput" name="loginLogoURL" value="{{ login_form.login_logo }}" data-update-item="logo" data-update-type="backgroundImage">
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="logo_width">Logo Width</label>
+                                <div class="custom-range-slider">
+                                    <input type="range" class="halo-custom-range" min="0" max="500" value="{{ login_form.logo_width }}" step="0" aria-label="Adjust logo width"/>
+                                    <div class="custom-range-type-wrapper">
+                                        <input id="logo_width" type="text" class="custom-range-value" value="{{ login_form.logo_width }}" data-update-item="logo" data-update-type="width"></input>
+                                        <span class="custom-range-type">px</span>
+                                    </div>
+                                    
+                                    <button class="reset-custom-range-value">
+                                        <i class="fa-regular fa-arrow-rotate-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="logo_height">Logo Height</label>
+                                <div class="custom-range-slider">
+                                    <input type="range" class="halo-custom-range" min="0" max="500" value="{{ login_form.logo_height }}" step="0" aria-label="Adjust logo height"/>
+                                    <div class="custom-range-type-wrapper">
+                                        <input id="logo_height" type="text" class="custom-range-value" value="{{ login_form.logo_height }}" data-update-item="logo" data-update-type="height"></input>
+                                        <span class="custom-range-type">px</span>
+                                    </div>
+                                    
+                                    <button class="reset-custom-range-value">
+                                        <i class="fa-regular fa-arrow-rotate-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="logo_space_bottom">Space Below Logo</label>
+                                <div class="custom-range-slider">
+                                    <input type="range" class="halo-custom-range" min="0" max="500" value="{{ login_form.logo_space_bottom }}" step="0" aria-label="Adjust space below logo"/>
+                                    <div class="custom-range-type-wrapper">
+                                        <input id="logo_space_bottom" type="text" class="custom-range-value" value="{{ login_form.logo_space_bottom }}" data-update-item="logo" data-update-type="marginBottom"></input>
+                                        <span class="custom-range-type">px</span>
+                                    </div>
+                                    
+                                    <button class="reset-custom-range-value">
+                                        <i class="fa-regular fa-arrow-rotate-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="logo_url">Logo URL</label>
+                                <input class="external-link-input custom-login-form-text" style="padding-right: 2.5rem;" type="text" id="logo_url" placeholder="https://my-link" value="{{ login_form.logo_url }}" data-update-item="logo" data-update-type="href">
+                                <div class="external-link-visit tooltip" data-tooltip="Visit Link">
+                                    <span style="left: 10%;" class="tooltiptext">Visit Link</span>
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                 
+                </div>
+            </div>
+            <div class="details-info-card">
+                <div class="info-card-header collapsable-header">
+                    <div class="card-header-left">
+                        <i class="fa-regular fa-billboard"></i>
+                        <span> Background </span>
+                    </div>
+                    <div class="card-header-right active">
+                        <i class="fa-regular fa-angle-down"></i>
+                    </div>
+                </div>
+                <div class="info-card-body hidden">                         
+                    <div class="login-edit-options-section">
+                        <div class="course-content-input">
+                            <label class="edit-user-label">Background Color</label>
+                            <div class="color-picker-container">
+                                <label class="color-sample" for="background_color" id="background_colorSample" style=" background-color: {{ login_form.background_color }};"></label>
+                                <input class="color-picker" type="color" id="background_color" value="{{ login_form.background_color }}" oninput="updateColorInfo('background_color')" data-update-item="background" data-update-type="backgroundColor">
+                                <input type="text" id="background_colorHex" value="{{ login_form.background_color }}" data-update-item="background" data-update-type="backgroundColor">                        
+                            </div>                 
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="is_background_disabled">Enable Background Image?</label>
+                            <label class="toggle-switch">
+                                <input class="toggle-hidden-settings-input" type="checkbox" id="is_background_disabled" name="is_background_disabled" {% if login_form.is_background_disabled %}checked{% endif %} data-update-item="background" data-update-type="backgroundImage">
+                                <div class="toggle-switch-background">
+                                <div class="toggle-switch-handle"></div>
+                                </div>
+                            </label>
+                        </div>
+                        <div id="toggleBackgroundOptions" class="login-edit-options-section">
+                            <div class="course-content-input">
+                                <label style="padding: 0;" class="edit-user-label">Background Image</label>
+                                {% if login_form.background_image %}
+                                    <img id="loginBackgroundPreview" src="{{ login_form.background_image }}" alt="Login form logo">
+                                {% else %}
+                                    <img id="loginBackgroundPreview" alt="Login form logo" hidden>
+                                {% endif %}
+                                <div onclick="openFileLibrary('loginBackground')" for="loginLogoImage" class="custom-file-upload-container">
+                                    <div class="custom-file-upload">
+                                        <input type="file" id="loginBackgroundImage" name="loginBackgroundImage" style="display: none;" readonly="">
+                                        <i class="fa-regular fa-folder-open"></i> Choose <!-- Choose File -->
+                                    </div>
+                                    <div class="custom-file-title">
+                                        <span id="loginBackgroundImageDisplay" class="file-name-display">{% if login_form.background_image_title %}{{ login_form.background_image_title }}{%else%}No File Selected {%endif%}</span>
+                                    </div>
+                                    <!-- This is where the Logo File Lives -->
+                                    <input class="file-url-input-hidden" type="hidden" id="loginBackgroundURLInput" name="loginBackgroundURLInput" value="{{ login_form.background_image }}" data-update-item="background" data-update-type="backgroundImage">
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="background_repeat">Background Repeat</label>
+                                <div class="custom-select margin-0">
+                                    <i class="fa-light fa-angles-up-down"></i>     
+                                    <input class="select-selected custom-login-form-text" type="text" id="background_repeat" name="background_repeat" readonly="" value="{{ login_form.background_repeat }}" data-update-item="background" data-update-type="backgroundRepeat">
+                                    <div class="select-items scrollable-content" style="display: none;">
+                                        <div class="select-item" data-name="background_repeat" data-value="repeat">repeat</div>
+                                        <div class="select-item" data-name="background_repeat" data-value="repeat-x">repeat-x</div>
+                                        <div class="select-item" data-name="background_repeat" data-value="repeat-y">repeat-y</div>
+                                        <div class="select-item" data-name="background_repeat" data-value="no-repeat">no-repeat</div>
+                                        <div class="select-item" data-name="background_repeat" data-value="initial">initial</div>
+                                        <div class="select-item" data-name="background_repeat" data-value="inherit">inherit</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="backgroundPosition">Background Position</label>
+                                <div class="position-selection-container">
+                                    <label id="backgroundPosition1Label" class="position-selection-item" for="backgroundPosition1">
+                                        <input id="backgroundPosition1" type="radio" name="position-selection" hidden="" data-position="top left" data-update-item="background" data-update-type="backgroundPosition">
+                                        <i class="fa-regular fa-arrow-up-left"></i>
+                                    </label>
+                                    <label id="backgroundPosition2Label" class="position-selection-item" for="backgroundPosition2">
+                                        <input id="backgroundPosition2" type="radio" name="position-selection" hidden="" data-position="top center" data-update-item="background" data-update-type="backgroundPosition">
+                                        <i class="fa-regular fa-arrow-up"></i>
+                                    </label>
+                                    <label id="backgroundPosition3Label" class="position-selection-item" for="backgroundPosition3">
+                                        <input id="backgroundPosition3" type="radio" name="position-selection" hidden="" data-position="top right" data-update-item="background" data-update-type="backgroundPosition">
+                                        <i class="fa-regular fa-arrow-up-right"></i>
+                                    </label>
+                                    <label id="backgroundPosition4Label" class="position-selection-item" for="backgroundPosition4">
+                                        <input id="backgroundPosition4" type="radio" name="position-selection" hidden="" data-position="left center" data-update-item="background" data-update-type="backgroundPosition">
+                                        <i class="fa-regular fa-arrow-left"></i>
+                                    </label>
+                                    <label id="backgroundPosition5Label" class="position-selection-item" for="backgroundPosition5">
+                                        <input id="backgroundPosition5" type="radio" name="position-selection" hidden="" data-position="center" data-update-item="background" data-update-type="backgroundPosition" checked>
+                                        <i class="fa-solid fa-circle-small"></i>
+                                    </label>
+                                    <label id="backgroundPosition6Label" class="position-selection-item" for="backgroundPosition6">
+                                        <input id="backgroundPosition6" type="radio" name="position-selection" hidden="" data-position="right center" data-update-item="background" data-update-type="backgroundPosition">
+                                        <i class="fa-regular fa-arrow-right"></i>
+                                    </label>
+                                    <label id="backgroundPosition7Label" class="position-selection-item" for="backgroundPosition7">
+                                        <input id="backgroundPosition7" type="radio" name="position-selection" hidden="" data-position="bottom left" data-update-item="background" data-update-type="backgroundPosition">
+                                        <i class="fa-regular fa-arrow-down-left"></i>
+                                    </label>
+                                    <label id="backgroundPosition8Label" class="position-selection-item" for="backgroundPosition8">
+                                        <input id="backgroundPosition8" type="radio" name="position-selection" hidden="" data-position="bottom center" data-update-item="background" data-update-type="backgroundPosition">
+                                        <i class="fa-regular fa-arrow-down"></i>
+                                    </label>
+                                    <label id="backgroundPosition9Label" class="position-selection-item" for="backgroundPosition9">
+                                        <input id="backgroundPosition9" type="radio" name="position-selection" hidden="" data-position="bottom right" data-update-item="background" data-update-type="backgroundPosition">
+                                        <i class="fa-regular fa-arrow-down-right"></i>
+                                    </label>         
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="background_size">Background Image Size</label>
+                                <div class="custom-select margin-0">
+                                    <i class="fa-light fa-angles-up-down"></i>     
+                                    <input class="select-selected custom-login-form-text" type="text" id="background_size" name="background_size" readonly="" value="{{ login_form.background_size }}" data-update-item="background" data-update-type="backgroundSize">
+                                    <div class="select-items scrollable-content" style="display: none;">
+                                        <div class="select-item" data-name="background_repeat" data-value="auto">auto</div>
+                                        <div class="select-item" data-name="background_repeat" data-value="cover">cover</div>
+                                        <div class="select-item" data-name="background_repeat" data-value="contain">contain</div>
+                                        <div class="select-item" data-name="background_repeat" data-value="initial">initial</div>
+                                        <div class="select-item" data-name="background_repeat" data-value="inherit">inherit</div>
+                                    </div>
+                                </div>
+                            </div>  
+                        </div>              
+                    </div>                 
+                </div>
+            </div>
+            <div class="details-info-card">
+                <div class="info-card-header collapsable-header">
+                    <div class="card-header-left">
+                        <i class="fa-regular fa-person-chalkboard"></i>
+                        <span> Login Form </span>
+                    </div>
+                    <div class="card-header-right active">
+                        <i class="fa-regular fa-angle-down"></i>
+                    </div>
+                </div>
+                <div class="info-card-body hidden">                         
+                    <div class="login-edit-options-section">
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="form_enable_transparency">Enable Transparency?</label>
+                            <label class="toggle-switch">
+                                <input class="toggle-hidden-settings-input" type="checkbox" id="form_enable_transparency" name="form_enable_transparency" {% if login_form.form_enable_transparency %}checked{% endif %} data-update-item="loginform" data-update-type="transparent">
+                                <div class="toggle-switch-background">
+                                    <div class="toggle-switch-handle"></div>
+                                </div>
+                            </label>
+                        </div>
+                        <div id="toggleLoginFormOptions" class="login-edit-options-section">
+                            <div class="course-content-input">
+                                <label class="edit-user-label">Form Background Color</label>
+                                <div class="color-picker-container">
+                                    <label class="color-sample" for="form_background_color" id="form_background_colorSample" style=" background-color: {{ login_form.form_background_color }};"></label>
+                                    <input class="color-picker" type="color" id="form_background_color" value="{{ login_form.form_background_color }}" oninput="updateColorInfo('form_background_color')" data-update-item="loginform" data-update-type="backgroundColor">
+                                    <input type="text" id="form_background_colorHex" value="{{ login_form.form_background_color }}" data-update-item="loginform" data-update-type="backgroundColor">                        
+                                </div>                 
+                            </div>
+                            <div class="course-content-input">
+                                <label style="padding: 0;" class="edit-user-label">Form Background Image</label>
+                                {% if login_form.form_background_image and login_form.form_background_image != 'None' %}
+                                    <div class="image-relative-container">
+                                        <div id="formBackgroundPreviewDelete" onclick="deleteImage('formBackgroundImage', 'formBackgroundPreview', this)" style="display: flex;" class="table-filter-item-small thumbnail-delete">
+                                            <i class="fa-regular fa-trash"></i>                            
+                                        </div>
+                                        <img id="formBackgroundPreview" src="{{ login_form.form_background_image }}" alt="Login form logo">
+                                    </div> 
+                                {% else %}
+                                    <div class="image-relative-container">
+                                        <div id="formBackgroundPreviewDelete" onclick="deleteImage('formBackgroundImage', 'formBackgroundPreview', this)" style="display: none;" class="table-filter-item-small thumbnail-delete">
+                                            <i class="fa-regular fa-trash"></i>                                          
+                                        </div>
+                                        <img id="formBackgroundPreview" alt="Background Image for login form" hidden>
+                                    </div>
+                                {% endif %}
+                                <div onclick="openFileLibrary('formBackground')" for="formBackgroundImage" class="custom-file-upload-container">
+                                    <div class="custom-file-upload">
+                                        <input type="file" id="formBackgroundImage" name="formBackgroundImage" style="display: none;" readonly="">
+                                        <i class="fa-regular fa-folder-open"></i> Choose <!-- Choose File -->
+                                    </div>
+                                    <div class="custom-file-title">
+                                        <span id="formBackgroundImageDisplay" class="file-name-display">{% if login_form.form_background_image_title %}{{ login_form.form_background_image_title }}{%else%}No File Selected {%endif%}</span>
+                                    </div>
+                                    <!-- This is where the Logo File Lives -->
+                                    <input class="file-url-input-hidden" type="hidden" id="formBackgroundURLInput" name="formBackgroundURL" value="{{ login_form.form_background_image }}" data-update-item="loginform" data-update-type="backgroundImage">
+                                </div>
+                            </div>                            
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="form_max_width">Form Width</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="320" max="800" value="{{ login_form.form_max_width }}" step="0" aria-label="Adjust form width"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="form_max_width" type="text" class="custom-range-value" value="{{ login_form.form_max_width }}" data-update-item="loginform" data-update-type="maxWidth"></input>
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="form_radius">Form Radius</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="0" max="100" value="{{ login_form.form_radius }}" step="0" aria-label="Adjust form width"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="form_radius" type="text" class="custom-range-value" value="{{ login_form.form_radius }}" data-update-item="loginform" data-update-type="borderRadius"></input>
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="form_shadow">Form Shadow</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="0" max="100" value="{{ login_form.form_shadow }}" step="0" aria-label="Adjust form width"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="form_shadow" type="text" class="custom-range-value" value="{{ login_form.form_shadow }}" data-update-item="loginform" data-update-type="boxShadow"></input>
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div> 
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="form_shadow_opacity">Form Shadow Opacity</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="0" max="100" value="{{ login_form.form_shadow_opacity }}" step="0" aria-label="Adjust form width"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="form_shadow_opacity" type="text" class="custom-range-value" value="{{ login_form.form_shadow_opacity }}" data-update-item="loginform" data-update-type="boxShadow"></input>
+                                    <span class="custom-range-type">%</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="form_padding">Form Padding</label>
+                            <div class="custom-input-row">
+                                <div class="custom-range-type-wrapper">
+                                    <div class="custom-text-value-wrapper">
+                                        <input id="form_padding_top" type="text" class="custom-text-value" value="{{ login_form.form_padding_top }}" data-update-item="loginform" data-update-type="paddingTop"></input>
+                                        <label class="custom-text-type" for="form_padding_top">Top</label>
+                                    </div>
+                                    <div class="custom-text-value-wrapper">
+                                        <input id="form_padding_right" type="text" class="custom-text-value" value="{{ login_form.form_padding_right }}" data-update-item="loginform" data-update-type="paddingRight"></input>
+                                        <label class="custom-text-type" for="form_padding_right">Right</label>
+                                    </div>
+                                    <div class="custom-text-value-wrapper">
+                                        <input id="form_padding_bottom" type="text" class="custom-text-value" value="{{ login_form.form_padding_bottom }}" data-update-item="loginform" data-update-type="paddingBottom"></input>
+                                        <label class="custom-text-type" for="form_padding_bottom">Bottom</label>
+                                    </div>
+                                    <div class="custom-text-value-wrapper">
+                                        <input id="form_padding_left" type="text" class="custom-text-value" value="{{ login_form.form_padding_left }}" data-update-item="loginform" data-update-type="paddingLeft"></input>
+                                        <label class="custom-text-type" for="form_padding_left">Left</label>
+                                    </div>
+                                                                      
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="form_border_width">Form Border Width</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="0" max="100" value="{{ login_form.form_border_width }}" step="0" aria-label="Adjust form border width"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="form_border_width" type="text" class="custom-range-value" value="{{ login_form.form_border_width }}" data-update-item="loginform" data-update-type="borderWidth"></input>
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="form_border_style">Form Border Style</label>
+                            <div class="custom-select margin-0">
+                                <i class="fa-light fa-angles-up-down"></i>     
+                                <input class="select-selected custom-login-form-text" type="text" id="form_border_style" name="form_border_style" readonly="" value="{{ login_form.form_border_style }}" data-update-item="loginform" data-update-type="borderStyle">
+                                <div class="select-items scrollable-content" style="display: none;">
+                                    <div class="select-item" data-name="form_border_style" data-value="dashed">dashed</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="dotted">dotted</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="double">double</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="groovet">groove</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="hidden">hidden</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="inset">inset</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="none">none</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="outset">outset</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="ridge">ridge</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="solid">solid</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="inherit">inherit</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="initial">initial</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="revert">revert</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="revert-layer">revert-layer</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="unset">unset</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label">Form Border Color</label>
+                            <div class="color-picker-container">
+                                <label class="color-sample" for="form_border_color" id="form_border_colorSample" style=" background-color: {{ login_form.form_border_color }};"></label>
+                                <input class="color-picker" type="color" id="form_border_color" value="{{ login_form.form_border_color }}" oninput="updateColorInfo('form_border_color')" data-update-item="loginform" data-update-type="borderColor">
+                                <input type="text" id="form_border_colorHex" value="{{ login_form.form_border_color }}" data-update-item="loginform" data-update-type="borderColor">                        
+                            </div>                 
+                        </div>
+                    </div>                 
+                </div>
+            </div>
+            <div class="details-info-card">
+                <div class="info-card-header collapsable-header">
+                    <div class="card-header-left">
+                        <i class="fa-regular fa-pen-swirl"></i>
+                        <span> Input Fields </span>
+                    </div>
+                    <div class="card-header-right active">
+                        <i class="fa-regular fa-angle-down"></i>
+                    </div>
+                </div>
+                <div class="info-card-body hidden">                         
+                    <div class="login-edit-options-section">
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="input_padding">Input Padding</label>
+                            <div class="custom-input-row">
+                                <div class="custom-range-type-wrapper">
+                                    <div class="custom-text-value-wrapper">
+                                        <input id="input_padding_top" type="text" class="custom-text-value" value="{{ login_form.input_padding_top }}" data-update-item="forminput" data-update-type="paddingTop"></input>
+                                        <label class="custom-text-type" for="input_padding_top">Top</label>
+                                    </div>
+                                    <div class="custom-text-value-wrapper">
+                                        <input id="input_padding_right" type="text" class="custom-text-value" value="{{ login_form.input_padding_right }}" data-update-item="forminput" data-update-type="paddingRight"></input>
+                                        <label class="custom-text-type" for="input_padding_right">Right</label>
+                                    </div>
+                                    <div class="custom-text-value-wrapper">
+                                        <input id="input_padding_bottom" type="text" class="custom-text-value" value="{{ login_form.input_padding_bottom }}" data-update-item="forminput" data-update-type="paddingBottom"></input>
+                                        <label class="custom-text-type" for="input_padding_bottom">Bottom</label>
+                                    </div>
+                                    <div class="custom-text-value-wrapper">
+                                        <input id="input_padding_left" type="text" class="custom-text-value" value="{{ login_form.input_padding_left }}" data-update-item="forminput" data-update-type="paddingLeft"></input>
+                                        <label class="custom-text-type" for="input_padding_left">Left</label>
+                                    </div>
+                                                                      
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label">Input Background Color</label>
+                            <div class="color-picker-container">
+                                <label class="color-sample" for="input_background_color" id="input_background_colorSample" style=" background-color: {{ login_form.input_background_color }};"></label>
+                                <input class="color-picker" type="color" id="input_background_color" value="{{ login_form.input_background_color }}" oninput="updateColorInfo('input_background_color')" data-update-item="forminput" data-update-type="backgroundColor">
+                                <input type="text" id="input_background_colorHex" value="{{ login_form.input_background_color }}" data-update-item="forminput" data-update-type="backgroundColor">                        
+                            </div>                 
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label">Input Text Color</label>
+                            <div class="color-picker-container">
+                                <label class="color-sample" for="input_text_color" id="input_text_colorSample" style=" background-color: {{ login_form.input_text_color }};"></label>
+                                <input class="color-picker" type="color" id="input_text_color" value="{{ login_form.input_text_color }}" oninput="updateColorInfo('input_text_color')" data-update-item="forminput" data-update-type="color">
+                                <input type="text" id="input_text_colorHex" value="{{ login_form.input_text_color }}" data-update-item="forminput" data-update-type="color">                        
+                            </div>                 
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="input_width">Input Width</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="20" max="100" value="{{ login_form.input_width }}" step="0" aria-label="Adjust input width"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="input_width" type="text" class="custom-range-value" value="{{ login_form.input_width }}" data-update-item="forminputwrapper" data-update-type="inputWidth"></input>
+                                    <span class="custom-range-type">%</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label">Input Border Color</label>
+                            <div class="color-picker-container">
+                                <label class="color-sample" for="input_border_color" id="input_border_colorSample" style=" background-color: {{ login_form.input_border_color }};"></label>
+                                <input class="color-picker" type="color" id="input_border_color" value="{{ login_form.input_border_color }}" oninput="updateColorInfo('input_border_color')" data-update-item="forminput" data-update-type="borderColor">
+                                <input type="text" id="input_border_colorHex" value="{{ login_form.input_border_color }}" data-update-item="forminput" data-update-type="borderColor">                        
+                            </div>                 
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="input_radius">Input Radius</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="0" max="100" value="{{ login_form.input_radius }}" step="0" aria-label="Adjust input border radius"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="input_radius" type="text" class="custom-range-value" value="{{ login_form.input_radius }}" data-update-item="forminput" data-update-type="borderRadius"></input>
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div> 
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="input_font_size">Input Font Size</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="0" max="100" value="{{ login_form.input_font_size }}" step="0" aria-label="Adjust input font size"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="input_font_size" type="text" class="custom-range-value" value="{{ login_form.input_font_size }}" data-update-item="forminput" data-update-type="fontSize"></input>
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="input_space_between">Space Between Inputs</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="0" max="500" value="{{ login_form.input_space_between }}" step="0" aria-label="Adjust space between inputs"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="input_space_between" type="text" class="custom-range-value" value="{{ login_form.input_space_between }}" data-update-item="forminputlabelWrapper" data-update-type="gap"></input>
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>                 
+                </div>
+            </div>
+            <div class="details-info-card">
+                <div class="info-card-header collapsable-header">
+                    <div class="card-header-left">
+                        <i class="fa-regular fa-tags"></i>
+                        <span> Input Labels </span>
+                    </div>
+                    <div class="card-header-right active">
+                        <i class="fa-regular fa-angle-down"></i>
+                    </div>
+                </div>
+                <div class="info-card-body hidden">                         
+                    <div class="login-edit-options-section">
+                        <div class="course-content-input">
+                            <label class="edit-user-label">Label Color</label>
+                            <div class="color-picker-container">
+                                <label class="color-sample" for="label_color" id="label_colorSample" style=" background-color: {{ login_form.label_color }};"></label>
+                                <input class="color-picker" type="color" id="label_color" value="{{ login_form.label_color }}" oninput="updateColorInfo('label_color')" data-update-item="forminputlabel" data-update-type="color">
+                                <input type="text" id="label_colorHex" value="{{ login_form.label_color }}" data-update-item="forminputlabel" data-update-type="color">                        
+                            </div>                 
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="label_font_size">Label Font Size</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="0" max="100" value="{{ login_form.label_font_size }}" step="0" aria-label="Adjust label font size"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="label_font_size" type="text" class="custom-range-value" value="{{ login_form.label_font_size }}" data-update-item="forminputlabel" data-update-type="fontSize"></input>
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="label_font_weight">Label Font Weight</label>
+                            <div class="custom-select margin-0">
+                                <i class="fa-light fa-angles-up-down"></i>     
+                                <input class="select-selected custom-login-form-text" type="text" id="label_font_weight" name="label_font_weight" readonly="" value="{{ login_form.label_font_weight }}" data-update-item="forminputlabel" data-update-type="fontWeight">
+                                <div class="select-items scrollable-content" style="display: none;">
+                                    <div class="select-item" data-name="form_border_style" data-value="lighter">lighter</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="normal">normal</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="bold">bold</div>
+                                    <div class="select-item" data-name="form_border_style" data-value="bolder">bolder</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="label_space_bottom">Space Below Label</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="0" max="500" value="{{ login_form.label_space_bottom }}" step="0" aria-label="Adjust space below label"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="label_space_bottom" type="text" class="custom-range-value" value="{{ login_form.label_space_bottom }}" data-update-item="forminputlabel" data-update-type="paddingBottom"></input>
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div> 
+                    </div>                 
+                </div>
+            </div>
+            <div class="details-info-card">
+                <div class="info-card-header collapsable-header">
+                    <div class="card-header-left">
+                        <i class="fa-regular fa-door-open"></i>
+                        <span> Login Button </span>
+                    </div>
+                    <div class="card-header-right active">
+                        <i class="fa-regular fa-angle-down"></i>
+                    </div>
+                </div>
+                <div class="info-card-body hidden">                         
+                    <div class="login-edit-options-section">
+                        <div class="course-content-input">
+                            <label class="edit-user-label">Button Color</label>
+                            <div class="color-picker-container">
+                                <label class="color-sample" for="button_color" id="button_colorSample" style=" background-color: {{ login_form.button_color }};"></label>
+                                <input class="color-picker" type="color" id="button_color" value="{{ login_form.button_color }}" oninput="updateColorInfo('button_color')" data-update-item="loginButton" data-update-type="backgroundColor">
+                                <input type="text" id="button_colorHex" value="{{ login_form.button_color }}" data-update-item="loginButton" data-update-type="backgroundColor">                        
+                            </div>                 
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label">Button Color (Hover)</label>
+                            <div class="color-picker-container">
+                                <label class="color-sample" for="button_color_hover" id="button_color_hoverSample" style=" background-color: {{ login_form.button_color_hover }};"></label>
+                                <input class="color-picker" type="color" id="button_color_hover" value="{{ login_form.button_color_hover }}" oninput="updateColorInfo('button_color_hover')" data-update-item="loginButton" data-update-type="backgroundHover">
+                                <input type="text" id="button_color_hoverHex" value="{{ login_form.button_color_hover }}" data-update-item="loginButton" data-update-type="backgroundHover">                        
+                            </div>                 
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label">Button Text</label>
+                            <div class="color-picker-container">
+                                <label class="color-sample" for="button_text" id="button_textSample" style=" background-color: {{ login_form.button_text }};"></label>
+                                <input class="color-picker" type="color" id="button_text" value="{{ login_form.button_text }}" oninput="updateColorInfo('button_text')" data-update-item="loginButton" data-update-type="color">
+                                <input type="text" id="button_textHex" value="{{ login_form.button_text }}" data-update-item="loginButton" data-update-type="color">                        
+                            </div>                 
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label">Button Text (Hover)</label>
+                            <div class="color-picker-container">
+                                <label class="color-sample" for="button_text_hover" id="button_text_hoverSample" style=" background-color: {{ login_form.button_text_hover }};"></label>
+                                <input class="color-picker" type="color" id="button_text_hover" value="{{ login_form.button_text_hover }}" oninput="updateColorInfo('button_text_hover')" data-update-item="loginButton" data-update-type="colorHover">
+                                <input type="text" id="button_text_hoverHex" value="{{ login_form.button_text_hover }}" data-update-item="loginButton" data-update-type="colorHover">                        
+                            </div>                 
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label">Button Border Color</label>
+                            <div class="color-picker-container">
+                                <label class="color-sample" for="button_border_color" id="button_border_colorSample" style=" background-color: {{ login_form.button_border_color }};"></label>
+                                <input class="color-picker" type="color" id="button_border_color" value="{{ login_form.button_border_color }}" oninput="updateColorInfo('button_border_color')" data-update-item="loginButton" data-update-type="borderColor">
+                                <input type="text" id="button_border_colorHex" value="{{ login_form.button_border_color }}" data-update-item="loginButton" data-update-type="borderColor">                        
+                            </div>                 
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label">Button Border Color (Hover)</label>
+                            <div class="color-picker-container">
+                                <label class="color-sample" for="button_border_color_hover" id="button_border_color_hoverSample" style=" background-color: {{ login_form.button_border_color_hover }};"></label>
+                                <input class="color-picker" type="color" id="button_border_color_hover" value="{{ login_form.button_border_color_hover }}" oninput="updateColorInfo('button_border_color_hover')" data-update-item="loginButton" data-update-type="borderHover">
+                                <input type="text" id="button_border_color_hoverHex" value="{{ login_form.button_border_color_hover }}" data-update-item="loginButton" data-update-type="borderHover">                        
+                            </div>                 
+                        </div>                     
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="button_space_above">Space Above Button</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="0" max="500" value="{{ login_form.button_space_above }}" step="0" aria-label="Adjust space below label"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="button_space_above" type="text" class="custom-range-value" value="{{ login_form.button_space_above }}" data-update-item="loginButton" data-update-type="marginTop"></input>
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="button_width">Button Width</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="20" max="100" value="{{ login_form.button_width }}" step="0" aria-label="Adjust button width"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="button_width" type="text" class="custom-range-value" value="{{ login_form.button_width }}" data-update-item="loginButton" data-update-type="inputWidth"></input>
+                                    <span class="custom-range-type">%</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="button_radius">Button Radius</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="0" max="100" value="{{ login_form.button_radius }}" step="0" aria-label="Adjust button border radius"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="button_radius" type="text" class="custom-range-value" value="{{ login_form.button_radius }}" data-update-item="loginButton" data-update-type="borderRadius"></input>
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="button_padding">Button Padding</label>
+                            <div class="custom-input-row">
+                                <div class="custom-range-type-wrapper">
+                                    <div class="custom-text-value-wrapper">
+                                        <input id="button_padding_top" type="text" class="custom-text-value" value="{{ login_form.button_padding_top }}" data-update-item="loginButton" data-update-type="paddingTop"></input>
+                                        <label class="custom-text-type" for="button_padding_top">Top</label>
+                                    </div>
+                                    <div class="custom-text-value-wrapper">
+                                        <input id="button_padding_right" type="text" class="custom-text-value" value="{{ login_form.button_padding_right }}" data-update-item="loginButton" data-update-type="paddingRight"></input>
+                                        <label class="custom-text-type" for="button_padding_right">Right</label>
+                                    </div>
+                                    <div class="custom-text-value-wrapper">
+                                        <input id="button_padding_bottom" type="text" class="custom-text-value" value="{{ login_form.button_padding_bottom }}" data-update-item="loginButton" data-update-type="paddingBottom"></input>
+                                        <label class="custom-text-type" for="button_padding_bottom">Bottom</label>
+                                    </div>
+                                    <div class="custom-text-value-wrapper">
+                                        <input id="button_padding_left" type="text" class="custom-text-value" value="{{ login_form.button_padding_left }}" data-update-item="loginButton" data-update-type="paddingLeft"></input>
+                                        <label class="custom-text-type" for="button_padding_left">Left</label>
+                                    </div>
+                                                                      
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="button_font_size">Button Font Size</label>
+                            <div class="custom-range-slider">
+                                <input type="range" class="halo-custom-range" min="0" max="100" value="{{ login_form.button_font_size }}" step="0" aria-label="Adjust button font size"/>
+                                <div class="custom-range-type-wrapper">
+                                    <input id="button_font_size" type="text" class="custom-range-value" value="{{ login_form.button_font_size }}" data-update-item="loginButton" data-update-type="fontSize"></input>
+                                    <span class="custom-range-type">px</span>
+                                </div>
+                                
+                                <button class="reset-custom-range-value">
+                                    <i class="fa-regular fa-arrow-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="button_font_weight">Button Font Weight</label>
+                            <div class="custom-select margin-0">
+                                <i class="fa-light fa-angles-up-down"></i>     
+                                <input class="select-selected custom-login-form-text" type="text" id="button_font_weight" name="button_font_weight" readonly="" value="{{ login_form.button_font_weight }}" data-update-item="loginButton" data-update-type="fontWeight">
+                                <div class="select-items scrollable-content" style="display: none;">
+                                    <div class="select-item" data-name="button_font_weight" data-value="lighter">lighter</div>
+                                    <div class="select-item" data-name="button_font_weight" data-value="normal">normal</div>
+                                    <div class="select-item" data-name="button_font_weight" data-value="bold">bold</div>
+                                    <div class="select-item" data-name="button_font_weight" data-value="bolder">bolder</div>
+                                </div>
+                            </div>
+                        </div> 
+                    </div>                 
+                </div>
+            </div>
+            <div class="details-info-card">
+                <div class="info-card-header collapsable-header">
+                    <div class="card-header-left">
+                        <i class="fa-regular fa-link"></i>
+                        <span> Form Links </span>
+                    </div>
+                    <div class="card-header-right active">
+                        <i class="fa-regular fa-angle-down"></i>
+                    </div>
+                </div>
+                <div class="info-card-body hidden">                         
+                    <div class="login-edit-options-section">
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="is_forgot_disabled">Disable Forgot Password?</label>
+                            <label class="toggle-switch">
+                                <input class="toggle-hidden-settings-input" type="checkbox" id="is_forgot_disabled" name="is_forgot_disabled" {% if login_form.is_forgot_disabled %}checked{% endif %} data-update-item="forgetLink" data-update-type="hidden">
+                                <div class="toggle-switch-background">
+                                <div class="toggle-switch-handle"></div>
+                                </div>
+                            </label>
+                        </div>
+                        <div id="toggleForgotPassword" class="login-edit-options-section">
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="forgot_font_size">Forgot Password Font Size</label>
+                                <div class="custom-range-slider">
+                                    <input type="range" class="halo-custom-range" min="0" max="100" value="{{ login_form.forgot_font_size }}" step="0" aria-label="Forgot Password font size"/>
+                                    <div class="custom-range-type-wrapper">
+                                        <input id="forgot_font_size" type="text" class="custom-range-value" value="{{ login_form.forgot_font_size }}" data-update-item="forgetLink" data-update-type="fontSize"></input>
+                                        <span class="custom-range-type">px</span>
+                                    </div>
+                                    
+                                    <button class="reset-custom-range-value">
+                                        <i class="fa-regular fa-arrow-rotate-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="forgot_space_above">Space Above Forgot Password</label>
+                                <div class="custom-range-slider">
+                                    <input type="range" class="halo-custom-range" min="0" max="500" value="{{ login_form.forgot_space_above }}" step="0" aria-label="Adjust space above link"/>
+                                    <div class="custom-range-type-wrapper">
+                                        <input id="forgot_space_above" type="text" class="custom-range-value" value="{{ login_form.forgot_space_above }}" data-update-item="forgetLink" data-update-type="marginTop"></input>
+                                        <span class="custom-range-type">px</span>
+                                    </div>
+                                    
+                                    <button class="reset-custom-range-value">
+                                        <i class="fa-regular fa-arrow-rotate-right"></i>
+                                    </button>
+                                </div>
+                            </div> 
+                            <div class="course-content-input">
+                                <label class="edit-user-label">Forgot Password Color</label>
+                                <div class="color-picker-container">
+                                    <label class="color-sample" for="forgot_link_color" id="forgot_link_colorSample" style=" background-color: {{ login_form.forgot_link_color }};"></label>
+                                    <input class="color-picker" type="color" id="forgot_link_color" value="{{ login_form.forgot_link_color }}" oninput="updateColorInfo('forgot_link_color')" data-update-item="forgetLink" data-update-type="color">
+                                    <input type="text" id="forgot_link_colorHex" value="{{ login_form.forgot_link_color }}" data-update-item="forgetLink" data-update-type="color">                        
+                                </div>                 
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label">Forgot Password Color (Hover)</label>
+                                <div class="color-picker-container">
+                                    <label class="color-sample" for="forgot_link_color_hover" id="forgot_link_color_hoverSample" style=" background-color: {{ login_form.forgot_link_color_hover }};"></label>
+                                    <input class="color-picker" type="color" id="forgot_link_color_hover" value="{{ login_form.forgot_link_color_hover }}" oninput="updateColorInfo('forgot_link_color_hover')" data-update-item="forgetLink" data-update-type="colorHover">
+                                    <input type="text" id="forgot_link_color_hoverHex" value="{{ login_form.forgot_link_color_hover }}" data-update-item="forgetLink" data-update-type="colorHover">                        
+                                </div>                 
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="forgot_text_decoration">Forgot Password Text Decoration</label>
+                                <div class="custom-select margin-0">
+                                    <i class="fa-light fa-angles-up-down"></i>     
+                                    <input class="select-selected custom-login-form-text" type="text" id="forgot_text_decoration" name="forgot_text_decoration" readonly="" value="{{ login_form.forgot_text_decoration }}" data-update-item="forgetLink" data-update-type="textDecoration">
+                                    <div class="select-items scrollable-content" style="display: none;">
+                                        <div class="select-item" data-name="forgot_text_decoration" data-value="none">none</div>
+                                        <div class="select-item" data-name="forgot_text_decoration" data-value="overline">overline</div>
+                                        <div class="select-item" data-name="forgot_text_decoration" data-value="line-through">line-through</div>
+                                        <div class="select-item" data-name="forgot_text_decoration" data-value="underline">underline</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="forgot_text_decoration_hover">Forgot Password Text Decoration (Hover)</label>
+                                <div class="custom-select margin-0">
+                                    <i class="fa-light fa-angles-up-down"></i>     
+                                    <input class="select-selected custom-login-form-text" type="text" id="forgot_text_decoration_hover" name="forgot_text_decoration_hover" readonly="" value="{{ login_form.forgot_text_decoration_hover }}" data-update-item="forgetLink" data-update-type="textDecorationHover">
+                                    <div class="select-items scrollable-content" style="display: none;">
+                                        <div class="select-item" data-name="forgot_text_decoration_hover" data-value="none">none</div>
+                                        <div class="select-item" data-name="forgot_text_decoration_hover" data-value="overline">overline</div>
+                                        <div class="select-item" data-name="forgot_text_decoration_hover" data-value="line-through">line-through</div>
+                                        <div class="select-item" data-name="forgot_text_decoration_hover" data-value="underline">underline</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="login-edit-options-section">
+                        <div class="course-content-input">
+                            <label class="edit-user-label" for="is_signup_disabled">Disable Sign Up?</label>
+                            <label class="toggle-switch">
+                                <input class="toggle-hidden-settings-input" type="checkbox" id="is_signup_disabled" name="is_signup_disabled" {% if login_form.is_signup_disabled %}checked{% endif %} data-update-item="signupContainer" data-update-type="hidden">
+                                <div class="toggle-switch-background">
+                                <div class="toggle-switch-handle"></div>
+                                </div>
+                            </label>
+                        </div>
+                        <div id="toggleSignUp" class="login-edit-options-section">
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="signup_font_size">Sign Up Font Size</label>
+                                <div class="custom-range-slider">
+                                    <input type="range" class="halo-custom-range" min="0" max="100" value="{{ login_form.signup_font_size }}" step="0" aria-label="Sign Up font size"/>
+                                    <div class="custom-range-type-wrapper">
+                                        <input id="signup_font_size" type="text" class="custom-range-value" value="{{ login_form.signup_font_size }}" data-update-item="signupContainer" data-update-type="fontSize"></input>
+                                        <span class="custom-range-type">px</span>
+                                    </div>
+                                    
+                                    <button class="reset-custom-range-value">
+                                        <i class="fa-regular fa-arrow-rotate-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="signup_font_weight">Sign Up Font Weight</label>
+                                <div class="custom-select margin-0">
+                                    <i class="fa-light fa-angles-up-down"></i>     
+                                    <input class="select-selected custom-login-form-text" type="text" id="signup_font_weight" name="signup_font_weight" readonly="" value="{{ login_form.signup_font_weight }}" data-update-item="signupContainer" data-update-type="fontWeight">
+                                    <div class="select-items scrollable-content" style="display: none;">
+                                        <div class="select-item" data-name="signup_font_weight" data-value="lighter">lighter</div>
+                                        <div class="select-item" data-name="signup_font_weight" data-value="normal">normal</div>
+                                        <div class="select-item" data-name="signup_font_weight" data-value="bold">bold</div>
+                                        <div class="select-item" data-name="signup_font_weight" data-value="bolder">bolder</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="signup_space_above">Space Above Sign Up</label>
+                                <div class="custom-range-slider">
+                                    <input type="range" class="halo-custom-range" min="0" max="500" value="{{ login_form.signup_space_above }}" step="0" aria-label="Adjust space above link"/>
+                                    <div class="custom-range-type-wrapper">
+                                        <input id="signup_space_above" type="text" class="custom-range-value" value="{{ login_form.signup_space_above }}" data-update-item="signupContainer" data-update-type="marginTop"></input>
+                                        <span class="custom-range-type">px</span>
+                                    </div>
+                                    
+                                    <button class="reset-custom-range-value">
+                                        <i class="fa-regular fa-arrow-rotate-right"></i>
+                                    </button>
+                                </div>
+                            </div> 
+                            <div class="course-content-input">
+                                <label class="edit-user-label">Sign Up Link Color</label>
+                                <div class="color-picker-container">
+                                    <label class="color-sample" for="signup_link_color" id="signup_link_colorSample" style=" background-color: {{ login_form.signup_link_color }};"></label>
+                                    <input class="color-picker" type="color" id="signup_link_color" value="{{ login_form.signup_link_color }}" oninput="updateColorInfo('signup_link_color')" data-update-item="signupLink" data-update-type="color">
+                                    <input type="text" id="signup_link_colorHex" value="{{ login_form.signup_link_color }}" data-update-item="signupLink" data-update-type="color">                        
+                                </div>                 
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label">Sign Up Link Color (Hover)</label>
+                                <div class="color-picker-container">
+                                    <label class="color-sample" for="signup_link_color_hover" id="signup_link_color_hoverSample" style=" background-color: {{ login_form.signup_link_color_hover }};"></label>
+                                    <input class="color-picker" type="color" id="signup_link_color_hover" value="{{ login_form.signup_link_color_hover }}" oninput="updateColorInfo('signup_link_color_hover')" data-update-item="signupLink" data-update-type="colorHover">
+                                    <input type="text" id="signup_link_color_hoverHex" value="{{ login_form.signup_link_color_hover }}" data-update-item="signupLink" data-update-type="colorHover">                        
+                                </div>                 
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="signup_text_decoration">Sign Up Link Text Decoration</label>
+                                <div class="custom-select margin-0">
+                                    <i class="fa-light fa-angles-up-down"></i>     
+                                    <input class="select-selected custom-login-form-text" type="text" id="signup_text_decoration" name="signup_text_decoration" readonly="" value="{{ login_form.signup_text_decoration }}" data-update-item="signupLink" data-update-type="textDecoration">
+                                    <div class="select-items scrollable-content" style="display: none;">
+                                        <div class="select-item" data-name="signup_text_decoration" data-value="none">none</div>
+                                        <div class="select-item" data-name="signup_text_decoration" data-value="overline">overline</div>
+                                        <div class="select-item" data-name="signup_text_decoration" data-value="line-through">line-through</div>
+                                        <div class="select-item" data-name="signup_text_decoration" data-value="underline">underline</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="signup_text_decoration_hover">Sign Up Link Text Decoration (Hover)</label>
+                                <div class="custom-select margin-0">
+                                    <i class="fa-light fa-angles-up-down"></i>     
+                                    <input class="select-selected custom-login-form-text" type="text" id="signup_text_decoration_hover" name="signup_text_decoration_hover" readonly="" value="{{ login_form.signup_text_decoration_hover }}" data-update-item="signupLink" data-update-type="textDecorationHover">
+                                    <div class="select-items scrollable-content" style="display: none;">
+                                        <div class="select-item" data-name="signup_text_decoration_hover" data-value="none">none</div>
+                                        <div class="select-item" data-name="signup_text_decoration_hover" data-value="overline">overline</div>
+                                        <div class="select-item" data-name="signup_text_decoration_hover" data-value="line-through">line-through</div>
+                                        <div class="select-item" data-name="signup_text_decoration_hover" data-value="underline">underline</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label">Sign Up Text Color</label>
+                                <div class="color-picker-container">
+                                    <label class="color-sample" for="signup_text_color" id="signup_text_colorSample" style=" background-color: {{ login_form.signup_text_color }};"></label>
+                                    <input class="color-picker" type="color" id="signup_text_color" value="{{ login_form.signup_text_color }}" oninput="updateColorInfo('signup_text_color')" data-update-item="signupText" data-update-type="color">
+                                    <input type="text" id="signup_text_colorHex" value="{{ login_form.signup_text_color }}" data-update-item="signupText" data-update-type="color">                        
+                                </div>                 
+                            </div>
+                        </div>
+                    </div>                 
+                </div>
+            </div>
         </div>
-    </div> 
+    </div>
 </div>
 
 {% include 'popups/file_library.html' %}
 <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
 <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
 <script src="{% static 'client_admin/javascript/user_details.js' %}"></script>
+<script src="{% static 'custom_dashboard/javascript/login_edit.js' %}"></script>
+<!-- JS for the real login page only -->
+<script src="{% static 'custom_dashboard/javascript/login.js' %}"></script>
 <link rel="stylesheet" href="{% static 'content/css/content.css' %}">
 <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/login.css' %}">
+<script> 
+    let checkBackgroundPositionItems = '{{ login_form.background_position }}';
+    let checkLayoutItems = '{{ login_form.layout }}';
+
+    let buttonBackgroundHover = '{{ login_form.button_color_hover }}';
+    let buttonBackground = '{{ login_form.button_color }}';  
+    let buttonColorHover = '{{ login_form.button_text_hover }}';
+    let buttonColor = '{{ login_form.button_text }}';
+    let buttonBorderHover = '{{ login_form.button_border_color_hover }}';
+    let buttonBorder = '{{ login_form.button_border_color }}';
+
+    let forgetColor = '{{ login_form.forgot_link_color }}';
+    let forgetColorHover = '{{ login_form.forgot_link_color_hover }}';
+    let forgotTextDecoration = '{{ login_form.forgot_text_decoration }}';
+    let forgotTextDecorationHover = '{{ login_form.forgot_text_decoration_hover }}';
+
+    let signupColor = '{{ login_form.signup_link_color }}';
+    let signupColorHover = '{{ login_form.signup_link_color_hover }}';
+    let signupTextDecoration = '{{ login_form.signup_text_decoration }}';
+    let signupTextDecorationHover = '{{ login_form.signup_text_decoration_hover }}';
+</script>
 {% endblock %}

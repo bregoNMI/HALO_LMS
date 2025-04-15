@@ -28,6 +28,10 @@ urlpatterns = [
 
     # Settings
     path('settings/', views.admin_settings, name='admin_settings'), 
+    path('settings/create-allowed-id/', views.create_allowed_id_photo, name='create_allowed_id_photo'),
+    path('settings/get-allowed-ids/', views.get_allowed_id_photos, name='get_allowed_id_photos'),
+    path('settings/edit-allowed-ids/', views.edit_allowed_id_photos, name='edit_allowed_id_photos'), 
+    path('settings/delete-allowed-ids/', views.delete_allowed_id_photos, name='delete_allowed_id_photos'),
 
     # Custom User Dashboard
     path('templates/', custom_template_views.templates, name='templates'),
@@ -40,6 +44,7 @@ urlpatterns = [
     path('templates/dashboards/<int:dashboard_id>/preview/', custom_template_views.dashboard_preview, name='dashboard_preview'),
     # Custom Login Page
     path('templates/login/', custom_template_views.login_form, name='login_form'),
+    path('templates/login/edit/', custom_template_views.login_edit, name='login_edit'),
     # Requests
     path('templates/widgets/<int:widget_id>/data/', custom_template_views.get_widget_data, name='get_widget_data'),
     path('templates/widgets/delete/<int:widget_id>/', custom_template_views.delete_widget, name='delete_widget'),

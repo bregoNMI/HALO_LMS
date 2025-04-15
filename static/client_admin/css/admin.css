@@ -304,13 +304,14 @@ html, body, button{
 .action-button-primary, .action-button-secondary{
     display: flex;
     gap: 0.5rem;
-    padding: var(--pad-xxxs) var(--pad-sm);
+    padding: 5px var(--pad-sm);
     border-radius: 6px;
     font-size: var(--btn-font);
     cursor: pointer;
     text-decoration: none;
     transition: all 0.2s linear;
     border: none;
+    align-items: baseline;
 }
 
 .action-button-primary{
@@ -646,7 +647,7 @@ tr.selected-option th, tr.selected-option td{
     width: 15rem;
     margin-right: -15rem;
     transition: all 0.4s ease-out;
-    height: calc(100vh - 67.36px);
+    height: calc(100vh - 74.59px);
     box-sizing: border-box;
     overflow-y: hidden;
 }
@@ -933,39 +934,6 @@ tr.selected-option th, tr.selected-option td{
 
 .dropdown-section:last-child{
     padding-bottom: 0;
-}
-
-/* Custom Tooltip */
-.tooltip {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-}
-
-.tooltip .tooltiptext {
-    visibility: hidden;
-    max-width: 120px;
-    background-color: #222222;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: var(--pad-xxxs) var(--pad-sm);
-    font-size: var(--fs-sm);
-    font-weight: 400;
-    position: absolute;
-    z-index: 1;
-    bottom: -110%;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    transition: opacity 0.3s;
-    transition-delay: 1s;
-}
-
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-    transform: translateX(-50%) translateY(-5px);
 }
 
 /* Alert/Message Styling */

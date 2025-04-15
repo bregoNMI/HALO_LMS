@@ -1,95 +1,217 @@
-{% load static %}
-{% block content %}
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
+{% load static %}
+{% block content %}
 <head>
+    <script src="https://kit.fontawesome.com/0bbcd9bc36.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ settings.portal_favicon.url }}">
+    <title>Sign Up | HALO LMS</title>
 </head>
 <body>
-    {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <div class="message {{ message.tags }}">
-                    {{ message }}
+    <div class="body-content true-login-container">
+        <div class="login-container">
+            <!-- This is the real login form  -->
+            <div class="login-form-body-wrapper scrollable-content" style=" {% if login_form.layout == 'layout3' %} flex-direction: row; {% elif login_form.layout == 'layout1' %} flex-direction: row-reverse; {% endif %}" data-item-to-update="loginformwrapper">
+                <div class="login-form-background" style="{% if login_form.is_background_disabled %} background-image: url({{ login_form.background_image }}); {% endif %} background-color: {{ login_form.background_color }}; background-position: {{ login_form.background_position }}; background-repeat: {{ login_form.background_repeat }}; background-size: {{ login_form.background_size }};" data-item-to-update="background"></div>
+                <div class="login-form-content {{ login_form.layout }} scrollable-content" data-item-to-update="loginform" style="background-color: {{ login_form.form_background_color }}; {% if login_form.form_background_image and login_form.form_background_image != 'None'%} background-image: url({{ login_form.form_background_image }}){% endif %}; border-radius: {{ login_form.form_radius }}px; max-width: {{ login_form.form_max_width }}px; box-shadow: rgba(0, 0, 0, {{ login_form.form_shadow_opacity}}%) 0px 0px {{ login_form.form_shadow}}px; padding-top: {{ login_form.form_padding_top}}px; padding-right: {{ login_form.form_padding_right}}px; padding-bottom: {{ login_form.form_padding_bottom}}px; padding-left: {{ login_form.form_padding_left}}px; border-width: {{ login_form.form_border_width }}px; border-style: {{ login_form.form_border_style }}; border-color: {{ login_form.form_border_color }};">
+                    <!-- <div class="login-form-logo-wrapper">
+                        <a href="{{ login_form.logo_url }}" class="login-form-logo {% if login_form.is_logo_disabled %} hidden {% endif %}" style=" background-image: url({{ login_form.login_logo }}); width: {{ login_form.logo_width }}px; height: {{ login_form.logo_height }}px; margin-bottom: {{ login_form.logo_space_bottom}}px;" data-item-to-update="logo"></a>
+                    </div> -->
+                    {% if messages %}
+                        <div class="lesson-alert-container">
+                            {% for message in messages %}
+                                {% if message.tags == 'success' %}
+                                    <div class="lesson-alert lesson-alert-{{ message.tags }}">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        {{ message }}
+                                    </div>
+                                {% elif message.tags == 'error' %}
+                                    <div class="lesson-alert lesson-alert-{{ message.tags }}">
+                                        <i class="fa-solid fa-circle-xmark"></i>
+                                        {{ message }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div id="topregistration" class="top-registration-wrapper">
+                        <!-- Steps Progress Meter --> 
+                        <div class="steps">
+                            <span class="circle active"></span>
+                            <span class="circle"></span>
+                            <span class="circle"></span>
+                            <div class="progress-bar">
+                            <span class="indicator"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-heading-wrapper" style="margin-bottom: {{ login_form.logo_space_bottom}}px;">
+                        <h1> Sign Up </h1>
+                        <h6> Please fill in all of the information below to create your account.</h6>
+                    </div>
+                    <!-- This is the error container from form errors called from the javascript -->
+                    <div id="javascriptErrorContainer" class="lesson-alert-container hidden">
+                        <div class="lesson-alert lesson-alert-error">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                            <span class="lesson-alert-message"></span>
+                        </div>
+                    </div>
+                    <form id="registerForm" class="login-form-inputs-container" method="post" ction="{% url 'register_view' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="login-form-inputs-wrapper" style="gap: {{ login_form.input_space_between }}px;">
+                            <div id="registrationSlideThree" class="registration-slide-container hidden" style="gap: {{ login_form.input_space_between }}px;">
+                                <div class="login-form-field" style="width: {{ login_form.input_width }}%;">
+                                    <label for="id_username" style="color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Username<span class="required-asterisk">*</span></label>
+                                    <input class="form-input-field slide-three-input-field" type="text" id="id_username" name="id_username" maxlength="150" style="padding-top: {{ login_form.input_padding_top}}px; padding-right: {{ login_form.input_padding_right}}px; padding-bottom: {{ login_form.input_padding_bottom}}px; padding-left: {{ login_form.input_padding_left}}px; background-color: {{ login_form.input_background_color}}; color: {{ login_form.input_text_color}}; border-color: {{ login_form.input_border_color }}; border-radius: {{ login_form.input_radius }}px; font-size: {{ login_form.input_font_size}}px;" required autocomplete="off">
+                                </div>
+                                <div class="field-requirements-wrapper">
+                                    <div id="usernameReqOne" class="field-requirement">
+                                        <div class="field-requirement-icon">
+                                            <i class="fa-regular fa-circle-small"></i>
+                                        </div>
+                                        <span class="field-requirement-text"> 150 Characters or fewer </span>
+                                    </div>
+                                    <div id="usernameReqTwo" class="field-requirement">
+                                        <div class="field-requirement-icon">
+                                            <i class="fa-regular fa-circle-small"></i>
+                                        </div>
+                                        <span class="field-requirement-text"> Letters, digits and @/./+/-/_ only </span>
+                                    </div>
+                                </div>
+                                <div class="login-form-field" style="width: {{ login_form.input_width }}%;">
+                                    <label for="id_password" style="color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Password<span class="required-asterisk">*</span></label>
+                                    <input class="form-input-field slide-three-input-field" type="password" id="id_password" name="id_password" style="padding-top: {{ login_form.input_padding_top}}px; padding-right: {{ login_form.input_padding_right}}px; padding-bottom: {{ login_form.input_padding_bottom}}px; padding-left: {{ login_form.input_padding_left}}px; background-color: {{ login_form.input_background_color}}; color: {{ login_form.input_text_color}}; border-color: {{ login_form.input_border_color }}; border-radius: {{ login_form.input_radius }}px; font-size: {{ login_form.input_font_size}}px;" required autocomplete="new-password">
+                                </div>
+                                <div class="field-requirements-wrapper">
+                                    <div id="passwordReqOne" class="field-requirement">
+                                        <div class="field-requirement-icon">
+                                            <i class="fa-regular fa-circle-small"></i>
+                                        </div>
+                                        <span class="field-requirement-text"> Password must contain at least 8 characters</span>
+                                    </div>
+                                    <div id="passwordReqTwo" class="field-requirement">
+                                        <div class="field-requirement-icon">
+                                            <i class="fa-regular fa-circle-small"></i>
+                                        </div>
+                                        <span class="field-requirement-text"> Password cannot be entirely numeric</span>
+                                    </div>
+                                </div>
+                                <div class="login-form-field" style="width: {{ login_form.input_width }}%;">
+                                    <label for="id_confirm_password" style="color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Confirm Password<span class="required-asterisk">*</span></label>
+                                    <input class="form-input-field slide-three-input-field" type="password" id="id_confirm_password" name="id_confirm_password" style="padding-top: {{ login_form.input_padding_top}}px; padding-right: {{ login_form.input_padding_right}}px; padding-bottom: {{ login_form.input_padding_bottom}}px; padding-left: {{ login_form.input_padding_left}}px; background-color: {{ login_form.input_background_color}}; color: {{ login_form.input_text_color}}; border-color: {{ login_form.input_border_color }}; border-radius: {{ login_form.input_radius }}px; font-size: {{ login_form.input_font_size}}px;" required autocomplete="off">
+                                    <span class="course-content-input-subtext"> Enter the same password as before, for verification.</span>
+                                </div>
+                            </div>                        
+                            <div id="registrationSlideOne" class="registration-slide-container" style="gap: {{ login_form.input_space_between }}px;">
+                                <div class="login-form-field" style="width: {{ login_form.input_width }}%;">
+                                    <label for="id_email" style="color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Email<span class="required-asterisk">*</span></label>
+                                    <input class="form-input-field slide-one-input-field" type="email" id="id_email" name="id_email" style="padding-top: {{ login_form.input_padding_top}}px; padding-right: {{ login_form.input_padding_right}}px; padding-bottom: {{ login_form.input_padding_bottom}}px; padding-left: {{ login_form.input_padding_left}}px; background-color: {{ login_form.input_background_color}}; color: {{ login_form.input_text_color}}; border-color: {{ login_form.input_border_color }}; border-radius: {{ login_form.input_radius }}px; font-size: {{ login_form.input_font_size}}px;" required>
+                                </div>
+                                <div class="login-form-field" style="width: {{ login_form.input_width }}%;">
+                                    <label for="id_given_name" style="color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">First Name<span class="required-asterisk">*</span></label>
+                                    <input class="form-input-field slide-one-input-field" type="text" id="id_given_name" name="id_given_name" style="padding-top: {{ login_form.input_padding_top}}px; padding-right: {{ login_form.input_padding_right}}px; padding-bottom: {{ login_form.input_padding_bottom}}px; padding-left: {{ login_form.input_padding_left}}px; background-color: {{ login_form.input_background_color}}; color: {{ login_form.input_text_color}}; border-color: {{ login_form.input_border_color }}; border-radius: {{ login_form.input_radius }}px; font-size: {{ login_form.input_font_size}}px;" required>
+                                </div>
+                                <div class="login-form-field" style="width: {{ login_form.input_width }}%;">
+                                    <label for="id_family_name" style="color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Last Name<span class="required-asterisk">*</span></label>
+                                    <input class="form-input-field slide-one-input-field" type="text" id="id_family_name" name="id_family_name" style="padding-top: {{ login_form.input_padding_top}}px; padding-right: {{ login_form.input_padding_right}}px; padding-bottom: {{ login_form.input_padding_bottom}}px; padding-left: {{ login_form.input_padding_left}}px; background-color: {{ login_form.input_background_color}}; color: {{ login_form.input_text_color}}; border-color: {{ login_form.input_border_color }}; border-radius: {{ login_form.input_radius }}px; font-size: {{ login_form.input_font_size}}px;" required>
+                                </div>
+                                <div class="edit-user-input" style="width: {{ login_form.input_width }}%;">
+                                    <label class="edit-user-label" for="id_birthdate" style="color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Date of Birth<span class="required-asterisk">*</span></label>
+                                    <input id="id_birthdate" name="id_birthdate" class="date-picker form-control input form-input-field slide-one-input-field" placeholder="" tabindex="0" type="text" style="padding-top: {{ login_form.input_padding_top}}px; padding-right: {{ login_form.input_padding_right}}px; padding-bottom: {{ login_form.input_padding_bottom}}px; padding-left: {{ login_form.input_padding_left}}px; background-color: {{ login_form.input_background_color}}; color: {{ login_form.input_text_color}}; border-color: {{ login_form.input_border_color }}; border-radius: {{ login_form.input_radius }}px; font-size: {{ login_form.input_font_size}}px;" required>
+                                    <span class="input-group-addon">
+                                        <i class="fa-regular fa-calendar-lines"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div id="registrationSlideTwo" class="registration-slide-container hidden" style="gap: 24px;">
+                                <div class="edit-user-input" style="width: {{ login_form.input_width }}%;">
+                                    <div class="input-label-row">
+                                        <label class="edit-user-label" style=" padding-bottom: 0 !important; color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Identification Photo<span class="required-asterisk">*</span></label>
+                                        <div onclick="openPopup('idPhotoInformation')" class="info-icon tooltip" data-tooltip="What is this?">
+                                            <i class="fa-regular fa-circle-info"></i>
+                                            <span class="tooltiptext" style="left: -1.4rem;">What is this?</span>
+                                        </div>
+                                    </div>                                  
+                                    <img class="taken-image-preview hidden" id="id_id_photo_preview" src="" alt="Your Identification Photo">
+                                    <!-- This is where the image data gets input from the student taken photo -->
+                                    <input type="hidden" id="id_id_photo_image_data" name="image_data">
+                                    <label for="id_id_photo" class="custom-file-upload-container" style="font-size: unset; margin-top: {{ login_form.label_space_bottom }}px; margin-bottom: unset; padding-bottom: unset; color: unset; max-width: unset;">
+                                        <div class="custom-file-upload">
+                                            <input class="custom-file form-file-field" type="file" id="id_id_photo" name="id_id_photo" style="display: none;" accept=".jpg,.jpeg,.png" required>
+                                            <i class="fa-regular fa-folder-open"></i> Choose File <!-- Choose File -->
+                                        </div>
+                                        <div class="custom-file-title">
+                                            <span id="id_id_photo_name" class="file-name-display">No File Selected</span>
+                                        </div>
+                                    </label>
+                                    <span style="text-align: center; font-weight: 500; font-size: 0.85rem; margin: 0.4rem 0;"> OR </span>
+                                    <button onclick="takePhoto('id_id_photo')" class="secondary-add-btn">
+                                        <i class="fa-regular fa-camera-retro"></i>
+                                        <span> Take a Photo </span>
+                                    </button>
+                                </div>
+                                <div class="edit-user-input" style="width: {{ login_form.input_width }}%;">
+                                    <div class="input-label-row">
+                                        <label class="edit-user-label" style=" padding-bottom: 0 !important; color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Headshot Photo<span class="required-asterisk">*</span></label>
+                                        <div onclick="openPopup('headshotPhotoInformation')" class="info-icon tooltip" data-tooltip="What is this?">
+                                            <i class="fa-regular fa-circle-info"></i>
+                                            <span class="tooltiptext" style="left: -1.4rem;">What is this?</span>
+                                        </div>
+                                    </div>
+                                    <img class="taken-image-preview hidden" id="id_reg_photo_preview" src="" alt="Your Headshot Photo">
+                                    <!-- This is where the image data gets input from the student taken photo -->
+                                    <input type="hidden" id="id_reg_photo_image_data" name="image_data">
+                                    <label for="id_reg_photo" class="custom-file-upload-container" style="font-size: unset; margin-top: {{ login_form.label_space_bottom }}px; margin-bottom: unset; padding-bottom: unset; color: unset; max-width: unset;">
+                                        <div class="custom-file-upload">
+                                            <input class="custom-file form-file-field" type="file" id="id_reg_photo" name="id_reg_photo" style="display: none;" accept=".jpg,.jpeg,.png" required>
+                                            <i class="fa-regular fa-folder-open"></i> Choose File <!-- Choose File -->
+                                        </div>
+                                        <div class="custom-file-title">
+                                            <span id="id_reg_photo_name" class="file-name-display">No File Selected</span>
+                                        </div>
+                                    </label>
+                                    <span style="text-align: center; font-weight: 500; font-size: 0.85rem; margin: 0.4rem 0;"> OR </span>
+                                    <button onclick="takePhoto('id_reg_photo')" class="secondary-add-btn">
+                                        <i class="fa-regular fa-camera-retro"></i>
+                                        <span> Take a Photo </span>
+                                    </button>
+                                </div>
+                            </div>                       
+                        </div>
+                        
+                        <div class="login-form-footer-container">
+                            <div class="registration-buttons-wrapper" style="margin-top: {{ login_form.button_space_above }}px;">
+                                <button id="prevBtn" type="button" class="registration-btn previous-slide-btn hidden" disabled style="border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Previous</button>
+                                <button id="nextBtn" type="button" class="registration-btn next-slide-btn" style="background-color: {{ login_form.button_color}}; color: {{ login_form.button_text }}; border-color: {{ login_form.button_border_color}}; width: {{ login_form.button_width }}%; border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Continue</button>
+                                <button disabled id="registerButton" type="submit" class="hidden login-form-button disabled scale-button" style="background-color: {{ login_form.button_color}}; color: {{ login_form.button_text }}; border-color: {{ login_form.button_border_color}}; width: {{ login_form.button_width }}%; border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Sign Up</button>
+                            </div>
+                            <div class="button-container {% if login_form.is_signup_disabled %} hidden {% endif %}" style="font-size: {{ login_form.signup_font_size }}px; margin-top: {{ login_form.signup_space_above }}px; font-weight: {{ login_form.signup_font_weight }};">
+                                <span style="color: {{ login_form.signup_text_color }};"> Already have an account? </span>
+                                <a id="loginFormRegisterButton" href="{% url 'login_view' %}" class="scale-button" style="text-decoration: {{ login_form.signup_text_decoration }}; color: {{ login_form.signup_link_color }};"> Login</a>
+                            </div>
+                        </div>
+                    </form>                
                 </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-    <div class="body-content">
-        <div class="register-container">
-            <div class="registerForm">
-                <h1>Register</h1>
-                <form id="registerForm" method="post" action="{% url 'register_view' %}" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="register-form-field">
-                        <label for="id_username">Username:</label>
-                        <input type="text" id="id_username" name="username" required>
-                    </div>
-                    <div class="register-form-field">
-                        <label for="id_password">Password:</label>
-                        <input type="password" id="id_password" name="password" required>
-                    </div>
-                    <div class="register-form-field">
-                        <label for="id_confirm_password">Confirm Password:</label>
-                        <input type="password" id="id_confirm_password" name="confirm_password" required>
-                    </div>
-                    <div class="register-form-field">
-                        <label for="id_email">Email:</label>
-                        <input type="email" id="id_email" name="email" required>
-                    </div>
-                    <div class="register-form-field">
-                        <label for="id_given_name">First Name:</label>
-                        <input type="text" id="id_given_name" name="given_name" required>
-                    </div>
-                    <div class="register-form-field">
-                        <label for="id_family_name">Last Name:</label>
-                        <input type="text" id="id_family_name" name="family_name" required>
-                    </div>
-                    <div class="register-form-field">
-                        <label for="id_birthdate">Birth Date (YYYY-MM-DD):</label>
-                        <input type="text" id="id_birthdate" name="birthdate" required>
-                    </div>
-                    <div class="register-form-field">
-                        <label for="id_id_photo">Upload ID Photo:</label>
-                        <input type="file" id="id_id_photo" name="id_photo" accept=".jpg,.jpeg,.png" required>
-                    </div>
-                    <div class="register-form-field">
-                        <label for="id_reg_photo">Upload Registration Photo:</label>
-                        <input type="file" id="id_reg_photo" name="reg_photo" accept=".jpg,.jpeg,.png" required>
-                    </div>
-                    <button type="submit" class="scale-button">Register</button>
-                </form>
-                <script>
-                    document.getElementById('registerForm').addEventListener('submit', function(event) {
-                        var password = document.getElementById('id_password').value;
-                        var confirmPassword = document.getElementById('id_confirm_password').value;
-                        var idPhoto = document.getElementById('id_id_photo').files[0];
-                        var regPhoto = document.getElementById('id_reg_photo').files[0];
-                        
-                        if (password !== confirmPassword) {
-                            alert('Passwords do not match.');
-                            event.preventDefault();
-                            return;
-                        }
-
-                        if (idPhoto && !['image/jpeg', 'image/png'].includes(idPhoto.type)) {
-                            alert('ID Photo must be a JPEG or PNG image.');
-                            event.preventDefault();
-                            return;
-                        }
-                        
-                        if (regPhoto && !['image/jpeg', 'image/png'].includes(regPhoto.type)) {
-                            alert('Registration Photo must be a JPEG or PNG image.');
-                            event.preventDefault();
-                        }
-                    });
-                </script>
             </div>
         </div>
     </div>
 </body>
 </html>
+{% include 'main/popups/take_registration_photo.html' %}
+{% include 'main/popups/id_photo_information.html' %}
+{% include 'main/popups/headshot_photo_information.html' %}
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/login.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'global_styles.css' %}">
+<link rel="stylesheet" href="{% static 'global_variables.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin\css\admin.css' %}">
+<script src="{% static 'custom_dashboard/javascript/login.js' %}"></script>
+<script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+<!-- Main JS for this page -->
+<script src="{% static 'custom_dashboard/javascript/registration.js' %}"></script>
 {% endblock %}

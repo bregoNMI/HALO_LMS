@@ -57,6 +57,8 @@ function selectFile(popupId, referenceId = null) {
         const selectedFileTitle = selectedRow.querySelector('.file-title').textContent;
         const selectedFileType = selectedRow.querySelector('.file-type').textContent;
 
+        console.log('selectedFileURL:', selectedFileURL);
+
         if (popupId === 'editLesson') {
             const editFileURLInput = document.getElementById('editFileURLInput');
             const editLessonFileDisplay = document.getElementById('editLessonFileDisplay');
@@ -83,7 +85,7 @@ function selectFile(popupId, referenceId = null) {
             } else {
                 displayMessage('Please Select an Image for Course Thumbnail', false);
             }
-        }else if(popupId=== 'dashboardHeader'){
+        }else if(popupId === 'dashboardHeader'){
             // Dashboard Banner Image
             const dashboardURLInput = document.getElementById('dashboardURLInput');
             const dashboardSourceDisplay = document.getElementById('headerEditBackgroundImageDisplay');
@@ -93,6 +95,49 @@ function selectFile(popupId, referenceId = null) {
                 closePopup('fileLibrary');
             } else {
                 displayMessage('Please Select an Image for Banner', false);
+            }
+        }else if(popupId === 'loginLogo'){
+            // Login page logo Image
+            const loginLogoURLInput = document.getElementById('loginLogoURLInput');
+            const loginLogoSourceDisplay = document.getElementById('loginLogoImageDisplay');
+            const loginLogoPreview = document.getElementById('loginLogoPreview');
+            if (isImage(selectedFileURL)) {
+                loginLogoURLInput.value = selectedFileURL;
+                loginLogoSourceDisplay.innerText = selectedFileTitle;
+                loginLogoPreview.src = selectedFileURL;
+                closePopup('fileLibrary');
+            } else {
+                displayMessage('Please Select an Image for your Logo', false);
+            }
+        } else if(popupId === 'loginBackground'){
+            // Login page background Image
+            const loginBackgroundURLInput = document.getElementById('loginBackgroundURLInput');
+            const loginBackgroundImageDisplay = document.getElementById('loginBackgroundImageDisplay');
+            const loginBackgroundPreview = document.getElementById('loginBackgroundPreview');
+            if (isImage(selectedFileURL)) {
+                loginBackgroundURLInput.value = selectedFileURL;
+                loginBackgroundImageDisplay.innerText = selectedFileTitle;
+                loginBackgroundPreview.src = selectedFileURL;
+                loginBackgroundPreview.removeAttribute('hidden', true);
+                closePopup('fileLibrary');
+            } else {
+                displayMessage('Please Select an Image for your Logo', false);
+            }
+        }else if(popupId === 'formBackground'){
+            // Login form background Image
+            const formBackgroundURLInput = document.getElementById('formBackgroundURLInput');
+            const formBackgroundImageDisplay = document.getElementById('formBackgroundImageDisplay');
+            const formBackgroundPreview = document.getElementById('formBackgroundPreview');
+            if (isImage(selectedFileURL)) {
+                formBackgroundURLInput.value = selectedFileURL;
+                formBackgroundImageDisplay.innerText = selectedFileTitle;
+                formBackgroundPreview.src = selectedFileURL;
+                formBackgroundPreview.removeAttribute('hidden', true);
+                // Showing the option to delete the image
+                document.getElementById('formBackgroundPreviewDelete').style.display = 'flex';
+                closePopup('fileLibrary');
+            } else {
+                displayMessage('Please Select an Image for your Logo', false);
             }
         } else if (popupId === 'referenceSource' && referenceId !== null) {
             const referenceURLInput = document.querySelector(`#referenceURLInput-${referenceId}`);
@@ -212,12 +257,44 @@ function openFileLibrary(popupId, referenceId = null) {
             const container = checkbox.closest('.container');
             if (container) {
                 container.click();
-                console.log('The container has been clicked because the checkbox was not checked');
             }
         }
         closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("dashboardHeader")');
+    }else if(popupId === 'loginLogo'){
+        const checkbox = document.querySelector('.container .filter[data-type="image"]');
+        if (checkbox && !checkbox.checked) {
+            const container = checkbox.closest('.container');
+            if (container) {
+                container.click();
+            }
+        }
+        closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
+        closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
+        document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("loginLogo")');
+    } else if(popupId === 'loginBackground'){
+        const checkbox = document.querySelector('.container .filter[data-type="image"]');
+        if (checkbox && !checkbox.checked) {
+            const container = checkbox.closest('.container');
+            if (container) {
+                container.click();
+            }
+        }
+        closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
+        closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
+        document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("loginBackground")');
+    }else if(popupId === 'formBackground'){
+        const checkbox = document.querySelector('.container .filter[data-type="image"]');
+        if (checkbox && !checkbox.checked) {
+            const container = checkbox.closest('.container');
+            if (container) {
+                container.click();
+            }
+        }
+        closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
+        closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
+        document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("formBackground")');
     }else if(popupId === 'header_logo'){
         closeLibraryPopup('editHeaderPopup');
         closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary"), openLibraryPopup("editHeaderPopup")');

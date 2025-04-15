@@ -263,34 +263,6 @@
     background-size: 100% 100%;
 }
 
-.position-selection-container{
-    display: grid;
-    grid-template-columns: repeat(3, 0fr);
-    gap: 6px;
-}
-
-.position-selection-item{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 1.7rem;
-    width: 1.7rem;
-    outline: -webkit-focus-ring-color auto 1px;
-    outline-color: #ececf1;
-    border-radius: 8px;
-    color: var(--text-color7);
-}
-
-.position-selection-item:hover {
-    background-color: var(--bg-color3);
-}
-
-.position-selection-item:has(input[type="radio"]:checked) {
-    outline-color: var(--primary-blue);
-    color: var(--primary-blue);
-    background-color: #f2f6ff;
-}
-
 .dashboard-edit-options-section{
     display: flex;
     flex-direction: column;
@@ -356,26 +328,6 @@
     outline-color: var(--primary-blue);
     color: var(--primary-blue);
     background-color: #f2f6ff;
-}
-
-.external-link-visit{
-    display: flex;
-    position: absolute;
-    align-items: center;
-    justify-content: center;
-    bottom: 0.17rem;
-    right: 0.3rem;
-    padding: var(--pad-xxs) var(--pad-xs);
-    background-color: var(--primary-blue);
-    border-radius: 6px;
-    color: white;
-    transition: all 0.3s linear;
-    cursor: pointer;
-    font-size: 0.85rem;
-}
-
-.external-link-visit:hover{
-    background-color: dodgerblue;
 }
 
 .no-widgets-found{
@@ -627,34 +579,6 @@
 }.template-option-card:has(.pastel-green):hover{
     outline-color: #059f48;
     background-color: #e9f4ec;
-}
-
-.color-picker-container{
-    display: flex;
-    align-items: center;
-}
-
-.color-picker-container .color-sample{
-    position: relative;
-}
-
-.color-picker-container input{
-    border-radius: 0 8px 8px 0 !important;
-}
-
-.color-picker{
-    visibility: hidden; 
-    pointer-events: none; 
-    position: absolute;
-}
-
-.color-sample{
-    border-radius: 8px 0 0 8px;
-    border: 1px solid #ececf1;
-    border-right: 0px;
-    width: 30px;
-    height: 100%;
-    cursor: pointer;
 }
 
 .logo-image-preview img{

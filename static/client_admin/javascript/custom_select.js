@@ -34,8 +34,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 var fieldName = this.getAttribute('data-name');
                 var fieldValue = this.getAttribute('data-value');
 
+                console.log('selected');
+
                 // Update the select box text and field value input
-                selectSelected.value = fieldValue;
+                selectSelected.setAttribute('value', fieldValue);
                 selectItems.querySelectorAll('div').forEach(function(el) {
                     el.classList.remove('same-as-selected');
                 });

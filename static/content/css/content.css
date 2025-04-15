@@ -57,9 +57,9 @@ input[type="text"], input[type="number"]{
 }
 
 .course-content-input .edit-user-label{
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-top: 0;
-    color: var(--text-color2);
+    color: var(--text-color7);
     margin-bottom: 0;
     padding-bottom: 0.4rem;
     font-weight: 600;
@@ -90,12 +90,6 @@ input[type="text"], input[type="number"]{
 .content-input-options-row{
     display: flex;
     gap: 1rem;
-}
-
-.course-content-input-subtext{
-    margin-top: 0.2rem;
-    color: var(--text-color3);
-    font-size: 0.7rem !important;
 }
 
 /* Course Content/Creating Modules and Lessons */
@@ -140,27 +134,6 @@ input[type="text"], input[type="number"]{
 .main-add-btn:hover{
     background-color: dodgerblue;
     border: 1px solid dodgerblue;
-}
-
-.secondary-add-btn{
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
-    gap: 0.5rem;
-    padding: var(--pad-xxxs) var(--pad-sm);
-    border-radius: 6px;
-    font-size: var(--btn-font);
-    cursor: pointer;
-    background-color: transparent;
-    color: var(--primary-blue);
-    border: 2px solid var(--primary-blue);
-    transition: all 0.2s linear;
-    font-weight: 500;
-}
-
-.secondary-add-btn:hover{
-    background-color: var(--primary-blue);
-    color: white;
 }
 
 /* Modules */
@@ -449,6 +422,8 @@ input[type="text"], input[type="number"]{
     transition: all 0.3s linear;
     cursor: pointer;
     outline: 2px solid transparent;
+}.lesson-selection-container .lesson-selection-item{
+    padding-bottom: var(--pad-sm);
 }
 
 .lesson-selection-item:hover{
@@ -532,12 +507,6 @@ input[type="text"], input[type="number"]{
     margin-bottom: 0.7rem;
     color: var(--text-color2);
     font-size: 0.9rem;
-}
-
-.required-asterisk {
-    color: red;
-    font-size: 0.9rem;
-    margin-left: 5px;
 }
 
 /* Right Column */
@@ -1183,9 +1152,28 @@ input[type="text"], input[type="number"]{
     }
 }
 
-
 .file-required-text{
     font-size: 0.8rem;
     color: var(--text-color6);
     font-weight: 500;
+}
+
+.external-link-visit{
+    display: flex;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    bottom: 0.19rem;
+    right: 0.2rem;
+    padding: 0.35rem var(--pad-xs);
+    background-color: var(--primary-blue);
+    border-radius: 6px;
+    color: white;
+    transition: all 0.3s linear;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.external-link-visit:hover{
+    background-color: dodgerblue;
 }

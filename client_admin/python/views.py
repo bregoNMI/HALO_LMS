@@ -23,7 +23,7 @@ from django.http import HttpResponseForbidden, HttpRequest
 from content.models import Lesson
 from learner_dashboard.views import learner_dashboard
 from django.contrib import messages
-from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog
+from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos
 from client_admin.forms import OrganizationSettingsForm
 from .forms import UserRegistrationForm, ProfileForm, CSVUploadForm
 from django.contrib.auth import update_session_auth_hash, login
@@ -55,7 +55,7 @@ def admin_settings(request):
         settings = OrganizationSettings()
 
     if request.method == 'POST':
-        form = form = OrganizationSettingsForm(request.POST, request.FILES, instance=settings)
+        form = OrganizationSettingsForm(request.POST, request.FILES, instance=settings)
 
         if form.is_valid():
             # Handle boolean fields
@@ -90,9 +90,12 @@ def admin_settings(request):
         except Course.DoesNotExist:
             selected_course_name = ''
 
+    allowed_photos = settings.allowed_id_photos.order_by('id')
+
     return render(request, 'settings.html', {
         'form': form,
         'selected_course_name': selected_course_name,
+        'allowed_photos': allowed_photos,
     })
 
 @login_required
@@ -830,3 +833,58 @@ def delete_courses(request):
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+    
+def create_allowed_id_photo(request):
+    try:
+        data = json.loads(request.body)
+        name = data.get('name')
+
+        if name:
+            allowedPhoto = AllowedIdPhotos.objects.create(name=name)
+
+            # Get the current organization settings (this assumes there's one or use a filter for your use case)
+            settings = OrganizationSettings.objects.first()
+            if settings:
+                settings.allowed_id_photos.add(allowedPhoto)
+                settings.save()
+
+            return JsonResponse({'id': allowedPhoto.id, 'name': allowedPhoto.name}, status=201)
+        else:
+            return JsonResponse({'error': 'Name is missing'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+def get_allowed_id_photos(request):
+    try:
+        settings = OrganizationSettings.objects.first()
+        if settings:
+            disapprovals = settings.allowed_id_photos.order_by('id').values('id', 'name')
+            return JsonResponse(list(disapprovals), safe=False)
+        else:
+            return JsonResponse({'error': 'Organization not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+def edit_allowed_id_photos(request):
+    if request.method == 'POST':
+        try:
+            photo_id = request.POST.get('id')
+            new_name = request.POST.get('name')
+            
+            allowedPhoto = AllowedIdPhotos.objects.get(id=photo_id)
+            allowedPhoto.name = new_name
+            allowedPhoto.save()
+            
+            return JsonResponse({'status': 'success', 'msg': 'Updated successfully'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'msg': str(e)})
+        
+def delete_allowed_id_photos(request):
+    if request.method == 'POST':
+        try:
+            reasoning_id = request.POST.get('id')
+            reasoning = AllowedIdPhotos.objects.get(id=reasoning_id)
+            reasoning.delete()
+            return JsonResponse({'status': 'success', 'msg': 'Deleted successfully'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'msg': str(e)})

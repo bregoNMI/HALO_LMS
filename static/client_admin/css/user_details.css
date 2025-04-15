@@ -211,6 +211,7 @@
     border-radius: 8px;
     /* outline: 1px solid #d7d7d7; */
     box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+    overflow: hidden;
 }
 
 .info-card-header{
@@ -357,11 +358,11 @@
 }
 
 .edit-user-label{
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-top: 0;
+    color: var(--text-color7);
     margin-bottom: 0;
     padding-bottom: 0.4rem;
-    color: var(--text-color2);
     font-weight: 600;
 }
 
@@ -662,7 +663,7 @@
     flex: 1;
     border: 1px solid #ececf1;
     padding: 5.5px 9px;
-    border-radius: 0 4px 4px 0;
+    border-radius: 0 8px 8px 0;
     overflow: hidden;
     max-height: 1.2rem;
     text-wrap: nowrap;

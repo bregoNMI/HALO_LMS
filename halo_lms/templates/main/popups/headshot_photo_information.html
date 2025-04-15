@@ -1,0 +1,50 @@
+<div id="headshotPhotoInformation" class="popup-background">
+    <div class="popup-content max-width-5">
+        <div class="popup-header">
+            <h3>What is a Headshot Photo?</h3>
+            <div onclick="closePopup('headshotPhotoInformation')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <div class="help-steps-main-header">
+                <span><i class="fa-regular fa-circle-info"></i> Your Headshot Photo will be used for facial recognition purposes. </span>
+                <span> Using this image, you will be able to login to your account and we may also monitor you while you are taking your course. Please carefully read through the list below to ensure that you correctly upload your Headshot Photo. </span>
+                <span> You can either use the 'Take a Photo' option to capture a new image with your camera or upload an existing photo from your device. </span>
+            </div>
+            <div class="help-steps-item-wrapper">
+                <h3 class="help-steps-heading">Headshot Photo Requirements</h3>
+                <div class="help-steps-item-header">
+                    <div class="help-steps-item-icon"><i class="fa-solid fa-angle-right"></i></div>
+                    <h5 class="help-steps-item-title">Students should not be smiling in the photo.</h5>
+                </div>
+                <div class="help-steps-item-header">
+                    <div class="help-steps-item-icon"><i class="fa-solid fa-angle-right"></i></div>
+                    <h5 class="help-steps-item-title">The photo must have been taken within 3 months of creating an account, and the student must present the same characteristics contained on the photo.</h5>
+                </div>
+                <div class="help-steps-item-header">
+                    <div class="help-steps-item-icon"><i class="fa-solid fa-angle-right"></i></div>
+                    <h5 class="help-steps-item-title">Any change in appearance (hair color, haircut, beard, etc.) after photo is taken will require another photograph.</h5>
+                </div>
+                <div class="help-steps-item-header">
+                    <div class="help-steps-item-icon"><i class="fa-solid fa-angle-right"></i></div>
+                    <h5 class="help-steps-item-title">The photograph must be a frontal picture, head centered; a full‐face view is necessary. Student must be looking at the camera when the picture is taken, and not looking down or to one side.</h5>
+                </div>
+                <div class="help-steps-item-header">
+                    <div class="help-steps-item-icon"><i class="fa-solid fa-angle-right"></i></div>
+                    <h5 class="help-steps-item-title">Please refrain from wearing hats or eye glasses, in the picture, that obstruct your eyes or face in any manner.</h5>
+                </div>
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button onclick="closePopup('headshotPhotoInformation')" class="popup-btn close-popup-btn">Close</button>
+                <button onclick="closePopup('headshotPhotoInformation'), takePhoto('id_reg_photo')" class="popup-btn">
+                    <i class="fa-regular fa-camera-retro"></i>
+                    <span> Take a Photo </span>
+                </button> 
+            </div>     
+        </div>
+    </div>
+</div>

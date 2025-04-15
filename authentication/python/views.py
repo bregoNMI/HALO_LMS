@@ -23,6 +23,8 @@ from django.conf import settings
 import logging
 from django.shortcuts import redirect, render
 from botocore.exceptions import ClientError
+from custom_templates.models import Dashboard, Widget, Header, Footer, LoginForm
+from client_admin.models import OrganizationSettings
 
 @login_required
 def login(request):
@@ -155,6 +157,7 @@ def authenticate_user(username_or_email, password):
         return None
 
 def login_view(request):
+    login_form = LoginForm.objects.first()
     if request.method == 'POST':
         username_or_email = request.POST.get('username_or_email')
         password = request.POST.get('password')
@@ -162,7 +165,7 @@ def login_view(request):
         # Check if data is being submitted
         if not username_or_email or not password:
             messages.error(request, 'Please provide both username and password.')
-            return render(request, 'main/login.html')
+            return render(request, 'main/login.html', {'login_form': login_form})
         # Step 1: Authenticate with AWS Cognito
         response = authenticate_user(username_or_email, password)
         print('Response: ', response)
@@ -180,9 +183,9 @@ def login_view(request):
         # Add debug print to see if this line is hit
         print('Invalid credentials')  # You can remove this later
         messages.error(request, 'Invalid username or password')
-        return render(request, 'main/login.html')
+        return render(request, 'main/login.html', {'login_form': login_form})
 
-    return render(request, 'main/login.html')
+    return render(request, 'main/login.html', {'login_form': login_form})
 
 cognito_client = boto3.client('cognito-idp', region_name=settings.AWS_REGION)
 logger = logging.getLogger(__name__)
@@ -195,17 +198,20 @@ s3_client = boto3.client(
 )
 
 def register_view(request):
+    login_form = LoginForm.objects.first()
+    settings = OrganizationSettings.objects.first()
+    allowed_photos = settings.allowed_id_photos.order_by('id')
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        email = request.POST.get('email')
-        given_name = request.POST.get('given_name')
-        family_name = request.POST.get('family_name')
-        birthdate = request.POST.get('birthdate')
-        id_photo = request.FILES.get('id_photo') 
-        reg_photo = request.FILES.get('reg_photo') 
+        username = request.POST.get('id_username')
+        password = request.POST.get('id_password')
+        email = request.POST.get('id_email')
+        given_name = request.POST.get('id_given_name')
+        family_name = request.POST.get('id_family_name')
+        birthdate = request.POST.get('id_birthdate')
+        id_photo = request.FILES.get('id_id_photo') 
+        reg_photo = request.FILES.get('id_reg_photo') 
 
-        logger.debug(f"Username: {username}, Email: {email}, Given Name: {given_name}, Family Name: {family_name}, Birth Date: {birthdate}, Picture: {id_photo}, Registration Photo: {reg_photo}")
+        print(f"Username: {username}, Email: {email}, Given Name: {given_name}, Family Name: {family_name}, Birth Date: {birthdate}, Picture: {id_photo}, Registration Photo: {reg_photo}")
         logger.debug(f"id_photo field: {id_photo}")
 
         if not all([username, password, email, given_name, family_name, birthdate, id_photo, reg_photo]):
@@ -219,7 +225,7 @@ def register_view(request):
             if not id_photo: missing_fields.append('id_photo')
             if not id_photo: missing_fields.append('reg_photo')
             messages.error(request, f'Missing fields: {", ".join(missing_fields)}')
-            return render(request, 'main/register.html')
+            return render(request, 'main/register.html', {'login_form': login_form, 'allowed_photos': allowed_photos})
 
         try:
             # Upload the photo to S3
@@ -269,15 +275,18 @@ def register_view(request):
             )
 
             messages.success(request, 'Registration successful. Please check your email to confirm your account.')
-            return render(request, 'main/login.html')
+            return render(request, 'main/login.html', {'login_form': login_form})
         except cognito_client.exceptions.UsernameExistsException:
             messages.error(request, 'Username already exists.')
+            return render(request, 'main/register.html', {'login_form': login_form, 'allowed_photos': allowed_photos})
         except cognito_client.exceptions.InvalidParameterException as e:
             messages.error(request, f'Invalid parameters provided: {e}')
+            return render(request, 'main/register.html', {'login_form': login_form, 'allowed_photos': allowed_photos})
         except Exception as e:
             messages.error(request, f'An error occurred: {e}')
+            return render(request, 'main/register.html', {'login_form': login_form, 'allowed_photos': allowed_photos})
     else:
-        return render(request, 'main/register.html')
+        return render(request, 'main/register.html', {'login_form': login_form, 'allowed_photos': allowed_photos})
 
 def verify_account(request):
     code = request.GET.get('code')
@@ -311,6 +320,7 @@ def login_success_view(request):
     return redirect('dashboard')
 
 def addUserCognito(request):
+    login_form = LoginForm.objects.first()
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -392,7 +402,7 @@ def addUserCognito(request):
         except Exception as e:
             messages.error(request, f'An error occurred: {e}')
     
-    return render(request, 'main/register.html')
+    return render(request, 'main/register.html', {'login_form': login_form})
 
 @login_required
 def modifyCognito(request):
@@ -472,6 +482,7 @@ def modifyCognito(request):
     return redirect('dashboard/')
 
 def password_reset(request):
+    login_form = LoginForm.objects.first()
     if request.method == 'POST':
         email = request.POST.get('email')
         request.session['reset_email'] = email  # Store for convenience
@@ -495,9 +506,10 @@ def password_reset(request):
             else:
                 messages.error(request, f"Unexpected error: {str(e)}")
 
-    return render(request, 'main/password_reset.html')
+    return render(request, 'main/password_reset.html', {'login_form': login_form})
 
 def confirm_password_reset(request):
+    login_form = LoginForm.objects.first()
     if request.method == 'POST':
         email = request.POST.get('email')
         code = request.POST.get('code')
@@ -520,19 +532,19 @@ def confirm_password_reset(request):
                 user = User.objects.get(username=email)
                 user.set_password(new_password)
                 user.save()
-                messages.success(request, "Your password has been reset in Cognito and Django. You may now log in.")
+                messages.success(request, "Your password has successfully been reset.")
             except User.DoesNotExist:
                 messages.warning(request, "Password reset in Cognito, but user does not exist in Django.")
 
             return redirect('login_view')
 
         except client.exceptions.CodeMismatchException:
-            messages.error(request, "Invalid code.")
+            messages.error(request, "Invalid Confirmation Code.")
         except client.exceptions.ExpiredCodeException:
-            messages.error(request, "The code has expired.")
+            messages.error(request, "The Confirmation Code has expired.")
         except client.exceptions.UserNotFoundException:
             messages.error(request, "User not found.")
         except Exception as e:
             messages.error(request, f"An error occurred: {e}")
 
-    return render(request, 'main/confirm_password_reset.html')
+    return render(request, 'main/confirm_password_reset.html', {'login_form': login_form})

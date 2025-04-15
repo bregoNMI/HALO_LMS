@@ -1,0 +1,23 @@
+<div id="createAllowedId" class="popup-background">
+    <div class="popup-content max-width-6">
+        <div class="popup-header">
+            <h3>Create acceptable ID type</h3>
+            <div onclick="closePopup('createAllowedId')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <div class="course-content-input">
+                <label class="edit-user-label" for="newIdPhotoName">ID Name<span class="required-asterisk">*</span></label>
+                <input type="text" id="newIdPhotoName" name="newIdPhotoName" placeholder="ID Name">
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <div onclick="closePopup('createAllowedId')" class="popup-btn close-popup-btn">Cancel</div>
+                <button id="createAllowedIdPhotoBtn" onclick="createAllowedIdPhoto()" class="popup-btn disabled" disabled>Create</button>
+            </div>
+        </div>
+    </div>
+</div>

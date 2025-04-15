@@ -179,6 +179,13 @@ class Message(models.Model):
     def __str__(self):
         return self.subject
     
+class AllowedIdPhotos(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=1000)
+
+    def __str__(self):
+        return self.name
+    
 class OrganizationSettings(models.Model):
     # Client Profile
     lms_name = models.CharField(max_length=255, blank=True, null=True, default='LMS Name')
@@ -212,6 +219,7 @@ class OrganizationSettings(models.Model):
 
     # Portal
     portal_favicon = models.ImageField(upload_to='logos/', blank=True, null=True)
+    allowed_id_photos = models.ManyToManyField(AllowedIdPhotos, related_name='OrganizationSettings')
 
     def __str__(self):
         return self.lms_name
