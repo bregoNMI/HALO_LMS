@@ -23,6 +23,10 @@
             font-size: 0.85em;
             color: #28a745;
         }
+        .progress-circle__runner--passed {
+            fill: #162c53; /* or whatever your "complete" color is */
+        }
+
     </style>
 </head>
 <body>
@@ -107,7 +111,7 @@
     </div>
 </div>
 <script>
-    window.progressDataString = '{{ lesson_progress_data|default:"[]"|escapejs }}';
+    // window.progressDataString = '{{ lesson_progress_data|default:"[]"|escapejs }}';
     window.lessonId = {{ lesson.id|default:"0" }};
     window.userId = {{ profile_id|default:"0" }};
     window.courseLocked = {{ course_locked|yesno:"true,false" }};
