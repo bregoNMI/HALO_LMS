@@ -207,22 +207,47 @@ console.log("iplayer.html script loaded");
     function trackScrollPosition() {
         try {
             if (!isScormLesson()) return;
-
-            var iframe = document.getElementById("scormContentIframe");
+    
+            const iframe = document.getElementById("scormContentIframe");
             if (iframe && iframe.contentWindow) {
-                var scrollPos = iframe.contentWindow.scrollY || iframe.contentWindow.document.documentElement.scrollTop || iframe.contentWindow.document.body.scrollTop || 0;
-
-                console.log("Captured Scroll Position:", scrollPos);
-
-                if (window.API_1484_11) {
-                    window.API_1484_11.SetValue("cmi.suspend_data", JSON.stringify({ scrollPos }));
-                    window.API_1484_11.Commit();
+                const scrollPos = iframe.contentWindow.scrollY || 
+                                  iframe.contentWindow.document.documentElement.scrollTop || 
+                                  iframe.contentWindow.document.body.scrollTop || 0;
+    
+                const lessonLocation = getLessonLocation();
+                let suspendRaw = window.API_1484_11.GetValue("cmi.suspend_data") || "{}";
+    
+                let suspendData = {};
+                try {
+                    suspendData = JSON.parse(suspendRaw);
+                } catch (e) {
+                    console.warn("⚠️ Couldn't parse suspend_data:", e);
                 }
+    
+                // 🔄 Update (don't overwrite) scroll data
+                suspendData.scrollPos = scrollPos;
+                suspendData.lessonLocation = lessonLocation;
+    
+                // Keep mini-lessons if present
+                suspendData.miniLessons = suspendData.miniLessons || {};
+    
+                // Optionally track current mini-lesson scroll as well
+                const currentIndex = getCurrentMiniLessonIndex();
+                suspendData.miniLessons[currentIndex] = {
+                    scrollPos,
+                    lessonLocation
+                };
+    
+                // ✅ Save back to SCORM
+                window.API_1484_11.SetValue("cmi.suspend_data", JSON.stringify(suspendData));
+                window.API_1484_11.Commit();
+    
+                console.log(`💾 Saved suspend_data with scroll and mini-lesson (index ${currentIndex})`, suspendData);
             }
         } catch (error) {
             console.error("Error tracking scroll position:", error);
         }
-    }
+    }    
     
     function getCurrentMiniLessonIndex() {
         try {
