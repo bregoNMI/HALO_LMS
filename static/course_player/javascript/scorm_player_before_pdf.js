@@ -31,6 +31,7 @@ console.log("iplayer.html script loaded");
 
     // Initialize session start time globally
     let sessionStartTime = new Date();
+    let lastSessionSentTime = 0;
 
     // Ensure SCORM API is available globally
     window.API_1484_11 = window.API_1484_11 || {

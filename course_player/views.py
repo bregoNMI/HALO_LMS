@@ -2,11 +2,14 @@ import datetime
 import json
 import mimetypes
 import os
+import uuid
 from django.utils import timezone
 from shlex import quote
+from django.utils.timezone import now
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 import rsa
+import re
 from django.utils.encoding import iri_to_uri
 from urllib.parse import quote, unquote, unquote_plus
 from client_admin.models import Profile, UserCourse
@@ -24,11 +27,29 @@ from django.shortcuts import render
 import boto3
 from rsa import PrivateKey
 from botocore.exceptions import NoCredentialsError
-from course_player.models import LessonProgress, SCORMTrackingData
+from course_player.models import LessonProgress, LessonSession, SCORMTrackingData
 from halo_lms.settings import AWS_S3_REGION_NAME, AWS_STORAGE_BUCKET_NAME
 
 secret_name = "COGNITO_SECRET"
 secrets = get_secret(secret_name)
+
+def parse_iso_duration(duration):
+    """
+    Convert ISO 8601 duration string (e.g., PT1H15M30S) to total seconds.
+    """
+    pattern = re.compile(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?")
+    match = pattern.match(duration)
+    if not match:
+        return 0
+    hours, minutes, seconds = match.groups()
+    return int(hours or 0) * 3600 + int(minutes or 0) * 60 + int(seconds or 0)
+
+def format_iso_duration(seconds):
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = seconds % 60
+    return f"PT{hours}H{minutes}M{seconds}S"
+
 
 def generate_presigned_url(key, expiration=86400):
     # Get AWS credentials from Secrets Manager
@@ -129,6 +150,25 @@ def proxy_scorm_file(request, file_path):
     except ClientError as e:
         print(f"❌ Error fetching file {decoded_file_path} from S3: {e}")
         raise Http404("SCORM file not found")
+    
+@login_required
+def launch_scorm(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    user = request.user
+
+    # Get all lessons ordered across modules
+    lessons = Lesson.objects.filter(module__course=course).order_by("module__order", "order")
+
+    for lesson in lessons:
+        tracking = SCORMTrackingData.objects.filter(user=user, lesson=lesson).first()
+        if not tracking or tracking.completion_status != "completed":
+            return redirect("launch_scorm_file", lesson_id=lesson.id)
+
+    # Fallback if all lessons are completed — open last
+    if lessons.exists():
+        return redirect("launch_scorm_file", lesson_id=lessons.last().id)
+
+    return render(request, "error.html", {"message": "No lessons available in this course."})
 
 @login_required
 def launch_scorm_file(request, lesson_id):
@@ -140,6 +180,18 @@ def launch_scorm_file(request, lesson_id):
     user_course = UserCourse.objects.filter(user=request.user, course=course).first()
 
     entry_key = None
+
+    # Create session
+    session = LessonSession.objects.create(
+        user=request.user,
+        lesson=lesson,
+        session_id=str(uuid.uuid4()),
+        user_agent=request.META.get('HTTP_USER_AGENT', ''),
+        ip_address=request.META.get('REMOTE_ADDR', ''),
+    )
+
+    # Store the session_id in session or pass to template
+    request.session['current_lesson_session_id'] = session.session_id
 
     if lesson.content_type == 'SCORM2004':
         if lesson.uploaded_file and lesson.uploaded_file.scorm_entry_point:
@@ -286,44 +338,95 @@ def track_scorm_data(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
+
+            print("🧾 Raw request body:", request.body.decode("utf-8"))
+            print("🕐 Incoming session_time from frontend:", data.get("session_time"))
+
             profile_id = data.get("user_id")
             lesson_id = data.get("lesson_id")
+            session_id = data.get("session_id")  # 👈 comes from frontend
             progress = data.get("progress", 0)
             completion_status = data.get("completion_status", "incomplete")
             session_time = data.get("session_time", "PT0H0M0S")
             score = data.get("score")
             lesson_location = data.get("lesson_location", "")
             scroll_position = data.get("scroll_position", 0)
+            cmi_data = data.get("cmi_data", "{}")
 
-            if not profile_id or not lesson_id:
+            if not profile_id or not lesson_id or not session_id:
                 return JsonResponse({"error": "Missing required fields"}, status=400)
-            
+
             if lesson_location.lower().endswith(".pdf") and "X-Amz-Signature" in lesson_location:
-                # Don't store the full URL — just leave it empty or store the fragment
                 lesson_location = ""
 
             profile = get_object_or_404(Profile, pk=profile_id)
             lesson = get_object_or_404(Lesson, pk=lesson_id)
 
-            # ✅ Only updating SCORM tracking data
+            # ✅ 1. UPDATE OR CREATE session record — only once, at session close
+            LessonSession.objects.update_or_create(
+                session_id=session_id,
+                defaults={
+                    "user": profile.user,
+                    "lesson": lesson,
+                    "end_time": now(),
+                    "progress": float(progress),
+                    "completion_status": completion_status,
+                    "session_time": session_time,
+                    "scroll_position": scroll_position,
+                    "score": score,
+                    "lesson_location": lesson_location,
+                    "user_agent": request.META.get("HTTP_USER_AGENT", ""),
+                    "ip_address": request.META.get("REMOTE_ADDR", None),
+                    "cmi_data": cmi_data,
+                },
+            )
+            print("👀 Looking for existing tracking data for user:", profile.user.id, "lesson:", lesson.id)
+
+            # ✅ Fetch previous tracking record
+            existing_tracking = SCORMTrackingData.objects.filter(user=profile.user, lesson=lesson).first()
+
+            if existing_tracking:
+                print("✅ Found existing tracking:", existing_tracking.session_time)
+            else:
+                print("❌ No existing tracking found — will start fresh")
+
+            # ✅ Use old session_time from DB
+            existing_raw = existing_tracking.session_time if existing_tracking and existing_tracking.session_time else "PT0H0M0S"
+
+            # ✅ Use new session_time from request (even if not final)
+            new_raw = session_time or "PT0H0M0S"
+
+            # ✅ Parse and sum both
+            existing_seconds = parse_iso_duration(str(existing_raw or "PT0H0M0S"))
+            new_seconds = parse_iso_duration(str(new_raw or "PT0H0M0S"))
+
+            total_seconds = existing_seconds + new_seconds
+
+            # ✅ Convert to final string
+            cumulative_session_time = format_iso_duration(total_seconds)
+
+            print(f"🧪 SCORM TIME: existing_raw = {existing_raw}, new_raw = {new_raw}, total = {cumulative_session_time}")
+
+            # ✅ Save updated cumulative time
             SCORMTrackingData.objects.update_or_create(
                 user=profile.user,
                 lesson=lesson,
                 defaults={
                     "progress": float(progress),
                     "completion_status": completion_status,
-                    "session_time": session_time,
+                    "session_time": cumulative_session_time,  # ✅ This is the true cumulative value
                     "scroll_position": scroll_position,
                     "lesson_location": lesson_location,
                     "score": score,
-                    "cmi_data": data.get("cmi_data", "{}"),  # ✅ Store cmi_data as JSON
+                    "cmi_data": cmi_data,
                 },
             )
 
-             # Update UserCourse progress
-            user_course, _ = UserCourse.objects.get_or_create(user=profile.user, course=lesson.module.course)
+            # ✅ 3. Update UserCourse progress (optional but useful)
+            user_course, _ = UserCourse.objects.get_or_create(
+                user=profile.user, course=lesson.module.course
+            )
             user_course.update_progress()
-            print('HERE')
 
             return JsonResponse({"status": "success"})
 
