@@ -124,8 +124,9 @@ html, body, button{
     border-left: 1px solid #ececf1;
     height: calc(100vh - 74.36px);
     /* Make sure the body height fills the viewport */
-    box-sizing: border-box; /* Include padding and border in height calculation */
-    overflow-y: auto; /* Allow scrolling if content overflows */
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
     outline: none;
 }
 
@@ -563,6 +564,22 @@ tr.selected-option th, tr.selected-option td{
     max-width: 170px;
 }
 
+.no-results-found-small{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid #d7d7d7;
+    padding: var(--pad-xxxl);
+    flex: 1;
+}.no-results-found-small img{
+    max-width: 110px;
+}.no-results-found-small span{
+    color: #41454d;
+    /* font-weight: 500; */
+    font-size: 0.9rem;
+}
+
 /* Custom Checkbox */
 .container input {
     position: absolute;
@@ -696,6 +713,7 @@ tr.selected-option th, tr.selected-option td{
     display: flex;
     flex-direction: column;
     padding: var(--pad-sm);
+    gap: 0.3rem;
 }
 
 .options-sidebar-item{
@@ -709,6 +727,7 @@ tr.selected-option th, tr.selected-option td{
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s linear;
+    border: 1px solid #ececf1;
 }
 
 .options-sidebar-item:hover{
@@ -939,14 +958,16 @@ tr.selected-option th, tr.selected-option td{
 /* Alert/Message Styling */
 .alert-container.animate-alert-container{
     right: 2rem;
+    /* top: 4.5rem; */
 }
 
 .alert-container {
-    position: absolute;
-    margin: 20px 0;
-    right: -70rem;
+    position: fixed;
+    /* margin: 20px 0; */
+    right: -100rem;
     transition: all 0.5s ease-in-out;
     z-index: 9999;
+    bottom: 2rem;
 }
 
 .alert {

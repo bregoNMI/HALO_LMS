@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div id="stickyNavBar" style="display: none;">
+        <div class="details-top-row max-width-0">
+            <div class="details-top-row-left">
+                <a href="{% url 'user_transcript' profile.id %}" class="back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <h3> Course Progress </h3>
+            </div>
+            <div class="details-top-row-right">
+                <div class="option-btn-row">
+                    <div class="option-btn" onclick="messageUserBtn()">
+                        <i class="fa-regular fa-messages"></i>
+                        <span> Message user</span>
+                    </div>
+                </div>
+                <div class="option-btn-row">
+                    <div class="option-btn" onclick="enrollUserBtn()">
+                        <i class="fa-regular fa-hand-holding-box"></i>
+                        <span> Enroll user</span>
+                    </div>
+                </div>
+                <!-- This button only updates the course activity and Event Dates - Lessons are from AJAX requests -->
+                <button onclick="updateCourseProgress('{{ user_course.uuid }}')" class="action-button-primary course-save-btns">
+                    <i class="fa-regular fa-floppy-disk"></i>
+                    <span>Save</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="admin-body align-center">
+        {% if messages %}
+            <div class="alert-container">
+                {% for message in messages %}
+                    {% if message.tags == 'success' %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <i class="fa-solid fa-circle-check"></i>
+                            {{ message }}
+                        </div>
+                    {% elif message.tags == 'error' %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <!-- Message Wrapper -->
+        <div id="validation-message-container" class="new-validation-message-container" style="display: none;"></div>
+        <div class="max-width-0">
+            <div id="mainNavBar" class="details-top-row">
+                <div class="details-top-row-left">
+                    <a href="{% url 'user_transcript' profile.id %}" class="back-btn">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                    <h3> Course Progress </h3>
+                </div>
+                <div class="details-top-row-right">
+                    <div class="option-btn-row">
+                        <div class="option-btn" onclick="messageUserBtn()">
+                            <i class="fa-regular fa-messages"></i>
+                            <span> Message user</span>
+                        </div>
+                    </div>
+                    <div class="option-btn-row">
+                        <div class="option-btn" onclick="enrollUserBtn()">
+                            <i class="fa-regular fa-hand-holding-box"></i>
+                            <span> Enroll user</span>
+                        </div>
+                    </div>
+                    <!-- This button only updates the course activity and Event Dates - Lessons are from AJAX requests -->
+                    <button onclick="updateCourseProgress('{{ user_course.uuid }}')" class="action-button-primary course-save-btns">
+                        <i class="fa-regular fa-floppy-disk"></i>
+                        <span>Save</span>
+                    </button>
+                </div>
+            </div>
+            {% include 'userCourse/user_course_details_card.html' %}
+            <div class="settings-container">
+                <div id="settingsTabs" class="tabs-container">
+                    <div class="tabs">
+                        <div class="tab active" data-target="tab1">
+                            <i class="fa-light fa-book-copy"></i>
+                            Course
+                        </div>
+                        <div class="tab" data-target="tab2">
+                            <i class="fa-light fa-photo-film"></i>
+                            Lessons
+                        </div>
+                        <div class="tab-indicator"></div>
+                    </div>
+                
+                    <div class="tab-content-container">
+                        <!-- Course -->
+                        <div class="tab-content active" id="tab1">
+                            <div class="details-info-section">
+                                <div class="details-info-card">
+                                    <div class="info-card-header collapsable-header">
+                                        <div class="card-header-left">
+                                            <i class="fa-regular fa-chart-line"></i>
+                                            <span> Course Activity </span>
+                                        </div>
+                                        <div class="card-header-right">
+                                            <i class="fa-regular fa-angle-down"></i>
+                                        </div>
+                                    </div>
+                                    <div class="info-card-body right-column-card-body">
+                                        <div class="course-content-input">
+                                            <label class="edit-user-label">Mark As</label>
+                                            <div class="content-input-options-row">
+                                                <label class="custom-radio">
+                                                    <input class="radio-option" type="radio" name="course_status" value="not_completed" checked="">
+                                                    <span class="custom-radio-button"></span>
+                                                    Not Completed
+                                                </label>
+                                                <label class="custom-radio">
+                                                    <input class="radio-option" type="radio" name="course_status" data-target="courseCompletedDetails" value="completed" {% if user_course.get_status == 'Completed' %}checked="checked"{% endif %}>
+                                                    <span class="custom-radio-button"></span>
+                                                    Completed
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div id="courseCompletedDetails" class="toggle-option-details {% if user_course.get_status == 'Completed' %}show-toggle-option-details{% endif %}">
+                                            <div class="right-column-file-wrapper">
+                                                <label class="edit-user-label" for="completed_date">Completed On</label>
+                                                <div class="date-options-container">
+                                                    <div class="edit-user-input">
+                                                        <input type="text" id="completed_date" name="completed_date" class="date-picker" placeholder="Select Date" value="{{ user_course.completed_on_date|date:'Y-m-d' }}">
+                                                        <span class="input-group-addon">
+                                                            <i class="fa-regular fa-calendar-lines"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div class="edit-user-input">
+                                                        <input type="text" id="completed_time" name="completed_time" class="time-picker" placeholder="Select Time" value="{{ user_course.completed_on_time|time:'H:i:s' }}">
+                                                        <span class="input-group-addon">
+                                                            <i class="fa-regular fa-clock"></i>
+                                                        </span>
+                                                    </div>                                                
+                                                </div> 
+                                                <span class="course-content-input-subtext"> (UTC-05:00) Eastern Time (US & Canada)</span>  
+                                            </div>
+                                        </div> 
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="details-info-section">
+                                <div class="details-info-card">
+                                    <div class="info-card-header collapsable-header">
+                                        <div class="card-header-left">
+                                            <i class="fa-regular fa-alarm-clock"></i>
+                                            <span> Event Dates </span>
+                                        </div>
+                                        <div class="card-header-right">
+                                            <i class="fa-regular fa-angle-down"></i>
+                                        </div>
+                                    </div>
+                                    <div class="info-card-body right-column-card-body">
+                                        {% if user_course.course.get_start_date %}
+                                        <div class="edit-user-input">
+                                            <label class="edit-user-label" for="expiration_date">Start Date</label>
+                                            <div class="date-options-container control-disabled-opacity" style="opacity: 1;">
+                                                <div class="edit-user-input disabled">
+                                                    <input type="text" id="starts_on_date" name="starts_on_date" class="date-picker" placeholder="Select Date" value="{{ user_course.course.get_start_date|date:'Y-m-d' }}" style="padding-left: 2.6rem;">
+                                                    <button class="input-group-addon" disabled>
+                                                        <i class="fa-regular fa-calendar-lines"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="edit-user-input disabled">
+                                                    <input type="text" id="starts_on_time" name="starts_on_time" class="time-picker" placeholder="Select Time (Optional)" value="{{ user_course.course.get_start_time|time:'H:i' }}" style="padding-left: 2.6rem;">
+                                                    <button class="input-group-addon" disabled>
+                                                        <i class="fa-regular fa-clock"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <span class="course-content-input-subtext"> Date when the Learner was allowed to enter the course.</span>
+                                        </div>
+                                        {% endif %}
+                                        <div class="edit-user-input">
+                                            <label class="edit-user-label" for="expiration_date">Expiration Date</label>
+                                            <div class="date-options-container">
+                                                <div class="edit-user-input">
+                                                    <input type="text" id="expires_on_date" name="expires_on_date" class="date-picker" placeholder="Select Date" value="{{ user_course.course.get_expiration_date|date:'Y-m-d' }}">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa-regular fa-calendar-lines"></i>
+                                                    </span>
+                                                </div>
+                                                <div class="edit-user-input">
+                                                    <input type="text" id="expires_on_time" name="expires_on_time" class="time-picker" placeholder="Select Time (Optional)" value="{{ user_course.course.get_expiration_time|time:'H:i' }}">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa-regular fa-clock"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <span class="course-content-input-subtext"> Date when the course expires.</span>
+                                        </div>
+                                        <div class="edit-user-input">
+                                            <label class="edit-user-label" for="expiration_date">Due Date</label>
+                                            <div class="date-options-container">
+                                                <div class="edit-user-input">
+                                                    <input type="text" id="due_on_date" name="due_on_date" class="date-picker" placeholder="Select Date" value="{{ user_course.course.get_due_date|date:'Y-m-d' }}">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa-regular fa-calendar-lines"></i>
+                                                    </span>
+                                                </div>
+                                                <div class="edit-user-input">
+                                                    <input type="text" id="due_on_time" name="due_on_time" class="time-picker" placeholder="Select Time (Optional)" value="{{ user_course.course.get_due_time|time:'H:i' }}">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa-regular fa-clock"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <span class="course-content-input-subtext"> Date when the Learner must complete the course by.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Lessons -->
+                        <div class="tab-content" id="tab2">
+                            {% for module_progress in user_course.module_progresses.all %}
+                                <div class="details-info-section">
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <span>{{ forloop.counter }}.</span>
+                                                <span class="selected-module-title">{{ module_progress.module.title }} </span>
+                                                {% if module_progress.lesson_progresses.all|length > 1 %}
+                                                    <span class="status course-active pastel-gray"> {{ module_progress.lesson_progresses.all|length }} Lessons </span>
+                                                {% else %}
+                                                    <span class="status course-active pastel-gray"> {{ module_progress.lesson_progresses.all|length }} Lesson</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">
+                                            <div class="lesson-list-options-container">
+                                                {% for lesson_progress in module_progress.lesson_progresses.all %}
+                                                    <div class="lesson-details-info-card">
+                                                        <div class="lesson-list-option lesson-list-option-{{ forloop.counter }}">
+                                                            <div class="lesson-list-option-left">
+                                                                <div class="lesson-list-counter">
+                                                                    <span>{{ forloop.counter }}</span>
+                                                                </div>
+                                                                <div class="lesson-list-type">
+                                                                    <span class="selected-lesson-type pastel-blue">
+                                                                        {% if lesson_progress.lesson.content_type == 'SCORM2004' %}
+                                                                            SCORM 2004
+                                                                        {% elif lesson_progress.lesson.content_type == 'SCORM1.2' %}
+                                                                            SCORM 1.2
+                                                                        {% elif lesson_progress.lesson.content_type == 'file' %}
+                                                                            File
+                                                                        {% endif%}
+                                                                    </span>
+                                                                    <span class="selected-lesson-title">{{ lesson_progress.lesson.title }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="lesson-list-option-right">
+                                                                <div class="lesson-list-progress">
+                                                                    {% if lesson_progress.completed %}
+                                                                        <span class="status course-active pastel-green"> Completed </span>                                                            
+                                                                    {% else %}
+                                                                        <span class="status course-active pastel-gray"> Not Completed </span>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div onclick="openPopup('editLessonActivity'), inputLessonData('{{ lesson_progress.lesson.title }}', '{{ lesson_progress.id }}', 'edit')" class="class-action-icon edit-icon tooltip" data-tooltip="Edit">
+                                                                    <i class="fa-solid fa-pen"></i>
+                                                                    <span class="tooltiptext">Edit</span>
+                                                                </div>
+                                                                <div onclick="openPopup('resetLessonActivity'), inputLessonData('{{ lesson_progress.lesson.title }}', '{{ lesson_progress.id }}', 'reset')" class="class-action-icon edit-icon tooltip" data-tooltip="Reset Activity">
+                                                                    <i class="fa-solid fa-arrows-rotate"></i>
+                                                                    <span class="tooltiptext">Reset Activity</span>
+                                                                </div>
+                                                                <div class="class-action-icon edit-icon tooltip lesson-card-header-right" data-tooltip="Expand">
+                                                                    <i class="fa-solid fa-angle-right"></i>
+                                                                    <span class="tooltiptext">Expand</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="lesson-info-card-body hidden">
+                                                            <span>TEST</span>
+                                                        </div>
+                                                    </div>
+                                                {% empty %}
+                                                    <span>No lessons available.</span>
+                                                {% endfor %}                                                                                                                                                                                                                                                                                      
+                                            </div>       
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>                                           
+                    </div>
+                </div> 
+            </div>        
+        </div>
+    </div>
+    {% include 'popups/reset_lesson_activity_popup.html' %}
+    {% include 'popups/edit_lesson_activity_popup.html' %}
+    <link rel="stylesheet" href="{% static 'client_admin\css\settings.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin\css\user_course_details.css' %}">
+    <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\user_course_details.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-circle-progress/dist/circle-progress.min.js" type="module"></script>
+    <script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\message_container.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\sticky_nav.js' %}"></script>
+    
+{% endblock content %}

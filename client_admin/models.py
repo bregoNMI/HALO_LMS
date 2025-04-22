@@ -10,6 +10,7 @@ from django.core.files.base import ContentFile
 from datetime import datetime
 from pytz import all_timezones
 from course_player.models import SCORMTrackingData 
+import uuid
 
 no_prefix_storage = S3Boto3Storage()
 no_prefix_storage.location = ''  # Disable tenant prefix
@@ -94,11 +95,16 @@ def resize_images(sender, instance, **kwargs):
         resize_image(instance.passportphoto)
 
 class UserCourse(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     progress = models.PositiveIntegerField(default=0)  # percentage of the course completed by the user
+    stored_progress = models.PositiveIntegerField(default=0) # Stores course progress. Reverts back to this integer if status is changed from completed to not completed 
     lesson_id = models.PositiveIntegerField(default=0) #links o the individual lesson to launch the course
     locked = models.BooleanField(default=False)
+    completed_on_date = models.DateField(blank=True, null=True)  # This is the date the learner completed their course
+    completed_on_time = models.TimeField(blank=True, null=True)  # This is the time the learner completed their course
+    is_course_completed = models.BooleanField(default=False)
 
     def get_status(self):
         expiration_date = self.course.get_event_date('expiration_date')
@@ -107,10 +113,14 @@ class UserCourse(models.Model):
 
         if self.progress == 0:
             return 'Not Started'
-        elif self.progress == 100:
-            return 'Completed'
-        else:
-            return 'Started'
+
+        if self.progress == 100:
+            if self.is_course_completed:
+                return 'Completed'
+            else:
+                return 'Not Completed'
+
+        return 'Started'
     
     def update_progress(self):
         """
@@ -142,7 +152,6 @@ class UserCourse(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.course.title}"
 
-
 class UserModuleProgress(models.Model):
     user_course = models.ForeignKey(UserCourse, related_name='module_progresses', on_delete=models.CASCADE)
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
@@ -161,6 +170,9 @@ class UserLessonProgress(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
+    completed_on_date = models.DateField(blank=True, null=True)  # This is the date the learner completed this lesson
+    completed_on_time = models.TimeField(blank=True, null=True)  # This is the time the learner completed this lesson
+    attempts = models.PositiveIntegerField(default=0) # Total times learner has attempted this lesson
 
     class Meta:
         ordering = ['order']

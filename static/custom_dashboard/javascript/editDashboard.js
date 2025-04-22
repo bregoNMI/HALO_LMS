@@ -840,28 +840,6 @@ function initializeExternalLink(){
     visitLinkBtn.addEventListener('click', visitExternalLink);
 }
 
-const validationMessageContainer = document.getElementById('validation-message-container');
-const validationMessageInner = document.getElementById('validation-message-inner');
-const validationMessage = document.getElementById('validation-message');
-const validationIcon = document.getElementById('validation-icon');
-
-function displayValidationMessage(message, isSuccess) {
-    validationMessage.textContent = message;
-    validationMessageContainer.style.display = 'flex';
-    setTimeout(() => {
-        validationMessageContainer.className = isSuccess ? 'alert-container animate-alert-container' : 'alert-container animate-alert-container';
-    }, 100);
-    validationMessageInner.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
-    setTimeout(() => {
-        validationMessageContainer.classList.remove('animate-alert-container');
-    }, 10000);
-    if(isSuccess){
-        validationIcon.className = 'fa-solid fa-circle-check';
-    }else{
-        validationIcon.className = 'fa-solid fa-triangle-exclamation';
-    }
-}
-
 function hideNoWidgetsContainer(){
     const noWidgetsContainer = document.getElementById('noWidgetsContainer');
     noWidgetsContainer.style.display = 'none';

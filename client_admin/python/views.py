@@ -305,6 +305,8 @@ def edit_user(request, user_id):
             if parsed_birth_date:
                 birth_date = parsed_birth_date
                 user.birth_date = birth_date
+        else:
+            birth_date = None
 
         # Handle password change
         if password and confirm_password:
@@ -463,10 +465,15 @@ def user_details(request, user_id):
 
 @login_required
 def user_transcript(request, user_id):
-    user = get_object_or_404(Profile, pk=user_id)
+    profile = get_object_or_404(Profile, pk=user_id)
+    user_courses = UserCourse.objects.filter(user=profile.user) \
+    .select_related('course') \
+    .prefetch_related('module_progresses__module__lessons') \
+    .order_by('course__title')
 
     context = {
-        'profile': user
+        'profile': profile,
+        'user_courses': user_courses
     }
     return render(request, 'users/user_transcript.html', context)
 
@@ -888,3 +895,105 @@ def delete_allowed_id_photos(request):
             return JsonResponse({'status': 'success', 'msg': 'Deleted successfully'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'msg': str(e)})
+        
+def usercourse_detail_view(request, uuid):
+    user_course = get_object_or_404(UserCourse, uuid=uuid)
+    return render(request, 'userCourse/user_course_details.html', {'user_course': user_course})
+
+def edit_usercourse_detail_view(request, uuid):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        user_course = get_object_or_404(UserCourse, uuid=uuid)
+
+        user_course.progress = data.get('progress', user_course.progress)
+        user_course.stored_progress = data.get('storedProgress', user_course.stored_progress)
+        user_course.is_course_completed = data.get('is_course_completed', user_course.is_course_completed)
+
+        # Expiration Date & Time
+        expiration_event = user_course.course.event_dates.filter(type='expiration_date').first()
+        if expiration_event:
+            expires_on_date = data.get('expires_on_date', '').strip()
+            expires_on_time = data.get('expires_on_time', '').strip()
+
+            if expires_on_date:
+                try:
+                    expiration_event.date = datetime.strptime(expires_on_date, '%Y-%m-%d').date()
+                except ValueError:
+                    pass
+            else:
+                expiration_event.date = None
+
+            if expires_on_time:
+                try:
+                    expiration_event.time = datetime.strptime(expires_on_time, '%I:%M %p').time()
+                except ValueError:
+                    pass
+            else:
+                expiration_event.time = None
+
+            expiration_event.save()
+
+        # Due Date & Time
+        due_event = user_course.course.event_dates.filter(type='due_date').first()
+        if due_event:
+            due_on_date = data.get('due_on_date', '').strip()
+            due_on_time = data.get('due_on_time', '').strip()
+
+            if due_on_date:
+                try:
+                    due_event.date = datetime.strptime(due_on_date, '%Y-%m-%d').date()
+                except ValueError:
+                    pass
+            else:
+                due_event.date = None
+
+            if due_on_time:
+                try:
+                    due_event.time = datetime.strptime(due_on_time, '%I:%M %p').time()
+                except ValueError:
+                    pass
+            else:
+                due_event.time = None
+
+            due_event.save()
+
+        # Completed Date & Time
+        completed_on_date = data.get('completed_on_date', '').strip()
+        completed_on_time = data.get('completed_on_time', '').strip()
+
+        if completed_on_date:
+            try:
+                user_course.completed_on_date = datetime.strptime(completed_on_date, '%Y-%m-%d').date()
+            except ValueError:
+                pass
+        else:
+            user_course.completed_on_date = None
+
+        if completed_on_time:
+            try:
+                user_course.completed_on_time = datetime.strptime(completed_on_time, '%I:%M %p').time()
+            except ValueError:
+                pass
+        else:
+            user_course.completed_on_time = None
+
+        user_course.save()
+
+        messages.success(request, 'Course progress updated successfully.')
+        return JsonResponse({'success': True, 'message': 'Course progress updated successfully'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+def reset_lesson_progress(request, user_lesson_progress_id):
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
+
+        lesson_progress.completed = False
+        lesson_progress.save()
+
+        messages.success(request, 'Lesson progress reset.')
+        return JsonResponse({'success': True, 'message': 'Course progress updated successfully'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)

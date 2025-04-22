@@ -1,0 +1,128 @@
+{% load custom_filters %}
+<!-- user_course_details_card -->
+<div class="course-details-card">
+    <div class="card-left-section">
+        <div class="course-item-footer">
+            <div class="course-item-footer-item tooltip" data-tooltip="Learner">
+                <div class="course-taker">
+                    <!-- <i class="fa-regular fa-circle-user"></i> -->
+                    <i class="fa-regular fa-user-graduate"></i>
+                    <h5>{{ user_course.user.first_name }} {{ user_course.user.last_name }}</h5>
+                </div>
+                <span class="tooltiptext">Learner</span>
+            </div>
+            {% if user_course.get_status == 'Not Started' %}
+                <div class="course-item-footer-item tooltip" data-tooltip="Course Status">
+                    <span class="status course-active pastel-gray"> Not Started </span>
+                    <span class="tooltiptext">Course Status</span>
+                </div>
+            {% elif user_course.get_status == 'Started' %}
+                <div class="course-item-footer-item tooltip" data-tooltip="Course Status">
+                    <span class="status course-active pastel-yellow"> In Progress </span>
+                    <span class="tooltiptext">Course Status</span>
+                </div>
+            {% elif user_course.get_status == 'Completed' %}
+                <div class="course-item-footer-item tooltip" data-tooltip="Course Status">
+                    <span class="status course-active pastel-green"> Completed </span>
+                    <span class="tooltiptext">Course Status</span>
+                </div>
+            {% elif user_course.get_status == 'Not Completed' %}
+                <div class="course-item-footer-item tooltip" data-tooltip="Course Status">
+                    <span class="status course-active pastel-gray"> Not Completed </span>
+                    <span class="tooltiptext">Course Status</span>
+                </div>
+            {% else %}
+                <div class="course-item-footer-item tooltip" data-tooltip="Course Status">          
+                    <span class="status course-active pastel-red"> Expired </span>
+                    <span class="tooltiptext">Course Status</span>
+                </div>
+            {% endif %} 
+        </div>
+ 
+        <div class="course-title">
+            <h3>{{ user_course.course.title }}</h3>
+        </div>
+        <div class="course-item-footer">
+            <div class="course-item-footer-item">
+                {% if user_course.course.type == 'online' %}
+                    <div class="course-type-icon online-course">
+                        <i class="fa-solid fa-signal-bars"></i>         
+                    </div>    
+                    <span> Online Course </span>     
+                {% else %}
+                    <div class="course-type-icon inperson-course">
+                        <i class="fa-solid fa-chalkboard-user"></i>                   
+                    </div>
+                    <span> In-Person Course </span>  
+                {% endif %}
+            </div>
+            {% if user_course.course.get_start_date %}
+                <div class="course-item-footer-item">
+                    <i class="fa-solid fa-circle-small footer-spacer"></i>
+                </div>
+                <div class="course-item-footer-item">
+                    <i class="fa-regular fa-calendar-star"></i>
+                    <span><b>Start Date:</b> {{ user_course.course.get_start_date }}</span>
+                </div>
+            {% endif %}
+            {% if user_course.course.get_due_date %}
+                <div class="course-item-footer-item">
+                    <i class="fa-solid fa-circle-small footer-spacer"></i>
+                </div>
+                <div class="course-item-footer-item">
+                    <i class="fa-regular fa-calendar-exclamation"></i>
+                    <span><b>Due Date:</b> {{ user_course.course.get_due_date }}</span>
+                </div>                
+            {% endif %}         
+            <div class="course-item-footer-item">
+                <i class="fa-solid fa-circle-small footer-spacer"></i>
+            </div>
+            <div class="course-item-footer-item">
+                <i class="fa-regular fa-calendar-clock"></i>
+                <span><b>Expires:</b> {% if user_course.course.get_expiration_date %}{{ user_course.course.get_expiration_date }}{% else%} Never {% endif %}  </span>
+            </div>              
+        </div>
+        <div class="course-card-bottom-row">
+            <div class="bottom-row-item">
+                <h4>Course Progress</h4>
+                <div class="bottom-row-data-item">
+                    <circle-progress id="courseProgress" text-format="percent" max="100"></circle-progress>
+                    <span>{{ user_course.progress }}%</span>
+                </div>
+            </div>
+            <div class="bottom-row-item">
+                <h4>Completion Time</h4>
+                <div class="bottom-row-data-item no-progress-item">
+                    <span>{{ user_course.course.estimated_completion_time|format_time }}</span>
+                </div>
+            </div>
+            <div class="bottom-row-item">
+                <h4>Time Spent</h4>
+                <div class="bottom-row-data-item no-progress-item">
+                    <span>1h 15min (holder)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-right-section">
+        {% if user_course.course.thumbnail.thumbnail_link %}
+            <div class="course-thumbnail" style="background-image: url({{ user_course.course.thumbnail.thumbnail_link }});"></div>
+        {% elif user_course.course.thumbnail.thumbnail_image %}
+            <div class="course-thumbnail" style="background-image: url({{ user_course.course.thumbnail.thumbnail_image.url }});"></div>
+        {% else %}
+            {% if settings.default_course_thumbnail %}
+                <div class="course-thumbnail" style="background-image: url({{ settings.default_course_thumbnail_image.url }});"></div>
+            {% else %}
+                <div class="course-thumbnail">
+                    <div class="thumbnail-placeholder">
+                        <i class="fa-regular fa-book-open-cover"></i>
+                    </div>
+                </div> 
+            {% endif %}                                  
+        {% endif %}
+    </div>
+</div>
+<script>
+    let course_progress = parseInt('{{ user_course.progress }}', 10);
+    let stored_progress = parseInt('{{ user_course.stored_progress }}', 10);
+</script>

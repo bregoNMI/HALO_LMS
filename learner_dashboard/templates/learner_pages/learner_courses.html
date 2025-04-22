@@ -57,6 +57,10 @@
                                     <div class="course-item-status-item green-status-item">
                                         <i class="fa-solid fa-check"></i>
                                     </div>
+                                {% elif user_course.get_status == 'Not Completed' %}
+                                    <div class="course-item-status-item yellow-status-item">
+                                        <i class="fa-regular fa-light-emergency-on"></i>
+                                    </div>
                                 {% else %}
                                     <div class="course-item-status-item red-status-item">
                                         <i class="fa-regular fa-stopwatch"></i>
@@ -93,9 +97,11 @@
                                         <span>{{ user_course.course.get_lesson_count }} Lesson</span>
                                     {% endif %}
                                 </div>
-                                <div class="course-item-footer-item">
-                                    <i class="fa-solid fa-circle-small footer-spacer"></i>
-                                </div>
+                                {% if user_course.course.get_expiration_date or user_course.course.get_due_date or user_course.course.get_start_date %}
+                                    <div class="course-item-footer-item">
+                                        <i class="fa-solid fa-circle-small footer-spacer"></i>
+                                    </div>
+                                {% endif %}
                                 <div class="course-item-footer-item">
                                     {% if user_course.course.get_expiration_date %}
                                         <!-- <i class="fa-regular fa-stopwatch"></i> -->
@@ -140,7 +146,7 @@
                                             <span> Start Course</span>
                                         </button>
                                         <script src="{% static 'learner_dashboard/javascript/learner.js' %}"></script>
-                                    {% elif user_course.get_status == 'Started' %}
+                                    {% elif user_course.get_status == 'Started' or user_course.get_status == 'Not Completed' %}
                                         <div class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
                                             <i class="fa-regular fa-circle-play"></i>
                                             <span> Resume Course</span>

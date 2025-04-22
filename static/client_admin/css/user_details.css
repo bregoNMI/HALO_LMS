@@ -170,12 +170,13 @@
     gap: 1.3rem;
     margin: 2rem var(--pad-xs) var(--pad-xs) var(--pad-xs);
     border-bottom: 2px solid var(--bg-color2);
+    /* border-bottom: 2px solid #e7e7ea; */
 }
 
 .details-nav-menu .nav-menu-item{
     display: flex;
     gap: 0.4rem;
-    color: #555961;
+    color: var(--text-color4);
     padding-bottom: var(--pad-xs);
     cursor: pointer;
     border-bottom: 2px solid transparent;
@@ -184,11 +185,13 @@
 }
 .details-nav-menu .nav-menu-item:hover{
     border-bottom: 2px solid var(--text-color4);
+    color: #555961;
 }
 
 .nav-menu-item.active{
     border-bottom: 3px solid dodgerblue !important;
     font-weight: 600;
+    color: #555961;
 }
 
 .nav-menu-item.active i{
@@ -211,7 +214,6 @@
     border-radius: 8px;
     /* outline: 1px solid #d7d7d7; */
     box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
-    overflow: hidden;
 }
 
 .info-card-header{
@@ -306,6 +308,10 @@
     max-height: 20rem;
     overflow: auto;
     box-sizing: border-box;
+}
+
+.details-info-card-overflow-hidden{
+    overflow-y: hidden;
 }
 
 .card-body-item .card-body-left i{
@@ -405,10 +411,10 @@
 }
 
 .edit-user-input label{
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-top: 0;
     margin-bottom: 0;
-    padding-bottom: 0.3rem;
+    padding-bottom: 0.4rem;
     color: var(--text-color2);
     max-width: 142px;
 }
@@ -444,6 +450,7 @@
 
 .edit-user-input .date-picker, .edit-user-input .time-picker, .edit-user-input .icon-field{
     padding-left: 2.6rem;
+    cursor: pointer;
 }
 
 .input-group-addon{
@@ -455,10 +462,29 @@
     color: white;
     background-color: #1863dc;
     cursor: pointer;
+    font-size: 1rem;
+    border: none;
+}.input-group-addon:hover{
+    background-color: dodgerblue;
 }
 
-.input-group-addon:hover{
-    background-color: dodgerblue;
+.flatpickr-clear-input{
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: var(--pad-xxs) var(--pad-xs);
+    border-radius: 0 6px 6px 0;
+    color: var(--text-color6);
+    cursor: pointer;
+    font-size: 0.9rem;
+    border: none;
+    transition: all 0.2s linear;
+}.flatpickr-clear-input:hover{   
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
 }
 
 /* Course Type Icon */
@@ -497,9 +523,21 @@
 .status{
     padding: var(--pad-xxxs) var(--pad-med);
     border-radius: 99px;
-    font-weight: 600;
+    font-weight: 500;
+    font-size: 0.7rem;
     text-wrap: nowrap;
-} 
+}.status.pastel-gray{
+    border: 1px solid #e2e2e2;
+    background-color: #f2f2f2;
+    color: gray;
+    font-weight: 500;
+}.status.pastel-yellow{
+    border: 1px solid #efc16f;
+}.status.pastel-green{
+    border: 1px solid #9bd79b;
+}.status.pastel-red{
+    border: 1px solid #e98e8e;
+}
 
 /* User History Tree */
 .user-history-wrapper{

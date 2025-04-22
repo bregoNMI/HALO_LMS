@@ -25,6 +25,10 @@ urlpatterns = [
     path('courses/online/add/', content_views.add_online_courses, name='add_online_courses'),
     path('courses/online/edit/<int:course_id>/', content_views.edit_online_courses, name='edit_online_courses'),
     path('courses/delete-courses/', views.delete_courses, name='delete_courses'),
+        # User Course
+    path('course-progress/<uuid:uuid>/', views.usercourse_detail_view, name='usercourse_detail_view'),
+    path('course-progress/<uuid:uuid>/edit/', views.edit_usercourse_detail_view, name='edit_usercourse_detail_view'),
+    path('course-progress/lesson/<int:user_lesson_progress_id>/reset/', views.reset_lesson_progress, name='reset_lesson_progress'),
 
     # Settings
     path('settings/', views.admin_settings, name='admin_settings'), 
@@ -45,7 +49,7 @@ urlpatterns = [
     # Custom Login Page
     path('templates/login/', custom_template_views.login_form, name='login_form'),
     path('templates/login/edit/', custom_template_views.login_edit, name='login_edit'),
-    # Requests
+        # Requests
     path('templates/widgets/<int:widget_id>/data/', custom_template_views.get_widget_data, name='get_widget_data'),
     path('templates/widgets/delete/<int:widget_id>/', custom_template_views.delete_widget, name='delete_widget'),
     path('templates/dashboard/<int:dashboard_id>/edit-header/', custom_template_views.edit_dashboard_header, name='edit_dashboard_header'),

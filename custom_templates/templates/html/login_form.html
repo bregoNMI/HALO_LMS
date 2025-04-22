@@ -1,15 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<!-- Message Wrapper -->
-<div id="validation-message-container" class="alert-container" style="display: none;">   
-    <div id="validation-message-inner">
-        <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
-        <span id="validation-message"></span>
-    </div>
-</div>
 
 <div class="login-form-body-container">
+    <!-- Message Wrapper -->
+    <div id="validation-message-container" class="new-validation-message-container" style="display: none;"></div>
     <div class="login-form-header">
         <div class="details-top-row">
             <div class="details-top-row-left">
@@ -1094,6 +1089,7 @@
 <link rel="stylesheet" href="{% static 'content/css/content.css' %}">
 <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/login.css' %}">
+<script src="{% static 'client_admin\javascript\message_container.js' %}"></script>
 <script> 
     let checkBackgroundPositionItems = '{{ login_form.background_position }}';
     let checkLayoutItems = '{{ login_form.layout }}';

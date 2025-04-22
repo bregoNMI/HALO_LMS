@@ -218,14 +218,12 @@ class Course(models.Model):
     def get_event_date(self, event_type, enrollment_date=None):
         """Retrieve the event date, considering 'from_enrollment' if applicable."""
         event = self.event_dates.filter(type=event_type).first()
-        if not event:
-            return None
-        
-        # If there's an enrollment_date and from_enrollment is defined, calculate it
+        if not event or not event.date:
+            return None  # Ensure no blank/null dates are returned
+
         if enrollment_date and event.from_enrollment:
             return self.calculate_event_date(event, enrollment_date)
         
-        # Otherwise, return the static date
         return event.date
 
     def __str__(self):
@@ -240,6 +238,10 @@ class Course(models.Model):
             return self.calculate_event_date(event, enrollment_date)
         
         return event.date
+    
+    def get_expiration_time(self):
+        event = self.event_dates.filter(type='expiration_date').first()
+        return event.time if event else None
 
     def get_due_date(self, enrollment_date=None):
         event = self.event_dates.filter(type='due_date').first()
@@ -250,6 +252,10 @@ class Course(models.Model):
             return self.calculate_event_date(event, enrollment_date)
         
         return event.date
+    
+    def get_due_time(self):
+        event = self.event_dates.filter(type='due_date').first()
+        return event.time if event else None
 
     def get_start_date(self, enrollment_date=None):
         event = self.event_dates.filter(type='start_date').first()
@@ -260,6 +266,10 @@ class Course(models.Model):
             return self.calculate_event_date(event, enrollment_date)
         
         return event.date
+    
+    def get_start_time(self):
+        event = self.event_dates.filter(type='start_date').first()
+        return event.time if event else None
         
     def get_lesson_count(self):
         return Lesson.objects.filter(module__course=self).count()

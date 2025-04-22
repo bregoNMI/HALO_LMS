@@ -482,6 +482,16 @@ html, body, button{
     color: white;
 }
 
+.yellow-status-item{
+    background-color: #ffd281;
+    border: 1px solid #efc16f;
+}.yellow-status-item:hover{
+    background-color: #efc16f;
+}.yellow-status-item i{
+    font-size: 1.1rem;
+    color: #a66c01;
+}
+
 .course-item-thumbnail{
     display: flex;
     justify-content: center;
@@ -836,6 +846,7 @@ html, body, button{
 .course-item-module-header{
     display: flex;
     gap: 0.3rem;
+    align-items: center;
 }
 
 .course-item-module-title{
@@ -847,15 +858,16 @@ html, body, button{
 }
 
 .lesson-counter{
+    border-radius: 99px;
+    font-weight: 500;
     font-size: 0.7rem;
+    text-wrap: nowrap;
+    border: 1px solid #aabce0;
     padding: 0.2rem var(--pad-xs);
-    font-weight: 600;
-    border-radius: 10px;
     text-wrap: nowrap;
     flex: none;
     flex-grow: 0;
     flex-basis: 0;
-    height: 1rem;
 }
 
 .course-item-lesson-container{

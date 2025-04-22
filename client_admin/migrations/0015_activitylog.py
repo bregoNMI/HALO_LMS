@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('action_performer', models.CharField(max_length=150)),
                 ('action_target', models.CharField(max_length=150)),
-                ('action', models.CharField(max_length=50)),
+                ('action', models.CharField(max_length=500)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
                 ('user_groups', models.CharField(blank=True, max_length=255, null=True)),
             ],

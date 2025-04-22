@@ -1,16 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     flatpickr(".time-picker", {
-        enableTime: true,       // Enable time picker
-        noCalendar: true,       // Disable the calendar
-        dateFormat: "h:i K",    // 12-hour format with A.M./P.M.
-        time_24hr: false        // Use 12-hour time format        // Use 24-hour time format
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "h:i K",
+        time_24hr: false
     });
-
+    
     flatpickr(".date-picker", {
         altInput: true,
-        altFormat: "F j, Y",  // Display format (e.g., "July 27, 1986")
-        dateFormat: "Y-m-d",   // Format used for submission (e.g., "1986-07-27")
-        allowInput: true       // Allow manual input
+        altFormat: "F j, Y",
+        dateFormat: "Y-m-d",
     });
 
     // Select all elements with the class 'alert'
@@ -28,28 +27,73 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Hiding / Showing User Card
-    const cardHeaders = document.querySelectorAll('.card-header-right');
-
-    cardHeaders.forEach(header => {
-        header.addEventListener('click', function() {
-
-            // Toggle 'active' class on the clicked element
-            header.classList.toggle('active');
-
-            // Find the nearest .info-card-body and toggle its visibility
-            const cardBody = header.closest('.details-info-card').querySelector('.info-card-body');
-            if (cardBody) {
-                cardBody.classList.toggle('hidden'); // 'hidden' class should be styled with display: none;
-            }
-        });
-    });
-
     // JavaScript to set custom tooltip text
     document.querySelectorAll('.tooltip').forEach(function(elem) {
         const tooltipText = elem.getAttribute('data-tooltip');
         const tooltipSpan = elem.querySelector('.tooltiptext');
         tooltipSpan.textContent = tooltipText;
+    });
+
+    // Making the User Enrollments clickable
+    const rows = document.querySelectorAll(".clickable-row");
+    rows.forEach(row => {
+        row.addEventListener("click", function () {
+            const url = this.getAttribute("data-href");
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+
+    // When clicking on the flatpickr icon, trigger the input click to open the picker
+    const flatpickrIcons = document.querySelectorAll('.input-group-addon');
+    flatpickrIcons.forEach(icon => {
+        icon.addEventListener("click", function () {
+            const input = icon.previousElementSibling || icon.parentElement.querySelector('input');
+            if (input) input.click();
+        });
+    });
+
+    const flatPickrInputs = document.querySelectorAll('.flatpickr-input, .time-picker');
+
+    flatPickrInputs.forEach(input => {
+        const container = input.parentElement;
+
+        if (container) {
+            // Create clear button
+            const clearBtn = document.createElement('div');
+            clearBtn.className = 'flatpickr-clear-input';
+            clearBtn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+            container.appendChild(clearBtn);
+
+            // Basic styling (or use your own CSS)
+            clearBtn.style.cursor = 'pointer';
+            clearBtn.style.visibility = 'hidden';
+            clearBtn.style.opacity = '0';
+            clearBtn.style.transition = 'opacity 0.2s ease';
+
+            // Hover show/hide behavior
+            container.addEventListener('mouseenter', () => {
+                clearBtn.style.visibility = 'visible';
+                clearBtn.style.opacity = '1';
+            });
+
+            container.addEventListener('mouseleave', () => {
+                clearBtn.style.visibility = 'hidden';
+                clearBtn.style.opacity = '0';
+            });
+
+            // Clear button click handler
+            clearBtn.addEventListener('click', () => {
+                if (input._flatpickr) {
+                    input._flatpickr.clear();
+                    input.value = '';               
+                } else {
+                    input.value = '';
+                    input.previousElementSibling.value = '';
+                }
+            });
+        }
     });
 });
 

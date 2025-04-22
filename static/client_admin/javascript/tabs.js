@@ -1,6 +1,39 @@
 document.addEventListener('DOMContentLoaded', function() {
     const settingsTabs = document.getElementById('settingsTabs');
     initializeTabs(settingsTabs);
+
+    // Hiding / Showing User Card
+    const cardHeaders = document.querySelectorAll('.card-header-right');
+
+    cardHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+
+            // Toggle 'active' class on the clicked element
+            header.classList.toggle('active');
+
+            // Find the nearest .info-card-body and toggle its visibility
+            const cardBody = header.closest('.details-info-card').querySelector('.info-card-body');
+            if (cardBody) {
+                cardBody.classList.toggle('hidden'); // 'hidden' class should be styled with display: none;
+            }
+        });
+    });
+    // Hiding / Showing Lesson Card
+    const lessonHeaders = document.querySelectorAll('.lesson-card-header-right');
+
+    lessonHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+
+            // Toggle 'active' class on the clicked element
+            header.classList.toggle('active');
+
+            // Find the nearest .info-card-body and toggle its visibility
+            const cardBody = header.closest('.lesson-details-info-card').querySelector('.lesson-info-card-body');
+            if (cardBody) {
+                cardBody.classList.toggle('hidden'); // 'hidden' class should be styled with display: none;
+            }
+        });
+    });
 });
 
 function initializeTabs(popup) {
@@ -38,20 +71,3 @@ function updateIndicator(activeTab) {
     tabIndicator.style.width = `${tabRect.width}px`;
     tabIndicator.style.transform = `translateX(${tabRect.left - containerRect.left}px)`;
 }
-
-// Hiding / Showing User Card
-const cardHeaders = document.querySelectorAll('.card-header-right');
-
-cardHeaders.forEach(header => {
-    header.addEventListener('click', function() {
-
-        // Toggle 'active' class on the clicked element
-        header.classList.toggle('active');
-
-        // Find the nearest .info-card-body and toggle its visibility
-        const cardBody = header.closest('.details-info-card').querySelector('.info-card-body');
-        if (cardBody) {
-            cardBody.classList.toggle('hidden'); // 'hidden' class should be styled with display: none;
-        }
-    });
-});

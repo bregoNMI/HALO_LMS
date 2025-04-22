@@ -94,7 +94,7 @@
                     </div>
                 </div>
             </div>
-            <div class="details-info-section">
+            <div class="details-info-section hidden" hidden>
                 <div class="details-info-card">
                     <div class="info-card-header collapsable-header">
                         <div class="card-header-left">
@@ -132,7 +132,7 @@
                 </div>
             </div>
             <div class="details-info-section">
-                <div class="details-info-card">
+                <div class="details-info-card details-info-card-overflow-hidden">
                     <div class="info-card-header collapsable-header">
                         <div class="card-header-left">
                             <i class="fa-regular fa-pallet-box"></i>
@@ -142,47 +142,63 @@
                             <i class="fa-regular fa-angle-down"></i>
                         </div>
                     </div>
-                    <div style="border: 0;" class="info-card-body padding-0">
-                        <table>
-                            <thead>      
-                                <tr>
-                                    <th>Course Name</th>
-                                    <th style="width: 12%;">Status</th>
-                                    <th>% Complete</th>
-                                    <th>Enrollment Date</th>
-                                    <th>Time Spent</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="table-select-option">
-                                    <td>
-                                        <div class="course-type-icon online-course tooltip" data-tooltip="Online Course">
-                                            <span class="tooltiptext"></span>
-                                            <i class="fa-solid fa-signal-bars"></i>         
-                                        </div>
-                                        <span class="course-name">Online Course</span>
-                                    </td>
-                                    <td><span class="status course-active pastel-yellow"> In Progress </span></td>                   
-                                    <td>85%</td>
-                                    <td>{{ profile.birth_date }}</td>
-                                    <td>2d 15m 34s</td>
-                                </tr>
-                                <tr class="table-select-option">
-                                    <td>
-                                        <div class="course-type-icon inperson-course tooltip" data-tooltip="In Person Course">
-                                            <span class="tooltiptext"></span>
-                                            <i class="fa-solid fa-chalkboard-user"></i>                   
-                                        </div>
-                                        <span class="course-name">In Person Course</span>
-                                    </td>
-                                    <td><span class="status course-active pastel-green">Completed</span></td>                 
-                                    <td>85%</td>
-                                    <td>{{ profile.birth_date }}</td>
-                                    <td>2d 15m 34s</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    {% if user_courses %}
+                        <div style="border: 0;" class="info-card-body padding-0">
+                            <table>
+                                <thead>      
+                                    <tr>
+                                        <th>Course Name</th>
+                                        <th style="width: 12%;">Status</th>
+                                        <th>% Complete</th>
+                                        <th>Enrollment Date</th>
+                                        <th>Time Spent</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                    {% for user_course in user_courses %}
+                                        <tr class="table-select-option clickable-row" data-href="{% url 'usercourse_detail_view' uuid=user_course.uuid %}">
+                                            <td>
+                                                {% if user_course.course.type == 'online' %}
+                                                    <div class="course-type-icon online-course tooltip" data-tooltip="Online Course">
+                                                        <span class="tooltiptext"></span>
+                                                        <i class="fa-solid fa-signal-bars"></i>         
+                                                    </div>         
+                                                {% else %}
+                                                    <div class="course-type-icon inperson-course tooltip" data-tooltip="In Person Course">
+                                                        <span class="tooltiptext"></span>
+                                                        <i class="fa-solid fa-chalkboard-user"></i>                   
+                                                    </div>
+                                                {% endif %}
+                                                <span class="course-name">{{ user_course.course.title }}</span>                                
+                                            </td>
+                                            {% if user_course.get_status == 'Not Started' %}
+                                                <td><span class="status course-active pastel-gray"> Not Started </span></td>
+                                            {% elif user_course.get_status == 'Started' %}
+                                                <td><span class="status course-active pastel-yellow"> In Progress </span></td>
+                                            {% elif user_course.get_status == 'Completed' %}
+                                                <td><span class="status course-active pastel-green"> Completed </span></td>
+                                            {% elif user_course.get_status == 'Not Completed' %}
+                                                <td><span class="status course-active pastel-gray"> Not Completed </span></td>
+                                            {% else %}
+                                                <td><span class="status course-active pastel-red"> Expired </span></td>
+                                            {% endif %}                                                            
+                                            <td>{{ user_course.progress }}%</td>
+                                            <td>{{ profile.birth_date }}</td>
+                                            <td>2d 15m 34s</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div style="border: 0;" class="info-card-body padding-0">
+                            <div class="no-results-found-small">
+                                <img src="/static/client_admin/Images/HALO%20LMS%20No%20Graphic%20Test-30.png" alt="HALO Graphic">    
+                                <span>User is not enrolled in any courses</span>          
+                            </div>
+                        </div>                   
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -192,4 +208,5 @@
     <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
     <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
 {% endblock content %}

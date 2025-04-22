@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", function() {
     assignDeleteHandlers();
     assignEditHandlers();
     selectLessonType();
-    initializeTopRowNav(); 
     initializeToggleOptions();
     initializeRadioOptions();
     initializeThumbnailPreview();
@@ -20,47 +19,6 @@ document.addEventListener("DOMContentLoaded", function() {
     testErrorFields();
     handleFileUploadErrorRemoval();
 });
-
-function initializeTopRowNav(){
-    const detailsTopRow = document.getElementById('mainNavBar');
-
-    // IntersectionObserver callback
-    const observerCallback = (entries) => {
-        entries.forEach(entry => {
-            if (!entry.isIntersecting) {
-                document.getElementById('stickyNavBar').style.display = 'flex';
-            } else {
-                document.getElementById('stickyNavBar').style.display = 'none';
-            }
-        });
-    };
-
-    // Create a new IntersectionObserver instance
-    const observer = new IntersectionObserver(observerCallback, {
-        threshold: [0]  // Trigger the callback when 0% of the element is visible
-    });
-
-    // Observe the target element
-    observer.observe(detailsTopRow);
-}
-
-function syncNavBarWidth() {
-    const adminBody = document.querySelector('.admin-body');
-    const stickyNavBar = document.querySelector('#stickyNavBar');
-    const sidebarContainer = document.querySelector('.admin-sidebar-container');
-
-    if (adminBody && stickyNavBar && sidebarContainer) {
-        // Set the width of #stickyNavBar to match .admin-body
-        stickyNavBar.style.width = `${adminBody.clientWidth}px` - (50 + 'px');
-        
-        // Set the margin-left of #stickyNavBar to the width of .admin-sidebar-container
-        stickyNavBar.style.marginLeft = `${sidebarContainer.clientWidth}px`;
-    }
-}
-
-// Sync widths on page load and window resize
-window.addEventListener('load', syncNavBarWidth);
-window.addEventListener('resize', syncNavBarWidth);
 
 // Declare quillEditors as a global variable to store all Quill instances
 let quillEditors = [];
@@ -1568,7 +1526,7 @@ function generateCourseData(isSave) {
             const lessonData = {
                 id: lessonCard.getAttribute('data-id') || null,
                 temp_id: lessonCard.getAttribute('data-temp-id') || null,
-                title: lessonCard.querySelector('.lesson-title')?.textContent.trim(),
+                title: lessonCard.querySelector('.lesson-title')?.textContent.split(':').slice(1).join(':').trim(),
                 description: lessonCard.querySelector('.lesson-description')?.value || '',
                 order: lessonIndex + 1,
                 content_type: lessonType,
@@ -1707,28 +1665,6 @@ function removeDisabledSaveBtns(){
     for (const btn of courseSaveBtns) {
         // btn.classList.remove('disabled');
         btn.removeAttribute('disabled');
-    }
-}
-
-const validationMessageContainer = document.getElementById('validation-message-container');
-const validationMessageInner = document.getElementById('validation-message-inner');
-const validationMessage = document.getElementById('validation-message');
-const validationIcon = document.getElementById('validation-icon');
-
-function displayValidationMessage(message, isSuccess) {
-    validationMessage.textContent = message;
-    validationMessageContainer.style.display = 'flex';
-    setTimeout(() => {
-        validationMessageContainer.className = isSuccess ? 'alert-container animate-alert-container' : 'alert-container animate-alert-container';
-    }, 100);
-    validationMessageInner.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
-    setTimeout(() => {
-        validationMessageContainer.classList.remove('animate-alert-container');
-    }, 10000);
-    if(isSuccess){
-        validationIcon.className = 'fa-solid fa-circle-check';
-    }else{
-        validationIcon.className = 'fa-solid fa-triangle-exclamation';
     }
 }
 
