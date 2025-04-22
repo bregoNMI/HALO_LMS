@@ -29,6 +29,31 @@
 
     </style>
 </head>
+<script>
+    window.addEventListener("pagehide", function () {
+        const sessionTime = "PT0H1M0S";  // test value — replace with real logic if available
+        console.log("📤 [iplayer.html] Sending unload session_time:", sessionTime);
+
+        const finalPayload = {
+            lesson_id: {{ lesson.id }},
+            user_id: {{ profile_id }},
+            session_id: "{{ request.session.current_lesson_session_id }}",
+            session_time: sessionTime,
+            progress: 0.3,  // placeholder
+            scroll_position: 0,
+            completion_status: "incomplete",  // adjust if needed
+            score: null,
+            final: true,
+            lesson_location: "",
+            cmi_data: {}
+        };
+
+        navigator.sendBeacon(
+            "/course_player/track-scorm-data/",
+            new Blob([JSON.stringify(finalPayload)], { type: "application/json" })
+        );
+    });
+</script>
 <body>
     <script>
         const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
@@ -166,7 +191,7 @@
             finishBtn.style.display = "block";
         }
     });
-</script>    
+</script>   
 <script src="{% static 'course_player/javascript/scorm_player.js' %}?v=2"></script>
 </body>
 </html>

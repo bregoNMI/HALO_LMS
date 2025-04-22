@@ -2,6 +2,7 @@ const lessonDataElement = document.getElementById('lessonData');
 const parsedLessonData = JSON.parse(lessonDataElement.textContent);
 window.lessonData = parsedLessonData;  // Make globally accessible if needed
 let lessonScrollPositions = JSON.parse(localStorage.getItem("lessonScrollPositions") || "{}");
+window.lessonSessionId = crypto.randomUUID();
 
 
 console.log("iplayer.html script loaded");
@@ -26,6 +27,7 @@ console.log("iplayer.html script loaded");
 
     // Initialize session start time globally
     let sessionStartTime = new Date();
+    let lastSessionSentTime = 0;
 
     // Ensure SCORM API is available globally
     window.API_1484_11 = window.API_1484_11 || {
@@ -76,16 +78,27 @@ console.log("iplayer.html script loaded");
         return window.lessonContentType === 'SCORM2004';
     }
     
-
-    // Function to calculate session time
     function getSessionTime() {
         const now = new Date();
-        const duration = Math.floor((now - sessionStartTime) / 1000); // Duration in seconds
-
+        const duration = Math.floor((now - sessionStartTime) / 1000);
+    
         const hours = Math.floor(duration / 3600);
         const minutes = Math.floor((duration % 3600) / 60);
         const seconds = duration % 60;
+    
+        return `PT${hours}H${minutes}M${seconds}S`;
+    }    
 
+    function getNewSessionTime() {
+        const now = new Date();
+        const duration = Math.floor((now - sessionStartTime) / 1000);  // seconds
+        const newSeconds = duration - lastSessionSentTime;
+        lastSessionSentTime = duration;  // update for next time
+    
+        const hours = Math.floor(newSeconds / 3600);
+        const minutes = Math.floor((newSeconds % 3600) / 60);
+        const seconds = newSeconds % 60;
+    
         return `PT${hours}H${minutes}M${seconds}S`;
     }
 
@@ -471,6 +484,14 @@ console.log("iplayer.html script loaded");
     }    
     */
     function sendTrackingData(trackingData) {
+        trackingData.session_id = window.lessonSessionId;  // 👈 Ensure session ID is attached
+
+        if (trackingData.completion_status === "complete" || trackingData.final === true) {
+            trackingData.session_time = getNewSessionTime();  // ✅ only here
+        } else {
+            delete trackingData.session_time;  // ❌ prevent backend accumulation during autosaves
+        }
+
         console.log("📡 Sending SCORM tracking data to server...");
 
         fetch('/course_player/track-scorm-data/', {
@@ -1518,6 +1539,7 @@ console.log("iplayer.html script loaded");
         }
     });
     */
+    
     document.addEventListener("DOMContentLoaded", function () {
         console.log("📌 Initializing SCORM progress and screen tracking...");
 
@@ -1566,25 +1588,6 @@ console.log("iplayer.html script loaded");
         }
         */
 
-        function sendTrackingData(trackingData) {
-            console.log("📡 Sending SCORM tracking data to backend...", trackingData);
-
-            fetch('/course_player/track-scorm-data/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
-                body: JSON.stringify(trackingData),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("✅ SCORM progress successfully updated:", data);
-                console.log("TACKING: ", trackingData)
-            })
-            .catch(error => console.error("🚨 Error sending SCORM tracking data:", error));
-        }
-
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -1617,17 +1620,6 @@ console.log("iplayer.html script loaded");
             }
             console.warn("⚠️ No progress element found.");
             return 0;
-        }
-
-        function getSessionTime() {
-            const now = new Date();
-            const duration = Math.floor((now - sessionStartTime) / 1000);
-
-            const hours = Math.floor(duration / 3600);
-            const minutes = Math.floor((duration % 3600) / 60);
-            const seconds = duration % 60;
-
-            return `PT${hours}H${minutes}M${seconds}S`;
         }
 
         iframe.addEventListener("load", function () {
@@ -1664,3 +1656,82 @@ console.log("iplayer.html script loaded");
         // Ensure scroll position is saved every 30 seconds
         setInterval(saveLessonProgress, 5000);
     });
+
+console.log("✅ pagehide event listener attached");
+
+window.addEventListener("pagehide", function () {
+    const finalPayload = {
+        lesson_id: window.lessonId,
+        user_id: window.userId,
+        session_id: window.lessonSessionId,
+        session_time: getNewSessionTime(),
+        progress: getProgressFromIframe(),
+        scroll_position: getScrollPosition(),
+        completion_status: getProgressFromIframe() === 1 ? "complete" : "incomplete",
+        score: null,
+        final: true,
+        lesson_location: getLessonLocation(),
+        cmi_data: {}
+    };
+
+    console.log("📤 Sending unload session_time via pagehide:", finalPayload.session_time);
+
+    navigator.sendBeacon(
+        "/course_player/track-scorm-data/",
+        new Blob([JSON.stringify(finalPayload)], { type: "application/json" })
+    );
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("✅ DOM fully loaded — attaching unload handlers");
+
+    window.addEventListener("pagehide", function () {
+        const sessionTime = getNewSessionTime();
+        console.log("📤 [pagehide] Sending unload session_time:", sessionTime);
+
+        const finalPayload = {
+            lesson_id: window.lessonId,
+            user_id: window.userId,
+            session_id: window.lessonSessionId,
+            session_time: sessionTime,
+            progress: getProgressFromIframe(),
+            scroll_position: getScrollPosition(),
+            completion_status: getProgressFromIframe() === 1 ? "complete" : "incomplete",
+            score: null,
+            final: true,
+            lesson_location: getLessonLocation(),
+            cmi_data: {}
+        };
+
+        navigator.sendBeacon(
+            "/course_player/track-scorm-data/",
+            new Blob([JSON.stringify(finalPayload)], { type: "application/json" })
+        );
+    });
+
+    document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "hidden") {
+            const sessionTime = getNewSessionTime();
+            console.log("📤 [visibilitychange] Sending unload session_time:", sessionTime);
+
+            const finalPayload = {
+                lesson_id: window.lessonId,
+                user_id: window.userId,
+                session_id: window.lessonSessionId,
+                session_time: sessionTime,
+                progress: getProgressFromIframe(),
+                scroll_position: window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0, // ✅ Here!
+                completion_status: getProgressFromIframe() === 1 ? "complete" : "incomplete",
+                score: null,
+                final: true,
+                lesson_location: getLessonLocation(),
+                cmi_data: {}
+            };
+
+            navigator.sendBeacon(
+                "/course_player/track-scorm-data/",
+                new Blob([JSON.stringify(finalPayload)], { type: "application/json" })
+            );
+        }
+    });
+});

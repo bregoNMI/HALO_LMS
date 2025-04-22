@@ -17,7 +17,7 @@ class SCORMTrackingData(models.Model):
     lesson_location = models.TextField(blank=True, null=True)
     scroll_position = models.IntegerField(default=0)
     completion_status = models.CharField(max_length=50, choices=[('completed', 'Completed'), ('incomplete', 'Incomplete'), ('failed', 'Failed'), ('passed', 'Passed')])
-    session_time = models.DurationField(null=True, blank=True)
+    session_time = models.CharField(max_length=32, default="PT0H0M0S")
     progress = models.FloatField(null=True, blank=True)  # Percentage
     last_updated = models.DateTimeField(auto_now=True)
 
@@ -36,3 +36,31 @@ class LessonProgress(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title} - {self.progress}"
+    
+class LessonSession(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    user_course = models.ForeignKey('client_admin.UserCourse', null=True, blank=True, on_delete=models.CASCADE, related_name='lesson_sessions')
+
+    session_id = models.CharField(max_length=64, unique=True)
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    progress = models.FloatField(default=0.0)
+    completion_status = models.CharField(max_length=32, default="incomplete")
+    session_time = models.CharField(max_length=32, default="PT0H0M0S")
+    scroll_position = models.IntegerField(default=0)
+    score = models.FloatField(null=True, blank=True)
+    lesson_location = models.TextField(blank=True)
+    user_agent = models.TextField(blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    cmi_data = models.JSONField(default=dict)
+
+    def save(self, *args, **kwargs):
+        from client_admin.models import UserCourse
+        if not self.user_course:
+            course = self.lesson.module.course
+            self.user_course = UserCourse.objects.filter(user=self.user, course=course).first()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.user} - {self.lesson} @ {self.start_time}"
