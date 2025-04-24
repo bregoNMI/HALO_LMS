@@ -95,14 +95,13 @@ AWS_QUERYSTRING_AUTH = False  # Optional: Generates URLs without query strings
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'HALO_LMS',
+        'NAME': 'HALO LMS',
         'USER': 'postgres',
-        'PASSWORD': '!A@S3d4f5g6h7j8k',
+        'PASSWORD': 'rubixcube',
         'HOST': 'localhost',  # Set to your database host, e.g., '127.0.0.1'
         'PORT': '5432',       # Set to your database port, default is '5432'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
