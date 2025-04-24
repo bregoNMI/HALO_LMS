@@ -22,9 +22,9 @@
         <div class="max-width-0">
             <div class="details-top-row">
                 <div class="details-top-row-left">
-                    <a href="{% url 'admin_users' %}" class="back-btn">
+                    <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
                         <i class="fa-solid fa-arrow-left"></i>
-                    </a>
+                    </button>
                     <h3> User Transcript </h3>
                 </div>
                 <div class="details-top-row-right">
@@ -184,8 +184,8 @@
                                                 <td><span class="status course-active pastel-red"> Expired </span></td>
                                             {% endif %}                                                            
                                             <td>{{ user_course.progress }}%</td>
-                                            <td>{{ profile.birth_date }}</td>
-                                            <td>2d 15m 34s</td>
+                                            <td>{{ user_course.enrollment_date }}</td>
+                                            <td>{{ user_course.get_scorm_total_time }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>

@@ -529,6 +529,12 @@ th {
 td:first-child, th:first-child{
     padding: var(--pad-xs);
 }
+td .status{
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
 tr:hover{
     cursor: pointer;
     background-color: var(--bg-color3);
@@ -659,8 +665,8 @@ tr.selected-option th, tr.selected-option td{
 /* Options Sidebar */
 .options-sidebar-container{
     background-color: white;
-    box-shadow: 0px 7px 18px 2px #dddddd;
-    /* box-shadow: -3px 0px 18px 0px #dddddd; */
+    box-shadow: rgba(0, 0, 0, 0.03) 0px 0px 0px 1px;
+    border-left: 1px solid #ececf1;
     width: 15rem;
     margin-right: -15rem;
     transition: all 0.4s ease-out;
@@ -689,6 +695,7 @@ tr.selected-option th, tr.selected-option td{
     border-radius: 8px;
     height: 2.5rem;
     width: 2.5rem;
+    flex: none;
 }
 
 .options-sidebar-title{
@@ -967,7 +974,7 @@ tr.selected-option th, tr.selected-option td{
     right: -100rem;
     transition: all 0.5s ease-in-out;
     z-index: 9999;
-    bottom: 2rem;
+    /* bottom: 2rem; */
 }
 
 .alert {
@@ -1016,7 +1023,8 @@ tr.selected-option th, tr.selected-option td{
     padding-left: 22px;
     cursor: pointer;
     user-select: none;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    color: var(--text-color2);
 }
 
 /* Create a custom radio button */

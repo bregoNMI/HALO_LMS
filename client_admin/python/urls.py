@@ -17,6 +17,12 @@ urlpatterns = [
     path('users/message-users/', views.message_users, name='message_users'),
     path('users/message-user-request/', views.message_users_request, name='message_users'),
     path('users/delete-users/', views.delete_users, name='delete_users'),
+        # User Course
+    path('users/course-progress/<uuid:uuid>/', views.usercourse_detail_view, name='usercourse_detail_view'),
+    path('course-progress/<uuid:uuid>/edit/', views.edit_usercourse_detail_view, name='edit_usercourse_detail_view'),
+    path('course-progress/lesson/<int:user_lesson_progress_id>/reset/', views.reset_lesson_progress, name='reset_lesson_progress'),
+    path('course-progress/lesson/<int:user_lesson_progress_id>/edit/', views.edit_lesson_progress, name='edit_lesson_progress'),
+    path('course-progress/lesson/<int:user_lesson_progress_id>/fetch/', views.fetch_lesson_progress, name='fetch_lesson_progress'),
     
     path('add/', views.add_user, name='add_user'),
     path('users/add/', views.add_user_page, name='add_user_page'),
@@ -25,10 +31,6 @@ urlpatterns = [
     path('courses/online/add/', content_views.add_online_courses, name='add_online_courses'),
     path('courses/online/edit/<int:course_id>/', content_views.edit_online_courses, name='edit_online_courses'),
     path('courses/delete-courses/', views.delete_courses, name='delete_courses'),
-        # User Course
-    path('course-progress/<uuid:uuid>/', views.usercourse_detail_view, name='usercourse_detail_view'),
-    path('course-progress/<uuid:uuid>/edit/', views.edit_usercourse_detail_view, name='edit_usercourse_detail_view'),
-    path('course-progress/lesson/<int:user_lesson_progress_id>/reset/', views.reset_lesson_progress, name='reset_lesson_progress'),
 
     # Settings
     path('settings/', views.admin_settings, name='admin_settings'), 

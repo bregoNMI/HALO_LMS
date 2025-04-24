@@ -42,7 +42,7 @@ input[type="text"], input[type="number"]{
 }
 
 .course-content-input .edit-user-label{
-    font-size: 0.85rem;
+    font-size: 0.89rem;
     margin-top: 0;
     color: var(--text-color7);
     margin-bottom: 0;
@@ -484,10 +484,12 @@ input[type="text"], input[type="number"]{
 }
 
 .popup-content-header{
+    font-size: 0.89rem;
     margin-top: 0;
-    margin-bottom: 0.7rem;
-    color: var(--text-color2);
-    font-size: 0.9rem;
+    color: var(--text-color7);
+    margin-bottom: 0;
+    padding-bottom: 0rem;
+    font-weight: 600;
 }
 
 /* Right Column */
@@ -1083,54 +1085,6 @@ input[type="text"], input[type="number"]{
 }.file-upload-finished i{
     color: #155724;
     font-size: 1.3rem;
-}
-
-.file-upload-loading{
-    display: none;
-    flex-direction: row;
-    gap: 0.7rem;
-    align-items: center;
-}.file-upload-loading span{
-    color: var(--text-color5);
-    font-size: 0.9rem;
-}
-
-.file-loading{
-    width: 2rem;
-    transform-origin: center;
-    animation: rotate4 2s linear infinite;
-}
-
-.file-loading circle {
-    fill: none;
-    stroke: hsl(214, 97%, 59%);
-    stroke-width: 3;
-    stroke-dasharray: 1, 200;
-    stroke-dashoffset: 0;
-    stroke-linecap: round;
-    animation: dash4 1.5s ease-in-out infinite;
-}
-
-@keyframes rotate4 {
-    100% {
-     transform: rotate(360deg);
-    }
-}
-   
-@keyframes dash4 {
-    0% {
-     stroke-dasharray: 1, 200;
-     stroke-dashoffset: 0;
-    }
-   
-    50% {
-     stroke-dasharray: 90, 200;
-     stroke-dashoffset: -35px;
-    }
-   
-    100% {
-     stroke-dashoffset: -125px;
-    }
 }
 
 .file-required-text{

@@ -11,6 +11,8 @@ from datetime import datetime
 from pytz import all_timezones
 from course_player.models import SCORMTrackingData 
 import uuid
+from datetime import timedelta
+import re
 
 no_prefix_storage = S3Boto3Storage()
 no_prefix_storage.location = ''  # Disable tenant prefix
@@ -99,6 +101,7 @@ class UserCourse(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     progress = models.PositiveIntegerField(default=0)  # percentage of the course completed by the user
+    enrollment_date = models.DateField(auto_now_add=True)
     stored_progress = models.PositiveIntegerField(default=0) # Stores course progress. Reverts back to this integer if status is changed from completed to not completed 
     lesson_id = models.PositiveIntegerField(default=0) #links o the individual lesson to launch the course
     locked = models.BooleanField(default=False)
@@ -148,9 +151,41 @@ class UserCourse(models.Model):
         self.progress = min((total_progress / total_lessons) * 100, 100)
         self.save()
 
+    def get_scorm_total_time(self):
+        scorm_sessions = SCORMTrackingData.objects.filter(
+            user=self.user,
+            lesson__module__course=self.course
+        )
+
+        total_time = timedelta()
+        for session in scorm_sessions:
+            total_time += parse_iso_duration(session.session_time)
+
+        if total_time.total_seconds() == 0:
+            return "No Activity"
+        else:
+            total_hours, remainder = divmod(total_time.total_seconds(), 3600)
+            total_minutes, total_seconds = divmod(remainder, 60)
+
+            if total_hours > 0:
+                return f"{int(total_hours)}h {int(total_minutes)}m {int(total_seconds)}s"
+            else:
+                return f"{int(total_minutes)}m {int(total_seconds)}s"
 
     def __str__(self):
         return f"{self.user.username} - {self.course.title}"
+    
+def parse_iso_duration(duration_str):
+    pattern = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
+    match = pattern.fullmatch(duration_str)
+    if not match:
+        return timedelta()
+
+    hours = int(match.group(1)) if match.group(1) else 0
+    minutes = int(match.group(2)) if match.group(2) else 0
+    seconds = int(match.group(3)) if match.group(3) else 0
+
+    return timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
 class UserModuleProgress(models.Model):
     user_course = models.ForeignKey(UserCourse, related_name='module_progresses', on_delete=models.CASCADE)

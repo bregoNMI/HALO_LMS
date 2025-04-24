@@ -739,7 +739,7 @@ async function uploadFile(file, isUpdate = false) {
 }
 
 function showFileUploadLoading(isUpdate){
-    const loadingSymbols = document.querySelectorAll('.file-upload-loading');
+    const loadingSymbols = document.querySelectorAll('.loading-symbol-blue-sm');
     // Showing the loading symbol
     for (const symbol of loadingSymbols) {
         symbol.style.display = 'flex'; // Show each loading symbol
@@ -758,7 +758,7 @@ function showFileUploadLoading(isUpdate){
 }
 
 function removeFileUploadLoading(isUpdate){
-    const loadingSymbols = document.querySelectorAll('.file-upload-loading');
+    const loadingSymbols = document.querySelectorAll('.loading-symbol-blue-sm');
     // Showing the loading symbol
     for(const symbol of loadingSymbols){
         symbol.style.display = 'none';

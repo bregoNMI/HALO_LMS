@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 {% load static %}
 {% block content %}
     <div id="stickyNavBar" style="display: none;">
         <div class="details-top-row max-width-0">
             <div class="details-top-row-left">
-                <a href="{% url 'user_transcript' profile.id %}" class="back-btn">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
                     <i class="fa-solid fa-arrow-left"></i>
-                </a>
+                </button>
                 <h3> Course Progress </h3>
             </div>
             <div class="details-top-row-right">
@@ -53,9 +54,9 @@
         <div class="max-width-0">
             <div id="mainNavBar" class="details-top-row">
                 <div class="details-top-row-left">
-                    <a href="{% url 'user_transcript' profile.id %}" class="back-btn">
+                    <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
                         <i class="fa-solid fa-arrow-left"></i>
-                    </a>
+                    </button>
                     <h3> Course Progress </h3>
                 </div>
                 <div class="details-top-row-right">
@@ -108,7 +109,7 @@
                                         </div>
                                     </div>
                                     <div class="info-card-body right-column-card-body">
-                                        <div class="course-content-input">
+                                        <div id="courseActivityContainer" class="course-content-input">
                                             <label class="edit-user-label">Mark As</label>
                                             <div class="content-input-options-row">
                                                 <label class="custom-radio">
@@ -260,6 +261,9 @@
                                                                 </div>
                                                             </div>
                                                             <div class="lesson-list-option-right">
+                                                                <div class="lesson-list-attempts">
+                                                                    <span>Attempts: <b>{{ lesson_progress.attempts }}</b></span>
+                                                                </div>
                                                                 <div class="lesson-list-progress">
                                                                     {% if lesson_progress.completed %}
                                                                         <span class="status course-active pastel-green"> Completed </span>                                                            
@@ -267,7 +271,7 @@
                                                                         <span class="status course-active pastel-gray"> Not Completed </span>
                                                                     {% endif %}
                                                                 </div>
-                                                                <div onclick="openPopup('editLessonActivity'), inputLessonData('{{ lesson_progress.lesson.title }}', '{{ lesson_progress.id }}', 'edit')" class="class-action-icon edit-icon tooltip" data-tooltip="Edit">
+                                                                <div onclick="openPopup('editLessonActivity'), inputLessonData('{{ lesson_progress.lesson.title }}', '{{ lesson_progress.id }}', 'edit', '{{ lesson_progress.lesson.content_type }}')" class="class-action-icon edit-icon tooltip" data-tooltip="Edit">
                                                                     <i class="fa-solid fa-pen"></i>
                                                                     <span class="tooltiptext">Edit</span>
                                                                 </div>
@@ -282,7 +286,36 @@
                                                             </div>
                                                         </div>
                                                         <div class="lesson-info-card-body hidden">
-                                                            <span>TEST</span>
+                                                            {% if lesson_sessions_map|get_item:lesson_progress.id %}
+                                                                <table>
+                                                                    <thead>      
+                                                                        <tr>
+                                                                            <th>#</th>
+                                                                            <th>Date</th>
+                                                                            <th>Duration</th>
+                                                                            <th>Status</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {% for session in lesson_sessions_map|get_item:lesson_progress.id %}
+                                                                            <tr class="table-select-option">
+                                                                                <td>{{ forloop.counter }}</td>                                                          
+                                                                                <td>{{ session.end_time }}</td>
+                                                                                <td>{{ session.session_time|format_session_time }}</td>
+                                                                                {% if session.completion_status == 'incomplete' %}
+                                                                                    <td>In Progress </td>
+                                                                                {% else %}
+                                                                                    <td> Completed </td>
+                                                                                {% endif %} 
+                                                                            </tr>
+                                                                        {% empty %}
+                                                                            <tr><td>No sessions available.</td></tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                </table>
+                                                            {% else %}
+                                                                <span class="no-sessions-found"> No sessions available.</span>
+                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 {% empty %}
@@ -312,5 +345,7 @@
     <script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
     <script src="{% static 'client_admin\javascript\message_container.js' %}"></script>
     <script src="{% static 'client_admin\javascript\sticky_nav.js' %}"></script>
-    
+    <script type="text/javascript">
+        var userId = "{{ profile.user.id }}";
+    </script>
 {% endblock content %}

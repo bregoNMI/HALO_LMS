@@ -7,9 +7,9 @@
     <div class="custom-dashboard-body max-width-extend-1">
         <div class="details-top-row">
             <div class="details-top-row-left">
-                <a href="/admin/templates/dashboards/" class="back-btn">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
                     <i class="fa-solid fa-arrow-left"></i>
-                </a>
+                </button>
                 <h3>Edit Template</h3>
             </div>
             <div class="details-top-row-right">
@@ -65,7 +65,7 @@
                 <div id="externalLinkContainer" class="dashboard-edit-options-section">
                     <div class="course-content-input">
                         <label class="edit-user-label" for="widgetEditExternalLinkInput">External Link</label>
-                        <input style="padding-right: 2.5rem;" type="text" id="widgetEditExternalLinkInput" placeholder="https://my-link">
+                        <input class="external-link-input" style="padding-right: 2.5rem;" type="text" id="widgetEditExternalLinkInput" placeholder="https://my-link">
                         <div class="external-link-visit tooltip" data-tooltip="Visit Link">
                             <span style="left: 10%;" class="tooltiptext">Visit Link</span>
                             <i class="fa-solid fa-arrow-up-right-from-square"></i>
@@ -76,7 +76,7 @@
                 <div class="dashboard-edit-options-section">
                     <div class="course-content-input">
                         <label class="edit-user-label" for="widgetEditTitle">Title</label>
-                        <input type="text" id="widgetEditTitle">
+                        <input class="custom-text-value" type="text" id="widgetEditTitle">
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label">Title Color</label>
@@ -88,7 +88,7 @@
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="widgetEditSubtext">Subtext</label>
-                        <input type="text" id="widgetEditSubtext">
+                        <input class="custom-text-value" type="text" id="widgetEditSubtext">
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="widgetEditSubtextColor">Subtext Color</label>
@@ -206,7 +206,7 @@
                 <div class="dashboard-edit-options-section">
                     <div class="course-content-input">
                         <label class="edit-user-label" for="headerEditTitle">Title</label>
-                        <input type="text" id="headerEditTitle" value="{{ dashboard.header_title }}">
+                        <input class="custom-text-value" type="text" id="headerEditTitle" value="{{ dashboard.header_title }}">
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label">Title Color</label>
@@ -218,7 +218,7 @@
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="headerEditSubtext">Subtext</label>
-                        <input type="text" id="headerEditSubtext" value="{{ dashboard.header_subtext }}">
+                        <input class="custom-text-value" type="text" id="headerEditSubtext" value="{{ dashboard.header_subtext }}">
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="headerEditSubtextColor">Subtext Color</label>
@@ -283,4 +283,9 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="{% static 'client_admin\javascript\message_container.js' %}"></script>
 <script> const checkBannerPositionItems = '{{ dashboard.header_background_image_position }}';</script>
+<style>
+    .admin-header-container, .admin-sidebar-container {
+        display: none;
+    }
+</style>
 {% endblock %}

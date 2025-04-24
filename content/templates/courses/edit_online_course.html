@@ -5,9 +5,9 @@
     <div id="stickyNavBar" style="display: none;">
         <div class="details-top-row max-width-extend-1">
             <div class="details-top-row-left">
-                <a href="/admin/courses/" class="back-btn">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
                     <i class="fa-solid fa-arrow-left"></i>
-                </a>
+                </button>
                 <h3> Edit Online Course </h3>
             </div>
             <div class="details-top-row-right">
@@ -17,11 +17,11 @@
                         <span> View History </span>
                     </div>
                 </div> -->
-                <button onclick="generateCourseData('save')" class="option-btn course-save-btns">
+                <button type="button" onclick="generateCourseData('save')" class="option-btn course-save-btns">
                     <i class="fa-regular fa-floppy-disk"></i>
                     <span> Save </span>
                 </button>
-                <button onclick="generateCourseData()" class="action-button-primary course-save-btns">
+                <button type="button" onclick="generateCourseData()" class="action-button-primary course-save-btns">
                     <i class="fa-regular fa-paper-plane"></i>
                     <span>Publish</span>
                 </button>
@@ -34,9 +34,9 @@
         <div class="max-width-extend-1">
             <div id="mainNavBar" class="details-top-row">
                 <div class="details-top-row-left">
-                    <a href="/admin/courses/" class="back-btn">
+                    <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
                         <i class="fa-solid fa-arrow-left"></i>
-                    </a>
+                    </button>
                     <h3> Edit Online Course </h3>
                 </div>
                 <div class="details-top-row-right">

@@ -63,13 +63,41 @@ document.addEventListener("DOMContentLoaded", function () {
     
         // Ensure both the header and content exist before proceeding
         if (collapsibleHeader && collapsibleContent) {
-            // Check if any 'a' tag inside the collapsible content has the 'current-page' class
             if (collapsibleContent.querySelector('a.current-page')) {
                 collapsibleHeader.classList.add('highlight'); // Add your desired class to the header
             }
         }
     });  
+    
+    updateBreadcrumbTrail();
 });
+
+function updateBreadcrumbTrail() {
+    const currentPath = window.location.pathname;
+    let trail = JSON.parse(sessionStorage.getItem('breadcrumbTrail')) || [];
+
+    if (trail[trail.length - 1] !== currentPath) {
+        trail.push(currentPath);
+    }
+
+    sessionStorage.setItem('breadcrumbTrail', JSON.stringify(trail));
+} 
+
+function handleBackButton() {
+    let trail = JSON.parse(sessionStorage.getItem('breadcrumbTrail')) || [];
+
+    if (trail.length > 1) {
+        trail.pop();
+
+        const previousPage = trail[trail.length - 1];
+        sessionStorage.setItem('breadcrumbTrail', JSON.stringify(trail));
+
+        window.location.href = previousPage;
+    } else {
+        // Default fallback if no history
+        window.location.href = '/admin/dashboard/';
+    }
+} 
 
 function checkDropdownMenu(){
     document.querySelectorAll('.collapsible-section').forEach(section => {

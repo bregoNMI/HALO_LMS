@@ -1,15 +1,18 @@
 from io import BytesIO
+import re
+from datetime import timedelta
 import boto3
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.forms.models import model_to_dict
 from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.auth import get_user_model
 from django.core.files.base import File
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.test import RequestFactory
 from django.http import HttpResponse, JsonResponse
 import logging, csv
@@ -24,6 +27,7 @@ from content.models import Lesson
 from learner_dashboard.views import learner_dashboard
 from django.contrib import messages
 from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos
+from course_player.models import LessonSession, SCORMTrackingData
 from client_admin.forms import OrganizationSettingsForm
 from .forms import UserRegistrationForm, ProfileForm, CSVUploadForm
 from django.contrib.auth import update_session_auth_hash, login
@@ -428,16 +432,15 @@ def enroll_users_request(request):
                     'lesson_id': user_course.lesson_id
                 })
                 try:
-                    # Log the activity in the ActivityLog
                     ActivityLog.objects.create(
-                        user=user,  # Assuming this is the user being edited
-                        action_performer=request.user,  # User performing the action
-                        action_target=user,  # User being enrolled
+                        user=user,
+                        action_performer=request.user,
+                        action_target=user,
                         action=f"Enrolled in Course: {course.title}",
-                        user_groups=', '.join(group.name for group in request.user.groups.all()),  # Optional: Add user groups
+                        user_groups=', '.join(group.name for group in request.user.groups.all()),
                     )
                 except Exception as e:
-                    print(f"Failed to create activity log: {e}")  # Replace with proper logging mechanism
+                    print(f"Failed to create activity log: {e}")
             else:
                 response_data['already_enrolled'].append({
                     'user_id': user.id,
@@ -456,12 +459,74 @@ def enroll_users_request(request):
 
 @login_required
 def user_details(request, user_id):
-    user = get_object_or_404(Profile, pk=user_id)
+    profile = get_object_or_404(Profile, pk=user_id)
+    user_courses = UserCourse.objects.filter(user=profile.user) \
+        .select_related('course') \
+        .prefetch_related('module_progresses__module__lessons') \
+        .order_by('course__title')
+
+    # Enrollment Progress
+    total_enrollments = user_courses.count()
+    total_in_progress = 0
+    total_completed = 0
+    expired_enrollments = 0
+
+    for course in user_courses:
+        status = course.get_status()
+        if status == 'Completed':
+            total_completed += 1
+        elif status in ['Started', 'Not Completed']:  # Assuming these mean "in progress"
+            total_in_progress += 1
+        elif status == 'Expired':
+            expired_enrollments += 1
+
+    # Learner Activity
+    average_progress = user_courses.aggregate(avg_progress=Avg('progress'))['avg_progress'] or 0
+    average_progress = round(average_progress, 2)
+    last_session = LessonSession.objects.filter(user=profile.user).order_by('-start_time').first()
+    last_active = last_session.start_time if last_session else None
+    sessions = SCORMTrackingData.objects.filter(user=profile.user)
+
+    total_time = timedelta()
+    for session in sessions:
+        total_time += parse_iso_duration(session.session_time)
+
+    if total_time.total_seconds() == 0:
+        formatted_total_time = "No Activity"
+    else:
+        total_hours, remainder = divmod(total_time.total_seconds(), 3600)
+        total_minutes, total_seconds = divmod(remainder, 60)
+
+        if total_hours > 0:
+            formatted_total_time = f"{int(total_hours)}h {int(total_minutes)}m {int(total_seconds)}s"
+        else:
+            formatted_total_time = f"{int(total_minutes)}m {int(total_seconds)}s"
 
     context = {
-        'profile': user
+        'profile': profile,
+        'user_courses': user_courses,
+        'total_in_progress': total_in_progress,
+        'total_completed': total_completed,
+        'total_enrollments': total_enrollments,
+        'expired_enrollments': expired_enrollments,
+        'average_progress': average_progress,
+        'last_active': last_active,
+        'total_time_spent': formatted_total_time,
     }
+
     return render(request, 'users/user_details.html', context)
+
+def parse_iso_duration(duration_str):
+    pattern = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
+    match = pattern.fullmatch(duration_str)
+    if not match:
+        return timedelta()
+
+    hours = int(match.group(1)) if match.group(1) else 0
+    minutes = int(match.group(2)) if match.group(2) else 0
+    seconds = int(match.group(3)) if match.group(3) else 0
+
+    return timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
 @login_required
 def user_transcript(request, user_id):
@@ -896,9 +961,46 @@ def delete_allowed_id_photos(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'msg': str(e)})
         
+@login_required
 def usercourse_detail_view(request, uuid):
     user_course = get_object_or_404(UserCourse, uuid=uuid)
-    return render(request, 'userCourse/user_course_details.html', {'user_course': user_course})
+    lesson_sessions_map = {}
+
+    # Build the lesson_sessions_map as before
+    for module_progress in user_course.module_progresses.all():
+        for lesson_progress in module_progress.lesson_progresses.all():
+            sessions = LessonSession.objects.filter(
+                lesson=lesson_progress.lesson,
+                user=user_course.user
+            )
+            lesson_sessions_map[lesson_progress.id] = sessions
+
+    # ➤ Calculate Total Time Spent for THIS Course from SCORMTrackingData
+    scorm_sessions = SCORMTrackingData.objects.filter(
+        user=user_course.user,
+        lesson__module__course=user_course.course
+    )
+
+    total_time = timedelta()
+    for session in scorm_sessions:
+        total_time += parse_iso_duration(session.session_time)
+
+    if total_time.total_seconds() == 0:
+        formatted_total_time = "No Activity"
+    else:
+        total_hours, remainder = divmod(total_time.total_seconds(), 3600)
+        total_minutes, total_seconds = divmod(remainder, 60)
+
+        if total_hours > 0:
+            formatted_total_time = f"{int(total_hours)}h {int(total_minutes)}m {int(total_seconds)}s"
+        else:
+            formatted_total_time = f"{int(total_minutes)}m {int(total_seconds)}s"
+
+    return render(request, 'userCourse/user_course_details.html', {
+        'user_course': user_course,
+        'lesson_sessions_map': lesson_sessions_map,
+        'total_time_spent': formatted_total_time,
+    })
 
 def edit_usercourse_detail_view(request, uuid):
     if request.method == 'POST':
@@ -985,15 +1087,66 @@ def edit_usercourse_detail_view(request, uuid):
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
 
 def reset_lesson_progress(request, user_lesson_progress_id):
-
     if request.method == 'POST':
         data = json.loads(request.body)
         lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
 
+        lesson_progress.attempts = 0
         lesson_progress.completed = False
         lesson_progress.save()
 
-        messages.success(request, 'Lesson progress reset.')
-        return JsonResponse({'success': True, 'message': 'Course progress updated successfully'})
+        lesson = lesson_progress.lesson
+        user = lesson_progress.user_module_progress.user_course.user
+
+        sessions_to_delete = LessonSession.objects.filter(lesson=lesson, user=user)
+        deleted_count, _ = sessions_to_delete.delete()
+
+        messages.success(request, f'Lesson progress reset.')
+        return JsonResponse({'success': True, 'message': f'Lesson progress reset.'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+def edit_lesson_progress(request, user_lesson_progress_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
+        print(data, lesson_progress)
+
+        lesson_progress.completed = data.get('completed', lesson_progress.completed)
+            
+        # Completed Date & Time
+        completed_on_date = data.get('completed_on_date', '').strip()
+        completed_on_time = data.get('completed_on_time', '').strip()
+
+        if completed_on_date:
+            try:
+                lesson_progress.completed_on_date = datetime.strptime(completed_on_date, '%Y-%m-%d').date()
+            except ValueError:
+                pass
+        else:
+            lesson_progress.completed_on_date = None
+
+        if completed_on_time:
+            try:
+                lesson_progress.completed_on_time = datetime.strptime(completed_on_time, '%I:%M %p').time()
+            except ValueError:
+                pass
+        else:
+            lesson_progress.completed_on_time = None
+
+        lesson_progress.save()
+
+        # messages.success(request, f'Lesson Activity updated successfully.')
+        return JsonResponse({'success': True, 'message': 'Lesson Activity updated successfully.'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+def fetch_lesson_progress(request, user_lesson_progress_id):
+    if request.method == 'POST':
+        lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
+
+        lesson_progress_data = model_to_dict(lesson_progress)
+
+        return JsonResponse({'success': True, 'data': lesson_progress_data})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)

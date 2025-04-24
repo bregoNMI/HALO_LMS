@@ -88,7 +88,7 @@
 }.bottom-row-item:last-child::before{
     content: unset;
 }.bottom-row-item span{
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     color: #41454d;
     /* color: #191c1f; */
     overflow: hidden;
@@ -237,6 +237,9 @@ circle-progress::part(text) {
     border-top: none;
 }.lesson-list-option-right {
     display: flex;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: center;
 }.lesson-list-option-right .lesson-list-option-delete:hover {
     background-color: #f8d7da;
 }.lesson-list-option-right .lesson-list-option-delete:hover i {
@@ -247,6 +250,14 @@ circle-progress::part(text) {
     display: flex;
     align-items: center;
     margin-right: 1rem;
+}.lesson-list-progress .status{
+    width: 80px;
+    text-align: center;
+}.lesson-list-attempts{
+    color: var(--text-color6);
+    font-size: var(--fs-sm);
+    margin-right: 1.3rem;
+    text-wrap: nowrap;
 }.lesson-list-options-container .class-action-icon {
     position: relative;
     display: flex;
@@ -322,4 +333,25 @@ circle-progress::part(text) {
 
 .lesson-info-card-body{
     border-top: 1px solid #e3e3e3;
+}
+
+.lesson-list-options-container th, .lesson-list-options-container td{
+    border-top: unset;
+}.lesson-list-options-container td{
+    background-color: white;
+}.lesson-list-options-container tr:hover {
+    cursor: auto;
+    background-color: inherit;
+}
+
+.no-sessions-found{
+    display: flex;
+    padding: var(--pad-sm);
+    color: var(--text-color6);
+    font-size: var(--btn-font);
+}
+
+#editLessonActivityLoading .loading-symbol-blue-sm{
+    display: flex;
+    justify-content: center;
 }

@@ -1,13 +1,23 @@
 <div id="editLessonActivity" class="popup-background">
     <div class="popup-content max-width-6">
         <div class="popup-header">
-            <h3>Edit Lesson</h3>
+            <div class="popup-header-column">
+                <h3>Lesson Activity</h3>
+                <span id="editLessonTitle" class="popup-header-subtext"></span>
+            </div>
             <span id="editLessonType" class="selected-lesson-type pastel-blue">File</span>
-            <button onclick="closePopup('editLessonActivity')" class="close-popup-icon">
+            <button onclick="closePopup('editLessonActivity'), resetEditLessonLoading()" class="close-popup-icon">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div class="popup-body">
+        <div id="editLessonActivityLoading" class="popup-body">
+            <div class="loading-symbol-blue-sm">
+                <svg class="loading-symbol-sm-inner" viewBox="25 25 50 50">
+                    <circle r="20" cy="50" cx="50"></circle>
+                </svg>
+            </div>
+        </div>
+        <div id="editLessonActivityLoaded" class="popup-body hidden">
             <div class="course-content-input">
                 <label class="edit-user-label">Status</label>
                 <div class="content-input-options-row">
@@ -17,33 +27,35 @@
                         Not Completed
                     </label>
                     <label class="custom-radio">
-                        <input class="radio-option" type="radio" name="lesson_status" value="completed">
+                        <input class="radio-option" type="radio" data-target="lessonCompletedDetails" name="lesson_status" value="completed">
                         <span class="custom-radio-button"></span>
                         Completed
                     </label>
                 </div>
             </div>
-            <div class="course-content-input right-column-file-wrapper padding-top-2 padding-bottom-1">
-                <div class="edit-user-input">
-                    <label class="edit-user-label" for="completed_date">Completed On</label>
-                    <div class="date-options-container">
-                        <div class="edit-user-input">
-                            <input type="text" id="completed_date" name="completed_date" class="date-picker" placeholder="Select Date">
-                            <span class="input-group-addon">
-                                <i class="fa-regular fa-calendar-lines"></i>
-                            </span>
+            <div id="lessonCompletedDetails" class="toggle-option-details margin-top-5">
+                <div class="course-content-input right-column-file-wrapper">
+                    <div class="edit-user-input">
+                        <label class="edit-user-label" for="lesson_completed_date">Completed On</label>
+                        <div class="date-options-container">
+                            <div class="edit-user-input">
+                                <input type="text" id="lesson_completed_date" name="lesson_completed_date" class="date-picker" placeholder="Select Date">
+                                <span class="input-group-addon">
+                                    <i class="fa-regular fa-calendar-lines"></i>
+                                </span>
+                            </div>
+                            <div class="edit-user-input">
+                                <input type="text" id="Lesson_completed_time" name="Lesson_completed_time" class="time-picker" placeholder="Select Time">
+                                <span class="input-group-addon">
+                                    <i class="fa-regular fa-clock"></i>
+                                </span>
+                            </div>                                                
                         </div>
-                        <div class="edit-user-input">
-                            <input type="text" id="completed_time" name="completed_time" class="time-picker" placeholder="Select Time">
-                            <span class="input-group-addon">
-                                <i class="fa-regular fa-clock"></i>
-                            </span>
-                        </div>                                                
-                    </div>
-                </div> 
-                <span class="course-content-input-subtext"> (UTC-05:00) Eastern Time (US & Canada)</span>  
+                    </div> 
+                    <span class="course-content-input-subtext"> (UTC-05:00) Eastern Time (US & Canada)</span>  
+                </div>
             </div>
-            <div class="course-content-input right-column-file-wrapper padding-top-1 padding-bottom-1">
+            <div class="course-content-input right-column-file-wrapper padding-top-2 padding-bottom-1">
                 <div class="edit-user-input">
                     <label class="edit-user-label" for="completed_date">Current Attempts</label>
                     <div class="edit-user-input number-input-field control-disabled-opacity disabled">
@@ -59,8 +71,8 @@
         <div class="popup-footer">
             <div class="spacer"></div>
             <div class="popup-btns">
-                <button onclick="closePopup('editLessonActivity')" class="popup-btn close-popup-btn">Back</button>
-                <button id="confirmEditLessonActivity" class="popup-btn">Save Lesson</button>   
+                <button onclick="closePopup('editLessonActivity'), resetEditLessonLoading()" class="popup-btn close-popup-btn">Back</button>
+                <button onclick="editLessonActivity()" id="confirmEditLessonActivity" class="popup-btn">Save Lesson</button>   
             </div>
         </div>
     </div>
