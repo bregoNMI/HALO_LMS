@@ -3,8 +3,15 @@ echo "*.pyc" >> .gitignore
 git add .gitignore
 git commit -m "Add .gitignore to exclude __pycache__ directories and .pyc files"
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node / Amplify
 #amplify-do-not-edit-begin
-amplify/\#current-cloud-backend
+amplify/#current-cloud-backend
 amplify/.config/local-*
 amplify/logs
 amplify/mock-data
@@ -24,3 +31,4 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+
