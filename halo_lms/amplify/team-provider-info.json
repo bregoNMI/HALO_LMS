@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-halolms-dev-40e39-authRole",
+      "UnauthRoleArn": "arn:aws:iam::775137807496:role/amplify-halolms-dev-40e39-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::775137807496:role/amplify-halolms-dev-40e39-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-halolms-dev-40e39-deployment",
+      "UnauthRoleName": "amplify-halolms-dev-40e39-unauthRole",
+      "StackName": "amplify-halolms-dev-40e39",
+      "StackId": "arn:aws:cloudformation:us-east-1:775137807496:stack/amplify-halolms-dev-40e39/1c107630-49d4-11ef-9a00-0e5e3843a23b",
+      "AmplifyAppId": "d3ggzp0lp1s2u6"
+    },
+    "categories": {
+      "auth": {
+        "halolmsf013aefb": {}
+      }
+    }
+  }
+}

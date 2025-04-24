@@ -28,6 +28,14 @@ class Course(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def calculate_progress(self):
+        modules = self.modules.all()
+        total_modules = modules.count()
+        if total_modules == 0:
+            return 0
+        module_progress = sum(module.calculate_progress() for module in modules) / total_modules
+        return module_progress
+
     def __str__(self):
         return self.title
 
@@ -37,6 +45,14 @@ class Module(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     order = models.PositiveIntegerField()
+
+    def calculate_progress(self):
+        lessons = self.lessons.all()
+        total_lessons = lessons.count()
+        completed_lessons = lessons.filter(is_completed=True).count()
+        if total_lessons == 0:
+            return 0
+        return (completed_lessons / total_lessons) * 100
 
     class Meta:
         ordering = ['order']
@@ -49,6 +65,7 @@ class Lesson(models.Model):
     module = models.ForeignKey(Module, related_name='lessons', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     order = models.PositiveIntegerField()
+    is_completed = models.BooleanField(default=False)
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
