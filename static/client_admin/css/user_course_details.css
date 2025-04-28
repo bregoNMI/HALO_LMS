@@ -137,6 +137,7 @@
 
 .tabs{
     margin: 2rem var(--pad-xs) var(--pad-xs) var(--pad-xs);
+    padding: 0;
 }.tab{
     display: flex;
     gap: 0.4rem;

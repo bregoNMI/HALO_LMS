@@ -1,0 +1,231 @@
+{% extends 'learner_base.html' %}
+{% load static %}
+{% block content %}
+{% load custom_filters %}
+{% include 'learner_sidebar.html' %}
+<div class="learner-body align-center scrollable-content">
+    <!-- Message Wrapper -->
+    <div id="validation-message-container" class="alert-container" style="display: none;">   
+        <div id="validation-message-inner">
+            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
+            <span id="validation-message"></span>
+        </div>
+    </div>
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="max-width-0">
+        <div id="stickyNavBar" style="display: none;">
+            <div class="learner-top-row max-width-0">
+                <div class="learner-top-row-left">
+                    <h2>Transcript</h2>
+                </div>
+                <div class="learner-top-row-right">
+                    <a href="{% url 'download_transcript' %}" class="learner-primary-button">
+                        <i class="fa-regular fa-file-pdf"></i>
+                        <span> Download Transcript </span>
+                    </a>                
+                </div>
+            </div>
+        </div>
+        <div id="mainNavBar" class="learner-top-row">
+            <div class="learner-top-row-left">
+                <h2>Transcript</h2>
+                <span>View messages</span>
+            </div>
+            <div class="learner-top-row-right">
+                <a href="{% url 'download_transcript' %}" class="learner-primary-button">
+                    <i class="fa-regular fa-file-pdf"></i>
+                    <span> Download Transcript </span>
+                </a>                
+            </div>
+        </div>
+        <div class="learner-body-inner">
+            {% include 'learner_pages/learner_details_card.html' %}
+            <div class="settings-container">
+                <div id="settingsTabs" class="tabs-container courses-tabs">
+                    <div class="tabs">
+                        <div class="tab active" data-target="tab1">
+                            <i class="fa-light fa-book-open-cover"></i>
+                            Courses
+                        </div>
+                        <div class="tab" data-target="tab2">
+                            <i class="fa-light fa-award"></i>
+                            Certificates
+                        </div>
+                        <div class="tab-indicator"></div>
+                    </div>
+                
+                    <div class="tab-content-container">
+                        <!-- Course -->
+                        <div class="tab-content active" id="tab1">
+                            {% for user_course in user_courses %}
+                                <div class="row-course-item">
+                                    <div class="course-item-top">                         
+                                        {% if user_course.course.thumbnail.thumbnail_link %}
+                                            <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_link }});" class="course-item-thumbnail"></div>
+                                        {% elif user_course.course.thumbnail.thumbnail_image %}
+                                            <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_image.url }});" class="course-item-thumbnail"></div>
+                                        {% else %}
+                                            {% if settings.default_course_thumbnail %}
+                                                <div style="background-image: url({{ settings.default_course_thumbnail_image.url }});" class="course-item-thumbnail"></div>
+                                            {% else %}
+                                                <div class="course-item-thumbnail">
+                                                    <div class="thumbnail-placeholder">
+                                                        <i class="fa-regular fa-book-open-cover"></i>
+                                                    </div>
+                                                </div> 
+                                            {% endif %}                                  
+                                        {% endif %}
+                                        <div class="course-item-status">
+                                            {% if user_course.get_status == 'Not Started' %}
+                                                <div class="course-item-status-item purple-status-item" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                                    <i class="fa-regular fa-rocket-launch"></i>
+                                                </div>
+                                            {% elif user_course.get_status == 'Started' %}
+                                                <div class="course-item-status-item purple-status-item" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                                    <i class="fa-solid fa-play"></i>
+                                                </div>
+                                            {% elif user_course.get_status == 'Completed' %}
+                                                <div class="course-item-status-item green-status-item" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                                    <i class="fa-solid fa-check"></i>
+                                                </div>
+                                            {% elif user_course.get_status == 'Not Completed' %}
+                                                <div class="course-item-status-item yellow-status-item" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                                    <i class="fa-regular fa-light-emergency-on"></i>
+                                                </div>
+                                            {% else %}
+                                                <div class="course-item-status-item red-status-item">
+                                                    <i class="fa-regular fa-stopwatch"></i>
+                                                </div>
+                                            {% endif %}  
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="course-item-inner">
+                                        <div class="course-item-body">
+                                            <div class="course-item-type-wrapper">
+                                                {% if user_course.course.type == 'online' %}
+                                                    <div class="course-item-footer-item">
+                                                        <div class="course-type-icon online-course">
+                                                            <i class="fa-solid fa-signal-bars"></i>         
+                                                        </div>    
+                                                        <span> Online Course </span>     
+                                                    </div>
+                                                {% else %}
+                                                    <div class="course-item-footer-item">
+                                                        <div class="course-type-icon inperson-course">
+                                                            <i class="fa-solid fa-chalkboard-user"></i>         
+                                                        </div>    
+                                                        <span> In-Person Course </span>     
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <h4 class="course-item-title limit-text-wrap">{{ user_course.course.title }}</h4>
+                                            <!-- <div class="course-item-progress-container">
+                                                <div class="course-item-progress-bar-container">
+                                                    <div class="course-item-progress-bar" style="width: {{ user_course.progress }}%;"></div>
+                                                </div>
+                                                <span>{{ user_course.progress }}%</span>
+                                            </div> -->
+                                            
+                                        </div>
+                                        <div class="course-item-footer">
+                                            <div class="course-item-footer-item">
+                                                <i class="fa-regular fa-photo-film"></i>
+                                                {% if user_course.course.get_lesson_count > 1 %}
+                                                    <span>{{ user_course.course.get_lesson_count }} Lessons</span> 
+                                                {% else %}
+                                                    <span>{{ user_course.course.get_lesson_count }} Lesson</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="course-item-bottom">
+                                        <div class="bottom-row-item">
+                                            <h4>Progress</h4>
+                                            <div class="bottom-row-data-item">
+                                                <circle-progress id="courseProgress" text-format="percent" max="100" value="{{ user_course.progress }}"></circle-progress>
+                                                <span>{{ user_course.progress }}%</span>
+                                            </div>
+                                        </div>
+                                        <div class="bottom-row-item">
+                                            <h4 class="no-progress-header">Enrolled On</h4>
+                                            <div class="bottom-row-data-item no-progress-item">
+                                                <span>{{ user_course.enrollment_date }}</span>
+                                            </div>
+                                        </div> 
+                                        <div class="bottom-row-item">
+                                            <h4 class="no-progress-header">Completed On</h4>
+                                            <div class="bottom-row-data-item no-progress-item">
+                                                <span>{{ user_course.completed_on_date }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="coure-item-start-btn">
+                                        <!-- Button To Start Course -->
+                                        {% if user_course.get_status == 'Not Started' %}
+                                            <button class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                                <i class="fa-regular fa-rocket-launch"></i>
+                                                <span> Start</span>
+                                            </button>
+                                        {% elif user_course.get_status == 'Started' or user_course.get_status == 'Not Completed' %}
+                                            <div class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                                <i class="fa-regular fa-circle-play"></i>
+                                                <span> Resume </span>
+                                            </div>
+                                        {% elif user_course.get_status == 'Completed' %}
+                                            <div class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                                <i class="fa-regular fa-glasses"></i>
+                                                <span> Review </span>
+                                            </div>
+                                        {% else %}
+                                            <div class="start-course-btn">
+                                                <i class="fa-regular fa-stopwatch"></i>
+                                                <span> Expired </span>
+                                            </div>
+                                        {% endif %}
+                                    </div>          
+                                </div>
+                            {% empty %}
+                                <div style="display: flex;" class="no-widgets-found">
+                                    <img src="/static/client_admin/images/HALO LMS No Graphic Test-27.png" alt="No Widgets Image">    
+                                    <h4>It's empty in here</h4>
+                                    <span class="no-widgets-subtext"> You are currently not enrolled in any courses </span>        
+                                </div>
+                            {% endfor %}                       
+                        </div>
+                        <!-- Lessons -->
+                        <div class="tab-content" id="tab2">
+                            
+                        </div>                                           
+                    </div>
+                </div> 
+            </div>                                    
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin\css\user_course_details.css' %}">
+<script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
+<script src="{% static 'client_admin\javascript\message_container.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-circle-progress/dist/circle-progress.min.js" type="module"></script>
+{% endblock %}

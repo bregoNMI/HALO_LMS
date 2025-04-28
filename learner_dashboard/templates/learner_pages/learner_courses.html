@@ -145,15 +145,13 @@
                                             <i class="fa-regular fa-rocket-launch"></i>
                                             <span> Start Course</span>
                                         </button>
-                                        <script src="{% static 'learner_dashboard/javascript/learner.js' %}"></script>
                                     {% elif user_course.get_status == 'Started' or user_course.get_status == 'Not Completed' %}
                                         <div class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
                                             <i class="fa-regular fa-circle-play"></i>
                                             <span> Resume Course</span>
                                         </div>
-                                        <script src="{% static 'learner_dashboard/javascript/learner.js' %}"></script>
                                     {% elif user_course.get_status == 'Completed' %}
-                                        <div class="start-course-btn">
+                                        <div class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
                                             <i class="fa-regular fa-glasses"></i>
                                             <span> Review Course</span>
                                         </div>
@@ -295,4 +293,5 @@
 <link rel="stylesheet" href="{% static 'content/css/content.css' %}">
 <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+<script src="{% static 'learner_dashboard/javascript/learner.js' %}"></script>
 {% endblock %}

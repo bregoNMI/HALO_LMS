@@ -82,6 +82,7 @@
 
 .details-user-card .top-section{
     background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    /* background: linear-gradient(135deg, #a977e4 0%, #cec2fb 100%); */
     border-radius: 8px 8px 0 0;
     height: 4rem;
 }
@@ -110,7 +111,7 @@
     outline: 4px solid white;
     background-color: #f2f2f2;
     color: gray;
-    margin-top: -1.2rem;
+    margin-top: -1.6rem;
     flex: none;
     object-fit: cover;
     /* width: 100%; */
@@ -165,6 +166,7 @@
     display: flex;
     gap: 0.3rem;
     color: #6b6b6b;
+    font-size: 0.96rem;
 }
 
 .edit-user-btn{

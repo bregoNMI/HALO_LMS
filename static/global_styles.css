@@ -891,12 +891,18 @@ h1,h2,h3,h4,h5,h6{
   left: 0px;
   z-index: 3;
   justify-content: center;
-  background-color: rgba(255, 255, 255, 0.84);
+  background-color: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px); /* Apply the blur effect */
   padding: 0.6rem 2rem 0.6rem 2rem;
   padding-right: 46px;
   box-shadow: rgba(0, 0, 0, 0.03) 0px 0px 0px 1px;
   border-bottom: 1px solid rgb(236, 236, 241);
+}
+
+.learner-body-container #stickyNavBar{
+  top: 0px;
+}.learner-body-container #stickyNavBar .learner-top-row h2{
+  font-size: var(--fs-lg);
 }
 
 .control-disabled-opacity .disabled{

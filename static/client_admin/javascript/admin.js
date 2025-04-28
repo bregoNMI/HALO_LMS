@@ -412,17 +412,17 @@ document.addEventListener("DOMContentLoaded", function () {
     if(deleteCourseConfirmation){
         deleteCourseConfirmation.addEventListener('click', () => {
             console.log(selectedCourseIds);
-            const url = '/admin/courses/delete-courses/';  // Change this to your actual endpoint
+            const url = '/admin/courses/delete-courses/';
     
             fetch(url, {
-                method: 'POST',   // or 'DELETE', depending on how your API is set up
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCsrfToken()
                 },
                 body: JSON.stringify({ ids: selectedCourseIds })
             })
-            .then(response => response.json())  // Assuming the server responds with JSON
+            .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
                 if (data.redirect_url) {
@@ -435,7 +435,6 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch((error) => {
                 console.error('Error:', error);
-                // Handle errors here, such as displaying a message to the user
             });
         });
     }
