@@ -6,12 +6,7 @@
 {% include 'popups/change_password.html' %}
 <div class="learner-body align-center scrollable-content">
     <!-- Message Wrapper -->
-    <div id="validation-message-container" class="alert-container" style="display: none;">   
-        <div id="validation-message-inner">
-            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
-            <span id="validation-message"></span>
-        </div>
-    </div>
+    <div id="validation-message-container" class="new-validation-message-container" style="display: none;"></div>
     {% if messages %}
         <div class="alert-container">
             {% for message in messages %}

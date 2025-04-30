@@ -570,6 +570,11 @@ tr.selected-option th, tr.selected-option td{
     max-width: 170px;
 }
 
+#fileList .no-results-found{
+    border-top: 0;
+    background-color: white;
+}
+
 .no-results-found-small{
     display: flex;
     flex-direction: column;
@@ -974,7 +979,8 @@ tr.selected-option th, tr.selected-option td{
     right: -100rem;
     transition: all 0.5s ease-in-out;
     z-index: 9999;
-    /* bottom: 2rem; */
+    bottom: 2rem;
+    /* bottom: 4rem; */
 }
 
 .alert {
@@ -1032,8 +1038,8 @@ tr.selected-option th, tr.selected-option td{
     position: absolute;
     top: 0;
     left: 0;
-    height: 13px;
-    width: 13px;
+    height: 12px;
+    width: 12px;
     border-radius: 50%;
     border: 2px solid #ddd;
     transition: background-color 0.3s, border-color 0.3s;
@@ -1066,8 +1072,8 @@ tr.selected-option th, tr.selected-option td{
 .custom-radio .custom-radio-button:after {
     top: 3px;
     left: 3px;
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: white;
 }

@@ -26,7 +26,7 @@ function initializeTopRowNav(){
     });
 
     // Observe the target element
-    observer.observe(detailsTopRow);
+    if(detailsTopRow){observer.observe(detailsTopRow);}
 }
 
 function syncNavBarWidth() {

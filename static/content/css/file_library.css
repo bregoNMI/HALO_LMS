@@ -7,7 +7,8 @@
     padding: var(--pad-sm) var(--pad-lg);
     display: flex;
     justify-content: space-between;
-    border-top: 1px solid var(--bg-color2);
+    /* border-top: 1px solid var(--bg-color2); */
+    border-top: 1px solid #d7d7d7;
     background-color: white;
     border-radius: 0px 0 8px 8px;
 }
@@ -15,7 +16,8 @@
 .close-library-btn{
     background-color: white;
     color: var(--text-color2);
-    border: 1px solid var(--bg-color2);
+    /* border: 1px solid var(--bg-color2); */
+    border: 1px solid #dadae1;
     /* font-weight: 600; */
 }
 
@@ -37,11 +39,14 @@
     padding-bottom: 4rem;
     max-height: 34rem;
     overflow: auto;
+    border-top: 1px solid #d7d7d7;
 }
 
 .file-library-body .file-library-filters{
-    border-right: 1px solid var(--bg-color2);
-    border-top: 1px solid var(--bg-color2);
+    /* border-right: 1px solid var(--bg-color2); */
+    border-right: 1px solid #d7d7d7;
+    /* border-top: 1px solid var(--bg-color2); */
+    border-top: 1px solid #d7d7d7;
     flex: 1.5;
     padding: var(--pad-xl) var(--pad-lg);
 }
@@ -56,15 +61,18 @@
     display: flex;
     padding-bottom: var(--pad-lg);
     justify-content: space-between;
+    align-items: center;
 }
 
 .file-library-top-row h3{
     color: var(--text-color5);
     margin: 0;
+    font-size: var(--fs-med);
 }
 
 .file-library-body table{
     box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+    outline: 1px solid #dbdbdb;
     border-radius: 8px;
     background-color: white;
 }
@@ -79,12 +87,14 @@
     border: none;
     background-color: #efefef;
     color: #252d39;
-    font-size: var(--btn-font);
+    /* color: gray; */
+    /* font-size: var(--btn-font); */
     padding: 10px;
 }
 
 .file-library-body td{
-    font-size: var(--btn-font);
+    /* font-size: var(--btn-font); */
+    border-top: 1px solid #dddddd;
 }
 
 .file-library-body tr:last-child{
@@ -102,7 +112,7 @@
 .library-filter-options{
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.4rem;
     margin-top: 0.8rem;
 }
 
@@ -169,6 +179,7 @@
     transform: translate(-50%, -50%);
     color: gray;
     font-size: 0.8rem;
+    pointer-events: none;
 }
 
 /* Custom File Upload */

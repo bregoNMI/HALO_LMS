@@ -52,8 +52,12 @@ def learner_dashboard(request):
 def learner_courses(request):
     user = request.user
 
-    # Fetch the user's courses and their progress
-    user_courses = UserCourse.objects.filter(user=user).select_related('course').prefetch_related('module_progresses__module__lessons')
+    user_courses = (
+        UserCourse.objects
+        .filter(user=user)
+        .select_related('course', 'course__expiration_date', 'course__due_date', 'course__start_date')
+        .prefetch_related('module_progresses__module__lessons')
+    )
 
     context = {
         'user_courses': user_courses

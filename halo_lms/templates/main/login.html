@@ -6,7 +6,11 @@
     <script src="https://kit.fontawesome.com/0bbcd9bc36.js" crossorigin="anonymous"></script>
     <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ settings.portal_favicon.url }}">
+    {% if settings.portal_favicon.value %}
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ settings.portal_favicon.url }}">
+    {% else %}
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images\favicon\16x16.png' %}">
+    {% endif %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | HALO LMS</title>

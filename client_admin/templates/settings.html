@@ -297,7 +297,7 @@
                                                 
                                                 <div class="edit-settings-row">
                                                     <div class="edit-settings-input">
-                                                        <label class="edit-settings-label" for="default_certificate">Default Certificate Image</label>
+                                                        <label class="edit-settings-label" for="default_certificate">Default Certificate</label>
                                                         <label class="toggle-switch">
                                                             <input class="toggle-hidden-settings-input" type="checkbox" id="default_certificate" name="default_certificate" {% if form.default_certificate.value %}checked{% endif %}>
                                                             <div class="toggle-switch-background">
@@ -362,9 +362,11 @@
                                                         <span class="settings-input-subtext">Upload a Favicon that will apear at the top of your browser tabs (Suggested size 16 x 16 px).</span> 
                                                     </div>
                                                     <div class="edit-settings-input">
+                                                        {% if form.portal_favicon.value %}
                                                         <div class="favicon-preview">
                                                             <img id="faviconPreview" src="{{ form.portal_favicon.value.url }}" alt="Favicon">
                                                         </div>
+                                                        {% endif %}
                                                     </div>                                                   
                                                 </div>                                             
                                             </div>                 

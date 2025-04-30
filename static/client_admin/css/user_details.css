@@ -529,7 +529,8 @@
 }
 
 .table-select-option:last-child td{
-    border: none;
+    /* border: none; */
+    border-bottom: none;
 }
 
 .status{

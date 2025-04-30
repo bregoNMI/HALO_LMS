@@ -47,6 +47,13 @@ function isImage(url) {
     return imageExtensions.includes(extension);
 }
 
+// Function to check if the URL points to a PDF
+function isPDF(url) {
+    const imageExtensions = ['pdf'];
+    const extension = url.split('.').pop().toLowerCase();
+    return imageExtensions.includes(extension);
+}
+
 // Selecting a file to be updated into a lesson
 function selectFile(popupId, referenceId = null) {
     const selectedOption = document.querySelector('.table-select-option input[type="radio"]:checked');
@@ -68,12 +75,12 @@ function selectFile(popupId, referenceId = null) {
         } else if (popupId === 'certificateSource') {
             const certificateURLInput = document.getElementById('certificateURLInput');
             const certificateSourceDisplay = document.getElementById('certificateSourceDisplay');
-            if (isImage(selectedFileURL)) {
+            if (isPDF(selectedFileURL)) {
                 certificateURLInput.value = selectedFileURL;
                 certificateSourceDisplay.innerText = selectedFileTitle;
                 closePopup('fileLibrary');
             } else {
-                displayMessage('Please Select an Image for Certificate Source', false);
+                displayMessage('Please Select a PDF for Certificate Source', false);
             }
         } else if (popupId === 'thumbnail') {
             const ThumbnailImagePreview = document.getElementById('ThumbnailImagePreview');
@@ -223,7 +230,7 @@ function openFileLibrary(popupId, referenceId = null) {
         lessonEditPopup.style.display = "none";
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("editLesson")');
     } else if (popupId === 'certificateSource') {
-        const checkbox = document.querySelector('.container .filter[data-type="image"]');
+        const checkbox = document.querySelector('.container .filter[data-type="pdf"]');
         if (checkbox && !checkbox.checked) {
             const container = checkbox.closest('.container');
             if (container) {
@@ -382,9 +389,11 @@ function displayMessage(message, isSuccess) {
 }
 
 document.getElementById('fileUploadForm').addEventListener('submit', function(event) {
+    addUploadLoading();
     const fileUploadSubmit = document.getElementById('fileUploadSubmit');
     fileUploadSubmit.classList.add('disabled');
     fileUploadSubmit.setAttribute('disabled', true);
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
     event.preventDefault();
 
     const fileInput = document.getElementById('fileInput');
@@ -423,22 +432,66 @@ document.getElementById('fileUploadForm').addEventListener('submit', function(ev
                 assignTableOptionListeners();
                 document.getElementById('librarySearch').value = "";
                 performSearch();
+                removeUploadLoading(fileInput, fileNameDisplay);
             } else {
                 displayMessage(response.message, false); // Display error message
+                removeUploadLoading(fileInput, fileNameDisplay);
                 console.error('Failed to upload file:', response.error);
             }
         } else {
             console.error('File upload failed');
+            removeUploadLoading(fileInput, fileNameDisplay);
             displayMessage('An unexpected error occurred. Please try again later.', false);
         }
     };
 
-    closeFileUpload();
     xhr.send(formData);
-    fileUploadSubmit.classList.remove('disabled');
-    fileUploadSubmit.removeAttribute('disabled', true);
     assignTableOptionListeners();
 });
+
+// Adding the loading symbol to file upload popup
+function addUploadLoading(){
+    const loadingSymbols = document.querySelectorAll('.loading-symbol-blue-sm');
+    // Showing the loading symbol
+    for (const symbol of loadingSymbols) {
+        symbol.style.display = 'flex'; // Show each loading symbol
+    }
+    // Blocking all of the inputs and buttons
+    const popupBtns = document.querySelectorAll('.close-popup-btn');
+    for (const btn of popupBtns) {
+        btn.classList.add('disabled');
+        btn.setAttribute('disabled', true);
+    }
+    const closePopupIcon = document.querySelectorAll('.close-popup-icon');
+    for (const btn of closePopupIcon) {
+        btn.classList.add('disabled');
+        btn.setAttribute('disabled', true);
+    }
+}
+
+// Removing the loading symbol from file upload popup and others
+function removeUploadLoading(fileInput, fileNameDisplay){
+    const loadingSymbols = document.querySelectorAll('.loading-symbol-blue-sm');
+    // Showing the loading symbol
+    for(const symbol of loadingSymbols){
+        symbol.style.display = 'none';
+    }
+
+    // Unblocking all of the inputs and buttons
+    const popupBtns = document.querySelectorAll('.close-popup-btn');
+    for (const btn of popupBtns) {
+        btn.classList.remove('disabled');
+        btn.removeAttribute('disabled');
+    }
+    const closePopupIcon = document.querySelectorAll('.close-popup-icon');
+    for (const btn of closePopupIcon) {
+        btn.classList.remove('disabled');
+        btn.removeAttribute('disabled');
+    }
+    closeFileUpload();
+    fileInput.value = '';
+    fileNameDisplay.innerText = 'No file selected';
+}
 
 // Debounce function
 function debounce(func, delay) {
@@ -492,7 +545,7 @@ function performSearch() {
 }
 
 // Add event listener with debounce
-document.getElementById('librarySearch').addEventListener('input', debounce(performSearch, 300));
+document.getElementById('librarySearch').addEventListener('input', debounce(performSearch, 500));
 
 function updateFileList(files) {
     const fileListContainer = document.getElementById('fileList');

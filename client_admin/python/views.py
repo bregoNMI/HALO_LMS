@@ -57,6 +57,7 @@ def admin_settings(request):
     # Create a new instance if none exists
     if settings is None:
         settings = OrganizationSettings()
+        settings.save()  # ✅ Save immediately so it gets an ID
 
     if request.method == 'POST':
         form = OrganizationSettingsForm(request.POST, request.FILES, instance=settings)
@@ -68,31 +69,30 @@ def admin_settings(request):
             settings.default_course_thumbnail = request.POST.get('default_course_thumbnail') == 'on' 
             settings.default_certificate = request.POST.get('default_certificate') == 'on' 
 
-            # Save the on_login_course_id (make sure it exists in the POST data)
+            # Save the on_login_course_id
             course_id = request.POST.get('on_login_course_id')
             if course_id:
                 settings.on_login_course_id = int(course_id)
-            
-            messages.success(request, 'Settings updated successfully')
 
-            # Save the form data
+            settings.save()
+
             form.save()
+            messages.success(request, 'Settings updated successfully')
             return redirect('admin_settings')
         else:
             messages.error(request, form.errors)
-            print(form.errors)  # Print errors for debugging
+            print(form.errors)
 
     else:
         form = OrganizationSettingsForm(instance=settings)
 
-    # If a course is already selected, fetch the course name to display it
     selected_course_name = ''
     if settings.on_login_course_id:
         try:
             selected_course = Course.objects.get(id=settings.on_login_course_id)
             selected_course_name = selected_course.title
         except Course.DoesNotExist:
-            selected_course_name = ''
+            pass
 
     allowed_photos = settings.allowed_id_photos.order_by('id')
 

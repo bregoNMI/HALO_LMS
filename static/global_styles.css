@@ -148,7 +148,8 @@ h1,h2,h3,h4,h5,h6{
   display: flex;
   justify-content: space-between;
   /* border-top: 1px solid #f4f4f7; */
-  border-top: 1px solid var(--bg-color2);
+  /* border-top: 1px solid var(--bg-color2); */
+  border-top: 1px solid #d7d7d7;
   background-color: #fbfbfb;
   /* background-color: #f4f4f7; */
   border-radius: 0px 0 8px 8px;
@@ -751,7 +752,7 @@ h1,h2,h3,h4,h5,h6{
 }
 
 .course-content-input-subtext{
-  margin-top: 0.2rem;
+  margin-top: 0.3rem;
   color: var(--text-color3);
   font-size: 0.7rem !important;
 }
@@ -982,4 +983,8 @@ h1,h2,h3,h4,h5,h6{
   100% {
    stroke-dashoffset: -125px;
   }
+}
+
+#upload-message-container{
+  bottom: 4rem;
 }
