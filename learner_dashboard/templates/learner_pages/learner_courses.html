@@ -97,22 +97,22 @@
                                         <span>{{ user_course.course.get_lesson_count }} Lesson</span>
                                     {% endif %}
                                 </div>
-                                {% if user_course.course.get_expiration_date or user_course.course.get_due_date or user_course.course.get_start_date %}
+                                {% if user_course.get_expiration_date or user_course.get_due_date or user_course.get_start_date %}
                                     <div class="course-item-footer-item">
                                         <i class="fa-solid fa-circle-small footer-spacer"></i>
                                     </div>
                                 {% endif %}
                                 <div class="course-item-footer-item">
-                                    {% if user_course.course.get_expiration_date %}
+                                    {% if user_course.get_expiration_date %}
                                         <!-- <i class="fa-regular fa-stopwatch"></i> -->
                                         <i class="fa-regular fa-calendar-clock"></i>
-                                        <span> {{ user_course.course.get_expiration_date }}</span>
-                                    {% elif user_course.course.get_due_date %}
+                                        <span> {{ user_course.get_expiration_date }}</span>
+                                    {% elif user_course.get_due_date %}
                                         <i class="fa-regular fa-calendar-exclamation"></i>
-                                        <span> {{ user_course.course.get_due_date }}</span>
-                                    {% elif user_course.course.get_start_date %}
+                                        <span> {{ user_course.get_due_date }}</span>
+                                    {% elif user_course.get_start_date %}
                                         <i class="fa-regular fa-calendar-star"></i>
-                                        <span> {{ user_course.course.get_start_date }}</span>
+                                        <span> {{ user_course.get_start_date }}</span>
                                     {% endif %}
                                 </div>
                             </div>
@@ -187,33 +187,33 @@
                                                     <div class="read-more-toggle" onclick="toggleDescription(event)">Read More</div>
                                                 </div>
                                             {% endif %}
-                                            {% if user_course.course.get_start_date or user_course.course.get_due_date or user_course.course.get_expiration_date %}
+                                            {% if user_course.get_start_date or user_course.get_due_date or user_course.get_expiration_date %}
                                                 <div class="tab-content-event-dates">
-                                                    {% if user_course.course.get_start_date %}
+                                                    {% if user_course.get_start_date %}
                                                         <div class="tab-content-event-dates-item">
                                                             <div class="tab-content-event-dates-item-top">
                                                                 <i class="fa-regular fa-calendar-star"></i>
                                                                 <span>Start Date</span>
                                                             </div>
-                                                            <span class="event-dates-subtext"> {{ user_course.course.get_start_date }} </span>
+                                                            <span class="event-dates-subtext"> {{ user_course.get_start_date }} </span>
                                                         </div>
                                                     {% endif %}
-                                                    {% if user_course.course.get_due_date %}
+                                                    {% if user_course.get_due_date %}
                                                         <div class="tab-content-event-dates-item">
                                                             <div class="tab-content-event-dates-item-top">
                                                                 <i class="fa-regular fa-calendar-exclamation"></i>
                                                                 <span>Due Date</span>
                                                             </div>
-                                                            <span class="event-dates-subtext"> {{ user_course.course.get_due_date }} </span>
+                                                            <span class="event-dates-subtext"> {{ user_course.get_due_date }} </span>
                                                         </div>
                                                     {% endif %}
-                                                    {% if user_course.course.get_expiration_date %}
+                                                    {% if user_course.get_expiration_date %}
                                                         <div class="tab-content-event-dates-item">
                                                             <div class="tab-content-event-dates-item-top">
                                                                 <i class="fa-regular fa-calendar-clock"></i>
                                                                 <span>Expiration Date</span>
                                                             </div>
-                                                            <span class="event-dates-subtext"> {{ user_course.course.get_expiration_date }} </span>
+                                                            <span class="event-dates-subtext"> {{ user_course.get_expiration_date }} </span>
                                                         </div>                                         
                                                     {% endif %}
                                                 </div>

@@ -159,12 +159,12 @@
                                         </div>
                                     </div>
                                     <div class="info-card-body right-column-card-body">
-                                        {% if user_course.course.get_start_date %}
+                                        {% if user_course.get_start_date %}
                                         <div class="edit-user-input">
                                             <label class="edit-user-label" for="expiration_date">Start Date</label>
                                             <div class="date-options-container control-disabled-opacity" style="opacity: 1;">
                                                 <div class="edit-user-input disabled">
-                                                    <input type="text" id="starts_on_date" name="starts_on_date" class="date-picker" placeholder="Select Date" value="{{ user_course.course.get_start_date|date:'Y-m-d' }}" style="padding-left: 2.6rem;">
+                                                    <input type="text" id="starts_on_date" name="starts_on_date" class="date-picker" placeholder="Select Date" value="{{ user_course.get_start_date|date:'Y-m-d' }}" style="padding-left: 2.6rem;">
                                                     <button class="input-group-addon" disabled>
                                                         <i class="fa-regular fa-calendar-lines"></i>
                                                     </button>
@@ -183,7 +183,7 @@
                                             <label class="edit-user-label" for="expiration_date">Expiration Date</label>
                                             <div class="date-options-container">
                                                 <div class="edit-user-input">
-                                                    <input type="text" id="expires_on_date" name="expires_on_date" class="date-picker" placeholder="Select Date" value="{{ user_course.course.get_expiration_date|date:'Y-m-d' }}">
+                                                    <input type="text" id="expires_on_date" name="expires_on_date" class="date-picker" placeholder="Select Date" value="{{ user_course.get_expiration_date|date:'Y-m-d' }}">
                                                     <span class="input-group-addon">
                                                         <i class="fa-regular fa-calendar-lines"></i>
                                                     </span>
@@ -201,7 +201,7 @@
                                             <label class="edit-user-label" for="expiration_date">Due Date</label>
                                             <div class="date-options-container">
                                                 <div class="edit-user-input">
-                                                    <input type="text" id="due_on_date" name="due_on_date" class="date-picker" placeholder="Select Date" value="{{ user_course.course.get_due_date|date:'Y-m-d' }}">
+                                                    <input type="text" id="due_on_date" name="due_on_date" class="date-picker" placeholder="Select Date" value="{{ user_course.get_due_date|date:'Y-m-d' }}">
                                                     <span class="input-group-addon">
                                                         <i class="fa-regular fa-calendar-lines"></i>
                                                     </span>

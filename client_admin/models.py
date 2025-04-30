@@ -109,6 +109,21 @@ class UserCourse(models.Model):
     completed_on_time = models.TimeField(blank=True, null=True)  # This is the time the learner completed their course
     is_course_completed = models.BooleanField(default=False)
 
+    def get_start_date(self):
+        if hasattr(self.course, 'get_event_date'):
+            return self.course.get_event_date('start_date', self.enrollment_date)
+        return None
+
+    def get_expiration_date(self):
+        if hasattr(self.course, 'get_event_date'):
+            return self.course.get_event_date('expiration_date', self.enrollment_date)
+        return None
+
+    def get_due_date(self):
+        if hasattr(self.course, 'get_event_date'):
+            return self.course.get_event_date('due_date', self.enrollment_date)
+        return None
+
     def get_status(self):
         expiration_date = self.course.get_event_date('expiration_date')
         if expiration_date and expiration_date < datetime.now().date():

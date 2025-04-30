@@ -10,7 +10,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
-from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile
+from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType
 from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 
@@ -181,7 +181,7 @@ def create_or_update_course(request):
 
     def handle_event_dates(course, event_dates):
         """ Handle event dates for the course """
-        existing_event_dates = EventDate.objects.filter(course=course)
+        existing_event_dates = course.event_dates.all()
 
         # Extract types from the incoming event dates for easy comparison
         incoming_event_types = {event.get('type') for event in event_dates}
@@ -201,7 +201,8 @@ def create_or_update_course(request):
                 }, status=400)
 
             EventDate.objects.update_or_create(
-                course=course,
+                content_type=ContentType.objects.get_for_model(Course),
+                object_id=course.id,
                 type=event_date_type,
                 defaults={
                     'date': date_value,

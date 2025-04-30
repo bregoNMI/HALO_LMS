@@ -56,22 +56,22 @@
                     <span> In-Person Course </span>  
                 {% endif %}
             </div>
-            {% if user_course.course.get_start_date %}
+            {% if user_course.get_start_date %}
                 <div class="course-item-footer-item">
                     <i class="fa-solid fa-circle-small footer-spacer"></i>
                 </div>
                 <div class="course-item-footer-item">
                     <i class="fa-regular fa-calendar-star"></i>
-                    <span><b>Start Date:</b> {{ user_course.course.get_start_date }}</span>
+                    <span><b>Start Date:</b> {{ user_course.get_start_date }}</span>
                 </div>
             {% endif %}
-            {% if user_course.course.get_due_date %}
+            {% if user_course.get_due_date %}
                 <div class="course-item-footer-item">
                     <i class="fa-solid fa-circle-small footer-spacer"></i>
                 </div>
                 <div class="course-item-footer-item">
                     <i class="fa-regular fa-calendar-exclamation"></i>
-                    <span><b>Due Date:</b> {{ user_course.course.get_due_date }}</span>
+                    <span><b>Due Date:</b> {{ user_course.get_due_date }}</span>
                 </div>                
             {% endif %}         
             <div class="course-item-footer-item">
@@ -79,7 +79,7 @@
             </div>
             <div class="course-item-footer-item">
                 <i class="fa-regular fa-calendar-clock"></i>
-                <span><b>Expires:</b> {% if user_course.course.get_expiration_date %}{{ user_course.course.get_expiration_date }}{% else%} Never {% endif %}  </span>
+                <span><b>Expires:</b> {% if user_course.get_expiration_date %}{{ user_course.get_expiration_date }}{% else%} Never {% endif %}  </span>
             </div>              
         </div>
         <div class="course-card-bottom-row">

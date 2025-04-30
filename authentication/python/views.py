@@ -201,7 +201,10 @@ s3_client = boto3.client(
 def register_view(request):
     login_form = LoginForm.objects.first()
     org_settings = OrganizationSettings.objects.first()
-    allowed_photos = org_settings.allowed_id_photos.order_by('id')
+    if org_settings:
+        allowed_photos = org_settings.allowed_id_photos.order_by('id')
+    else:
+        allowed_photos = None
 
     if request.method == 'POST':
         username = request.POST.get('id_username')
