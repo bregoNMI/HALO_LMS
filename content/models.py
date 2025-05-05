@@ -216,7 +216,7 @@ class Course(models.Model, EventDateMixin):
     type = models.CharField(max_length=20, choices=COURSE_TYPES, default='bundle')
     status = models.CharField(max_length=20, choices=STATUS_TYPES, default='Inactive')
     thumbnail = models.ForeignKey('Media', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_thumbnail')
-    credential = models.OneToOneField('Credential', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_credential')
+    credential = models.ForeignKey('Credential', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_credential')
     upload_instructions = models.TextField(blank=True)
     locked = models.BooleanField(default=False)
     estimated_completion_time = models.DurationField(null=True, blank=True, help_text="Estimated time to complete the course (e.g., 3 hours)")
@@ -286,13 +286,14 @@ class EventDate(models.Model):
         ('start_date', 'Start Date'),
         ('expiration_date', 'Expiration Date'),
         ('due_date', 'Due Date'),
+        ('certificate_expiration_date', 'Certificate Expiration Date')
     ]
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey('content_type', 'object_id')
 
-    type = models.CharField(max_length=20, choices=EVENT_TYPES)
+    type = models.CharField(max_length=50, choices=EVENT_TYPES)
     date = models.DateField(blank=True, null=True)
     time = models.TimeField(blank=True, null=True)
     from_enrollment = models.JSONField(blank=True, null=True)  # {'years': 0, 'months': 0, 'days': 0}

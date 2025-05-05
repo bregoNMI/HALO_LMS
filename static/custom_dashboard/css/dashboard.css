@@ -237,7 +237,7 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 0;
-    height: calc(100vh - 130.36px);
+    height: calc(100vh - 122.36px);
     overflow: auto;
 }
 

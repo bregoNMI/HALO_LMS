@@ -374,15 +374,20 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
 
 const uploadMessageContainer = document.getElementById('upload-message-container');
 const uploadMessageInner = document.getElementById('upload-message-inner');
-const uploadMessage = document.getElementById('upload-message');
 
 function displayMessage(message, isSuccess) {
-    uploadMessage.textContent = message;
+    uploadMessageInner.innerHTML = `
+        <i class="fa-solid ${isSuccess ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
+        <span>${message}</span>
+    `;
+
     uploadMessageContainer.style.display = 'flex';
     setTimeout(() => {
-        uploadMessageContainer.className = isSuccess ? 'alert-container animate-alert-container' : 'alert-container animate-alert-container';
+        uploadMessageContainer.className = 'alert-container animate-alert-container';
     }, 100);
+
     uploadMessageInner.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
+
     setTimeout(() => {
         uploadMessageContainer.classList.remove('animate-alert-container');
     }, 8000);

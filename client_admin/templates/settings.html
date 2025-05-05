@@ -20,11 +20,24 @@
         </div>
     {% endif %}
     <div id="realTimeAlert" class="alert-container hidden"></div>
+    <div id="stickyNavBar" style="display: none;">
+        <div class="details-top-row max-width-0">
+            <div class="admin-top-row-left">
+                <h2>Settings</h2>
+            </div>
+            <div class="admin-top-row-right">
+                <button onclick="submitAdminSettings()" type="submit" class="action-button-primary">
+                    <i class="fa-regular fa-floppy-disk"></i>
+                    <span>Save Settings</span>
+                </button>
+            </div>
+        </div>
+    </div>
     <div class="admin-body align-center">
         <div class="max-width-0">         
-            <form method="POST" action="{% url 'admin_settings' %}" enctype="multipart/form-data">
+            <form id="adminSettingsForm" method="POST" action="{% url 'admin_settings' %}" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="admin-top-row">
+                <div id="mainNavBar" class="admin-top-row">
                     <div class="admin-top-row-left">
                         <h2>Settings</h2>
                         <span class="admin-header-subtext">Customize your LMS</span>
@@ -307,14 +320,14 @@
                                                         <span class="settings-input-subtext">Enable to add a default certificate if none are selected for a course.</span>
                                                     </div>
                                                     <div class="edit-settings-input hidden-settings-input">
-                                                        <label for="default_certificate_image" class="custom-file-upload-container">
+                                                        <label for="default_certificate_template" class="custom-file-upload-container">
                                                             <div class="custom-file-upload">
-                                                                <input type="file" id="default_certificate_image" name="default_certificate_image" accept="image/*" style="display: none;">
+                                                                <input type="file" id="default_certificate_template" name="default_certificate_template" accept="application/pdf" style="display: none;">
                                                                 <i class="fa-solid fa-upload"></i> Choose File
                                                             </div>
                                                             <div class="custom-file-title">
-                                                                {% if form.default_certificate_image.value %}
-                                                                    <span id="certificateImageDisplay" class="file-name-display">{{ form.default_certificate_image.value.name|filename }}</span>
+                                                                {% if form.default_certificate_template.value %}
+                                                                    <span id="certificateImageDisplay" class="file-name-display">{{ form.default_certificate_template.value.name|filename }}</span>
                                                                 {% else %}
                                                                     <span id="certificateImageDisplay" class="file-name-display">No file selected</span>
                                                                 {% endif %}                                

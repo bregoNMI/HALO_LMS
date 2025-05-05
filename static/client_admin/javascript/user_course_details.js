@@ -97,6 +97,7 @@ function setLessonCompletedTime() {
 }
 
 function updateCourseProgress(uuid) {
+    disableSaveBtn();
     const completed_on_date = document.getElementById('completed_date').value;
     const completed_on_time = document.getElementById('completed_time').value;
     const expires_on_date = document.getElementById('expires_on_date').value;
@@ -163,6 +164,19 @@ function updateCourseProgress(uuid) {
         displayValidationMessage('Something went wrong, please contact an administrator', false);
     });
 }
+
+function disableSaveBtn() { 
+    const saveBtns = document.querySelectorAll('.course-save-btns');
+
+    for (let btn of saveBtns) {
+        btn.classList.add('disabled');
+        btn.setAttribute('disabled', true);
+        const savedWidth = btn.offsetWidth + "px";
+        btn.style.width = savedWidth;
+        btn.innerHTML = `<i class="fa-light fa-loader fa-spin"></i>`;
+    }
+}
+
 
 function resetLessonActivity(){
     // Button to reset lesson activity

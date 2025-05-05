@@ -1,18 +1,25 @@
 from django.db import models
 from django.contrib.auth.models import User
-from content.models import Course, Module, Lesson
+from content.models import Course, Module, Lesson, EventDate
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from storages.backends.s3boto3 import S3Boto3Storage
 from PIL import Image
 from io import BytesIO
+from django.conf import settings
+import requests
+from django.utils import timezone
 from django.core.files.base import ContentFile
+from client_admin.utils import fill_certificate_form
+from django.contrib.contenttypes.fields import GenericRelation
+from datetime import date
 from datetime import datetime
 from pytz import all_timezones
 from course_player.models import SCORMTrackingData 
 import uuid
 from datetime import timedelta
 import re
+import os
 
 no_prefix_storage = S3Boto3Storage()
 no_prefix_storage.location = ''  # Disable tenant prefix
@@ -108,6 +115,98 @@ class UserCourse(models.Model):
     completed_on_date = models.DateField(blank=True, null=True)  # This is the date the learner completed their course
     completed_on_time = models.TimeField(blank=True, null=True)  # This is the time the learner completed their course
     is_course_completed = models.BooleanField(default=False)
+    generated_certificate = models.FileField(upload_to='certificates/', null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        just_completed = False
+        if self.pk:
+            previous = UserCourse.objects.get(pk=self.pk)
+            just_completed = not previous.is_course_completed and self.is_course_completed
+        else:
+            just_completed = self.is_course_completed
+
+        super().save(*args, **kwargs)
+
+        if just_completed:
+            self.on_course_completed()
+
+    def on_course_completed(self):
+        ActivityLog.objects.create(
+            user=self.user,
+            action_performer=self.user.username,
+            action_target=self.user.username,
+            action_type= 'course_completed',
+            action=f'completed course: {self.course.title}',
+            user_groups=', '.join(group.name for group in self.user.groups.all()),
+        )
+
+        certificate_credential = self.course.credentials.filter(type='certificate').first()
+
+        if not certificate_credential:
+            print("❌ Certificates are not enabled for this course. Skipping certificate generation.")
+            return
+
+        org_settings = OrganizationSettings.objects.first()
+
+        # Determine certificate template source
+        if certificate_credential and certificate_credential.source:
+            template_url = certificate_credential.source
+        elif org_settings and org_settings.default_certificate:
+            template_url = org_settings.default_certificate_template.url
+        else:
+            template_path = os.path.join(settings.BASE_DIR, 'static/images/certificates/default.pdf')
+            with open(template_path, 'rb') as f:
+                template_stream = BytesIO(f.read())
+
+        try:
+            if 'template_url' in locals():
+                response = requests.get(template_url)
+                response.raise_for_status()
+                template_stream = BytesIO(response.content)
+        except Exception as e:
+            print(f"⚠️ Failed to download certificate template: {e}")
+            return
+
+        # Prepare form data
+        data = {
+            'LearnerName': self.user.get_full_name(),
+            'CourseName': self.course.title,
+            'AcquiredDate': str(self.completed_on_date or timezone.now().date()),
+            'CertificateId': str(self.uuid),
+        }
+
+        # Generate the certificate PDF
+        pdf_stream = fill_certificate_form(template_stream, data)
+        filename = f'{self.user.username}_{self.course.title}.pdf'
+
+        # ❗Check if a certificate already exists
+        generated_cert = GeneratedCertificate.objects.filter(user_course=self).first()
+        if generated_cert:
+            print("♻️ Updating existing certificate...")
+            generated_cert.file.delete(save=False)  # Remove old file
+        else:
+            generated_cert = GeneratedCertificate(user_course=self, user=self.user)
+
+        # Save new file
+        generated_cert.file.save(filename, ContentFile(pdf_stream.read()), save=True)
+
+        # 🕓 Set or update expiration
+        cert_expiration_event = self.course.event_dates.filter(type='certificate_expiration_date').first()
+        if cert_expiration_event:
+            if cert_expiration_event.from_enrollment:
+                calculated_date = self.course.calculate_event_date(cert_expiration_event, self.enrollment_date)
+            else:
+                calculated_date = cert_expiration_event.date
+
+            # Delete previous expiration events attached to this certificate
+            generated_cert.event_dates.filter(type='certificate_expiration_date').delete()
+
+            EventDate.objects.create(
+                content_object=generated_cert,
+                type='certificate_expiration_date',
+                date=calculated_date
+            )
+            print(f"✅ Certificate expiration date set to: {calculated_date}")
 
     def get_start_date(self):
         if hasattr(self.course, 'get_event_date'):
@@ -230,6 +329,16 @@ class UserLessonProgress(models.Model):
     def __str__(self):
         return f"{self.user_module_progress.user_course.user.username} - {self.lesson.title}"
     
+class GeneratedCertificate(models.Model):
+    user_course = models.ForeignKey('UserCourse', on_delete=models.CASCADE, related_name='certificates', blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certificates', blank=True, null=True)
+    file = models.FileField(upload_to='certificates/')
+    issued_at = models.DateTimeField(auto_now_add=True)
+    event_dates = GenericRelation('content.EventDate')
+
+    def __str__(self):
+        return f"Certificate for {self.user_course.user.username} - {self.user_course.course.title}"
+    
 class Message(models.Model):
     subject = models.CharField(max_length=255)
     body = models.TextField()
@@ -277,7 +386,7 @@ class OrganizationSettings(models.Model):
     default_course_thumbnail = models.BooleanField(default=False, blank=True, null=True)
     default_course_thumbnail_image = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
     default_certificate = models.BooleanField(default=False, blank=True, null=True)
-    default_certificate_image = models.ImageField(upload_to='certificates/', blank=True, null=True)
+    default_certificate_template = models.FileField(upload_to='certificates/', blank=True, null=True)
 
     # Portal
     portal_favicon = models.ImageField(upload_to='logos/', blank=True, null=True)
@@ -306,6 +415,7 @@ class ActivityLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Assuming you want to log the user as well
     action_performer = models.CharField(max_length=150)  # Changed from ForeignKey to CharField
     action_target = models.CharField(max_length=150)  # Changed from ForeignKey to CharField
+    action_type = models.CharField(max_length=150)
     action = models.CharField(max_length=500)
     timestamp = models.DateTimeField(auto_now_add=True)
     user_groups = models.CharField(max_length=255, null=True, blank=True)

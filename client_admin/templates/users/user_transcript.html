@@ -61,7 +61,7 @@
                 <div class="details-info-card">
                     <div class="info-card-header collapsable-header">
                         <div class="card-header-left">
-                            <i class="fa-regular fa-award"></i>
+                            <i class="fa-regular fa-diploma"></i>
                             <span> Certificates </span>
                         </div>
                         <div class="card-header-right">
@@ -69,27 +69,36 @@
                         </div>
                     </div>
                     <div class="info-card-body">
-                        <div class="info-card-column">
-                            <div class="card-body-item">
-                                <div class="card-body-left">
-                                    <i class="fa-light fa-award"></i>
-                                </div>
-                                <div class="card-body-right">
-                                    <h5> Enrollments in Progress</h5>
-                                    <span>10</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="info-card-column">
-                            <div class="card-body-item">
-                                <div class="card-body-left">
-                                    <i class="fa-light fa-clipboard-check"></i>
-                                </div>
-                                <div class="card-body-right">
-                                    <h5> Enrollments Completed</h5>
-                                    <span>4</span>
-                                </div>
-                            </div>
+                        <div class="certificate-items-container">
+                            {% for cert in user_certificates %}
+                                <a href="{{ cert.file.url }}" class="certificate-item-wrapper" target="_blank">
+                                    <div class="certificate-item-left">
+                                        <i class="fa-light fa-file-certificate pastel-blue"></i>
+                                    </div>
+                                    <div class="certificate-item-right">
+                                        <span class="certificate-item-title">{{ cert.user_course.course.title }}</span>
+                                        <div class="course-item-footer">
+                                            <div class="course-item-footer-item">
+                                                <i class="fa-regular fa-calendar-check"></i>
+                                                <span><b>Issued On:</b> {{ cert.issued_at.date }}</span>
+                                            </div>
+                                            {% for event in cert.event_dates.all %}
+                                                {% if event.type == "certificate_expiration_date" %}
+                                                    <div class="course-item-footer-item">
+                                                        <i class="fa-solid fa-circle-small footer-spacer"></i>
+                                                    </div>
+                                                    <div class="course-item-footer-item">
+                                                        <i class="fa-regular fa-calendar-clock"></i>
+                                                        <span><b>Expires:</b> {{ event.date }}</span>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}            
+                                        </div>                                                                      
+                                    </div>
+                                </a>
+                            {% empty %}
+                                <span class="card-info-icon">Learner does not have any certificates yet.</span>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -205,6 +214,7 @@
     </div>
     {% include 'popups/edit_user_popup.html' %}
     <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin\css\user_course_details.css' %}">
     <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
     <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>

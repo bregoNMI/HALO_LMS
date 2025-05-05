@@ -1447,6 +1447,17 @@ function generateCourseData(isSave) {
                 months: 'due_months',
                 days: 'due_days',
             }
+        },
+        {
+            name: 'certificate_expiration_date',
+            detailsId: 'selectDateCertificateDetails',
+            dateField: 'certificate_expires_on_date',
+            timeField: 'certificate_expires_on_time',
+            enrollmentFields: {
+                years: 'certificate_expiration_year',
+                months: 'certificate_expiration_months',
+                days: 'certificate_expiration_days',
+            }
         }
     ];
 
@@ -1651,18 +1662,37 @@ function generateCourseData(isSave) {
 function setDisabledSaveBtns(){
     const courseSaveBtns = document.querySelectorAll('.course-save-btns');
     for (const btn of courseSaveBtns) {
-        // btn.classList.add('disabled');
+        btn.classList.add('disabled');
         btn.setAttribute('disabled', true);
+
+        if (!btn.dataset.originalHtml) {
+            btn.dataset.originalHtml = btn.innerHTML;
+        }
+
+        const savedWidth = btn.offsetWidth + "px";
+        btn.style.width = savedWidth;
+
+        btn.innerHTML = `<i class="fa-light fa-loader fa-spin"></i>`;
     }
 }
 
 function removeDisabledSaveBtns(){
-    const courseSaveBtns = document.querySelectorAll('.course-save-btns');
-    for (const btn of courseSaveBtns) {
-        // btn.classList.remove('disabled');
-        btn.removeAttribute('disabled');
-    }
+    setTimeout(() => {
+        const courseSaveBtns = document.querySelectorAll('.course-save-btns');
+        for (const btn of courseSaveBtns) {
+            btn.classList.remove('disabled');
+            btn.removeAttribute('disabled');
+
+            if (btn.dataset.originalHtml) {
+                btn.innerHTML = btn.dataset.originalHtml;
+                delete btn.dataset.originalHtml;
+            }
+
+            btn.style.width = "";
+        }
+    }, 400);
 }
+
 
 // Checking to Ensure that all the required fields and filled in
 function validateCourseData() {
@@ -1785,12 +1815,41 @@ function validateCourseData() {
         }
     }
 
+    // Validate expiration_date - Select Date
+    const certExpirationStartDate = document.querySelector('input[name="certificate_expiration_date"]:checked').value;
+    if (certExpirationStartDate === 'certificate_expiration_date3') {
+        const expirationStartDateValue = document.getElementById('certificate_expires_on_date');
+        if (!expirationStartDateValue.value.trim()) {
+            displayValidationMessage('Expiration date is required', false);
+            errors.push('Expiration date is required');
+            highlightErrorFields(expirationStartDateValue);
+        }
+    }
+
     // Validate expires_on_date
     const expiresOnDateOption = document.querySelector('input[name="expiration_date"]:checked').value;
     if (expiresOnDateOption === 'expiration_date2') {
         const expiresYears = document.getElementById('expiration_year');
         const expiresMonths = document.getElementById('expiration_months').value.trim();
         const expiresDays = document.getElementById('expiration_days').value.trim();
+        if (!expiresYears.value.trim() && !expiresMonths && !expiresDays) {
+            displayValidationMessage('At least one field for Expiration Date is required', false);
+            errors.push('At least one field for Expiration Date is required');
+            highlightErrorFields(expiresYears);
+        }
+        if (expiresYears.value.trim() < 0 || expiresMonths < 0 || expiresDays < 0) {
+            displayValidationMessage('Expiration Date may not be a negative number', false);
+            errors.push('Expiration Date may not be a negative number');
+            highlightErrorFields(expiresYears);
+        }
+    }
+
+    // Validate Certificate expires_on_date
+    const certExpiresOnDateOption = document.querySelector('input[name="certificate_expiration_date"]:checked').value;
+    if (certExpiresOnDateOption === 'certificate_expiration_date2') {
+        const expiresYears = document.getElementById('certificate_expiration_year');
+        const expiresMonths = document.getElementById('certificate_expiration_months').value.trim();
+        const expiresDays = document.getElementById('certificate_expiration_days').value.trim();
         if (!expiresYears.value.trim() && !expiresMonths && !expiresDays) {
             displayValidationMessage('At least one field for Expiration Date is required', false);
             errors.push('At least one field for Expiration Date is required');

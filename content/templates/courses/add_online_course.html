@@ -248,10 +248,86 @@
                                         <!-- This is where the Certificate File Lives -->
                                         <input type="hidden" id="certificateURLInput" name="certificateURL">
                                     </div>
+                                    {% if settings.default_certificate %}
+                                        <span class="course-content-input-subtext"> Default certificate will be used if nothing is provided. </span>
+                                    {% else %}
+                                        <span class="course-content-input-subtext"> HALO°'s default certificate will be used if nothing is provided. You can add your own default certificate from the settings page. </span>
+                                    {% endif %}
                                 </div>
                                 <div class="course-content-input">
                                     <label class="edit-user-label" for="certTitle">Certificate Title</label>
                                     <input type="text" id="certTitle" name="certTitle" placeholder="Certificate Title (Optional)">
+                                </div>
+                                <!-- Expiration Date -->
+                                <div class="course-content-input">
+                                    <label class="edit-user-label">Expiration Date</label>
+                                    <div class="content-input-options-row">
+                                        <label class="custom-radio">
+                                            <input class="radio-option" type="radio" name="certificate_expiration_date" value="certificate_expiration_date1" checked="">
+                                            <span class="custom-radio-button"></span>
+                                            None
+                                        </label>
+                                        <label class="custom-radio">
+                                            <input class="radio-option" type="radio" name="certificate_expiration_date" data-target="timeFromEnrollmentCertificateDetails" value="certificate_expiration_date2">
+                                            <span class="custom-radio-button"></span>
+                                            Time From Enrollment
+                                        </label>
+                                        <label class="custom-radio">
+                                            <input class="radio-option" type="radio" name="certificate_expiration_date" data-target="selectDateCertificateDetails" value="certificate_expiration_date3">
+                                            <span class="custom-radio-button"></span>
+                                            Select Date
+                                        </label>
+                                    </div>
+                                </div>
+                                <!-- Time From Enrollment -->
+                                <div id="timeFromEnrollmentCertificateDetails" class="toggle-option-details">
+                                    <div class="right-column-file-wrapper">
+                                        <div class="edit-user-input">
+                                            <label class="edit-user-label" for="certificate_expiration_date">Certificate Expires In</label>
+                                            <div class="date-options-container">
+                                                <div class="edit-user-input">
+                                                    <input type="number" id="certificate_expiration_year" name="certificate_expiration_year" class="icon-field form-control" placeholder="Years" min="0">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa-regular fa-calendar"></i>
+                                                    </span>
+                                                </div>
+                                                <div class="edit-user-input">
+                                                    <input type="number" id="certificate_expiration_months" name="certificate_expiration_months" class="icon-field form-control" placeholder="Months" min="0">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa-regular fa-calendar-week"></i>
+                                                    </span>
+                                                </div>
+                                                <div class="edit-user-input">
+                                                    <input type="number" id="certificate_expiration_days" name="certificate_expiration_days" class="icon-field form-control" placeholder="Days" min="0">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa-regular fa-calendar-day"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Select Date -->
+                                <div id="selectDateCertificateDetails" class="toggle-option-details">
+                                    <div class="right-column-file-wrapper">
+                                        <div class="edit-user-input">
+                                            <label class="edit-user-label" for="certificate_expiration_date">Certificate Expires On</label>
+                                            <div class="date-options-container">
+                                                <div class="edit-user-input">
+                                                    <input type="text" id="certificate_expires_on_date" name="certificate_expires_on_date" class="date-picker" placeholder="Select Date">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa-regular fa-calendar-lines"></i>
+                                                    </span>
+                                                </div>
+                                                <div class="edit-user-input">
+                                                    <input type="text" id="certificate_expires_on_time" name="certificate_expires_on_time" class="time-picker" placeholder="Select Time (Optional)">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa-regular fa-clock"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>       
                         </div>

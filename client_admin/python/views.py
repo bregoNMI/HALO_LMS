@@ -35,6 +35,7 @@ from authentication.python.views import addUserCognito, modifyCognito, register_
 from django.template.response import TemplateResponse
 import json
 from django.db import IntegrityError, transaction
+from client_admin.models import GeneratedCertificate, EventDate
 #from models import Profile
 #from authentication.python import views
 
@@ -366,6 +367,7 @@ def edit_user(request, user_id):
             user=user.user,
             action_performer=request.user.username,
             action_target=user.user.username,
+            action_type= 'user_updated',
             action=f'Updated User Information: {changes_log}',
             user_groups=', '.join(group.name for group in request.user.groups.all()),
         )
@@ -436,7 +438,8 @@ def enroll_users_request(request):
                         user=user,
                         action_performer=request.user,
                         action_target=user,
-                        action=f"Enrolled in Course: {course.title}",
+                        action_type= 'user_enrolled',
+                        action=f"was enrolled in: {course.title}",
                         user_groups=', '.join(group.name for group in request.user.groups.all()),
                     )
                 except Exception as e:
@@ -531,14 +534,23 @@ def parse_iso_duration(duration_str):
 @login_required
 def user_transcript(request, user_id):
     profile = get_object_or_404(Profile, pk=user_id)
-    user_courses = UserCourse.objects.filter(user=profile.user) \
-    .select_related('course') \
-    .prefetch_related('module_progresses__module__lessons') \
-    .order_by('course__title')
+
+    user_courses = (
+        UserCourse.objects.filter(user=profile.user)
+        .select_related('course')
+        .prefetch_related('module_progresses__module__lessons')
+        .order_by('course__title')
+    )
+
+    user_certificates = (
+        GeneratedCertificate.objects.filter(user=profile.user)
+        .prefetch_related('event_dates', 'user_course__course')
+    )
 
     context = {
         'profile': profile,
-        'user_courses': user_courses
+        'user_courses': user_courses,
+        'user_certificates': user_certificates,
     }
     return render(request, 'users/user_transcript.html', context)
 
@@ -551,6 +563,7 @@ def user_history(request, user_id):
 
     # Fetch activity log entries related to the user
     activity_logs = ActivityLog.objects.filter(action_target=user.user)
+    print('activity_logs', activity_logs)
 
     context = {
         'profile': user,

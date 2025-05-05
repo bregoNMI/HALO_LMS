@@ -34,7 +34,20 @@
 
     
     <div class="max-width-0">
-        <div class="learner-top-row">
+        <div id="stickyNavBar" style="display: none;">
+            <div class="learner-top-row max-width-0">
+                <div class="learner-top-row-left">
+                    <h2>Profile Information</h2>
+                </div>
+                <div class="learner-top-row-right">
+                    <div onclick="openPopup('changePasswordPopup')" class="learner-primary-button">
+                        <i class="fa-regular fa-lock-keyhole"></i>
+                        <span> Change Password </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="mainNavBar" class="learner-top-row">
             <div class="learner-top-row-left">
                 <h2>Profile Information</h2>
                 <span>View or edit your profile</span>

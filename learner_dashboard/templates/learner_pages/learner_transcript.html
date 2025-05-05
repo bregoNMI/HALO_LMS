@@ -205,9 +205,64 @@
                                 </div>
                             {% endfor %}                       
                         </div>
-                        <!-- Lessons -->
+                        <!-- Certificates -->
                         <div class="tab-content" id="tab2">
-                            
+                            {% for cert in user_certificates %}
+                                <div class="row-course-item">
+                                    <div class="course-item-top">                         
+                                        <div class="course-item-thumbnail">
+                                            <div class="thumbnail-placeholder">
+                                                <i class="fa-regular fa-book-open-cover"></i>
+                                            </div>
+                                        </div> 
+                                    </div>
+                                    
+                                    <div class="course-item-inner">
+                                        <div class="course-item-body">
+                                            <div class="course-item-type-wrapper">
+                                                <div class="course-item-footer-item">
+                                                    <div class="course-type-icon course-certificate">
+                                                        <i class="fa-regular fa-award"></i>        
+                                                    </div>    
+                                                    <span> Certificate </span>     
+                                                </div>
+                                            </div>
+                                            
+                                            <h4 class="course-item-title limit-text-wrap">{{ cert.user_course.course.title }}</h4>
+                                        </div>
+                                    </div>
+                                    <div class="course-item-bottom">
+                                        <div class="bottom-row-item">
+                                            <h4 class="no-progress-header">Issued On</h4>
+                                            <div class="bottom-row-data-item no-progress-item">
+                                                <span>{{ cert.issued_at.date }}</span>
+                                            </div>
+                                        </div>                                        
+                                        {% for event in cert.event_dates.all %}
+                                            {% if event.type == "certificate_expiration_date" %}
+                                                <div class="bottom-row-item">
+                                                    <h4 class="no-progress-header">Expires</h4>
+                                                    <div class="bottom-row-data-item no-progress-item">
+                                                        <span> {{ event.date }}</span>
+                                                    </div>
+                                                </div>                                                   
+                                            {% endif %} 
+                                        {% endfor %}
+                                    </div>
+                                    <div class="coure-item-start-btn">
+                                        <a href="{{ cert.file.url }}" class="start-course-btn" target="_blank">
+                                            <i class="fa-regular fa-arrow-down-to-line"></i>
+                                            <span> Download </span>
+                                        </a>
+                                    </div>          
+                                </div>
+                            {% empty %}
+                                <div style="display: flex;" class="no-widgets-found">
+                                    <img src="/static/client_admin/images/HALO LMS No Graphic Test-27.png" alt="No Certificates Image">    
+                                    <h4>It's empty in here</h4>
+                                    <span class="no-widgets-subtext"> You don't have any certificates just yet </span>        
+                                </div>
+                            {% endfor %}
                         </div>                                           
                     </div>
                 </div> 

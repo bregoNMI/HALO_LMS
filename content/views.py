@@ -113,6 +113,7 @@ def edit_online_courses(request, course_id):
     start_date = course.event_dates.filter(type='start_date').first()
     expiration_date = course.event_dates.filter(type='expiration_date').first()
     due_date = course.event_dates.filter(type='due_date').first()
+    certificate_expiration_date = course.event_dates.filter(type='certificate_expiration_date').first()
     thumbnail_media = course.media.filter(type='thumbnail').first()
     references_resources = course.resources.filter(type='reference').all()
     course_uploads = course.uploads.all()
@@ -124,6 +125,7 @@ def edit_online_courses(request, course_id):
         'certificate_credential': certificate_credential,
         'start_date': start_date,
         'expiration_date': expiration_date,
+        'certificate_expiration_date': certificate_expiration_date,
         'due_date': due_date,
         'thumbnail_media': thumbnail_media,
         'references_resources': references_resources,
@@ -571,6 +573,24 @@ def create_or_update_course(request):
 
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+def detect_file_type(filename):
+    ext = os.path.splitext(filename)[1].lower()
+
+    if ext in ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp']:
+        return 'image'
+    elif ext in ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt']:
+        return 'document'
+    elif ext in ['.mp4', '.mov', '.wmv', '.flv', '.avi', '.mkv']:
+        return 'video'
+    elif ext in ['.mp3', '.wav', '.aac', '.ogg', '.flac']:
+        return 'audio'
+    elif ext in ['.zip', '.rar', '.scorm', '.xml']:   # Adjust for SCORM packaging
+        return 'scorm'
+    elif ext in ['.pdf']:
+        return 'pdf'
+    else:
+        return 'other'
 
 @login_required
 def file_upload(request):
@@ -578,20 +598,23 @@ def file_upload(request):
     if request.method == 'POST':
         try:
             uploaded_file = request.FILES['file']
-            
-            # Create a file instance
+            file_name = uploaded_file.name
+
+            # Detect file type based on extension
+            file_type = detect_file_type(file_name)
+
+            # Create a file instance with detected file type
             file_instance = File(
                 user=request.user,
                 file=uploaded_file,
-                title=uploaded_file.name
+                title=file_name,
+                file_type=file_type
             )
             file_instance.save()
 
-            # Format the uploaded_at date
             uploaded_at_formatted = file_instance.uploaded_at.strftime('%b %d, %Y %I:%M')
             uploaded_at_formatted += ' ' + ('p.m.' if file_instance.uploaded_at.hour >= 12 else 'a.m.')
 
-            # Respond with success and file details
             return JsonResponse({
                 'success': True,
                 'message': 'File uploaded successfully.',
@@ -599,7 +622,6 @@ def file_upload(request):
                     'title': file_instance.title,
                     'file_type': file_instance.file_type,
                     'uploaded_at': uploaded_at_formatted,
-                    'file_type': file_instance.file_type,
                     'size': file_instance.file.size,
                 }
             })

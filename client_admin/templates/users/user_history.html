@@ -76,9 +76,19 @@
                                     <div class="user-history-item">
                                         <div class="user-history-header">
                                             <div class="user-history-left">
-                                                <div class="user-history-icon">
-                                                    <i class="fa-light fa-pencil"></i>
-                                                </div>
+                                                {% if log.action_type == 'course_completed' %}
+                                                    <div class="user-history-icon">
+                                                        <i class="fa-light fa-badge-check"></i>
+                                                    </div>
+                                                {% elif log.action_type == 'user_updated' %}
+                                                    <div class="user-history-icon">
+                                                        <i class="fa-light fa-pencil"></i>
+                                                    </div>
+                                                {% elif log.action_type == 'user_enrolled' %}
+                                                    <div class="user-history-icon">
+                                                        <i class="fa-light fa-hand-holding-box"></i>
+                                                    </div>
+                                                {% endif %}
                                                 <div class="user-history-action">
                                                     <span><b>{{ log.action_performer }}</b> {{ log.action }}</span>
                                                 </div>
@@ -110,7 +120,7 @@
                     <div class="details-info-card details-info-card-overflow">
                         <div class="info-card-header collapsable-header">
                             <div class="card-header-left">
-                                <i class="fa-regular fa-message-captions"></i>
+                                <i class="fa-regular fa-envelope-open-text"></i>
                                 <span> Message History </span>
                             </div>
                             <div class="card-header-right">

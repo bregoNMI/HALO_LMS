@@ -45,9 +45,17 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('thumbNailImageDisplay').textContent = fileName;
         });
     }
-    const default_certificate_image = document.getElementById('default_certificate_image');
-    if(default_certificate_image){
-        default_certificate_image.addEventListener('change', function(event) {
+    const default_certificate_template = document.getElementById('default_certificate_template');
+    if(default_certificate_template){
+        const existingPDF = default_certificate_template.value;
+        default_certificate_template.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file && file.type !== 'application/pdf') {
+                showRealTimeAlert(false, 'error', 'Only PDF files are allowed.')
+                event.target.value = existingPDF;
+                return;
+            }
+
             const fileName = event.target.files[0] ? event.target.files[0].name : 'No file selected';
             document.getElementById('certificateImageDisplay').textContent = fileName;
         });
@@ -287,4 +295,9 @@ function showRealTimeAlert(isSuccess, tags, message){
     setTimeout(() => {
         realTimeAlert.classList.remove('animate-alert-container');
     }, 10000);
+}
+
+function submitAdminSettings(){
+    const adminSettingsForm = document.getElementById('adminSettingsForm');
+    adminSettingsForm.submit();
 }

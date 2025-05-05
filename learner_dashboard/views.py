@@ -1,16 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from custom_templates.models import Dashboard, Widget, Header, Footer
-from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress
+from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, GeneratedCertificate, Profile, User, Message
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth import update_session_auth_hash
-from django.http import JsonResponse
+from django.contrib.auth import update_session_auth_hash, logout
 from django.contrib import messages
 from django.utils.dateparse import parse_date
-from client_admin.models import Profile, User, Message
-from django.contrib.auth import logout
-from client_admin.models import Profile, User
-from django.http import HttpResponseForbidden
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
 from reportlab.lib import colors
@@ -20,7 +15,6 @@ from reportlab.graphics import renderPDF
 from reportlab.platypus import Flowable
 from reportlab.lib.enums import TA_LEFT
 from datetime import datetime
-from django.http import HttpResponse
 import boto3
 from django.conf import settings
 import logging
@@ -52,12 +46,7 @@ def learner_dashboard(request):
 def learner_courses(request):
     user = request.user
 
-    user_courses = (
-        UserCourse.objects
-        .filter(user=user)
-        .select_related('course', 'course__expiration_date', 'course__due_date', 'course__start_date')
-        .prefetch_related('module_progresses__module__lessons')
-    )
+    user_courses = UserCourse.objects.filter(user=user).select_related('course').prefetch_related('module_progresses__module__lessons')
 
     context = {
         'user_courses': user_courses
@@ -103,11 +92,17 @@ def learner_transcript(request):
         else:
             formatted_total_time = f"{int(total_minutes)}m {int(total_seconds)}s"
 
+    user_certificates = (
+        GeneratedCertificate.objects.filter(user=user)
+        .prefetch_related('event_dates', 'user_course__course')
+    )
+
     context = {
         'user_courses': user_courses,
         'total_time_spent': formatted_total_time,
         'total_completed': total_completed,
         'total_enrollments': total_enrollments,
+        'user_certificates': user_certificates,
     }
     return render(request, 'learner_pages/learner_transcript.html', context)
 
@@ -128,7 +123,7 @@ def download_transcript(request):
     user = request.user
     user_courses = UserCourse.objects.filter(user=user)
 
-    filename = f"Transcript_{user.first_name}_{user.last_name}.pdf"
+    filename = f"{user.first_name}_{user.last_name}'s_transcript.pdf"
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
@@ -227,6 +222,50 @@ def download_transcript(request):
             ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ]))
         elements.append(table)
+
+    certificates = GeneratedCertificate.objects.filter(user=user).prefetch_related('event_dates')
+
+    # Add heading
+    elements.append(Spacer(1, 12))
+    elements.append(Paragraph("Issued Certificates", styles['Heading2']))
+    elements.append(Spacer(1, 6))
+
+    if not certificates.exists():
+        elements.append(Paragraph("No certificates issued.", styles['Normal']))
+    else:
+        cert_data = [['Course Title', 'Issued On', 'Expires On']]
+
+        for cert in certificates:
+            issued = cert.issued_at.strftime('%Y-%m-%d')
+            expiration = cert.event_dates.filter(type='certificate_expiration_date').first()
+            expires = expiration.date.strftime('%Y-%m-%d') if expiration and expiration.date else 'N/A'
+
+            cert_data.append([
+                cert.user_course.course.title,
+                issued,
+                expires
+            ])
+
+        cert_col_widths = [
+            doc.width * 0.50,
+            doc.width * 0.25,
+            doc.width * 0.25,
+        ]
+
+        cert_table = Table(cert_data, colWidths=cert_col_widths, repeatRows=1)
+        cert_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#f2f2f2")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor("#808080")),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#ececf1")),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        elements.append(cert_table)
 
     # Footer with Date of Issue
     def add_footer(canvas, doc):
