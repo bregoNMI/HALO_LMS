@@ -20,9 +20,11 @@ html, body, button{
 .admin-header-container{
     /* padding: var(--pad-sm) var(--pad-lg); */
     padding: var(--pad-xxxs) var(--pad-lg);
-    background-color: #1a1a1a;
+    background-color: #1b252d;
+    /* background-color: #1a1a1a; */
     /* background-color: #00183b; */
     /* background-color: #14161a; */
+    z-index: 4;
 }
 
 .admin-header-container-inner{
@@ -85,7 +87,7 @@ html, body, button{
     justify-content: center;
     transition: all 0.2s linear;
 }.admin-header-user-icon:hover{
-    background-color: #333333;
+    background-color: #373737;
 }.admin-header-user-icon i{
     height: 32px;
     width: 32px;
@@ -112,6 +114,9 @@ html, body, button{
 
 .sidebar-body{
     /* margin-top: 1rem; */
+    display: flex;
+    flex-direction: column;
+    /* gap: 0.2rem; */
 }
 
 .admin-body{
@@ -153,8 +158,8 @@ html, body, button{
     transition: all 0.2s linear;
     text-decoration: none;
     font-size: var(--fs-med);
-    border-top-right-radius: 16px;
-    border-bottom-right-radius: 16px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 .sidebar-body-item:hover{
@@ -306,39 +311,6 @@ html, body, button{
     gap: 1rem;
 }
 
-.action-button-primary, .action-button-secondary{
-    display: flex;
-    gap: 0.5rem;
-    padding: 5px var(--pad-sm);
-    border-radius: 6px;
-    font-size: var(--btn-font);
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.2s linear;
-    border: none;
-    align-items: baseline;
-    justify-content: center;
-}
-
-.action-button-primary{
-    background-color: var(--primary-blue);
-    color: white;
-    gap: 0.5rem;
-}
-
-.action-button-primary:hover{
-    background-color: dodgerblue;
-}
-
-.action-button-secondary{
-    background-color: var(--bg-color4);
-    color: var(--text-color5);
-}
-
-.action-button-secondary:hover{
-    background-color: var(--bg-color1);
-}
-
 /* Admin Management Tabel */
 .table-container{
     background-color: white;
@@ -385,6 +357,7 @@ html, body, button{
     font-weight: 600;
     cursor: pointer;
     box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+    color: #41454d;
 }
 
 .table-filter-item-small:hover{
@@ -679,7 +652,8 @@ tr.selected-option th, tr.selected-option td{
     border-left: 1px solid #ececf1;
     width: 15rem;
     margin-right: -15rem;
-    transition: all 0.4s ease-out;
+    /* transition: all 0.4s ease-out; */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     height: calc(100vh - 58.59px);
     box-sizing: border-box;
     overflow-y: hidden;
@@ -703,9 +677,10 @@ tr.selected-option th, tr.selected-option td{
     align-items: center;
     font-size: var(--fs-lg);
     border-radius: 8px;
-    height: 2.5rem;
-    width: 2.5rem;
+    height: 2.3rem;
+    width: 2.3rem;
     flex: none;
+    border: 1px solid #efc16f;
 }
 
 .options-sidebar-title{
@@ -973,7 +948,7 @@ tr.selected-option th, tr.selected-option td{
 }
 
 /* Alert/Message Styling */
-.alert-container.animate-alert-container{
+.alert-container.animate-alert-container, .new-alert-container.animate-alert-container{
     right: 2rem;
     /* top: 4.5rem; */
 }
@@ -984,8 +959,14 @@ tr.selected-option th, tr.selected-option td{
     right: -100rem;
     transition: all 0.5s ease-in-out;
     z-index: 9999;
-    bottom: 2rem;
-    /* bottom: 4rem; */
+    /* bottom: 2rem; */
+    bottom: 4rem;
+}.new-alert-container{
+    position: fixed;
+    /* margin: 20px 0; */
+    right: -100rem;
+    transition: all 0.5s ease-in-out;
+    z-index: 9999;
 }
 
 .alert {

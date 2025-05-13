@@ -22,15 +22,15 @@ def fill_certificate_form(template_stream, data):
     writer.append_pages_from_reader(reader)
 
     if "/AcroForm" in reader.trailer["/Root"]:
-        print("✅ AcroForm found. Attempting to fill fields...")
+        print("AcroForm found. Attempting to fill fields...")
 
         fields = reader.get_fields()
         if fields:
-            print("📋 Fields found in the PDF:")
+            print("Fields found in the PDF:")
             for name in fields.keys():
                 print(f" - {name}")
         else:
-            print("⚠️ No fillable fields found in the AcroForm.")
+            print("No fillable fields found in the AcroForm.")
 
         # Copy the full AcroForm to the output PDF
         acro_form = reader.trailer["/Root"]["/AcroForm"]
@@ -66,10 +66,26 @@ def fill_certificate_form(template_stream, data):
                         })
 
     else:
-        print("⚠️ No AcroForm dictionary found in the PDF.")
+        print("No AcroForm dictionary found in the PDF.")
 
     # Final output
     output = BytesIO()
     writer.write(output)
     output.seek(0)
     return output
+
+def get_strftime_format(custom_format):
+    mapping = {
+        "MM/DD/YYYY": "%m/%d/%Y",
+        "DD/MM/YYYY": "%d/%m/%Y",
+        "YYYY-MM-DD": "%Y-%m-%d"
+    }
+    return mapping.get(custom_format, "%m/%d/%Y")
+
+def get_flatpickr_format(custom_format):
+    mapping = {
+        "MM/DD/YYYY": "m/d/Y",
+        "DD/MM/YYYY": "d/m/Y",
+        "YYYY-MM-DD": "Y-m-d"
+    }
+    return mapping.get(custom_format, "%m/%d/%Y")

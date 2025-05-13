@@ -32,6 +32,12 @@ urlpatterns = [
     path('courses/online/edit/<int:course_id>/', content_views.edit_online_courses, name='edit_online_courses'),
     path('courses/delete-courses/', views.delete_courses, name='delete_courses'),
 
+    # Categories
+    path('categories/', content_views.admin_categories, name='admin_categories'),
+    path('categories/add/', content_views.add_categories, name='add_categories'),
+    path('categories/edit/<int:category_id>/', content_views.edit_categories, name='edit_categories'),
+    path('categories/delete-categories/', views.delete_categories, name='delete_categories'),
+
     # Settings
     path('settings/', views.admin_settings, name='admin_settings'), 
     path('settings/create-allowed-id/', views.create_allowed_id_photo, name='create_allowed_id_photo'),

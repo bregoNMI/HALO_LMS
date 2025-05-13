@@ -12,6 +12,12 @@ urlpatterns = [
     path('notifications/', views.learner_notifications, name='learner_notifications'), 
     path('logout/', views.custom_logout_view, name='custom_logout_view'),  # URL for logout
 
+    # Terms and Conditions
+    path('terms/', views.terms_and_conditions, name='terms_and_conditions'),
+
+    # On Login Course
+    path('login-course/<uuid:uuid>/', views.on_login_course, name='on_login_course'),
+
     # Requests
     path('update-profile/<int:user_id>/', views.update_learner_profile, name='update_learner_profile'),
     path('change-password/', views.change_password, name='change_password'),

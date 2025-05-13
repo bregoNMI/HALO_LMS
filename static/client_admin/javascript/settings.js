@@ -70,15 +70,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 const fileName = file.name;
                 document.getElementById('faviconImageDisplay').textContent = fileName;
 
-                // Create a URL for the selected file and update the image preview
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    faviconPreview.src = e.target.result; // Update the src with the file's data URL
+                    faviconPreview.src = e.target.result;
                 };
-                reader.readAsDataURL(file); // Read the file as a data URL
+                reader.readAsDataURL(file);
             } else {
                 document.getElementById('faviconImageDisplay').textContent = 'No file selected';
-                faviconPreview.src = ''; // Reset the image preview if no file is selected
+                faviconPreview.src = '';
             }
         });
     }
@@ -101,6 +100,15 @@ function testCreateField(){
             createAllowedIdPhotoBtn.classList.add('disabled');
         }
     })
+}
+
+
+const form = document.querySelector('#adminSettingsForm');
+
+function submitSettingsForm(){
+    document.getElementById('terms_and_conditions_text').value = getEditorContent('terms_editor');
+    console.log(getEditorContent('terms_editor'));
+    form.submit();
 }
 
 function testEditField(){
@@ -297,7 +305,7 @@ function showRealTimeAlert(isSuccess, tags, message){
     }, 10000);
 }
 
-function submitAdminSettings(){
-    const adminSettingsForm = document.getElementById('adminSettingsForm');
-    adminSettingsForm.submit();
+function getEditorContent(editorId) {
+    const quillEditor = new Quill(`#${editorId}`);
+    return quillEditor.root.innerHTML;
 }

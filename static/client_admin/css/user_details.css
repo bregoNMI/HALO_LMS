@@ -2,19 +2,32 @@
     display: flex;
     gap: 0.5rem;
     align-items: center;
-    padding: var(--pad-xxxs) var(--pad-sm);
+    text-decoration: none;
+    padding: 6px var(--pad-sm);
     border-radius: 6px;
     font-size: var(--btn-font);
     cursor: pointer;
     background-color: var(--bg-color4);
+    color: #41454d;
     flex: 1;
     transition: all 0.2s linear;
     border: none;
     justify-content: center;
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 .option-btn:hover {
     background-color: var(--bg-color1);
+    color: #191c1f;
+}
+
+.option-btn i{
+    font-size: 1.03rem;
+    display: inline-block;           /* Prevent icon resize jitter */
+    text-align: center;
+    -webkit-font-smoothing: antialiased; /* Prevents jump on render */
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* User Card Section */
@@ -190,6 +203,9 @@
     color: #41454d;
     font-weight: 600;
     text-wrap: nowrap;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .card-header-right i{
@@ -199,7 +215,7 @@
 
 .card-header-left i{
     color: #41454d;
-    font-size: var(--fs-lg);
+    font-size: 1.1rem;
 }
 
 .card-header-left{
@@ -207,6 +223,8 @@
     gap: 0.5rem;
     align-items: center;
     flex: 1;
+    overflow: hidden;
+    padding: 0.1rem;
 }
 
 .card-header-right{
@@ -323,7 +341,7 @@
 }
 
 .edit-user-label{
-    font-size: 0.89rem;
+    font-size: 0.85rem;
     margin-top: 0;
     color: var(--text-color7);
     /* color: var(--text-color2); */
@@ -376,6 +394,8 @@
     display: flex;
     flex: 1;
     flex-direction: column;
+}.edit-user-input input.disabled, .edit-user-input .custom-select.disabled, .edit-user-input .flatpickr-input-field.disabled{
+    opacity: 0.8;
 }
 
 .edit-user-input label{
@@ -405,6 +425,11 @@
 
 .edit-user-input input:focus-visible {
     outline-color: var(--primary-blue);
+}
+
+.edit-user-text{
+    font-size: var(--btn-font);
+    color: var(--text-color8);
 }
 
 /* Edit User Select Box */
@@ -451,6 +476,8 @@
     font-size: 0.9rem;
     border: none;
     transition: all 0.2s linear;
+    background-color: var(--bg-color3);
+    border: 1px solid #ececf1;
 }.flatpickr-clear-input:hover{   
     color: #721c24;
     background-color: #f8d7da;
@@ -471,18 +498,22 @@
     width: 0.9rem;
     align-items: center;
     justify-content: center;
-}
-
-.course-type-icon.online-course i{
+}.course-type-icon.online-course i{
     background-color: #e5caff;
     color: blueviolet;
     border: 1px solid #d5aff9;
-}
-
-.course-type-icon.inperson-course i{
+}.course-type-icon.inperson-course i{
     background-color: #ffbf7c;
     color: #dc6618;
     border: 1px solid #ffa86d;
+}.course-type-icon.mandatory-course i {
+    background-color: #f7a5a5;
+    color: #cc0202;
+    border: 1px solid #fc8888;
+}.course-type-icon.success i {
+    background-color: #b3ecb3;
+    color: #059f48;
+    border: 1px solid #9bd79b;
 }
 
 .course-type-icon.course-certificate i{
@@ -650,14 +681,9 @@
     transform: translateX(40px);
 }
 
-.tooltip .tooltiptext {
-    text-wrap: nowrap;
-    bottom: -130%;
-}
-
-
 /* Custom File Upload */
 .custom-file-upload-container{
+    position: relative;
     display: flex;
     align-items: center;
     margin-top: 0.5rem;

@@ -89,6 +89,11 @@ class Profile(models.Model):
         default='UTC'
     )
 
+    terms_accepted = models.BooleanField(default=False)
+    terms_accepted_on = models.DateTimeField(null=True, blank=True)
+    accepted_terms_version = models.CharField(max_length=10, blank=True, null=True)
+    completed_on_login_course = models.BooleanField(default=False)
+
 
     objects = ProfileManager()
 
@@ -341,7 +346,7 @@ class GeneratedCertificate(models.Model):
     
 class Message(models.Model):
     subject = models.CharField(max_length=255)
-    body = models.TextField()
+    body = models.TextField(max_length=2000)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     recipients = models.ManyToManyField(User, related_name='received_messages')
     sent_at = models.DateTimeField(auto_now_add=True)
@@ -359,7 +364,7 @@ class AllowedIdPhotos(models.Model):
     
 class OrganizationSettings(models.Model):
     # Client Profile
-    lms_name = models.CharField(max_length=255, blank=True, null=True, default='LMS Name')
+    lms_name = models.CharField(max_length=255, blank=True, null=True)
     organization_name = models.CharField(max_length=255, blank=True, null=True)
     
     # Main Contact
@@ -375,7 +380,8 @@ class OrganizationSettings(models.Model):
 
     # Date & Time Preferences
     date_format = models.CharField(max_length=255, blank=True, null=True)
-    time_zone = models.CharField(max_length=255, blank=True, null=True)
+    time_zone = models.CharField(max_length=255, blank=True, null=True, default='(UTC-05:00) Eastern Time (US & Canada)')
+    iana_name = models.CharField(max_length=100, unique=True, default='America/New_York')
 
     # User settings
     on_login_course = models.BooleanField(default=False, blank=True, null=True)
@@ -387,6 +393,9 @@ class OrganizationSettings(models.Model):
     default_course_thumbnail_image = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
     default_certificate = models.BooleanField(default=False, blank=True, null=True)
     default_certificate_template = models.FileField(upload_to='certificates/', blank=True, null=True)
+    terms_and_conditions = models.BooleanField(default=False, blank=True, null=True)
+    terms_and_conditions_text = models.TextField(max_length=50000, blank=True, null=True)
+    terms_last_modified = models.DateTimeField(blank=True, null=True)
 
     # Portal
     portal_favicon = models.ImageField(upload_to='logos/', blank=True, null=True)

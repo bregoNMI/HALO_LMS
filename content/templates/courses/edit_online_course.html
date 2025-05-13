@@ -2,7 +2,7 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
-    <div id="stickyNavBar" style="display: none;">
+    <div id="stickyNavBar">
         <div class="details-top-row max-width-extend-1">
             <div class="details-top-row-left">
                 <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
@@ -29,8 +29,7 @@
         </div>
     </div>
     <div class="admin-body align-center">
-        <!-- Message Wrapper -->
-        <div id="validation-message-container" class="new-validation-message-container" style="display: none;"></div>
+        {% include 'messageContainer/message_container.html' %}
         <div class="max-width-extend-1">
             <div id="mainNavBar" class="details-top-row">
                 <div class="details-top-row-left">
@@ -74,12 +73,17 @@
                             <!-- Hidden Field to store the course ID -->
                             <input id="courseId" type="hidden" value="{{ course.id }}">
                             <div class="course-content-input">
-                                <label class="edit-user-label" for="title">Course Title</label>
-                                <input type="text" id="title" name="title" placeholder="Course Title (Required)" value="{{ course.title }}">
+                                <label class="edit-user-label" for="title">Course Title<span class="required-asterisk">*</span></label>
+                                <input type="text" id="title" name="title" placeholder="Course Title" value="{{ course.title }}">
                             </div>
                             <div class="course-content-input">
                                 <label class="edit-user-label" for="description">Course Description</label>
                                 <div class="editor-container scrollable-content-inner" id="courseDescription">{{ course.description|safe }}</div>
+                                <div class="quill-character-counter">
+                                    <div class="quill-current-counter">0</div>
+                                    <span>/</span>
+                                    <div class="quill-max-counter">5000</div>
+                                </div>
                             </div>
                             <div class="course-content-input course-content-row">
                                 <div class="edit-user-input">
@@ -105,9 +109,9 @@
                                         <div class="right-column-file-wrapper">
                                             <div id="userDropdown2" class="category-dropdown course-content-input">
                                                 {% if course.category %}
-                                                    <input type="text" id="category" name="category" class="categorySearch" placeholder="Search categories..." value="{{ course.category }}">
+                                                    <input type="text" id="category" name="category" class="categorySearch" placeholder="Search categories..." value="{{ course.category.name }}" autocomplete="off" data-id="{{ course.category.id }}">
                                                 {% else %}
-                                                    <input type="text" id="category" name="category" class="categorySearch" placeholder="Search categories...">
+                                                    <input type="text" id="category" name="category" class="categorySearch" placeholder="Search categories..." autocomplete="off">
                                                 {% endif %}
                                                 <i class="fa-regular fa-magnifying-glass search-icon"></i>
                                                 <div class="categoryList scrollable-content-inner">
@@ -204,7 +208,7 @@
                                         <div class="module-card" data-id="{{ module.id }}">
                                             <div class="info-card-header collapsable-header">
                                                 <div class="card-header-left">
-                                                    <i class="fa-light fa-grip-dots-vertical module-drag-icon"></i>
+                                                    <i class="fa-thin fa-grip-dots-vertical module-drag-icon"></i>
                                                     <input class="module-title" type="text" placeholder="New Module" value="{{ module.title }}">
                                                 </div>
                                                 <div class="module-header-right">
@@ -237,7 +241,7 @@
                                                                 <input class="lesson-description" type="hidden" value="{{ lesson.description|safe }}">
                                                         
                                                                 <div class="lesson-header-left">
-                                                                    <i class="fa-light fa-grip-dots-vertical lesson-drag-icon"></i>
+                                                                    <i class="fa-thin fa-grip-dots-vertical lesson-drag-icon"></i>
                                                                     <span class="lesson-title">Lesson {{ forloop.counter }}: {{ lesson.title }}</span>
                                                                 </div>
                                                                 <div class="lesson-header-right">
@@ -737,7 +741,7 @@
                                             <div class="reference-card" id="referenceCard-{{ reference.id }}" data-id="{{ reference.id }}">
                                                 <div class="info-card-header collapsable-header">
                                                     <div class="card-header-left">
-                                                        <i class="fa-light fa-grip-dots-vertical reference-drag-icon"></i>
+                                                        <i class="fa-thin fa-grip-dots-vertical reference-drag-icon"></i>
                                                         <input class="reference-title" type="text" placeholder="New Reference" value="{{ reference.title }}">
                                                     </div>
                                                     <div class="reference-header-right">
@@ -752,7 +756,7 @@
                                                 </div>
                                                 <div class="reference-card-body">
                                                     <div class="right-column-file-wrapper">
-                                                        <h5 class="right-column-option-header">Reference Source <span class="file-required-text">(Required)</span></h5>
+                                                        <h5 class="right-column-option-header">Reference Source <span class="required-asterisk">*</span></h5>
                                                         <div onclick="openFileLibrary('referenceSource', '{{ reference.id }}')" for="referenceSource" class="custom-file-upload-container">
                                                             <div class="custom-file-upload">
                                                                 <input type="file" id="referenceSource" name="referenceSource" style="display: none;" readonly="">
@@ -767,7 +771,12 @@
                                                     </div>
                                                     <div class="reference-card-content">
                                                         <label class="edit-user-label" for="referenceDescription-{{ reference.id }}">Reference Description</label>
-                                                        <div class="editor-container" id="referenceDescription-{{ reference.id }}"></div>
+                                                        <div class="editor-container" id="referenceDescription-{{ reference.id }}"> {{ reference.description|safe }}</div>
+                                                        <div class="quill-character-counter">
+                                                            <div class="quill-current-counter">0</div>
+                                                            <span>/</span>
+                                                            <div class="quill-max-counter">2000</div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -776,7 +785,7 @@
                                         <div class="reference-card" id="referenceCard-1">
                                             <div class="info-card-header collapsable-header">
                                                 <div class="card-header-left">
-                                                    <i class="fa-light fa-grip-dots-vertical reference-drag-icon"></i>
+                                                    <i class="fa-thin fa-grip-dots-vertical reference-drag-icon"></i>
                                                     <input class="reference-title" type="text" placeholder="New Reference">
                                                 </div>
                                                 <div class="reference-header-right">
@@ -791,7 +800,7 @@
                                             </div>
                                             <div class="reference-card-body">
                                                 <div class="right-column-file-wrapper">
-                                                    <h5 class="right-column-option-header">Reference Source <span class="file-required-text">(Required)</span></h5>
+                                                    <h5 class="right-column-option-header">Reference Source <span class="required-asterisk">*</span></h5>
                                                     <div onclick="openFileLibrary('referenceSource', '1')" for="referenceSource" class="custom-file-upload-container">
                                                         <div class="custom-file-upload">
                                                             <input type="file" id="referenceSource" name="referenceSource" style="display: none;" readonly="">
@@ -807,6 +816,11 @@
                                                 <div class="reference-card-content">
                                                     <label class="edit-user-label" for="referenceDescription-1">Reference Description</label>
                                                     <div class="editor-container" id="referenceDescription-1"></div>
+                                                    <div class="quill-character-counter">
+                                                        <div class="quill-current-counter">0</div>
+                                                        <span>/</span>
+                                                        <div class="quill-max-counter">2000</div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -858,7 +872,7 @@
                                             <div class="upload-card" id="uploadCard-{{ upload.id }}" data-id="{{ upload.id }}">
                                                 <div class="info-card-header collapsable-header">
                                                     <div class="card-header-left">
-                                                        <i class="fa-light fa-grip-dots-vertical upload-drag-icon"></i>
+                                                        <i class="fa-thin fa-grip-dots-vertical upload-drag-icon"></i>
                                                         <input class="upload-title" type="text" placeholder="New Upload" value="{{ upload.title }}">
                                                     </div>
                                                     <div class="upload-header-right">
@@ -930,7 +944,7 @@
                                                     <div id="uploadApprovalOther{{ upload.id }}" class="toggle-option-details">
                                                         <span class="course-content-input-subtext"> Please select the User(s) who will approve the course upload. </span>
                                                         <div class="right-column-file-wrapper">
-                                                            <div id="userDropdown{{ upload.id }}" class="user-dropdown course-content-input">
+                                                            <div id="approverDropdown{{ upload.id }}" class="user-dropdown course-content-input">
                                                                 <input type="text" class="userSearch" placeholder="Search users...">
                                                                 <i class="fa-regular fa-magnifying-glass search-icon"></i>
                                                                 <div class="userList scrollable-content-inner"></div>
@@ -944,7 +958,7 @@
                                                         <script>
                                                             document.addEventListener('DOMContentLoaded', function () {
                                                                 let selectedUserIds = [{% for approver in upload.approvers.all %}{{ approver.id }}, {% endfor %}];
-                                                                initializeUserDropdown('userDropdown{{ upload.id }}', selectedUserIds);
+                                                                initializeUserDropdown('approverDropdown{{ upload.id }}', selectedUserIds);
                                                             });
                                                         </script>
                                                     {% endif %}
@@ -952,10 +966,10 @@
                                             </div>
                                         {% endfor %}
                                     {% else %}
-                                        <div class="upload-card" id="uploadCard-1">
+                                        <div class="upload-card" id="uploadCard-1" data-temp-id="1">
                                             <div class="info-card-header collapsable-header">
                                                 <div class="card-header-left">
-                                                    <i class="fa-light fa-grip-dots-vertical upload-drag-icon"></i>
+                                                    <i class="fa-thin fa-grip-dots-vertical upload-drag-icon"></i>
                                                     <input class="upload-title" type="text" placeholder="New Upload">
                                                 </div>
                                                 <div class="upload-header-right">
@@ -1053,12 +1067,8 @@
     <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
     <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
     <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
     <script src="{% static 'content\javascript\content.js' %}"></script>
-    <script src="{% static 'client_admin\javascript\message_container.js' %}"></script>
-    <script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
-    <script src="{% static 'client_admin\javascript\sticky_nav.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\ajax_search_options.js' %}"></script>
     <script>const course_category_id = {{ course.category.id }};</script>
 {% endblock content %}

@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     flatpickr(".date-picker", {
         altInput: true,
         altFormat: "F j, Y",  // Display format (e.g., "July 27, 1986")
-        dateFormat: "Y-m-d",   // Format used for submission (e.g., "1986-07-27")
+        dateFormat: flatpickr_format,   // Format used for submission (e.g., "1986-07-27")
         allowInput: true       // Allow manual input
     });
 
@@ -75,40 +75,72 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    const validationMessageContainer = document.getElementById('validation-message-container');
+    // When clicking on the flatpickr icon, trigger the input click to open the picker
+    const flatpickrIcons = document.querySelectorAll('.input-group-addon');
+    flatpickrIcons.forEach(icon => {
+        icon.addEventListener("click", function () {
+            const input = icon.previousElementSibling || icon.parentElement.querySelector('input');
+            if (input) input.click();
+        });
+    });
 
-    function displayValidationMessage(message, isSuccess) {
-        console.log(validationMessageContainer);
-        validationMessageContainer.style.display = 'flex';
+    const flatPickrInputs = document.querySelectorAll('.flatpickr-input, .time-picker');
 
-        const messageWrapper = document.createElement('div');
-        messageWrapper.className = isSuccess ? 'alert alert-success alert-container' : 'alert alert-error alert-container';
-        setTimeout(() => {  
-            messageWrapper.classList.add('animate-alert-container');
-        }, 100);    
-        
-        const icon = document.createElement('i');
-        icon.className = isSuccess ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation';
+    flatPickrInputs.forEach(input => {
+        const container = input.parentElement;
 
-        const text = document.createElement('span');
-        text.textContent = message;
+        if (container) {
+            // Create clear button
+            const clearBtn = document.createElement('div');
+            clearBtn.className = 'flatpickr-clear-input';
+            clearBtn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+            container.appendChild(clearBtn);
 
-        messageWrapper.appendChild(icon);
-        messageWrapper.appendChild(text);
+            // Basic styling (or use your own CSS)
+            clearBtn.style.cursor = 'pointer';
+            clearBtn.style.visibility = 'hidden';
+            clearBtn.style.opacity = '0';
+            clearBtn.style.transition = 'opacity 0.2s ease';
 
-        validationMessageContainer.appendChild(messageWrapper);
+            // Hover show/hide behavior
+            container.addEventListener('mouseenter', () => {
+                clearBtn.style.visibility = 'visible';
+                clearBtn.style.opacity = '1';
+            });
 
-        setTimeout(() => {
-            messageWrapper.classList.remove('animate-alert-container');
-            
-            if (validationMessageContainer.children.length === 0) {
-                validationMessageContainer.style.display = 'none';
-            }
-            setTimeout(() => {
-                messageWrapper.remove();
-            }, 400);
-        }, 10000);
-    }
+            container.addEventListener('mouseleave', () => {
+                clearBtn.style.visibility = 'hidden';
+                clearBtn.style.opacity = '0';
+            });
+
+            // Clear button click handler
+            clearBtn.addEventListener('click', () => {
+                if (input._flatpickr) {
+                    input._flatpickr.clear();
+                    input.value = '';               
+                } else {
+                    input.value = '';
+                    input.previousElementSibling.value = '';
+                }
+            });
+        }
+    });
+
+    document.querySelectorAll('.tab-content-description').forEach(container => {
+        const content = container.querySelector('.description-content');
+        const toggle = container.querySelector('.read-more-toggle');
+        const wrapper = container.querySelector('.description-wrapper');
+
+        if (content.scrollHeight > 200) {
+            // Content exceeds 200px, limit it and show "Read More"
+            wrapper.classList.add('collapsed');
+            toggle.style.display = 'block';
+        } else {
+            // Content fits, hide toggle
+            toggle.style.display = 'none';
+        }
+    });
+
 });
 
 function initializeHeaderVariables(){
@@ -164,6 +196,8 @@ function initializeCardListeners(){
 
             // Toggle 'active' class on the clicked element
             header.classList.toggle('active');
+
+            console.log('yurrr');
 
             // Find the nearest .info-card-body and toggle its visibility
             const cardBody = header.closest('.details-info-card').querySelector('.info-card-body');
@@ -266,6 +300,7 @@ function initializeTabs(popup) {
     const tabContents = popup.querySelectorAll('.tab-content');
     const activeTab = tabsContainer.querySelector('.tab.active');
     updateIndicator(activeTab);
+    console.log(tabsContainer);
     
     const tabs = tabsContainer.querySelectorAll('.tab');
     tabs.forEach(tab => {

@@ -1,0 +1,26 @@
+{% load static %}
+<div style="background-color: {{ header.header_background_color }};" class="learner-header-container">
+    <div class="learner-header-container-inner">
+        <div class="learner-header-left">
+            {% if header.header_logo %}
+                <img class="header-logo" src="{{ header.header_logo }}" alt="Header Logo">
+            {% else %}
+                <img class="header-logo" src="{% static 'images/logo/Halo LMS Logo-10.png' %}" alt="Header Logo">          
+            {% endif %}
+        </div>
+        <div class="learner-header-right">
+            {% if request.is_impersonating %}
+                <div class="learner-impersonate">
+                    <i class="fa-regular fa-masks-theater"></i>
+                    <span class="tooltip-text">Impersonating</span>
+                </div>
+            {% endif %}
+            <div class="learner-header-logout">
+                <a class="action-button-primary" href="{% url 'custom_logout_view' %}">
+                    <i class="fa-regular fa-arrow-right-from-bracket"></i>
+                    <span> Logout </span>
+                </a>
+            </div>                      
+        </div>
+    </div>
+</div>

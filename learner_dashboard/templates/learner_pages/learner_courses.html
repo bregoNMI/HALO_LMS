@@ -4,13 +4,7 @@
 {% block content %}
 {% include 'learner_sidebar.html' %}
 <div class="learner-body align-center scrollable-content">
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="alert-container" style="display: none;">   
-        <div id="validation-message-inner">
-            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
-            <span id="validation-message"></span>
-        </div>
-    </div>
+    {% include 'messageContainer/message_container.html' %}
     <div class="max-width-extend-1">
         <div class="learner-top-row">
             <div class="learner-top-row-left">
@@ -244,7 +238,7 @@
                                                                     <h5 class="course-item-lesson-title">{{ lesson_progress.lesson.title }}</h5>
                                                                 </div>
                                                                 <div class="course-item-lesson-body">
-                                                                    <span class="course-item-lesson-description">{{ lesson_progress.lesson.description }}</span>
+                                                                    <div class="course-item-lesson-description">{{ lesson_progress.lesson.description|safe }}</div>
                                                                 </div>
                                                             </div>
                                                         {% empty %}

@@ -89,6 +89,9 @@
     color: #41454d;
     font-weight: 600;
     text-wrap: nowrap;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .card-header-right i{
@@ -106,6 +109,8 @@
     gap: 0.5rem;
     align-items: center;
     flex: 1;
+    overflow: hidden;
+    padding: 0.1rem;
 }
 
 .card-header-right{
@@ -188,6 +193,15 @@
 
 .edit-settings-row{
     display: flex;
+    justify-content: space-between;
+    gap: 0.5rem 3rem;
+    margin-top: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.edit-settings-column{
+    display: flex;
+    flex-direction: column;
     justify-content: space-between;
     gap: 0.5rem 3rem;
     margin-top: 0.8rem;

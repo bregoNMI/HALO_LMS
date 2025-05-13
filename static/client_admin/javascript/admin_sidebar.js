@@ -70,6 +70,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });  
     
     updateBreadcrumbTrail();
+    initializeToggleKeyboardNav();
+    setTimeout(detectCharacterCounters, 300);
 });
 
 function updateBreadcrumbTrail() {
@@ -131,3 +133,69 @@ window.addEventListener('click', function(event) {
         }
     }
 });
+
+
+// Global JS Actions
+function initializeToggleKeyboardNav(){
+    document.querySelectorAll('.toggle-switch').forEach(switchEl => {
+        switchEl.addEventListener('keydown', function(e) {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                const input = this.querySelector('input[type="checkbox"]');
+                input.checked = !input.checked;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                this.setAttribute('aria-checked', input.checked.toString());
+            }
+        });
+    });
+}
+
+function detectCharacterCounters() {
+    const editors = document.querySelectorAll('.editor-container');
+    let MAX_LENGTH;
+
+    editors.forEach((editorEl) => {
+        const editorId = editorEl.id;
+        if (!editorId) return;
+
+        let quillEditor;
+        try {
+            quillEditor = Quill.find(editorEl);
+        } catch (err) {
+            console.warn(`No Quill instance found for editor ID: ${editorId}`);
+            return;
+        }
+
+        const counterContainer = editorEl.parentElement.querySelector('.quill-character-counter');
+        const currentCounter = counterContainer?.querySelector('.quill-current-counter');
+        const maxCounter = counterContainer?.querySelector('.quill-max-counter');
+
+        if (!currentCounter || !maxCounter) return;
+        MAX_LENGTH = maxCounter.innerText;
+
+        // Set initial counter
+        const updateCount = () => {
+            const textLength = quillEditor.getText().trim().length;
+            currentCounter.textContent = textLength;
+        };
+
+        updateCount();
+
+        if (!editorEl.dataset.listenerAdded) {
+            // Enforce max character limit
+            quillEditor.on('text-change', function (delta, oldDelta, source) {
+                const currentLength = quillEditor.getLength(); // includes trailing newline
+                const trimmedLength = quillEditor.getText().trim().length;
+
+                // Prevent further input beyond max
+                if (trimmedLength > MAX_LENGTH) {
+                    quillEditor.deleteText(MAX_LENGTH, currentLength);
+                }
+
+                updateCount();
+            });
+
+            editorEl.dataset.listenerAdded = 'true';
+        }
+    });
+}

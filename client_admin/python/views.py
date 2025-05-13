@@ -22,8 +22,9 @@ from django.core.files.base import ContentFile
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
+from django.utils import timezone
 from django.http import HttpResponseForbidden, HttpRequest
-from content.models import Lesson
+from content.models import Lesson, Category
 from learner_dashboard.views import learner_dashboard
 from django.contrib import messages
 from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos
@@ -58,9 +59,12 @@ def admin_settings(request):
     # Create a new instance if none exists
     if settings is None:
         settings = OrganizationSettings()
-        settings.save()  # ✅ Save immediately so it gets an ID
+        settings.save()
 
     if request.method == 'POST':
+        existing_text = (settings.terms_and_conditions_text or '').strip()
+        previously_modified = settings.terms_last_modified
+
         form = OrganizationSettingsForm(request.POST, request.FILES, instance=settings)
 
         if form.is_valid():
@@ -69,17 +73,32 @@ def admin_settings(request):
             settings.profile_customization = request.POST.get('profile_customization') == 'on'
             settings.default_course_thumbnail = request.POST.get('default_course_thumbnail') == 'on' 
             settings.default_certificate = request.POST.get('default_certificate') == 'on' 
+            settings.terms_and_conditions = request.POST.get('terms_and_conditions') == 'on'
 
-            # Save the on_login_course_id
+            # Check for course ID if on_login_course is enabled
             course_id = request.POST.get('on_login_course_id')
+            if settings.on_login_course and not course_id:
+                messages.error(request, 'Please select a course for the One-time Course setting.')
+                return redirect('admin_settings')
+
+            # Handle Text Fields
+            new_terms_text = (request.POST.get('terms_and_conditions_text') or '').strip()
+            if existing_text != new_terms_text:
+                settings.terms_last_modified = timezone.now()
+            else:
+                settings.terms_last_modified = previously_modified
+
+            # Save cleaned text and course ID if present
+            settings.terms_and_conditions_text = new_terms_text
             if course_id:
                 settings.on_login_course_id = int(course_id)
 
             settings.save()
-
             form.save()
+
             messages.success(request, 'Settings updated successfully')
             return redirect('admin_settings')
+
         else:
             messages.error(request, form.errors)
             print(form.errors)
@@ -505,6 +524,8 @@ def user_details(request, user_id):
         else:
             formatted_total_time = f"{int(total_minutes)}m {int(total_seconds)}s"
 
+    total_certificates = GeneratedCertificate.objects.filter(user=profile.user).count()
+
     context = {
         'profile': profile,
         'user_courses': user_courses,
@@ -515,6 +536,7 @@ def user_details(request, user_id):
         'average_progress': average_progress,
         'last_active': last_active,
         'total_time_spent': formatted_total_time,
+        'total_certificates': total_certificates,
     }
 
     return render(request, 'users/user_details.html', context)
@@ -1163,3 +1185,26 @@ def fetch_lesson_progress(request, user_lesson_progress_id):
         return JsonResponse({'success': True, 'data': lesson_progress_data})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+def delete_categories(request):
+    data = json.loads(request.body)
+    category_ids = data['ids']
+    try:
+        with transaction.atomic():
+            for category_id in category_ids:
+                category = Category.objects.filter(id=category_id)
+                if not category.exists():
+                    raise ValueError(f"No category found with ID {category_id}")
+                category.delete()
+            messages.success(request, 'All selected Categories deleted successfully.')
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': '/admin/categories/',
+                'message': 'All selected categories deleted successfully'
+            })
+    except ValueError as e:
+        logger.error(f"Deletion error: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)

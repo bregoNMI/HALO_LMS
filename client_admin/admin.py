@@ -10,7 +10,7 @@ class ProfileAdmin(admin.ModelAdmin):
 class OrganizationSettingsAdmin(admin.ModelAdmin):
     list_display = ('lms_name', 'organization_name', 'contact_first_name', 'contact_email')
 
-admin.site.register(Profile, ProfileAdmin)
+admin.site.register(Profile)
 admin.site.register(Message)
 admin.site.register(UserCourse)
 admin.site.register(UserModuleProgress)

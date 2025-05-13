@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="new-validation-message-container" style="display: none;"></div>
+    {% include 'messageContainer/message_container.html' %}
     <div class="admin-body">
         <div class="admin-top-row">
             <div class="admin-top-row-left">

@@ -439,46 +439,48 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Deleting Categories
+    document.querySelectorAll('#data-delete-categories').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('categoryDeleteConfirmation');
+        });
+    });
+
+    const deleteCategoryConfirmation = document.getElementById('deleteCategoryConfirmation');
+    if(deleteCategoryConfirmation){
+        deleteCategoryConfirmation.addEventListener('click', () => {
+            console.log(selectedIds);
+            const url = '/admin/categories/delete-categories/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
     function getCsrfToken() {
         const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
         return cookieValue;
-    }
-
-    const validationMessageContainer = document.getElementById('validation-message-container');
-
-    function displayValidationMessage(message, isSuccess) {
-        console.log(validationMessageContainer);
-        validationMessageContainer.style.display = 'flex';
-
-        const messageWrapper = document.createElement('div');
-        messageWrapper.className = isSuccess ? 'alert alert-success alert-container' : 'alert alert-error alert-container';
-        setTimeout(() => {  
-            messageWrapper.classList.add('animate-alert-container');
-        }, 100);    
-        
-        const icon = document.createElement('i');
-        icon.className = isSuccess ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation';
-
-        const text = document.createElement('span');
-        text.textContent = message;
-
-        messageWrapper.appendChild(icon);
-        messageWrapper.appendChild(text);
-
-        validationMessageContainer.appendChild(messageWrapper);
-
-        setTimeout(() => {
-            messageWrapper.classList.remove('animate-alert-container');
-            
-            if (validationMessageContainer.children.length === 0) {
-                validationMessageContainer.style.display = 'none';
-            }
-            setTimeout(() => {
-                messageWrapper.remove();
-            }, 400);
-        }, 10000);
-    }
-    
+    } 
 });
 
 // Dynamically Opening Popups

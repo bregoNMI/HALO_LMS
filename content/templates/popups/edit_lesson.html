@@ -10,11 +10,16 @@
         <div class="popup-body">
             <div class="course-content-input">
                 <label class="edit-user-label" for="editLessonTitle">Lesson Title</label>
-                <input type="text" id="editLessonTitle" name="editLessonTitle" placeholder="Lesson Title (Required)">
+                <input type="text" id="editLessonTitle" name="editLessonTitle" placeholder="Lesson Title (Required)" maxlength="200">
             </div>
             <div class="course-content-input padding-top-2 padding-bottom-1">
                 <label class="edit-user-label" for="editLessonDescription">Lesson Description</label>
                 <div class="editor-container" id="editLessonDescription"></div>
+                <div class="quill-character-counter">
+                    <div class="quill-current-counter">0</div>
+                    <span>/</span>
+                    <div class="quill-max-counter">2000</div>
+                </div>
             </div>
             <div class="choose-file-wrapper">
                 <h5 class="popup-content-header">Choose File <span class="file-required-text">(Required)</span></h5>
@@ -45,7 +50,7 @@
         <div class="popup-footer">
             <div class="spacer"></div>
             <div class="popup-btns">
-                <button onclick="closePopup('editLesson')" class="popup-btn close-popup-btn">Back</button>
+                <button type="button" onclick="closePopup('editLesson')" class="popup-btn close-popup-btn">Back</button>
                 <button id="editLessonBtn" class="popup-btn">Save Lesson</button>   
             </div>
         </div>

@@ -42,7 +42,7 @@ input[type="text"], input[type="number"]{
 }
 
 .course-content-input .edit-user-label{
-    font-size: 0.89rem;
+    font-size: 0.85rem;
     margin-top: 0;
     color: var(--text-color7);
     margin-bottom: 0;
@@ -233,7 +233,7 @@ input[type="text"], input[type="number"]{
     transform: rotate(-90deg);
 }
 
-/* Styling custom test editor */
+/* Styling custom text editor */
 .ql-toolbar.ql-snow {
     background-color: #f2f2f2;
     border: 1px solid #ececf1 !important;
@@ -261,13 +261,10 @@ input[type="text"], input[type="number"]{
     max-width: 200px !important;
 }
 
-.ql-snow.ql-toolbar button, .ql-snow .ql-toolbar button {
-    border-radius: 6px;
-}
-
 .ql-snow.ql-toolbar button:hover, .ql-snow .ql-toolbar button:hover, .ql-snow.ql-toolbar button:focus, .ql-snow .ql-toolbar button:focus, .ql-snow.ql-toolbar button.ql-active, .ql-snow .ql-toolbar button.ql-active, .ql-snow.ql-toolbar .ql-picker-label:hover, .ql-snow .ql-toolbar .ql-picker-label:hover, .ql-snow.ql-toolbar .ql-picker-label.ql-active, .ql-snow .ql-toolbar .ql-picker-label.ql-active, .ql-snow.ql-toolbar .ql-picker-item:hover, .ql-snow .ql-toolbar .ql-picker-item:hover, .ql-snow.ql-toolbar .ql-picker-item.ql-selected, .ql-snow .ql-toolbar .ql-picker-item.ql-selected {
     color: #06c;
     background-color: var(--bg-color4);
+    border-radius: 4px;
 }
 
 .ql-toolbar.ql-snow .ql-formats {
@@ -518,7 +515,7 @@ input[type="text"], input[type="number"]{
 }
 
 .toggle-option-details .right-column-option-header{
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-top: 0;
     color: var(--text-color2);
     font-weight: 600;
@@ -898,10 +895,6 @@ input[type="text"], input[type="number"]{
     flex: 1;
 }
 
-.course-uploads-container span{
-    font-size: 0.9rem;
-}
-
 /*Searchable User dropdown menu */
 .user-dropdown, .timezone-dropdown, .category-dropdown{
     position: relative;
@@ -1003,6 +996,7 @@ input[type="text"], input[type="number"]{
 .no-results {
     padding: 8px;
     color: #999;
+    font-size: 0.9rem;
 }
 
 .selectedUsers, .selectedTimezones, .selectedCategories {
@@ -1024,8 +1018,8 @@ input[type="text"], input[type="number"]{
 
 .selected-user-details, .selected-timezone-details, .selected-category-details {
     font-weight: 600;
-    font-size: 0.75rem;
     color: #41454d;
+    font-size: 0.75rem;
 }
 
 .selectedUsers .remove-user, .selectedTimezones .remove-timezone, .selectedCategories .remove-category {
@@ -1063,14 +1057,6 @@ input[type="text"], input[type="number"]{
 .create-category-icon:hover {
     background-color: var(--bg-color2);
 }
-
-/* .loadingIndicator{
-    display: flex;
-    text-align: center;
-    justify-content: center;
-    color: gray;
-    padding: 0.3rem;
-} */
 
 .file-upload-finished{
     display: none;

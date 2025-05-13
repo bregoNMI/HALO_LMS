@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
             header.querySelector('.card-header-right').classList.toggle('active');
             header.classList.toggle('active');
 
+            console.log('its me');
+
             const cardBody = header.closest('.details-info-card').querySelector('.info-card-body');
             if (cardBody) {
                 cardBody.classList.toggle('hidden'); // 'hidden' class should be styled with display: none;
@@ -644,7 +646,7 @@ function deleteImage(imageContainer, previewImage, element){
     element.style.display = 'none';
     previewContainer.src = '';
     previewContainer.setAttribute('hidden', true);
-    mainContainer.querySelector('.file-name-display').innerText = 'No File Selected';
+    mainContainer.querySelector('.file-name-display').innerText = 'No file selected';
     mainContainer.querySelector('.file-url-input-hidden').value = '';  
 }
 

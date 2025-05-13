@@ -1,13 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="alert-container" style="display: none;">   
-        <div id="validation-message-inner">
-            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
-            <span id="validation-message"></span>
-        </div>
-    </div>
+    {% include 'messageContainer/message_container.html' %}
     <div class="admin-body align-center">
         <div class="max-width-extend-1">
             <div class="details-top-row">

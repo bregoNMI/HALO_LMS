@@ -1,10 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from custom_templates.models import Dashboard, Widget, Header, Footer
-from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, GeneratedCertificate, Profile, User, Message
+from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, GeneratedCertificate, Profile, User, Message, OrganizationSettings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import update_session_auth_hash, logout
 from django.contrib import messages
 from django.utils.dateparse import parse_date
+from django.utils import timezone
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
@@ -302,10 +303,75 @@ class SVGImage(Flowable):
 
 @login_required
 def learner_profile(request):
-    # Retrieve the current user's profile
     profile = get_object_or_404(Profile, user=request.user)
     
     return render(request, 'learner_pages/learner_profile.html', {'profile': profile})
+
+@login_required
+def terms_and_conditions(request):
+    settings = OrganizationSettings.get_instance()
+    profile = request.user.profile
+
+    if request.method == 'POST':
+        profile.terms_accepted = True
+        profile.terms_accepted_on = timezone.now()
+
+        profile.accepted_terms_version = settings.terms_last_modified.strftime('%Y%m%d') if settings.terms_last_modified else "v1"
+        profile.save()
+
+        next_url = '/dashboard/'
+        return redirect(next_url)
+
+    return render(request, 'terms_and_conditions/terms.html', {
+        'terms_text': settings.terms_and_conditions_text,
+        'last_modified': settings.terms_last_modified,
+        'org_name': settings.organization_name,
+    })
+
+@login_required
+def on_login_course(request, uuid):
+    settings = OrganizationSettings.get_instance()
+    user = request.user
+    user_course = get_object_or_404(UserCourse, uuid=uuid)
+
+    lesson_sessions_map = {}
+
+    # Build the lesson_sessions_map as before
+    for module_progress in user_course.module_progresses.all():
+        for lesson_progress in module_progress.lesson_progresses.all():
+            sessions = LessonSession.objects.filter(
+                lesson=lesson_progress.lesson,
+                user=user_course.user
+            )
+            lesson_sessions_map[lesson_progress.id] = sessions
+
+    # ➤ Calculate Total Time Spent for THIS Course from SCORMTrackingData
+    scorm_sessions = SCORMTrackingData.objects.filter(
+        user=user_course.user,
+        lesson__module__course=user_course.course
+    )
+
+    total_time = timedelta()
+    for session in scorm_sessions:
+        total_time += parse_iso_duration(session.session_time)
+
+    if total_time.total_seconds() == 0:
+        formatted_total_time = "No Activity"
+    else:
+        total_hours, remainder = divmod(total_time.total_seconds(), 3600)
+        total_minutes, total_seconds = divmod(remainder, 60)
+
+        if total_hours > 0:
+            formatted_total_time = f"{int(total_hours)}h {int(total_minutes)}m {int(total_seconds)}s"
+        else:
+            formatted_total_time = f"{int(total_minutes)}m {int(total_seconds)}s"
+
+    return render(request, 'on_login_course/login_course.html', {
+        'on_login_course_id': settings.on_login_course_id,
+        'user_course': user_course,
+        'lesson_sessions_map': lesson_sessions_map,
+        'total_time_spent': formatted_total_time,
+    })
 
 @login_required
 def update_learner_profile(request, user_id):

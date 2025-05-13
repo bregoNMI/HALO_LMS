@@ -13,6 +13,24 @@ document.addEventListener('DOMContentLoaded', function() {
             loginFormButton.style.color = buttonColor;
             loginFormButton.style.borderColor = buttonBorder;
         });
+        loginFormButton.addEventListener('click', () => {
+            loginFormButton.classList.add('disabled');
+            setTimeout(() => {
+                loginFormButton.setAttribute('disabled', true);
+            }, 100);
+
+            if (!loginFormButton.dataset.originalHtml) {
+                loginFormButton.dataset.originalHtml = loginFormButton.innerHTML;
+            }
+
+            const savedWidth = loginFormButton.offsetWidth + "px";
+            const savedHeight = loginFormButton.offsetHeight + "px";
+
+            loginFormButton.style.width = savedWidth;
+            loginFormButton.style.height = savedHeight;
+
+            loginFormButton.innerHTML = `<i class="fa-light fa-loader fa-spin"></i>`;
+        })
     }
 
     const nextBtn = document.getElementById('nextBtn');
@@ -60,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
     flatpickr(".date-picker", {
         altInput: true,
         altFormat: "F j, Y",  // Display format (e.g., "July 27, 1986")
-        dateFormat: "Y-m-d",   // Format used for submission (e.g., "1986-07-27")
+        dateFormat: flatpickr_format,   // Format used for submission (e.g., "1986-07-27")
         allowInput: true       // Allow manual input
     });
 });

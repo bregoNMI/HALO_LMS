@@ -4,8 +4,7 @@
 {% load custom_filters %}
 {% include 'learner_sidebar.html' %}
 <div class="learner-body align-center scrollable-content">
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="new-validation-message-container" style="display: none;"></div>
+    {% include 'messageContainer/message_container.html' %}
     {% if messages %}
         <div class="alert-container">
             {% for message in messages %}
@@ -24,7 +23,7 @@
         </div>
     {% endif %}
     <div class="max-width-0">
-        <div id="stickyNavBar" style="display: none;">
+        <div id="stickyNavBar">
             <div class="learner-top-row max-width-0">
                 <div class="learner-top-row-left">
                     <h2>Transcript</h2>
@@ -276,6 +275,5 @@
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
 <link rel="stylesheet" href="{% static 'client_admin\css\user_course_details.css' %}">
 <script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
-<script src="{% static 'client_admin\javascript\message_container.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-circle-progress/dist/circle-progress.min.js" type="module"></script>
 {% endblock %}

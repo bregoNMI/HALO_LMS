@@ -35,7 +35,7 @@ class Widget(models.Model):
         ordering = ['order']
 
 class Header(models.Model):
-    header_logo_display = models.CharField(max_length=1024, default='No File Selected', blank=True, null=True)
+    header_logo_display = models.CharField(max_length=1024, default='No file selected', blank=True, null=True)
     header_logo = models.URLField(max_length=1024, default='/static/images/logo/HALO LMS Logo-03.png', blank=True, null=True)
     header_background_color = models.CharField(max_length=7, default='#183b73')
     header_text_color = models.CharField(max_length=7, default='#e7e7e7')
@@ -77,7 +77,7 @@ class LoginForm(models.Model):
 
     is_logo_disabled = models.BooleanField(default=False)
     login_logo = models.URLField(max_length=1024, default='/static/images/logo/HALO LMS Logo-03.png', blank=True, null=True)
-    login_logo_title = models.CharField(max_length=1024, default='No File Selected', blank=True, null=True)
+    login_logo_title = models.CharField(max_length=1024, default='No file selected', blank=True, null=True)
     logo_width = models.CharField(max_length=7, default='190')
     logo_height = models.CharField(max_length=7, default='70')
     logo_space_bottom = models.CharField(max_length=7, default='75')
@@ -86,7 +86,7 @@ class LoginForm(models.Model):
     background_color = models.CharField(max_length=7, default='#f3f3f3')
     is_background_disabled = models.BooleanField(default=True)
     background_image = models.URLField(max_length=1024, default='/static/images/dashboard/bannerTemplate2.png', blank=True, null=True)
-    background_image_title = models.CharField(max_length=1024, default='No File Selected', blank=True, null=True)
+    background_image_title = models.CharField(max_length=1024, default='No file selected', blank=True, null=True)
     background_repeat = models.CharField(max_length=255, default='no-repeat', blank=True, null=True)
     background_position = models.CharField(max_length=255, default='right center', blank=True, null=True)
     background_size = models.CharField(max_length=255, default='cover', blank=True, null=True)
@@ -94,7 +94,7 @@ class LoginForm(models.Model):
     form_enable_transparency = models.BooleanField(default=False)
     form_background_color = models.CharField(max_length=7, default='#ffffff')
     form_background_image = models.URLField(max_length=1024, blank=True, null=True)
-    form_image_title = models.CharField(max_length=1024, default='No File Selected', blank=True, null=True)
+    form_image_title = models.CharField(max_length=1024, default='No file selected', blank=True, null=True)
     form_max_width = models.CharField(max_length=7, default='380')
     form_radius = models.CharField(max_length=7, default='0')
     form_shadow = models.CharField(max_length=7, default='0')

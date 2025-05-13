@@ -3,8 +3,7 @@
 {% block content %}
 
 <div class="login-form-body-container">
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="new-validation-message-container" style="display: none;"></div>
+    {% include 'messageContainer/message_container.html' %}
     <div class="login-form-header">
         <div class="details-top-row">
             <div class="details-top-row-left">
@@ -161,7 +160,7 @@
                                         <i class="fa-regular fa-folder-open"></i> Choose <!-- Choose File -->
                                     </div>
                                     <div class="custom-file-title">
-                                        <span id="loginLogoImageDisplay" class="file-name-display">{% if login_form.login_logo_title %}{{ login_form.login_logo_title }}{%else%}No File Selected {%endif%}</span>
+                                        <span id="loginLogoImageDisplay" class="file-name-display">{% if login_form.login_logo_title %}{{ login_form.login_logo_title }}{% else %} No file selected {% endif %}</span>
                                     </div>
                                     <!-- This is where the Logo File Lives -->
                                     <input class="file-url-input-hidden" type="hidden" id="loginLogoURLInput" name="loginLogoURL" value="{{ login_form.login_logo }}" data-update-item="logo" data-update-type="backgroundImage">
@@ -264,7 +263,7 @@
                                         <i class="fa-regular fa-folder-open"></i> Choose <!-- Choose File -->
                                     </div>
                                     <div class="custom-file-title">
-                                        <span id="loginBackgroundImageDisplay" class="file-name-display">{% if login_form.background_image_title %}{{ login_form.background_image_title }}{%else%}No File Selected {%endif%}</span>
+                                        <span id="loginBackgroundImageDisplay" class="file-name-display">{% if login_form.background_image_title %}{{ login_form.background_image_title }}{%else%} No file selected {%endif%}</span>
                                     </div>
                                     <!-- This is where the Logo File Lives -->
                                     <input class="file-url-input-hidden" type="hidden" id="loginBackgroundURLInput" name="loginBackgroundURLInput" value="{{ login_form.background_image }}" data-update-item="background" data-update-type="backgroundImage">
@@ -397,7 +396,7 @@
                                         <i class="fa-regular fa-folder-open"></i> Choose <!-- Choose File -->
                                     </div>
                                     <div class="custom-file-title">
-                                        <span id="formBackgroundImageDisplay" class="file-name-display">{% if login_form.form_background_image_title %}{{ login_form.form_background_image_title }}{%else%}No File Selected {%endif%}</span>
+                                        <span id="formBackgroundImageDisplay" class="file-name-display">{% if login_form.form_background_image_title %}{{ login_form.form_background_image_title }}{%else%} No file selected {%endif%}</span>
                                     </div>
                                     <!-- This is where the Logo File Lives -->
                                     <input class="file-url-input-hidden" type="hidden" id="formBackgroundURLInput" name="formBackgroundURL" value="{{ login_form.form_background_image }}" data-update-item="loginform" data-update-type="backgroundImage">
@@ -1089,7 +1088,6 @@
 <link rel="stylesheet" href="{% static 'content/css/content.css' %}">
 <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/login.css' %}">
-<script src="{% static 'client_admin\javascript\message_container.js' %}"></script>
 <script> 
     let checkBackgroundPositionItems = '{{ login_form.background_position }}';
     let checkLayoutItems = '{{ login_form.layout }}';

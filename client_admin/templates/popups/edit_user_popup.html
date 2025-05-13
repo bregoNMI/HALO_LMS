@@ -172,10 +172,12 @@
                     <div class="edit-user-row">
                         <div class="edit-user-input">
                             <label class="edit-user-label" for="birth_date">Date of Birth</label>
-                            <input type="text" id="birth_date" name="birth_date" class="date-picker" value="{{ profile.birth_date|date:'Y-m-d' }}">
-                            <span class="input-group-addon">
-                                <i class="fa-regular fa-calendar-lines"></i>
-                            </span>
+                            <div class="edit-user-input">
+                                <input type="text" id="birth_date" name="birth_date" class="date-picker" value="{{ profile.birth_date|date:'Y-m-d' }}">
+                                <span class="input-group-addon">
+                                    <i class="fa-regular fa-calendar-lines"></i>
+                                </span>
+                            </div>
                         </div>
                         <div class="edit-user-input">
                             <label class="edit-user-label" for="sex">Gender</label>
@@ -197,14 +199,22 @@
                             <label class="edit-user-label" for="associate_school">Associate School</label>
                             <input type="text" id="associate_school" name="associate_school" value="{{ profile.associate_school }}">
                         </div>
+                    </div>
+                    <div class="edit-user-row">
+                        {% if profile.terms_accepted_on %}
+                            <div class="edit-user-input">
+                                <label class="edit-user-label" for="associate_school">Accepted Terms on</label>
+                                <span class="edit-user-text"> {{ profile.terms_accepted_on }} </span>
+                            </div>
+                        {% endif %}
                     </div>  
                 </div>
             </div>
             <div class="popup-footer">
                 <div class="spacer"></div>
                 <div class="popup-btns">
-                    <div onclick="closePopup('editUserPopup')" class="close-popup-btn popup-btn">Close</div>
-                    <button type="submit" id="saveUserBtn" class="popup-btn"> Save Changes </button>
+                    <button type="button" onclick="closePopup('editUserPopup')" class="close-popup-btn popup-btn">Close</button>
+                    <button onclick="setDisabledSaveBtns()" type="submit" id="saveUserBtn" class="popup-btn course-save-btns"> Save Changes </button>
                 </div>
             </div>
         </form>

@@ -52,7 +52,7 @@
                             </div>                                                
                         </div>
                     </div> 
-                    <span class="course-content-input-subtext"> (UTC-05:00) Eastern Time (US & Canada)</span>  
+                    <span class="course-content-input-subtext"> {{ settings.time_zone }} </span>  
                 </div>
             </div>
             <div class="course-content-input right-column-file-wrapper padding-top-2 padding-bottom-1">
@@ -71,7 +71,7 @@
         <div class="popup-footer">
             <div class="spacer"></div>
             <div class="popup-btns">
-                <button onclick="closePopup('editLessonActivity'), resetEditLessonLoading()" class="popup-btn close-popup-btn">Back</button>
+                <button type="button" onclick="closePopup('editLessonActivity'), resetEditLessonLoading()" class="popup-btn close-popup-btn">Back</button>
                 <button onclick="editLessonActivity()" id="confirmEditLessonActivity" class="popup-btn">Save Lesson</button>   
             </div>
         </div>

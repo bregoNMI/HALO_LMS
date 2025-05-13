@@ -40,7 +40,10 @@ def admin_courses(request):
     # Apply the general search query if provided
     if query_string:
         query &= (
-            Q(title__icontains=query_string)
+            Q(title__icontains=query_string)|
+            Q(type__icontains=query_string) |
+            Q(status__icontains=query_string) |
+            Q(category__icontains=query_string)
         )
         active_filters['query'] = query_string  # Track the general search query
 
@@ -54,7 +57,13 @@ def admin_courses(request):
     # Define a dictionary to map sort options to user-friendly text
     sort_options = {
         'title_asc': 'Title (A-Z)',
-        'title_desc': 'Title (Z-A)',      
+        'title_desc': 'Title (Z-A)', 
+        'type_asc': 'Type (A-Z)',
+        'type_desc': 'Type (Z-A)',
+        'status_asc': 'Status (A-Z)',
+        'status_desc': 'Status (Z-A)',
+        'category_asc': 'Category (A-Z)',
+        'category_desc': 'Category (Z-A)',     
     }
 
     # Determine the order by field
@@ -62,6 +71,18 @@ def admin_courses(request):
         order_by_field = 'title'
     elif sort_by == 'title_desc':
         order_by_field = '-title'
+    elif sort_by == 'type_asc':
+        order_by_field = 'type'
+    elif sort_by == 'type_desc':
+        order_by_field = '-type'
+    elif sort_by == 'status_asc':
+        order_by_field = 'status'
+    elif sort_by == 'status_desc':
+        order_by_field = '-status'
+    elif sort_by == 'category_asc':
+        order_by_field = 'category'
+    elif sort_by == 'category_desc':
+        order_by_field = '-category'
 
     # Add the sort option to the active filters only if it is present in the request
     if 'sort_by' in request.GET and sort_by:
@@ -243,6 +264,7 @@ def create_or_update_course(request):
                 lesson_id = lesson_data.get('id')
                 lesson = get_object_or_404(Lesson, id=lesson_id) if lesson_id else Lesson(module=module)
                 lesson.title = lesson_data.get('title', '')
+                lesson.description = lesson_data.get('description', '')
                 lesson.order = lesson_data.get('order', 0)
                 lesson.content_type = lesson_data.get('content_type', '')
 
@@ -253,6 +275,7 @@ def create_or_update_course(request):
                     'id': lesson.id,
                     'temp_id': lesson_data.get('temp_id'),
                     'title': lesson.title,
+                    'description': lesson.description,
                 }
 
                 module_response[-1]['lessons'].append(lesson_response)
@@ -387,6 +410,7 @@ def create_or_update_course(request):
                         'id': reference.id,
                         'temp_id': reference_data.get('temp_id'),
                         'title': reference.title,
+                        'description': reference.description,
                     })
                     print(f"New resource created: {title}")
 
@@ -801,19 +825,73 @@ def get_categories(request):
     
 @require_POST
 def create_category(request):
-    category_name = request.POST.get('name', '').strip()
+    name = request.POST.get('name', '').strip()
+    description = request.POST.get('description', '').strip()
+    parent_id = request.POST.get('parent_category')
+    is_create_page = request.POST.get('isCreatePage')
 
-    if category_name:
-        # Create a new category
-        category = Category.objects.create(name=category_name)
-        
-        # Return the created category data
-        return JsonResponse({
-            'id': category.id,
-            'name': category.name,
-        }, status=201)  # HTTP 201 Created
+    if not name:
+        return JsonResponse({'error': 'Category name is required.'}, status=400)
 
-    return JsonResponse({'error': 'Category name is required.'}, status=400)
+    parent_category = None
+    if parent_id:
+        try:
+            parent_category = Category.objects.get(id=parent_id)
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Invalid parent category.'}, status=400)
+
+    category = Category.objects.create(
+        name=name,
+        description=description,
+        parent_category=parent_category
+    )
+
+    if is_create_page == 'true':
+        messages.success(request, 'Category created successfully!')
+
+    return JsonResponse({
+        'id': category.id,
+        'name': category.name,
+        'is_create_page': is_create_page,
+    }, status=201)
+
+@require_POST
+def edit_category(request):
+    id = request.POST.get('id')
+    name = request.POST.get('name', '').strip()
+    description = request.POST.get('description', '').strip()
+    parent_id = request.POST.get('parent_category')
+    is_create_page = request.POST.get('isCreatePage')
+
+    if not name:
+        return JsonResponse({'error': 'Category name is required.'}, status=400)
+
+    parent_category = None
+    if parent_id:
+        try:
+            parent_category = Category.objects.get(id=parent_id)
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Invalid parent category.'}, status=400)
+
+    try:
+        category = Category.objects.get(id=id)
+    except Category.DoesNotExist:
+        return JsonResponse({'error': 'Category not found.'}, status=404)
+
+    category.name = name
+    category.description = description
+    category.parent_category = parent_category
+    category.save()
+
+    if is_create_page == 'true':
+        messages.success(request, 'Category edited successfully!')
+
+    return JsonResponse({
+        'id': category.id,
+        'name': category.name,
+        'is_create_page': is_create_page,
+    }, status=201)
+
 '''
 def upload_lesson_file(request):
     if request.method == 'POST':
@@ -1018,3 +1096,86 @@ def delete_object_ajax(request):
         return JsonResponse({"error": f"{object_type} with ID {object_id} does not exist."}, status=404)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+# Categories
+@login_required
+def admin_categories(request):
+    sort_by = request.GET.get('sort_by', 'name_desc')
+    order_by_field = 'name'  # Default sorting field
+    query_string = request.GET.get('query')
+
+    query = Q()
+    active_filters = {}
+
+    # Apply the general search query if provided
+    if query_string:
+        query &= (
+            Q(name__icontains=query_string) |
+            Q(parent_category__name__icontains=query_string)
+        )
+        active_filters['query'] = query_string
+
+    # Build the query dynamically based on the provided filter parameters
+    for key, value in request.GET.items():
+        if key.startswith('filter_') and value:
+            field_name = key[len('filter_'):]  # Extract field name after 'filter_'
+            query &= Q(**{f"{field_name}__icontains": value})
+            active_filters[field_name] = value
+
+    # Define a dictionary to map sort options to user-friendly text
+    sort_options = {
+        'name_asc': 'Name (A-Z)',
+        'name_desc': 'Name (Z-A)',
+        'parent_category__name_asc': 'Parent Name (A-Z)',
+        'parent_category__name_desc': 'Parent Name (Z-A)',      
+    }
+
+    # Determine the order by field
+    if sort_by == 'name_asc':
+        order_by_field = 'name'
+    elif sort_by == 'name_desc':
+        order_by_field = '-name'
+    elif sort_by == 'parent_category__name_asc':
+        order_by_field = 'parent_category__name'
+    elif sort_by == 'parent_category__name_desc':
+        order_by_field = '-parent_category__name'
+
+
+    # Add the sort option to the active filters only if it is present in the request
+    if 'sort_by' in request.GET and sort_by:
+        active_filters['sort_by'] = sort_options.get(sort_by, 'Name (Z-A)')
+
+    # Apply the filtering and sorting to the users list
+    courses_list = Category.objects.filter(query).order_by(order_by_field)
+
+    # Paginate the filtered users_list
+    paginator = Paginator(courses_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Render the results with the active filters
+    return render(request, 'categories/categories.html', {
+        'page_obj': page_obj,
+        'active_filters': active_filters,
+        'sort_by': sort_by,
+    })
+
+@login_required
+def add_categories(request):
+    category = Category.objects.all()
+
+    context = {
+        'category_list': category,
+    }
+
+    return render(request, 'categories/add_category.html', context)
+
+@login_required
+def edit_categories(request, category_id):
+    category = get_object_or_404(Category, pk=category_id)
+
+    context = {
+        'category': category,
+    }
+
+    return render(request, 'categories/edit_category.html', context)

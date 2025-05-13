@@ -2,13 +2,7 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="alert-container" style="display: none;">   
-        <div id="validation-message-inner">
-            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
-            <span id="validation-message"></span>
-        </div>
-    </div>
+    {% include 'messageContainer/message_container.html' %}
     {% if messages %}
         <div class="alert-container">
             {% for message in messages %}
@@ -53,6 +47,7 @@
                 </script>                
                 
                 <a href="/admin/users/add/" class="action-button-primary">
+                    <i class="fa-regular fa-plus"></i>
                     <span>Add user</span>
                 </a>
             </div>
@@ -244,7 +239,7 @@
             {% else %}
                 <div class="no-results-found">
                     <img src="{% static 'client_admin\Images\HALO LMS No Graphic Test-30.png' %}" alt="HALO Graphic">    
-                    <span><b>No Users Found</b></span>          
+                    <span>No Users Found</span>          
                 </div>
             {% endif %}
             <div class="pagination-row-wrapper">

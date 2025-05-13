@@ -2,8 +2,7 @@
 {% load static %}
 {% block content %}
 <div class="admin-body align-center scrollable-content">
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="new-validation-message-container" style="display: none;"></div>
+    {% include 'messageContainer/message_container.html' %}
     <div class="custom-dashboard-body max-width-extend-1">
         <div class="details-top-row">
             <div class="details-top-row-left">
@@ -281,7 +280,6 @@
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
 <script src="{% static 'custom_dashboard/javascript/editDashboard.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-<script src="{% static 'client_admin\javascript\message_container.js' %}"></script>
 <script> const checkBannerPositionItems = '{{ dashboard.header_background_image_position }}';</script>
 <style>
     .admin-header-container, .admin-sidebar-container {

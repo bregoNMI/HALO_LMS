@@ -19,6 +19,22 @@
             {% endfor %}
         </div>
     {% endif %}
+    <div id="stickyNavBar">
+        <div class="details-top-row max-width-0">
+            <div class="details-top-row-left">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3> Add New User </h3>
+            </div>
+            <div class="details-top-row-right">
+                <button type="submit" class="action-button-primary submit-form-button scale-button">
+                    <i class="fa-regular fa-paper-plane"></i>
+                    <span>Create User</span>
+                </button>
+            </div>
+        </div>
+    </div>
     <div class="admin-body align-center">
         <div class="max-width-0">
             <form id="addUserForm" method="post" action="{% url 'add_user'%}" enctype="multipart/form-data">
@@ -52,12 +68,12 @@
                             <div class="learner-card-wrapper">                          
                                 <div class="edit-user-row">
                                     <div class="edit-user-input">
-                                        <label class="edit-user-label" for="username">Username</label>
-                                        <input type="text" id="username" name="username" placeholder="Username (Required)" autocomplete="off" required>
+                                        <label class="edit-user-label" for="username">Username<span class="required-asterisk">*</span></label>
+                                        <input type="text" id="username" name="username" placeholder="Username" autocomplete="off" required>
                                     </div>
                                     <div class="edit-user-input">
-                                        <label class="edit-user-label" for="password">Password</label>
-                                        <input type="password" id="password" name="password" placeholder="Password (Required)" autocomplete="new-password" required>
+                                        <label class="edit-user-label" for="password">Password<span class="required-asterisk">*</span></label>
+                                        <input type="password" id="password" name="password" placeholder="Password" autocomplete="new-password" required>
                                     </div>
                                 </div>
                             </div>                 
@@ -120,23 +136,23 @@
                             <div class="learner-card-wrapper">
                                 <div class="edit-user-row">
                                     <div class="edit-user-input">
-                                        <label class="edit-user-label" for="first_name">First Name</label>
-                                        <input type="text" id="first_name" name="first_name" placeholder="First Name (Required)" required>
+                                        <label class="edit-user-label" for="first_name">First Name<span class="required-asterisk">*</span></label>
+                                        <input type="text" id="first_name" name="first_name" placeholder="First Name" required>
                                     </div>
                                     <div class="edit-user-input">
-                                        <label class="edit-user-label" for="last_name">Last Name</label>
-                                        <input type="text" id="last_name" name="last_name" placeholder="Last Name (Required)" required>
+                                        <label class="edit-user-label" for="last_name">Last Name<span class="required-asterisk">*</span></label>
+                                        <input type="text" id="last_name" name="last_name" placeholder="Last Name" required>
                                     </div>
                                 </div>
                                 <div class="edit-user-row">
                                     <div class="edit-user-input">
-                                        <label class="edit-user-label" for="associate_school">Associate School</label>
-                                        <input type="text" id="associate_school" name="associate_school" placeholder="Associate School">
+                                        <label class="edit-user-label" for="email">Email<span class="required-asterisk">*</span></label>
+                                        <input type="email" id="email" name="email" placeholder="Email" required>
                                     </div>
                                     <div class="edit-user-input">
-                                        <label class="edit-user-label" for="email">Email</label>
-                                        <input type="email" id="email" name="email" placeholder="Email (Required)" required>
-                                    </div>
+                                        <label class="edit-user-label" for="associate_school">Associate School</label>
+                                        <input type="text" id="associate_school" name="associate_school" placeholder="Associate School">
+                                    </div>                                    
                                 </div>
                                 <div class="edit-user-row">
                                     <div class="edit-user-input">
@@ -236,10 +252,12 @@
                                 <div class="edit-user-row">
                                     <div class="edit-user-input">
                                         <label class="edit-user-label" for="birth_date">Date of Birth</label>
-                                        <input type="text" id="birth_date" name="birth_date" class="date-picker" placeholder="Date of Birth">
-                                        <span class="input-group-addon">
-                                            <i class="fa-regular fa-calendar-lines"></i>
-                                        </span>
+                                        <div class="edit-user-input">
+                                            <input type="text" id="birth_date" name="birth_date" class="date-picker" placeholder="Date of Birth">
+                                            <span class="input-group-addon">
+                                                <i class="fa-regular fa-calendar-lines"></i>
+                                            </span>
+                                        </div>
                                     </div>
                                     <div class="edit-user-input">
                                         <label class="edit-user-label" for="sex">Gender</label>
@@ -286,10 +304,8 @@
             allowInput: true       // Allow manual input
         });
     </script>
-    {% include 'optionsSidebar/user_options_sidebar.html' %}
-    {% include 'popups/filters_popup.html' %}
     <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
-    <script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
     <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
     <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
 {% endblock content %}

@@ -128,7 +128,7 @@ function selectFile(popupId, referenceId = null) {
                 loginBackgroundPreview.removeAttribute('hidden', true);
                 closePopup('fileLibrary');
             } else {
-                displayMessage('Please Select an Image for your Logo', false);
+                displayMessage('Please Select an Image for your Background Image', false);
             }
         }else if(popupId === 'formBackground'){
             // Login form background Image
@@ -144,7 +144,7 @@ function selectFile(popupId, referenceId = null) {
                 document.getElementById('formBackgroundPreviewDelete').style.display = 'flex';
                 closePopup('fileLibrary');
             } else {
-                displayMessage('Please Select an Image for your Logo', false);
+                displayMessage('Please Select an Image for your Background Image', false);
             }
         } else if (popupId === 'referenceSource' && referenceId !== null) {
             const referenceURLInput = document.querySelector(`#referenceURLInput-${referenceId}`);

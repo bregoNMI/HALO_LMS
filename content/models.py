@@ -8,14 +8,16 @@ from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django.contrib.contenttypes.fields import GenericRelation
-
 from halo_lms import settings
 
 class Category(models.Model):
+    parent_category = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='subcategories')
     name = models.CharField(max_length=200, blank=True)
+    description = models.TextField(blank=True, max_length=2000)
 
     def __str__(self):
         return self.name
+
     
 # The lesson files that originally get uploaded
 class UploadedFile(models.Model):
@@ -209,15 +211,15 @@ class Course(models.Model, EventDateMixin):
 
     scorm_id = models.CharField(max_length=255, null=True, blank=True)
     title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, max_length=5000)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     type = models.CharField(max_length=20, choices=COURSE_TYPES, default='bundle')
     status = models.CharField(max_length=20, choices=STATUS_TYPES, default='Inactive')
     thumbnail = models.ForeignKey('Media', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_thumbnail')
     credential = models.ForeignKey('Credential', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_credential')
-    upload_instructions = models.TextField(blank=True)
+    upload_instructions = models.TextField(blank=True, max_length=5000)
     locked = models.BooleanField(default=False)
     estimated_completion_time = models.DurationField(null=True, blank=True, help_text="Estimated time to complete the course (e.g., 3 hours)")
     terms_and_conditions = models.BooleanField(default=False)
@@ -326,7 +328,7 @@ class Resources(models.Model):
     url = models.URLField(max_length=500, blank=True)
     file_type = models.CharField(max_length=200, blank=True, null=True)
     file_title = models.CharField(max_length=200, blank=True, null=True)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, max_length=2000)
     order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
@@ -344,6 +346,7 @@ class Upload(models.Model):
     approval_type = models.CharField(max_length=30, choices=APPROVAL_CHOICES, default=None, null=True, blank=True)
     approvers = models.ManyToManyField(User, blank=True)  # Users who approve the upload, relevant when 'other' is selected
     title = models.CharField(max_length=255, default='title')
+    description = models.TextField(blank=True, max_length=2000)
 
     def __str__(self):
         return self.title
@@ -365,6 +368,7 @@ class Module(models.Model):
 class Lesson(models.Model):
     module = models.ForeignKey(Module, related_name='lessons', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, max_length=2000)
     order = models.PositiveIntegerField()
     content_type = models.CharField(max_length=200, default='file')
     file = models.ForeignKey(File, on_delete=models.CASCADE, null=True, blank=True)

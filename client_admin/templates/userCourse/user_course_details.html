@@ -2,7 +2,7 @@
 {% load custom_filters %}
 {% load static %}
 {% block content %}
-    <div id="stickyNavBar" style="display: none;">
+    <div id="stickyNavBar">
         <div class="details-top-row max-width-0">
             <div class="details-top-row-left">
                 <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
@@ -49,8 +49,7 @@
                 {% endfor %}
             </div>
         {% endif %}
-        <!-- Message Wrapper -->
-        <div id="validation-message-container" class="new-validation-message-container" style="display: none;"></div>
+        {% include 'messageContainer/message_container.html' %}
         <div class="max-width-0">
             <div id="mainNavBar" class="details-top-row">
                 <div class="details-top-row-left">
@@ -141,7 +140,7 @@
                                                         </span>
                                                     </div>                                                
                                                 </div> 
-                                                <span class="course-content-input-subtext"> (UTC-05:00) Eastern Time (US & Canada)</span>  
+                                                <span class="course-content-input-subtext"> {{ settings.time_zone }} </span>  
                                             </div>
                                         </div> 
                                     </div>
@@ -342,9 +341,6 @@
     <script src="{% static 'client_admin\javascript\user_course_details.js' %}"></script>
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-circle-progress/dist/circle-progress.min.js" type="module"></script>
-    <script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
-    <script src="{% static 'client_admin\javascript\message_container.js' %}"></script>
-    <script src="{% static 'client_admin\javascript\sticky_nav.js' %}"></script>
     <script type="text/javascript">
         var userId = "{{ profile.user.id }}";
     </script>

@@ -5,8 +5,7 @@
 {% include 'learner_sidebar.html' %}
 {% include 'popups/change_password.html' %}
 <div class="learner-body align-center scrollable-content">
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="new-validation-message-container" style="display: none;"></div>
+    {% include 'messageContainer/message_container.html' %}
     {% if messages %}
         <div class="alert-container">
             {% for message in messages %}

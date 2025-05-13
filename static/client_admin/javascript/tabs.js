@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Toggle 'active' class on the clicked element
             header.classList.toggle('active');
 
+            console.log('over here');
+
             // Find the nearest .info-card-body and toggle its visibility
             const cardBody = header.closest('.details-info-card').querySelector('.info-card-body');
             if (cardBody) {

@@ -20,50 +20,6 @@ document.addEventListener("DOMContentLoaded", function() {
     handleFileUploadErrorRemoval();
 });
 
-// Declare quillEditors as a global variable to store all Quill instances
-let quillEditors = [];
-
-function initializeQuill() {
-    var icons = Quill.import('ui/icons');
-    icons['bold'] = '<i class="fa-solid fa-bold"></i>';
-    icons['italic'] = '<i class="fa-solid fa-italic"></i>';
-    icons['underline'] = '<i class="fa-solid fa-underline"></i>';
-    icons['link'] = '<i class="fa-solid fa-link"></i>';
-    icons['image'] = '<i class="fa-regular fa-image"></i>';
-
-    // Select all elements with a specific class that should have a Quill editor
-    const editors = document.querySelectorAll('.editor-container');
-
-    // Iterate over each editor container
-    editors.forEach(function(editor) {
-        // Check if the editor container has already been initialized
-        if (!editor.classList.contains('quill-initialized')) {
-            // Initialize a new Quill editor for this container
-            const quill = new Quill(editor, {
-                theme: 'snow',
-                modules: {
-                    toolbar: {
-                        container: [
-                            [{ 'header': [1, 2, 3, false] }],
-                            ['bold', 'italic', 'underline'],
-                            ['link', 'image']
-                        ],
-                        handlers: {
-                            // Add custom handlers here
-                        }
-                    }
-                }
-            });
-
-            // Mark this container as initialized
-            editor.classList.add('quill-initialized');
-
-            // Push the instance to the quillEditors array
-            quillEditors.push(quill);
-        }
-    });
-}
-
 function getEditorContent(editorId) {
     const editorElement = document.getElementById(editorId);
 
@@ -311,7 +267,7 @@ function createNewModule() {
     <div class="module-card" data-temp-id='${tempModuleId}'>
         <div class="info-card-header collapsable-header">
             <div class="card-header-left">
-                <i class="fa-light fa-grip-dots-vertical module-drag-icon"></i>
+                <i class="fa-thin fa-grip-dots-vertical module-drag-icon"></i>
                 <input class="module-title" type="text" placeholder="New Module">
             </div>
             <div class="module-header-right">
@@ -368,7 +324,7 @@ function createNewReference() {
     <div class="reference-card" id="referenceCard-${newReferenceId}" data-temp-id="${newReferenceId}">
         <div class="info-card-header collapsable-header">
             <div class="card-header-left">
-                <i class="fa-light fa-grip-dots-vertical reference-drag-icon"></i>
+                <i class="fa-thin fa-grip-dots-vertical reference-drag-icon"></i>
                 <input class="reference-title" type="text" placeholder="New Reference">
             </div>
             <div class="reference-header-right">
@@ -383,7 +339,7 @@ function createNewReference() {
         </div>
         <div class="reference-card-body">
             <div class="right-column-file-wrapper">
-                <h5 class="right-column-option-header">Reference Source <span class="file-required-text">(Required)</span></h5>
+                <h5 class="right-column-option-header">Reference Source <span class="required-asterisk">*</span></h5>
                 <div onclick="openFileLibrary('referenceSource', '${newReferenceId}')" class="custom-file-upload-container">
                     <div class="custom-file-upload">
                         <input type="file" id="referenceSource-${newReferenceId}" name="referenceSource" style="display: none;" readonly="">
@@ -399,6 +355,11 @@ function createNewReference() {
             <div class="reference-card-content">
                 <label class="edit-user-label" for="referenceDescription-${newReferenceId}">Reference Description</label>
                 <div class="editor-container" id="referenceDescription-${newReferenceId}"></div>
+                <div class="quill-character-counter">
+                    <div class="quill-current-counter">0</div>
+                    <span>/</span>
+                    <div class="quill-max-counter">2000</div>
+                </div>
             </div>
         </div>
     </div>`;
@@ -410,6 +371,8 @@ function createNewReference() {
     assignReferenceHeaderListeners(); // Event listeners for collapsable and delete buttons
     testReferenceCount(); // Update reference count or perform any validation logic
     initializeQuill(`#referenceDescription-${newReferenceId}`); // Initialize Quill for the new description field
+    detectCharacterCounters();
+    initializeClearImageFields();
 }
 
 function createNewUpload(){
@@ -417,7 +380,7 @@ function createNewUpload(){
     const uploadCards = uploadContainer.querySelectorAll('.upload-card');
 
     function idExists(id) {
-        return document.getElementById(`referenceCard-${id}`) !== null;
+        return document.getElementById(`uploadCard-${id}`) !== null;
     }
 
     let newUploadId = uploadCards.length + 1;
@@ -426,10 +389,10 @@ function createNewUpload(){
     }
 
     const newUploadCard = `
-    <div class="upload-card" id="referenceCard-${newUploadId}" data-temp-id="${newUploadId}">
+    <div class="upload-card" id="uploadCard-${newUploadId}" data-temp-id="${newUploadId}">
         <div class="info-card-header collapsable-header">
             <div class="card-header-left">
-                <i class="fa-light fa-grip-dots-vertical upload-drag-icon"></i>
+                <i class="fa-thin fa-grip-dots-vertical upload-drag-icon"></i>
                 <input class="upload-title" type="text" placeholder="New Upload">
             </div>
             <div class="upload-header-right">
@@ -835,7 +798,7 @@ function createAndAppendLessonCard(index, title, description, fileURL, fileName,
         <input class="lesson-description" type="hidden" value='${description}'>
 
         <div class="lesson-header-left">
-            <i class="fa-light fa-grip-dots-vertical lesson-drag-icon"></i>
+            <i class="fa-thin fa-grip-dots-vertical lesson-drag-icon"></i>
             <span class="lesson-title"> Lesson ${index}: ${title}</span>
         </div>
         <div class="lesson-header-right">
@@ -1287,7 +1250,7 @@ function generateCourseData(isSave) {
         id: document.getElementById('courseId') ? document.getElementById('courseId').value : null, // Check for the course ID,
         title: document.getElementById('title').value,
         description: getEditorContent('courseDescription'),
-        category_id: document.getElementById('category').getAttribute('data-category-id'), // Adjust as needed
+        category_id: document.getElementById('category').getAttribute('data-id'), // Adjust as needed
         type: 'online', // Adjust as needed
         status: document.getElementById('status').value,
         estimated_completion_time: `${hours}h ${minutes}m`,
@@ -1345,6 +1308,8 @@ function generateCourseData(isSave) {
             const realId = referenceCard.getAttribute('data-id') || null;
             const tempId = referenceCard.getAttribute('data-temp-id') || null;
 
+            console.log('realId', realId, 'tempId', tempId);
+
             // Check if the URL input exists before proceeding
             if (referenceURLInput) {
                 const referenceData = {
@@ -1381,13 +1346,17 @@ function generateCourseData(isSave) {
         uploadCards.forEach((uploadCard, index) => {
             const uploadId = uploadCard.getAttribute('data-id') || null;
             const tempId = uploadCard.getAttribute('data-temp-id') || null;
+
+            console.log('uploadId', uploadId, 'tempId', tempId);
+
+
             let approvalType;
             if(uploadId && !tempId){
                 approvalType = uploadCard.querySelector(`input[name="upload_approval${uploadId}"]:checked`).value;
             }else{
                 approvalType = uploadCard.querySelector(`input[name="upload_approval${tempId}"]:checked`).value;
             }
-            console.log(index);
+            
             const uploadData = {
                 id: uploadId,
                 temp_id: tempId,
@@ -1659,24 +1628,29 @@ function generateCourseData(isSave) {
     });
 }
 
-function setDisabledSaveBtns(){
+function setDisabledSaveBtns() {
     const courseSaveBtns = document.querySelectorAll('.course-save-btns');
     for (const btn of courseSaveBtns) {
+        setTimeout(() => {
+            btn.setAttribute('disabled', true);
+        }, 100);
         btn.classList.add('disabled');
-        btn.setAttribute('disabled', true);
 
         if (!btn.dataset.originalHtml) {
             btn.dataset.originalHtml = btn.innerHTML;
         }
 
         const savedWidth = btn.offsetWidth + "px";
+        const savedHeight = btn.offsetHeight + "px";
+
         btn.style.width = savedWidth;
+        btn.style.height = savedHeight;
 
         btn.innerHTML = `<i class="fa-light fa-loader fa-spin"></i>`;
     }
 }
 
-function removeDisabledSaveBtns(){
+function removeDisabledSaveBtns() {
     setTimeout(() => {
         const courseSaveBtns = document.querySelectorAll('.course-save-btns');
         for (const btn of courseSaveBtns) {
@@ -1689,10 +1663,10 @@ function removeDisabledSaveBtns(){
             }
 
             btn.style.width = "";
+            btn.style.height = "";
         }
     }, 400);
 }
-
 
 // Checking to Ensure that all the required fields and filled in
 function validateCourseData() {
@@ -2044,11 +2018,14 @@ function initializeToggleOptions(){
                         toggleOptionDetails.classList.remove('show-toggle-option-details');
                     }
                 }
+
                 // Hiding and showing Edit Instructions Button for Course Uploads
-                if(toggleOption.id === 'courseUploads' && toggleOption.checked){
-                    document.getElementById('editUploadInstructionBtn').style.display = 'flex';
-                }else{
-                    document.getElementById('editUploadInstructionBtn').style.display = 'none';
+                if(toggleOption.id === 'courseUploads'){
+                    if(toggleOption.checked){
+                        document.getElementById('editUploadInstructionBtn').style.display = 'flex';
+                    }else{
+                        document.getElementById('editUploadInstructionBtn').style.display = 'none';
+                    }
                 }
             }
         });
@@ -2219,442 +2196,18 @@ function initializeThumbnailPreview(){
     }
 }
 
-
-function initializeUserDropdown(containerId, selectedUserIds = []) {
-    const container = document.getElementById(containerId);
-    const userSearchInput = container.querySelector('.userSearch');
-    const userList = container.querySelector('.userList');
-    const loadingIndicator = container.querySelector('.loadingIndicator');
-    const selectedUsersList = container.querySelector('.selectedUsers');
-
-    let page = 1;
-    let isLoading = false;
-    let hasMoreUsers = true;
-
-    // Function to fetch users from the backend
-    function fetchUsers(searchTerm = '', resetList = false) {
-        if (isLoading || !hasMoreUsers) return;
-    
-        isLoading = true;
-        loadingIndicator.style.display = 'block';
-    
-        fetch(`/requests/get-users/?page=${page}&search=${searchTerm}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (resetList || selectedUserIds) {
-                    userList.innerHTML = '';
-                    page = 1;
-                }
-    
-                // Append users to the dropdown list
-                data.users.forEach(user => {
-                    const userItem = document.createElement('div');
-                    userItem.classList.add('dropdown-item');
-                    userItem.innerHTML = `
-                        <div class="dropdown-item-inner">
-                            <h5>${user.first_name} ${user.last_name}</h5><span>${user.username} (${user.email})</span>
-                        </div>
-                    `;
-                    userItem.dataset.userId = user.id;
-    
-                    // Create the checkbox with the proper structure
-                    const checkboxWrapper = document.createElement('div');
-                    checkboxWrapper.innerHTML = `
-                        <label class="container">
-                            <input value="${user.id}" class="user-checkbox" type="checkbox">
-                            <div class="checkmark"></div>
-                        </label>
-                    `;
-    
-                    userItem.prepend(checkboxWrapper);
-                    userList.appendChild(userItem);
-    
-                    const checkbox = checkboxWrapper.querySelector('.user-checkbox');
-                    // Pre-select users who are already approvers (based on selectedUserIds)
-                    if (selectedUserIds.includes(user.id)) {
-                        userItem.classList.add('selected');
-                        checkbox.checked = true;
-                        appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
-                    }
-    
-                    // Check if the user is already selected and mark the checkbox
-                    if (selectedUsersList.querySelector(`[data-user-id="${user.id}"]`)) {
-                        userItem.classList.add('selected');
-                        checkbox.checked = true; // Ensure the checkbox is checked
-                    }
-    
-                    // Click event for the entire item
-                    userItem.addEventListener('click', function (event) {
-                        if (checkbox.checked) {
-                            removeSelectedUser(user.id);
-                            checkbox.checked = false;
-                            userItem.classList.remove('selected');
-                        } else {
-                            appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
-                            checkbox.checked = true;
-                            userItem.classList.add('selected');
-                        }
-                    });
-    
-                    // Ensure checkbox triggers parent item click
-                    checkbox.addEventListener('click', function (event) {
-                        event.stopPropagation();  // Prevent checkbox click from triggering twice
-                        userItem.click();  // Trigger the parent item click
-                    });
-                });
-    
-                if (data.users.length === 0 && resetList) {
-                    userList.innerHTML = '<div class="no-results">No results found</div>';
-                }
-    
-                hasMoreUsers = data.has_more;
-                isLoading = false;
-                loadingIndicator.style.display = 'none';
-                page += 1;
-            })
-            .catch(error => {
-                console.error('Error fetching users:', error);
-                isLoading = false;
-                loadingIndicator.style.display = 'none';
-            });
-    }
-
-    // Function to append selected user to the list
-    function appendSelectedUser(username, email, userId, first_name, last_name) {
-        const userItem = document.createElement('div');
-        userItem.classList.add('selected-user');
-        userItem.dataset.userId = userId;
-        if(first_name){
-            userItem.innerHTML = `<span class="selected-user-details">${first_name} ${last_name}</span>`;
-        }else{
-            userItem.innerHTML = `<span class="selected-user-details">${username} (${email})</span>`;
-        }
-
-        const removeButton = document.createElement('div');
-        removeButton.classList.add('remove-user');
-        removeButton.innerHTML = `
-        <div class="upload-delete tooltip" data-tooltip="Remove User">
-            <span class="tooltiptext">Remove User</span>
-            <i class="fa-regular fa-trash"></i>
-        </div>
-        `;
-        removeButton.addEventListener('click', function () {
-            removeSelectedUser(userId);
-        });
-
-        userItem.appendChild(removeButton);
-        selectedUsersList.appendChild(userItem);
-    }
-
-    // Function to remove selected user from the list
-    function removeSelectedUser(userId) {
-        const userItem = selectedUsersList.querySelector(`[data-user-id="${userId}"]`);
-        if (userItem) {
-            userItem.remove();
-        }
-
-        // Uncheck the corresponding item in the dropdown
-        const dropdownItem = userList.querySelector(`[data-user-id="${userId}"]`);
-        if (dropdownItem) {
-            dropdownItem.classList.remove('selected');
-            dropdownItem.querySelector('.user-checkbox').checked = false;
-        }
-    }
-
-    // Event listener for scrolling in the dropdown list (infinite scroll)
-    userList.addEventListener('scroll', function () {
-        if (userList.scrollTop + userList.clientHeight >= userList.scrollHeight) {
-            fetchUsers(userSearchInput.value);
-        }
-    });
-
-    // Event listener for the search input
-    userSearchInput.addEventListener('input', function () {
-        page = 1;
-        hasMoreUsers = true;
-        fetchUsers(userSearchInput.value, true);
-    });
-
-    // Event listener to display the dropdown list when focusing the search input
-    userSearchInput.addEventListener('focus', function () {
-        userSearchInput.style.borderRadius = '8px 8px 0 0';
-        userList.style.display = 'block';
-        userSearchInput.style.border = '2px solid #c7c7db';
-    });
-
-    // Hide the dropdown list when clicking outside
-    document.addEventListener('click', function (event) {
-        if (!container.contains(event.target)) {
-            userList.style.display = 'none';
-            userSearchInput.style.borderRadius = '8px';
-            userSearchInput.style.border = '1px solid #ececf1';
-        }
-    });
-
-    // Initial load
-    fetchUsers();
-}
-
-// Initialize dropdown for all user containers on the page
-document.querySelectorAll('.user-dropdown').forEach(dropdown => {
-    initializeUserDropdown(dropdown.id);
-});
-
-// Initialize dropdown for all category containers on the page
-document.querySelectorAll('.category-dropdown').forEach(dropdown => {
-    initializeCategoryDropdown(dropdown.id);
-});
-
-// Category Dropdown Search
-function initializeCategoryDropdown(containerId) {
-    const container = document.getElementById(containerId);
-    const categorySearchInput = container.querySelector('.categorySearch');
-    const categoryList = container.querySelector('.categoryList');
-    const loadingIndicator = container.querySelector('.loadingIndicator');
-    const selectedCategories = container.querySelector('.selectedCategories');
-    const noResults = container.querySelector('.no-results');
-
-    let page = 1;
-    let isLoading = false;
-    let hasMoreCategories = true;
-    if(noResults){noResults.style.display = 'none';}
-
-    // Function to fetch categories from the backend
-    function fetchCategories(searchTerm = '', resetList = false) {
-        if (isLoading || !hasMoreCategories) return;
-
-        isLoading = true;
-        if(loadingIndicator){loadingIndicator.style.display = 'block';}
-
-        fetch(`/requests/get-categories/?page=${page}&search=${searchTerm}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (resetList) {
-                categoryList.innerHTML = '';
-                page = 1;
-            }
-
-            // Append categories to the dropdown list
-            if(data.categories.length == 0){
-                categoryList.innerHTML = '<div class="no-results">No categories created</div>';
-                console.log('no categories');
-            }
-            data.categories.forEach(category => {
-                const categoryItem = document.createElement('div');
-                categoryItem.classList.add('dropdown-item');
-                categoryItem.innerHTML = `
-                    <div class="dropdown-item-inner">
-                        <h5>${category.name}</h5>
-                    </div>
-                `;
-                categoryItem.dataset.categoryId = category.id;
-
-                // Create the checkbox with the proper structure
-                const checkboxWrapper = document.createElement('div');
-                checkboxWrapper.innerHTML = `
-                    <label class="container">
-                        <input value="${category.id}" class="category-checkbox" type="checkbox">
-                        <div class="checkmark"></div>
-                    </label>
-                `;
-
-                categoryItem.prepend(checkboxWrapper);
-                categoryList.appendChild(categoryItem);
-
-                const checkbox = checkboxWrapper.querySelector('.category-checkbox');
-
-                // Click event for the entire item
-                categoryItem.addEventListener('click', function (event) {
-                    // Uncheck all other checkboxes and remove previously selected category
-                    const allCheckboxes = categoryList.querySelectorAll('.category-checkbox');
-                    allCheckboxes.forEach(cb => {
-                        if (cb !== checkbox) {
-                            cb.checked = false;
-                            cb.closest('.dropdown-item').classList.remove('selected');
-                        }
-                    });
-
-                    // Set the current checkbox state
-                    if (!checkbox.checked) {
-                        appendSelectedCategory(category.name, category.id);
-                        checkbox.checked = true;
-                        categoryItem.classList.add('selected');
-                    } else {
-                        removeSelectedCategory(category.id);
-                        checkbox.checked = false;
-                        categoryItem.classList.remove('selected');
-                    }
-                });
-
-                // Ensure checkbox triggers parent item click
-                checkbox.addEventListener('click', function (event) {
-                    event.stopPropagation();  // Prevent checkbox click from triggering twice
-                    categoryItem.click();  // Trigger the parent item click
-                });
-
-                // Pre-select the category if the ID matches the one from the course
-                if(typeof course_category_id !== 'undefined' && course_category_id){
-                    if (category.id === course_category_id) {  // Use ID matching instead of name
-                        appendSelectedCategory(category.name, category.id);
-                        checkbox.checked = true;
-                        categoryItem.classList.add('selected');
-                    }
-                }        
-            });
-
-            if (data.categories.length === 0 && resetList) {
-                categoryList.innerHTML = '<div class="no-results">No results found</div>';
-            }
-
-            hasMoreCategories = data.has_more;
-            isLoading = false;
-            if(loadingIndicator){loadingIndicator.style.display = 'none';}
-            page += 1;
-        })
-        .catch(error => {
-            console.error('Error fetching categories:', error);
-            isLoading = false;
-            if(loadingIndicator){loadingIndicator.style.display = 'none';}
-        });
-    }
-
-    // Function to append selected category to the list and input field
-    function appendSelectedCategory(name, categoryId) {
-        // Update the input field with the selected category name
-        categorySearchInput.value = name;
-        categorySearchInput.setAttribute('data-category-id', categoryId);
-    }
-
-    // Function to remove selected category from the list
-    function removeSelectedCategory(categoryId) {
-        const categoryItem = selectedCategories.querySelector(`[data-category-id="${categoryId}"]`);
-        if (categoryItem) {
-            categoryItem.remove();
-        }
-        
-        // Clear the input field when no category is selected
-        categorySearchInput.value = '';
-
-        // Uncheck the corresponding item in the dropdown
-        const dropdownItem = categoryList.querySelector(`[data-category-id="${categoryId}"]`);
-        if (dropdownItem) {
-            dropdownItem.classList.remove('selected');
-            dropdownItem.querySelector('.category-checkbox').checked = false;
-        }
-    }
-
-    // Event listener for scrolling in the dropdown list (infinite scroll)
-    categoryList.addEventListener('scroll', function () {
-        if (categoryList.scrollTop + categoryList.clientHeight >= categoryList.scrollHeight) {
-            fetchCategories(categorySearchInput.value);
-        }
-    });
-
-    // Event listener for the search input
-    categorySearchInput.addEventListener('input', function () {
-        page = 1;
-        hasMoreCategories = true;
-        fetchCategories(categorySearchInput.value, true);
-    });
-
-    // Event listener to display the dropdown list when focusing the search input
-    categorySearchInput.addEventListener('focus', function () {
-        categorySearchInput.style.borderRadius = '8px 8px 0 0';
-        categoryList.style.display = 'block';
-        categorySearchInput.style.border = '2px solid #c7c7db';
-    });
-
-    // Hide the dropdown list when clicking outside
-    document.addEventListener('click', function (event) {
-        if (!container.contains(event.target)) {
-            categoryList.style.display = 'none';
-            categorySearchInput.style.borderRadius = '8px';
-            categorySearchInput.style.border = '1px solid #ececf1';
-        }
-    });
-
-    // Initial load
-    fetchCategories();
-}
-
-// Function to create a new category
-function createCategory(name) {
-    fetch('/requests/create-category/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': getCookie('csrftoken'),
-        },
-        body: new URLSearchParams({
-            'name': name,
-        }),
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        }
-        throw new Error('Error creating category');
-    })
-    .then(data => {
-        // Update the dropdown list with the new category
-        updateCategoryDropdown(data.id, data.name);
-        // Fully resetting the category dropdown to add the newly added category
-        const categoryList = document.querySelector('.categoryList');
-        const dropdownItems = categoryList.querySelectorAll('.dropdown-item');
-        // Remove each dropdown item
-        dropdownItems.forEach(item => {
-            categoryList.removeChild(item);
-        });
-
-        document.querySelectorAll('.category-dropdown').forEach(dropdown => {
-            initializeCategoryDropdown(dropdown.id);
-        });
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
-
-// Function to update the category dropdown list
-function updateCategoryDropdown(categoryId, categoryName) {
-    const categoryList = document.querySelector('.categoryList');  // Adjust if necessary
-
-    const categoryItem = document.createElement('div');
-    categoryItem.classList.add('dropdown-item');
-    categoryItem.innerHTML = `
-        <div class="dropdown-item-inner">
-            <h5>${categoryName}</h5>
-        </div>
-    `;
-    categoryItem.dataset.categoryId = categoryId;
-
-    const checkboxWrapper = document.createElement('div');
-    checkboxWrapper.innerHTML = `
-        <label class="container">
-            <input value="${categoryId}" class="category-checkbox" type="checkbox">
-            <div class="checkmark"></div>
-        </label>
-    `;
-
-    categoryItem.prepend(checkboxWrapper);
-    categoryList.appendChild(categoryItem);
-}
-
 document.getElementById('createCategoryButton').addEventListener('click', function() {
+    const parentCategory = document.getElementById('parentCategory').getAttribute('data-id');
+    console.log(parentCategory);
     const categoryName = document.getElementById('newCategoryName').value.trim();
+    const categoryDescription = getEditorContent('categoryDescription');
     if (categoryName) {
-        createCategory(categoryName);
+        createCategory(parentCategory, categoryName, categoryDescription, false);
+
         document.getElementById('newCategoryName').value = ''; // Clear input field
-        closePopup('createCategory');
+        document.getElementById('parentCategory').setAttribute('data-id', '');
+        document.getElementById('parentCategory').value = '';
+        closePopup('createCategory');       
 
         const createCategoryButton = document.getElementById('createCategoryButton');
         createCategoryButton.classList.add('disabled');
@@ -2665,7 +2218,7 @@ document.getElementById('createCategoryButton').addEventListener('click', functi
 });
 
 const deleteObject = async (type, id) => {
-    const url = '/requests/delete-course-object/';  // Replace with your actual URL
+    const url = '/requests/delete-course-object/';
     const data = {
         type: type,  // e.g., 'Course' or 'Certificate'
         id: id      // e.g., 123 (the ID of the object you want to delete)

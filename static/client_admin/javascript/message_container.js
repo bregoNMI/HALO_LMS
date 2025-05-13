@@ -1,15 +1,24 @@
-const validationMessageContainer = document.getElementById('validation-message-container');
+document.addEventListener('DOMContentLoaded', () => {
+    // Assign once, globally
+    window.validationMessageContainer = document.getElementById('validation-message-container');
+});
 
 function displayValidationMessage(message, isSuccess) {
-    console.log(validationMessageContainer);
-    validationMessageContainer.style.display = 'flex';
+    if (!window.validationMessageContainer) {
+        console.warn('Validation message container not found');
+        return;
+    }
+
+    const container = window.validationMessageContainer;
+    container.style.display = 'flex';
 
     const messageWrapper = document.createElement('div');
-    messageWrapper.className = isSuccess ? 'alert alert-success alert-container' : 'alert alert-error alert-container';
+    messageWrapper.className = isSuccess ? 'alert alert-success new-alert-container' : 'alert alert-error new-alert-container';
+
     setTimeout(() => {  
         messageWrapper.classList.add('animate-alert-container');
     }, 100);    
-    
+
     const icon = document.createElement('i');
     icon.className = isSuccess ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation';
 
@@ -18,17 +27,17 @@ function displayValidationMessage(message, isSuccess) {
 
     messageWrapper.appendChild(icon);
     messageWrapper.appendChild(text);
-
-    validationMessageContainer.appendChild(messageWrapper);
+    container.appendChild(messageWrapper);
 
     setTimeout(() => {
         messageWrapper.classList.remove('animate-alert-container');
-        
-        if (validationMessageContainer.children.length === 0) {
-            validationMessageContainer.style.display = 'none';
-        }
+
         setTimeout(() => {
             messageWrapper.remove();
+            // Hide the container only if empty
+            if (container.children.length === 0) {
+                container.style.display = 'none';
+            }
         }, 400);
     }, 10000);
 }

@@ -97,7 +97,7 @@ function setLessonCompletedTime() {
 }
 
 function updateCourseProgress(uuid) {
-    disableSaveBtn();
+    setDisabledSaveBtns();
     const completed_on_date = document.getElementById('completed_date').value;
     const completed_on_time = document.getElementById('completed_time').value;
     const expires_on_date = document.getElementById('expires_on_date').value;
@@ -165,18 +165,27 @@ function updateCourseProgress(uuid) {
     });
 }
 
-function disableSaveBtn() { 
-    const saveBtns = document.querySelectorAll('.course-save-btns');
-
-    for (let btn of saveBtns) {
+function setDisabledSaveBtns() {
+    const courseSaveBtns = document.querySelectorAll('.course-save-btns');
+    for (const btn of courseSaveBtns) {
         btn.classList.add('disabled');
-        btn.setAttribute('disabled', true);
+        setTimeout(() => {
+            btn.setAttribute('disabled', true);
+        }, 100);
+
+        if (!btn.dataset.originalHtml) {
+            btn.dataset.originalHtml = btn.innerHTML;
+        }
+
         const savedWidth = btn.offsetWidth + "px";
+        const savedHeight = btn.offsetHeight + "px";
+
         btn.style.width = savedWidth;
+        btn.style.height = savedHeight;
+
         btn.innerHTML = `<i class="fa-light fa-loader fa-spin"></i>`;
     }
 }
-
 
 function resetLessonActivity(){
     // Button to reset lesson activity

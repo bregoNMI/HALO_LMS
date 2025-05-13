@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     flatpickr(".date-picker", {
         altInput: true,
-        altFormat: "F j, Y",
+        altFormat: flatpickr_format,
         dateFormat: "Y-m-d",
     });
 
@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Adding X icon to remove value inside flatpickr fields
     const flatPickrInputs = document.querySelectorAll('.flatpickr-input, .time-picker');
 
     flatPickrInputs.forEach(input => {
@@ -66,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
             clearBtn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
             container.appendChild(clearBtn);
 
-            // Basic styling (or use your own CSS)
+            // Basic styling
             clearBtn.style.cursor = 'pointer';
             clearBtn.style.visibility = 'hidden';
             clearBtn.style.opacity = '0';
@@ -95,7 +96,60 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    initializeClearImageFields();
 });
+
+// Adding X icon to remove value inside flatpickr fields
+function initializeClearImageFields(){
+    const customImageFields = document.querySelectorAll('.custom-file-upload-container');
+
+    customImageFields.forEach(input => {
+        const container = input;
+        const hiddenInputValue = input.querySelector('input[type="hidden"]');
+        const trueInputValue = input.querySelector('input[type="file"]');
+        const imageFieldName = input.querySelector('.file-name-display');
+        const existingClearBtn = input.querySelector('.flatpickr-clear-input');
+
+        if (container && !existingClearBtn) {
+            // Create clear button
+            const clearBtn = document.createElement('div');
+            clearBtn.className = 'flatpickr-clear-input';
+            clearBtn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+            container.appendChild(clearBtn);
+
+            // Basic styling
+            clearBtn.style.cursor = 'pointer';
+            clearBtn.style.visibility = 'hidden';
+            clearBtn.style.opacity = '0';
+            clearBtn.style.transition = 'opacity 0.2s ease';
+
+            // Hover show/hide behavior
+            container.addEventListener('mouseenter', () => {
+                clearBtn.style.visibility = 'visible';
+                clearBtn.style.opacity = '1';
+            });
+
+            container.addEventListener('mouseleave', () => {
+                clearBtn.style.visibility = 'hidden';
+                clearBtn.style.opacity = '0';
+            });
+
+            // Clear button click handler
+            clearBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if(hiddenInputValue){
+                    hiddenInputValue.value = '';
+                    imageFieldName.innerText = 'No file selected';
+                }else{
+                    trueInputValue.value = '';
+                    imageFieldName.innerText = 'No file selected';
+                }            
+            });
+        }
+    });
+}
 
 const passportPhoto = document.getElementById('passportphoto');
 if(passportPhoto){
@@ -129,4 +183,26 @@ function messageUserBtn(){
     localStorage.setItem('selectedUserIds', JSON.stringify(selectedIds));          
     // Redirect to Message Page
     window.location.href = '/admin/users/message-users/';
+}
+
+function setDisabledSaveBtns() {
+    const courseSaveBtns = document.querySelectorAll('.course-save-btns');
+    for (const btn of courseSaveBtns) {
+        btn.classList.add('disabled');
+        setTimeout(() => {
+            btn.setAttribute('disabled', true);
+        }, 100);
+
+        if (!btn.dataset.originalHtml) {
+            btn.dataset.originalHtml = btn.innerHTML;
+        }
+
+        const savedWidth = btn.offsetWidth + "px";
+        const savedHeight = btn.offsetHeight + "px";
+
+        btn.style.width = savedWidth;
+        btn.style.height = savedHeight;
+
+        btn.innerHTML = `<i class="fa-light fa-loader fa-spin"></i>`;
+    }
 }

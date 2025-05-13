@@ -8,14 +8,19 @@ window.addEventListener('resize', syncNavBarWidth);
 
 function initializeTopRowNav(){
     const detailsTopRow = document.getElementById('mainNavBar');
+    const stickyNav = document.getElementById('stickyNavBar');
 
     // IntersectionObserver callback
     const observerCallback = (entries) => {
         entries.forEach(entry => {
             if (!entry.isIntersecting) {
-                document.getElementById('stickyNavBar').style.display = 'flex';
+                stickyNav.classList.add('visible');
+                stickyNav.classList.remove('visible-hidden');
+                stickyNav.style.top = '58.29' + 'px';
             } else {
-                document.getElementById('stickyNavBar').style.display = 'none';
+                stickyNav.classList.remove('visible');
+                stickyNav.classList.add('visible-hidden');
+                stickyNav.style.top = '0';
             }
         });
     };

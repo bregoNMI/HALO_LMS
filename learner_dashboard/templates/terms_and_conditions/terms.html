@@ -1,0 +1,133 @@
+{% extends 'terms_and_conditions/terms_base.html' %}
+{% load static %}
+{% block content %}
+{% load custom_filters %}
+<div class="learner-body align-center scrollable-content">
+    {% include 'messageContainer/message_container.html' %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="max-width-extend-3">
+        <div class="learner-top-row">
+            <div class="learner-top-row-left">
+                {% if org_name %}
+                    <h2 style="font-size: var(--fs-lg);"> {{ org_name }}'s Terms and Conditions</h2>
+                {% else %}
+                    <h2 style="font-size: var(--fs-lg);">Terms and Conditions</h2>
+                {% endif %}
+                {% if last_modified %}
+                    <span>Last modified: {{ last_modified|date:"F j, Y" }}</span>
+                {% endif %}
+            </div>
+            <div class="learner-top-row-right">
+
+            </div>
+        </div>
+        <div class="learner-body-inner">
+            <div class="terms-wrapper">
+                <div class="terms-box">
+            
+                    <div class="terms-content">
+                        {{ terms_text|safe }}
+                    </div>
+            
+                    <form method="POST" class="terms-form">
+                        {% csrf_token %}
+                        <div id="termsErrorMessage" class="terms-error-message">
+                            <span>To continue using the LMS, you must accept the Terms & Conditions</span>
+                        </div>
+                        <div class="larger-buttons">
+                            <button id="declineBtn" type="button" class="action-button-secondary disabled terms-btns" title="You must accept to continue.">
+                                Decline
+                            </button>
+                            <button id="acceptBtn" type="submit" class="action-button-primary terms-btns">I Accept</button>
+                        </div>
+                    </form>
+                </div>
+            </div>                            
+        </div>
+    </div>
+</div>
+<style>
+    .terms-content{
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        background-color: white;
+        border-radius: 6px;
+        /* outline: 1px solid #d7d7d7; */
+        box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+        padding: var(--pad-xxxl) var(--pad-xxxxxxl);
+        font-size: 0.83rem;
+        color: #41454d;
+        line-height: 1.5;
+    }.terms-content p{
+        margin-top: 0;
+        margin-bottom: 0;
+    }.terms-content p:last-child{
+        margin-bottom: 0;
+    }.terms-content li{
+        margin-bottom: 1rem;
+    }.terms-content li:last-child{
+        margin-bottom: 0;
+    }
+
+    .terms-error-message{
+        display: none;
+        justify-content: flex-end;
+        opacity: 0;
+        transition: all 0.3s ease-in;
+        margin-top: 1rem;
+        font-size: 0.92rem;
+        color: #f14858;
+    }
+</style>
+<script>
+    const declineBtn = document.getElementById('declineBtn');
+    declineBtn.addEventListener('click', () => {
+        setTimeout(() => {
+            document.getElementById('termsErrorMessage').style.opacity = '1';
+        }, 300);
+        document.getElementById('termsErrorMessage').style.display = 'flex';
+    });
+
+    const acceptBtn = document.getElementById('acceptBtn');
+    acceptBtn.addEventListener('click', () => {
+        const termsBtns = document.querySelectorAll('.terms-btns');
+        for (const btn of termsBtns) {
+            btn.classList.add('disabled');
+
+            if (!btn.dataset.originalHtml) {
+                btn.dataset.originalHtml = btn.innerHTML;
+            }
+
+            const savedWidth = btn.offsetWidth + "px";
+            btn.style.width = savedWidth;
+
+            setTimeout(() => {
+                btn.setAttribute('disabled', true);
+            }, 100);
+
+            btn.innerHTML = `<i class="fa-light fa-loader fa-spin"></i>`;
+        }
+    });
+</script>
+
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+{% endblock %}

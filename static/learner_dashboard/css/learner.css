@@ -80,7 +80,7 @@ html, body, button{
     justify-content: center;
     align-items: center;
     padding: var(--pad-xxs);
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 1.2rem;
     transition: all 0.2s linear;
     color: white;
@@ -108,7 +108,7 @@ html, body, button{
     align-items: center;
     justify-content: center;
     padding: var(--pad-xxs);
-    border-radius: 4px;
+    border-radius: 6px;
     transition: all 0.2s linear;
 }
 
@@ -242,6 +242,7 @@ html, body, button{
     background-color: white;
     max-width: 230px;
     min-width: 200px;
+    box-shadow: rgba(0, 0, 0, 0.03) 0px 0px 0px 1px;
 }
 
 .sidebar-user-information{
@@ -460,7 +461,7 @@ html, body, button{
 
 .purple-status-item{
     background-color: white;
-    border: 1px solid #ececf1;
+    border: 1px solid #dfdfe3;
 }.purple-status-item:hover{
     background-color: #ececf1;
 }.purple-status-item i{
@@ -700,10 +701,13 @@ html, body, button{
     align-items: center;
     gap: 0.3rem;
     margin-top: 0.2rem;
+}.course-time-wrapper span{
+    font-size: 0.95rem;
 }
 
 .course-time-wrapper i{
-    font-size: var(--fs-sm);
+    /* font-size: var(--fs-sm); */
+    font-size: 0.9rem;
 }
 
 .start-course-btn{
@@ -927,6 +931,15 @@ html, body, button{
     width: 1.5rem;
     color: #4caf50;
     font-size: 1.45rem;
+}
+
+.course-item-lesson-description{
+    margin-top: 0.8rem;
+    margin-left: 0.8rem;
+}.course-item-lesson-description p{
+    margin: 0;
+    font-size: 0.8rem;
+    color: #5e5e5e;
 }
 
 .tab-content-event-dates{
@@ -1199,4 +1212,98 @@ html, body, button{
 
 .row-course-item .thumbnail-placeholder{
     height: unset;
+}
+
+/* Terms Base */
+.section-overlay-container{
+    flex-direction: column;
+}
+
+.section-header{
+    height: 16rem;
+    min-height: 16rem;
+    padding: var(--pad-xxxl);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    box-sizing: border-box;
+    background-image: url('/static/images/myCourses/Banners Halo-06.png');
+}.section-header h2{
+    font-size: var(--fs-xl);
+    color: #f1f1f1;
+    max-width: 25rem;
+}
+
+.section-items-container{
+    margin-top: -8rem;
+}
+
+.section-header-inner{
+    margin-bottom: 4rem;
+}
+
+.section-overlap-item-container{
+    border-radius: 10px;
+    box-sizing: border-box;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+    background-color: white;
+}.section-overlap-item-container .tabs{
+    background-color: #f2f2f2;
+    color: #727272;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    border: 1px solid #ddd;
+}.section-overlap-item{
+    /* padding: var(--pad-xxxl); */
+    padding: var(--pad-lg) var(--pad-xxxl);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    box-sizing: border-box;
+}.section-overlap-item .course-item-popup-title{
+    font-size: 1.1rem;
+    /* color: #41454d; */
+    color: #191c1f;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 0.3rem;
+}.section-overlap-item .course-time-wrapper{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.2rem;
+    color: var(--text-color6);
+}
+
+.course-item-popup-type.pastel-purple {
+    background-color: #e5caff;
+    color: blueviolet;
+    border: 1px solid #d5aff9;
+}.course-item-popup-type.pastel-orange {
+    background-color: #ffbf7c;
+    color: #dc6618;
+    border: 1px solid #ffa86d;
+}
+
+.description-content p{
+    margin-top: 0;
+    margin-bottom: 0;
+}.description-content p:last-child{
+    margin-bottom: 0;
+}.description-content li{
+    margin-bottom: 1rem;
+}.description-content li:last-child{
+    margin-bottom: 0;
 }

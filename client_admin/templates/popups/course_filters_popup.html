@@ -24,6 +24,9 @@
                             <div class="select-selected">Select an option</div>
                             <div class="select-items scrollable-content">
                                 <div class="select-item" data-name="filter_title" data-value="{{ request.GET.filter_title }}">Title</div>
+                                <div class="select-item" data-name="filter_type" data-value="{{ request.GET.filter_type }}">Type</div>
+                                <div class="select-item" data-name="filter_status" data-value="{{ request.GET.filter_status }}">Status</div>
+                                <div class="select-item" data-name="filter_category" data-value="{{ request.GET.filter_category }}">Category</div>
                             </div>
                         </div>
                     </div>
@@ -36,7 +39,7 @@
             <div class="popup-footer">
                 <div class="spacer"></div>
                 <div class="popup-btns">
-                    <div onclick="closePopup('filtersPopup')" class="close-popup-btn popup-btn">Close</div>
+                    <button type="button" onclick="closePopup('filtersPopup')" class="close-popup-btn popup-btn">Close</button>
                     <button id="applyFilterBtn" class="popup-btn"> Apply Filter </button>
                 </div>
             </div>

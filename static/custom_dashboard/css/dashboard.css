@@ -466,7 +466,7 @@
     text-decoration: none;
     justify-content: center;
     padding: var(--pad-xxxs);
-    border-radius: 8px;
+    border-radius: 6px;
     transition: all 0.3s ease-in-out;
     color: var(--text-color5);
     height: 1rem;

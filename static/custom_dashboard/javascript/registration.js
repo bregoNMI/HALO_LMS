@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
     fileInputs.forEach(function(input) {
         input.addEventListener('change', function() {
             const file = input.files[0];
-            const fileName = file ? file.name : "No File Selected";
+            const fileName = file ? file.name : "No file selected";
     
             const fileDisplayArea = input.closest('.custom-file-upload-container').querySelector('.file-name-display');
             fileDisplayArea.textContent = fileName;
