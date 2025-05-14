@@ -4,6 +4,7 @@ from reportlab.pdfgen import canvas
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import NameObject, NumberObject, TextStringObject
 from io import BytesIO
+from models import UserCourse, EnrollmentKey
 
 def display_user_time(user, utc_datetime):
     user_tz = pytz.timezone(user.profile.timezone)
@@ -89,3 +90,29 @@ def get_flatpickr_format(custom_format):
         "YYYY-MM-DD": "Y-m-d"
     }
     return mapping.get(custom_format, "%m/%d/%Y")
+
+def enroll_user_with_key(user, key_str):
+    try:
+        enrollment_key = EnrollmentKey.objects.get(key=key_str)
+    except EnrollmentKey.DoesNotExist:
+        return False, "Invalid enrollment key."
+
+    if not enrollment_key.is_valid():
+        return False, "Enrollment key is no longer valid or has been used up."
+
+    course = enrollment_key.course
+
+    # Check if the user is already enrolled
+    if UserCourse.objects.filter(user=user, course=course).exists():
+        return False, "User is already enrolled in this course."
+
+    # Enroll the user
+    UserCourse.objects.create(user=user, course=course)
+
+    # Update the key usage
+    enrollment_key.uses += 1
+    if enrollment_key.uses >= enrollment_key.max_uses:
+        enrollment_key.active = False
+    enrollment_key.save()
+
+    return True, f"Successfully enrolled in {course.title}."

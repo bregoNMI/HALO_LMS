@@ -108,6 +108,21 @@ def resize_images(sender, instance, **kwargs):
     if instance.passportphoto:
         resize_image(instance.passportphoto)
 
+class EnrollmentKey(models.Model):
+    key = models.CharField(max_length=100, unique=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    max_uses = models.PositiveIntegerField(default=1)  # Optional: limit the number of uses
+    uses = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
+
+    def is_valid(self):
+        return self.active and self.uses < self.max_uses
+
+    def __str__(self):
+        return f"{self.key} for {self.course.title}"
+    
+    
+
 class UserCourse(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
