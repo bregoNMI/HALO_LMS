@@ -10,8 +10,8 @@
         <div class="popup-body">
             <!-- Add your form or content for creating a lesson here -->
             <div class="course-content-input">
-                <label class="edit-user-label" for="lessonTitle">Lesson Title</label>
-                <input type="text" id="lessonTitle" name="lessonTitle" placeholder="Lesson Title (Required)" maxlength="200">
+                <label class="edit-user-label" for="lessonTitle">Lesson Title<span class="required-asterisk">*</span></label>
+                <input type="text" id="lessonTitle" name="lessonTitle" placeholder="Lesson Title" maxlength="200">
             </div>
             <div class="course-content-input padding-top-2 padding-bottom-1">
                 <label class="edit-user-label" for="lessonDescription">Lesson Description</label>
@@ -23,7 +23,7 @@
                 </div>
             </div>
             <div class="choose-file-wrapper">
-                <h5 class="popup-content-header">Choose File <span class="file-required-text">(Required)</span></h5>
+                <h5 class="popup-content-header">Choose File <span class="required-asterisk">*</span></h5>
                 <div onclick="openFileLibrary()" for="lessonFile" class="custom-file-upload-container">
                     <div class="custom-file-upload">
                         <input type="file" id="lessonFile" name="file" style="display: none;" readonly>

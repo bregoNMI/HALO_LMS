@@ -338,102 +338,51 @@ def track_scorm_data(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-
-            print("🧾 Raw request body:", request.body.decode("utf-8"))
-            print("🕐 Incoming session_time from frontend:", data.get("session_time"))
-
             profile_id = data.get("user_id")
             lesson_id = data.get("lesson_id")
-            session_id = data.get("session_id")  # 👈 comes from frontend
             progress = data.get("progress", 0)
             completion_status = data.get("completion_status", "incomplete")
             session_time = data.get("session_time", "PT0H0M0S")
             score = data.get("score")
             lesson_location = data.get("lesson_location", "")
             scroll_position = data.get("scroll_position", 0)
-            cmi_data = data.get("cmi_data", "{}")
-
-            if not profile_id or not lesson_id or not session_id:
+ 
+            if not profile_id or not lesson_id:
                 return JsonResponse({"error": "Missing required fields"}, status=400)
-
+           
             if lesson_location.lower().endswith(".pdf") and "X-Amz-Signature" in lesson_location:
+                # Don't store the full URL — just leave it empty or store the fragment
                 lesson_location = ""
-
+ 
             profile = get_object_or_404(Profile, pk=profile_id)
             lesson = get_object_or_404(Lesson, pk=lesson_id)
-
-            # ✅ 1. UPDATE OR CREATE session record — only once, at session close
-            LessonSession.objects.update_or_create(
-                session_id=session_id,
-                defaults={
-                    "user": profile.user,
-                    "lesson": lesson,
-                    "end_time": now(),
-                    "progress": float(progress),
-                    "completion_status": completion_status,
-                    "session_time": session_time,
-                    "scroll_position": scroll_position,
-                    "score": score,
-                    "lesson_location": lesson_location,
-                    "user_agent": request.META.get("HTTP_USER_AGENT", ""),
-                    "ip_address": request.META.get("REMOTE_ADDR", None),
-                    "cmi_data": cmi_data,
-                },
-            )
-            print("👀 Looking for existing tracking data for user:", profile.user.id, "lesson:", lesson.id)
-
-            # ✅ Fetch previous tracking record
-            existing_tracking = SCORMTrackingData.objects.filter(user=profile.user, lesson=lesson).first()
-
-            if existing_tracking:
-                print("✅ Found existing tracking:", existing_tracking.session_time)
-            else:
-                print("❌ No existing tracking found — will start fresh")
-
-            # ✅ Use old session_time from DB
-            existing_raw = existing_tracking.session_time if existing_tracking and existing_tracking.session_time else "PT0H0M0S"
-
-            # ✅ Use new session_time from request (even if not final)
-            new_raw = session_time or "PT0H0M0S"
-
-            # ✅ Parse and sum both
-            existing_seconds = parse_iso_duration(str(existing_raw or "PT0H0M0S"))
-            new_seconds = parse_iso_duration(str(new_raw or "PT0H0M0S"))
-
-            total_seconds = existing_seconds + new_seconds
-
-            # ✅ Convert to final string
-            cumulative_session_time = format_iso_duration(total_seconds)
-
-            print(f"🧪 SCORM TIME: existing_raw = {existing_raw}, new_raw = {new_raw}, total = {cumulative_session_time}")
-
-            # ✅ Save updated cumulative time
+ 
+            # ✅ Only updating SCORM tracking data
             SCORMTrackingData.objects.update_or_create(
                 user=profile.user,
                 lesson=lesson,
                 defaults={
                     "progress": float(progress),
                     "completion_status": completion_status,
-                    "session_time": cumulative_session_time,  # ✅ This is the true cumulative value
+                    "session_time": session_time,
                     "scroll_position": scroll_position,
                     "lesson_location": lesson_location,
                     "score": score,
-                    "cmi_data": cmi_data,
+                    "cmi_data": data.get("cmi_data", "{}"),  # ✅ Store cmi_data as JSON
                 },
             )
-
-            # ✅ 3. Update UserCourse progress (optional but useful)
-            user_course, _ = UserCourse.objects.get_or_create(
-                user=profile.user, course=lesson.module.course
-            )
+ 
+             # Update UserCourse progress
+            user_course, _ = UserCourse.objects.get_or_create(user=profile.user, course=lesson.module.course)
             user_course.update_progress()
-
+            print('HERE')
+ 
             return JsonResponse({"status": "success"})
-
+ 
         except Exception as e:
             print(f"🚨 Error in track_scorm_data: {e}")
             return JsonResponse({"error": str(e)}, status=500)
-
+ 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 @csrf_exempt

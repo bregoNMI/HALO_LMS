@@ -138,9 +138,11 @@
                                                             {% endif %}                                                                
                                                             <h5 class="course-item-lesson-title">{{ lesson_progress.lesson.title }}</h5>
                                                         </div>
-                                                        <div class="course-item-lesson-body">
-                                                            <div class="course-item-lesson-description">{{ lesson_progress.lesson.description|safe }}</div>
-                                                        </div>
+                                                        {% if lesson_progress.lesson.description != '<p><br></p>' and lesson_progress.lesson.description %}
+                                                            <div class="course-item-lesson-body">
+                                                                <div class="course-item-lesson-description">{{ lesson_progress.lesson.description|safe }}</div>
+                                                            </div>
+                                                        {% endif %}
                                                     </div>
                                                 {% empty %}
                                                     <span>No lessons available.</span>

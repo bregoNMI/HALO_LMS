@@ -99,7 +99,7 @@ input[type="text"], input[type="number"]{
 #noModulesCreated span{
     margin-top: 0.3rem;
     color: var(--text-color3);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .main-add-btn{
@@ -436,11 +436,13 @@ input[type="text"], input[type="number"]{
     transition: all 0.3s linear;
 }
 
-.lesson-selection-item span{
-    color: #6b6b6b;
+.lesson-selection-item h4{
+    color: var(--text-color7);
     font-size: var(--btn-font);
+}.lesson-selection-item span{
+    color: #6b6b6b;
     margin-top: 0.1rem;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .no-lessons-container {
@@ -1042,13 +1044,13 @@ input[type="text"], input[type="number"]{
 }
 
 .create-category-icon {
-    color: var(--text-color6);
+    color: var(--text-color7);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.95rem;
-    height: 1.3rem;
-    width: 1.3rem;
+    font-size: 0.75rem;
+    height: 1.2rem;
+    width: 1.2rem;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s linear;

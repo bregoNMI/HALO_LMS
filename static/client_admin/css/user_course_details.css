@@ -227,7 +227,7 @@ circle-progress::part(text) {
     flex: 1;
     overflow: hidden;
 }.lesson-list-options-container .lesson-details-info-card:last-child .lesson-list-option-right .tooltiptext {
-    bottom: 90%;
+    bottom: 150%;
 }.lesson-list-option {
     display: flex;
     justify-content: space-between;
@@ -245,8 +245,6 @@ circle-progress::part(text) {
     background-color: #f8d7da;
 }.lesson-list-option-right .lesson-list-option-delete:hover i {
     color: #721c24;
-}.lesson-list-option-right .tooltiptext{
-    bottom: -70%;
 }.lesson-list-progress{
     display: flex;
     align-items: center;

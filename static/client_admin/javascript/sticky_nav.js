@@ -16,11 +16,18 @@ function initializeTopRowNav(){
             if (!entry.isIntersecting) {
                 stickyNav.classList.add('visible');
                 stickyNav.classList.remove('visible-hidden');
-                stickyNav.style.top = '58.29' + 'px';
+                if(stickyNav.nextElementSibling.classList.contains('learner-top-row')){
+                    stickyNav.style.top = '0' + 'px';
+                }else{
+                    stickyNav.style.top = '58.29' + 'px';
+                }
+                
             } else {
-                stickyNav.classList.remove('visible');
-                stickyNav.classList.add('visible-hidden');
-                stickyNav.style.top = '0';
+                stickyNav.style.top = '-100px';
+                setTimeout(() => {
+                    stickyNav.classList.remove('visible');
+                    stickyNav.classList.add('visible-hidden');
+                }, 300);
             }
         });
     };

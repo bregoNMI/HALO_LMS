@@ -10,10 +10,11 @@ from .forms import DashboardForm
 
 @login_required
 def templates(request):
+    dashboard = Dashboard.objects.filter(is_main=True).first()
     header = Header.objects.first()
     footer = Footer.objects.first()
 
-    return render(request, 'html/templates.html', {'header': header, 'footer': footer})
+    return render(request, 'html/templates.html', {'header': header, 'footer': footer, 'dashboard': dashboard})
 
 @login_required
 def set_main_dashboard(request, dashboard_id):

@@ -332,11 +332,15 @@ def terms_and_conditions(request):
 def on_login_course(request, uuid):
     settings = OrganizationSettings.get_instance()
     user = request.user
-    user_course = get_object_or_404(UserCourse, uuid=uuid)
 
+    # Early redirect if already completed login-required course
+    if settings.on_login_course and user.profile.completed_on_login_course:
+        return redirect('learner_dashboard')
+
+    # Continue loading the course if not yet completed
+    user_course = get_object_or_404(UserCourse, uuid=uuid)
     lesson_sessions_map = {}
 
-    # Build the lesson_sessions_map as before
     for module_progress in user_course.module_progresses.all():
         for lesson_progress in module_progress.lesson_progresses.all():
             sessions = LessonSession.objects.filter(
@@ -345,7 +349,7 @@ def on_login_course(request, uuid):
             )
             lesson_sessions_map[lesson_progress.id] = sessions
 
-    # ➤ Calculate Total Time Spent for THIS Course from SCORMTrackingData
+    # Calculate total SCORM time
     scorm_sessions = SCORMTrackingData.objects.filter(
         user=user_course.user,
         lesson__module__course=user_course.course

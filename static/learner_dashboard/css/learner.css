@@ -50,6 +50,7 @@ html, body, button{
     padding: var(--pad-xs) var(--pad-lg);
     background-color: #1a1a1a;
     /* background-color: #00183b; */
+    z-index: 4;
 }
 
 .learner-header-container-inner{
@@ -390,7 +391,7 @@ html, body, button{
 
 .learner-primary-button, .learner-secondary-button{
     display: flex;
-    padding: var(--pad-xxxs) var(--pad-sm);
+    padding: 5.5px var(--pad-med);
     border-radius: 6px;
     font-size: var(--btn-font);
     cursor: pointer;
@@ -1104,6 +1105,11 @@ html, body, button{
     background-color: #ffd0d0;
     font-weight: 500;
     font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s linear;
+}.learner-impersonate:hover{
+    background-color: #f7a5a5;
+    color: #cc0202;
 }
 
 .stop-impersonating-btn{

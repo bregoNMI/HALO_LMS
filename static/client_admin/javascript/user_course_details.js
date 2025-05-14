@@ -27,7 +27,8 @@ function initializeRadioCheckboxes(radio) {
         document.querySelectorAll('.radio-option').forEach(other => {
             if (other !== radio && other.dataset.target) {
                 const otherTarget = document.getElementById(other.dataset.target);
-                if (otherTarget) {
+                if (otherTarget && otherTarget.id != 'courseCompletedDetails') {
+                    console.log(otherTarget);
                     otherTarget.classList.remove('show-toggle-option-details');
                 }
             }
@@ -235,7 +236,6 @@ function inputLessonData(title, lessonId, type, lessonType){
         editLessonType.innerText = lessonTypeTitle;
         document.getElementById('editLessonTitle').innerText = title;
     }
-    console.log(title, lessonId, type, lessonType);
 }
 
 function fetchLessonData(lessonId){

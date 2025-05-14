@@ -213,6 +213,15 @@ class UserCourse(models.Model):
             )
             print(f"✅ Certificate expiration date set to: {calculated_date}")
 
+        # Testing if on_login_course is enabled and if the course that was just completed match that course ID
+        if (org_settings and org_settings.on_login_course and org_settings.on_login_course_id and org_settings.on_login_course_id == self.course.id):
+            profile = getattr(self.user, 'profile', None)
+            if profile:
+                profile.completed_on_login_course = True
+                profile.save()
+                print("✅ User completed the required login course. Profile updated.")
+        
+
     def get_start_date(self):
         if hasattr(self.course, 'get_event_date'):
             return self.course.get_event_date('start_date', self.enrollment_date)
@@ -247,27 +256,36 @@ class UserCourse(models.Model):
     def update_progress(self):
         """
         Recalculates the user's progress in this course based on the highest recorded progress per lesson.
+        If progress reaches 100%, marks course as completed.
         """
         lessons = Lesson.objects.filter(module__course=self.course)
         total_lessons = lessons.count()
-
+ 
         if total_lessons == 0:
-            self.progress = 0.0
+            self.progress = 0
+            self.stored_progress = 0
+            self.is_course_completed = False
             self.save()
             return
-
+ 
         # Get max progress per lesson
         lesson_progress = (
             SCORMTrackingData.objects
             .filter(user=self.user, lesson_id__in=lessons.values_list('id', flat=True))
             .values('lesson_id')
-            .annotate(max_progress=models.Max('progress'))  # Get max progress per lesson
+            .annotate(max_progress=models.Max('progress'))
         )
-
+ 
         total_progress = sum(lp['max_progress'] for lp in lesson_progress)
-
-        # Normalize to 100%
-        self.progress = min((total_progress / total_lessons) * 100, 100)
+        self.progress = int(min((total_progress / total_lessons) * 100, 100))
+ 
+        # ✅ NEW: check for full completion
+        if self.progress >= 100 and not self.is_course_completed:
+            self.is_course_completed = True
+            self.completed_on_date = datetime.now().date()
+            self.completed_on_time = datetime.now().time()
+ 
+        self.stored_progress = self.progress
         self.save()
 
     def get_scorm_total_time(self):
