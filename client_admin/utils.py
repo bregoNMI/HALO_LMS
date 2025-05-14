@@ -1,10 +1,10 @@
 import pytz
+from django.apps import apps
 from django.utils import timezone
 from reportlab.pdfgen import canvas
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import NameObject, NumberObject, TextStringObject
 from io import BytesIO
-from models import UserCourse, EnrollmentKey
 
 def display_user_time(user, utc_datetime):
     user_tz = pytz.timezone(user.profile.timezone)
@@ -92,6 +92,9 @@ def get_flatpickr_format(custom_format):
     return mapping.get(custom_format, "%m/%d/%Y")
 
 def enroll_user_with_key(user, key_str):
+    UserCourse = apps.get_model('client_admin', 'UserCourse')
+    EnrollmentKey = apps.get_model('client_admin', 'EnrollmentKey')
+
     try:
         enrollment_key = EnrollmentKey.objects.get(key=key_str)
     except EnrollmentKey.DoesNotExist:
