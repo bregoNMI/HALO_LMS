@@ -876,86 +876,62 @@ console.log("iplayer.html script loaded");
     
         miniLessonProgress.forEach((item) => {
             const mini_lesson_index = item.mini_lesson_index;
-            const rawProgress = item.progress || "0%";
-        
-            // Match SVG by data-lesson-index
-            const svg = iframeDocument.querySelector(`svg.progress-circle--sidebar[data-lesson-index="${mini_lesson_index}"]`);
-            if (!svg) {
-                console.warn(`⚠️ No sidebar SVG found for mini_lesson_index ${mini_lesson_index}`);
+            const rawProgress = item.progress;
+
+            if (typeof rawProgress !== "string") {
+                console.warn(`⚠️ Skipping mini-lesson ${mini_lesson_index} — invalid progress type`, rawProgress);
                 return;
             }
-        
-            const circle = svg.querySelector("circle.progress-circle__runner");
-            if (!circle) {
-                console.warn(`⚠️ No progress circle found inside SVG at index ${mini_lesson_index}`);
-                return;
-            }
-        
-            // Convert progress string to percent
+
+            const normalized = rawProgress.trim().toLowerCase();
             let progressPercentage = 0;
-            if (rawProgress.includes("Completed")) {
+
+            if (normalized === "completed") {
                 progressPercentage = 100;
             } else {
-                const match = rawProgress.match(/(\d+)%/);
+                const match = normalized.match(/(\d+)%/);
                 if (match) {
                     progressPercentage = parseInt(match[1], 10);
                 }
             }
-        
+
+            if (progressPercentage === 0) {
+                console.log(`🟡 Mini-lesson ${mini_lesson_index} has 0% progress. Skipping visual completion.`);
+                return;
+            }
+
+            const svg = iframeDocument.querySelector(`svg.progress-circle--sidebar[data-lesson-index="${mini_lesson_index}"]`);
+            if (!svg) return;
+
+            const circle = svg.querySelector("circle.progress-circle__runner");
+            if (!circle) return;
+
             const totalStroke = 43.982297150257104;
             const strokeOffset = totalStroke * (1 - (progressPercentage / 100));
-        
             circle.setAttribute("stroke-dashoffset", strokeOffset);
-            circle.style.transition = "stroke-dashoffset 0.5s ease-in-out";
 
             if (progressPercentage === 100) {
-                // ✅ Set aria-label on the SVG for accessibility and correct semantics
                 svg.setAttribute("aria-label", "Completed");
-            
-                // ✅ Update SVG wrapper classes
                 svg.classList.add("progress-circle--done");
-                svg.classList.remove("progress-circle--unstarted");
-            
-                // ✅ Replace circle class completely to avoid residue styles
-                circle.className.baseVal = "progress-circle__runner progress-circle__runner--done progress-circle__runner--passed";
-            
-                // ✅ Reset any inline styles that might override your class styles
-                // ✅ Apply fill and stroke-dashoffset with !important so hover can't override
+                circle.classList.add("progress-circle__runner--done", "progress-circle__runner--passed");
                 circle.setAttribute("stroke-dashoffset", "0");
-                circle.style.setProperty("fill", "#162c53", "important");
-                circle.style.setProperty("transition", "stroke-dashoffset 0.5s ease-in-out", "important");
 
-                // ✅ Add completion class to the parent outline item
-                const outlineItem = svg.closest(".nav-sidebar__outline-item");
-                if (outlineItem) {
-                    outlineItem.classList.add("nav-sidebar__outline-item--complete");
-                }
-
-                // ✅ Optionally: update the clickable link styling
-                const itemLink = outlineItem?.querySelector(".nav-sidebar__outline-item_link");
-                if (itemLink) {
-                    itemLink.classList.add("is-complete"); // or whatever class SCORM uses when finished
-                }
-            
-                // ✅ Show the checkmark
                 const checkmark = svg.querySelector("path.progress-circle__pass");
                 if (checkmark) {
-                    checkmark.style.setProperty("display", "block", "important");
-                    checkmark.style.setProperty("opacity", "1", "important");
-                    checkmark.style.setProperty("visibility", "visible", "important");
-                }                
-            
-                // ✅ Hide the fail icon (X)
+                    checkmark.style.display = "block";
+                    checkmark.style.opacity = "1";
+                    checkmark.style.visibility = "visible";
+                }
+
                 const failIcon = svg.querySelector("path.progress-circle__fail");
                 if (failIcon) {
                     failIcon.style.display = "none";
                 }
-            
-                console.log(`✅ Circle for index ${mini_lesson_index} marked as completed`);
-            }                        
+            }
+
+            console.log(`🔄 Circle ${mini_lesson_index} updated to ${progressPercentage}%`);
+        });
         
-            console.log(`🔄 Circle ${mini_lesson_index} set to ${progressPercentage}%`);
-        });        
     
         console.log("🎯 Progress circles inside iframe updated.");
     }        
