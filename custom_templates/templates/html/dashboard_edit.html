@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="admin-body align-center scrollable-content">
+<div class="admin-body align-center scrollable-content dashboard-edit-body">
     {% include 'messageContainer/message_container.html' %}
     <div class="custom-dashboard-body max-width-extend-1">
         <div class="details-top-row">
@@ -47,7 +47,7 @@
     <div style="justify-content: space-between;" class="options-sidebar-header">
         <div style="display: flex; gap: 0.6rem;">
             <div class="options-sidebar-icon pastel-yellow">
-                <i class="fa-regular fa-pencil"></i>
+                <i class="fa-light fa-pencil"></i>
             </div>
             <div class="options-sidebar-title">
                 <h6 id="optionsHeading"></h6>
@@ -75,8 +75,9 @@
 
                 <div class="dashboard-edit-options-section">
                     <div class="course-content-input">
-                        <label class="edit-user-label" for="widgetEditTitle">Title</label>
+                        <label class="edit-user-label" for="widgetEditTitle">Title</label> 
                         <input class="custom-text-value" type="text" id="widgetEditTitle">
+                        <span id="resumeTitleExplanation" class="course-content-input-subtext"> This title will be shown when the learner has no courses to resume. </span>
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label">Title Color</label>
@@ -89,6 +90,7 @@
                     <div class="course-content-input">
                         <label class="edit-user-label" for="widgetEditSubtext">Subtext</label>
                         <input class="custom-text-value" type="text" id="widgetEditSubtext">
+                        <span id="resumeSubtextExplanation" class="course-content-input-subtext"> This subtext will be shown when the learner has no courses to resume.</span>
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="widgetEditSubtextColor">Subtext Color</label>
@@ -109,6 +111,7 @@
                             </div>
                         </div>
                         <input type="text" id="widgetEditIcon" value="{{ dashboard.widget_icon }}" hidden>
+                        <span id="resumeIconExplanation" class="course-content-input-subtext"> This icon will be shown when the learner has no courses to resume. </span>
                     </div>
                     <div class="course-content-input">
                         <label class="edit-user-label" for="widgetEditIconColor">Icon Color</label>

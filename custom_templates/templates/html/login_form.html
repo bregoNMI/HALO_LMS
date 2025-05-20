@@ -16,21 +16,21 @@
                 <label id="desktopLabel" class="device-selection-item tooltip" for="desktop" data-tooltip="Desktop">
                     <input id="desktop" type="radio" name="device-selection" hidden="" checked="" data-device="desktop">
                     <div class="device-selection-icon">
-                        <i class="fa-regular fa-desktop"></i>
+                        <i class="fa-light fa-desktop"></i>
                     </div>
                     <span class="tooltiptext"></span>
                 </label>
                 <label id="tabletLabel" class="device-selection-item tooltip" for="tablet" data-tooltip="Tablet Portrait">
                     <input id="tablet" type="radio" name="device-selection" hidden="" data-device="tablet">
                     <div class="device-selection-icon">
-                        <i class="fa-regular fa-tablet-button"></i>
+                        <i class="fa-light fa-tablet-button"></i>
                     </div>
                     <span class="tooltiptext"></span>
                 </label>
                 <label id="mobileLabel" class="device-selection-item tooltip" for="mobile" data-tooltip="Mobile Portrait">
                     <input id="mobile" type="radio" name="device-selection" hidden="" data-device="mobile">
                     <div class="device-selection-icon">
-                        <i class="fa-regular fa-mobile-button"></i>
+                        <i class="fa-light fa-mobile-button"></i>
                     </div>
                     <span class="tooltiptext"></span>
                 </label> 
@@ -69,7 +69,7 @@
                         <a id="loginFormForgetButton" href="{% url 'password_reset' %}" data-item-to-update="forgetLink" class="scale-button {% if login_form.is_forgot_disabled %} hidden {% endif %}" style="text-decoration: {{ login_form.forgot_text_decoration }}; font-size: {{ login_form.forgot_font_size }}px; margin-top: {{ login_form.forgot_space_above }}px; color: {{ login_form.forgot_link_color }};">Forgot Password?</a>
                     </div>
                     <div class="login-form-footer-container">
-                        <button id="loginFormButton" type="button" class="login-form-button scale-button" data-item-to-update="loginButton" style="background-color: {{ login_form.button_color}}; color: {{ login_form.button_text }}; border-color: {{ login_form.button_border_color}}; margin-top: {{ login_form.button_space_above }}px; width: {{ login_form.button_width }}%; border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Login</button>
+                        <button id="loginFormButton" type="button" class="login-form-button scale-button" data-item-to-update="loginButton" style="background-color: {{ login_form.button_color}}; color: {{ login_form.button_text }}; border-color: {{ login_form.button_border_color}}; margin-top: {{ login_form.button_space_above }}px; width: {{ login_form.button_width }}%; border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};" disabled>Login</button>
                         <div data-item-to-update="signupContainer" class="button-container {% if login_form.is_signup_disabled %} hidden {% endif %}" style="font-size: {{ login_form.signup_font_size }}px; margin-top: {{ login_form.signup_space_above }}px; font-weight: {{ login_form.signup_font_weight }};">
                             <span data-item-to-update="signupText" style="color: {{ login_form.signup_text_color }};"> Don't have an account? </span>
                             <a id="loginFormRegisterButton" href="{% url 'register_view' %}" data-item-to-update="signupLink" class="scale-button" style="text-decoration: {{ login_form.signup_text_decoration }}; color: {{ login_form.signup_link_color }};"> Sign Up</a>
@@ -83,7 +83,7 @@
             <div class="details-info-card">
                 <div class="info-card-header collapsable-header">
                     <div class="card-header-left">
-                        <i class="fa-regular fa-table-layout"></i>
+                        <i class="fa-light fa-table-layout"></i>
                         <span> Layout </span>
                     </div>
                     <div class="card-header-right active">
@@ -132,7 +132,7 @@
             <div class="details-info-card">
                 <div class="info-card-header collapsable-header">
                     <div class="card-header-left">
-                        <i class="fa-regular fa-image"></i>
+                        <i class="fa-light fa-image"></i>
                         <span> Logo </span>
                     </div>
                     <div class="card-header-right active">
@@ -223,7 +223,7 @@
             <div class="details-info-card">
                 <div class="info-card-header collapsable-header">
                     <div class="card-header-left">
-                        <i class="fa-regular fa-billboard"></i>
+                        <i class="fa-light fa-billboard"></i>
                         <span> Background </span>
                     </div>
                     <div class="card-header-right active">
@@ -346,7 +346,7 @@
             <div class="details-info-card">
                 <div class="info-card-header collapsable-header">
                     <div class="card-header-left">
-                        <i class="fa-regular fa-person-chalkboard"></i>
+                        <i class="fa-light fa-person-chalkboard"></i>
                         <span> Login Form </span>
                     </div>
                     <div class="card-header-right active">
@@ -536,7 +536,7 @@
             <div class="details-info-card">
                 <div class="info-card-header collapsable-header">
                     <div class="card-header-left">
-                        <i class="fa-regular fa-pen-swirl"></i>
+                        <i class="fa-light fa-pen-swirl"></i>
                         <span> Input Fields </span>
                     </div>
                     <div class="card-header-right active">
@@ -656,7 +656,7 @@
             <div class="details-info-card">
                 <div class="info-card-header collapsable-header">
                     <div class="card-header-left">
-                        <i class="fa-regular fa-tags"></i>
+                        <i class="fa-light fa-tags"></i>
                         <span> Input Labels </span>
                     </div>
                     <div class="card-header-right active">
@@ -720,7 +720,7 @@
             <div class="details-info-card">
                 <div class="info-card-header collapsable-header">
                     <div class="card-header-left">
-                        <i class="fa-regular fa-door-open"></i>
+                        <i class="fa-light fa-door-open"></i>
                         <span> Login Button </span>
                     </div>
                     <div class="card-header-right active">
@@ -877,7 +877,7 @@
             <div class="details-info-card">
                 <div class="info-card-header collapsable-header">
                     <div class="card-header-left">
-                        <i class="fa-regular fa-link"></i>
+                        <i class="fa-light fa-link"></i>
                         <span> Form Links </span>
                     </div>
                     <div class="card-header-right active">

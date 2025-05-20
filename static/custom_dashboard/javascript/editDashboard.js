@@ -43,31 +43,31 @@ function initializeAddWidgets() {
             let widget_icon_background_color;
             let widget_external_link;
             if(type === 'resumeCourses'){
-                widget_title = 'Course Name';
-                widget_subtext = 'Resume';
-                widget_icon = 'fa-solid fa-play';
+                widget_title = 'Nothing in progress... yet.';
+                widget_subtext = 'View My Courses';
+                widget_icon = 'fa-light fa-play';
                 widget_icon_color = '#8a2be2';
                 widget_icon_background_color = '#e5caff';
             }else if(type === 'myCourses'){
                 widget_title ='My Courses';
                 widget_subtext = 'See courses you are enrolled in';
-                widget_icon = 'fa-solid fa-book-open-cover';
+                widget_icon = 'fa-light fa-book-open-cover';
                 widget_icon_color = '#dc6618';
                 widget_icon_background_color = '#ffbf7c';
             }else if(type === 'enrollmentKey'){
                 widget_title = 'Enrollment Key';
                 widget_subtext = 'Have an Enrollment Key?';
-                widget_icon = 'fa-solid fa-key';
+                widget_icon = 'fa-light fa-key';
                 widget_icon_color = '#e03a59';
                 widget_icon_background_color = '#ffc9d2';
             }else if(type === 'externalLink'){
                 widget_title = 'External Link';
                 widget_subtext = 'Link to an external source';
-                widget_icon = 'fa-solid fa-link';
+                widget_icon = 'fa-light fa-link';
                 widget_icon_color = '#1863dc';
                 widget_icon_background_color = '#d0e0ff';
             } 
-            let widget_title_color = '#333333'; 
+            let widget_title_color = '#41454d'; 
             let widget_subtext_color = '#6b6b6b';
 
             if (dashboardIdInput && type) {  // Updated to include type check
@@ -150,12 +150,12 @@ function appendResumeCoursesWidget(data){
             </div>
             <div class="widget-inner-wrapper">
                 <div class="widget-icon pastel-purple">
-                    <i class="fa-solid fa-play"></i>
+                    <i class="fa-light fa-play"></i>
                 </div>
                 <div class="widget-inner-right">
-                    <h3> Course Name</h3>
+                    <h3> Nothing in progress... yet. </h3>
                     <div style="display: flex; gap: 0.3rem; align-items: baseline; color: {{ widget.widget_subtext_color }};">
-                        <span id="resumeSubtext"> Resume </span><i id="resumeIcon" class="fa-solid fa-angle-right"></i>
+                        <span id="resumeSubtext"> View My Courses </span><i id="resumeIcon" class="fa-solid fa-angle-right"></i>
                     </div>
                 </div>   
             </div>
@@ -195,7 +195,7 @@ function appendMyCoursesWidget(data){
             </div>
             <div class="widget-inner-wrapper">
                 <div class="widget-icon pastel-orange">
-                    <i class="fa-solid fa-book-open-cover"></i>
+                    <i class="fa-light fa-book-open-cover"></i>
                 </div>
                 <div class="widget-inner-right">
                     <h3> My Courses </h3>
@@ -233,7 +233,7 @@ function appendEnrollmentKeyWidget(data){
             </div>
             <div class="widget-inner-wrapper">
                 <div class="widget-icon pastel-pink">
-                    <i class="fa-solid fa-key"></i>
+                    <i class="fa-light fa-key"></i>
                 </div>
                 <div class="widget-inner-right">
                     <h3> Enrollment Key</h3>
@@ -271,7 +271,7 @@ function appendExternalLinkWidget(data){
             </div>
             <div class="widget-inner-wrapper">
                 <div class="widget-icon pastel-blue">
-                    <i class="fa-solid fa-link"></i>
+                    <i class="fa-light fa-link"></i>
                 </div>
                 <div class="widget-inner-right">
                     <h3> External Link</h3>
@@ -590,6 +590,17 @@ function populateSidebarWithWidgetData(widgetData, widgetId) {
         document.getElementById('externalLinkContainer').style.display = 'flex';
     }else{
         document.getElementById('externalLinkContainer').style.display = 'none';
+    }
+
+    // Test if it needs to show the resume widget subtexts
+    if(widgetData.type === 'resumeCourses'){
+        document.getElementById('resumeTitleExplanation').style.display = 'flex';
+        document.getElementById('resumeSubtextExplanation').style.display = 'flex';
+        document.getElementById('resumeIconExplanation').style.display = 'flex';
+    }else{
+        document.getElementById('resumeTitleExplanation').style.display = 'none';
+        document.getElementById('resumeSubtextExplanation').style.display = 'none';
+        document.getElementById('resumeIconExplanation').style.display = 'none';
     }
     
     if (typeInput) {

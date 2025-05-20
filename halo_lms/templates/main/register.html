@@ -127,10 +127,12 @@
                                 </div>
                                 <div class="edit-user-input" style="width: {{ login_form.input_width }}%;">
                                     <label class="edit-user-label" for="id_birthdate" style="color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Date of Birth<span class="required-asterisk">*</span></label>
-                                    <input id="id_birthdate" name="id_birthdate" class="date-picker form-control input form-input-field slide-one-input-field" placeholder="" tabindex="0" type="text" style="padding-top: {{ login_form.input_padding_top}}px; padding-right: {{ login_form.input_padding_right}}px; padding-bottom: {{ login_form.input_padding_bottom}}px; padding-left: {{ login_form.input_padding_left}}px; background-color: {{ login_form.input_background_color}}; color: {{ login_form.input_text_color}}; border-color: {{ login_form.input_border_color }}; border-radius: {{ login_form.input_radius }}px; font-size: {{ login_form.input_font_size}}px;" required>
-                                    <span class="input-group-addon">
-                                        <i class="fa-regular fa-calendar-lines"></i>
-                                    </span>
+                                    <div class="edit-user-input">
+                                        <input id="id_birthdate" name="id_birthdate" class="date-picker form-control input form-input-field slide-one-input-field" placeholder="" tabindex="0" type="text" style="padding-top: {{ login_form.input_padding_top}}px; padding-right: {{ login_form.input_padding_right}}px; padding-bottom: {{ login_form.input_padding_bottom}}px; padding-left: {{ login_form.input_padding_left}}px; background-color: {{ login_form.input_background_color}}; color: {{ login_form.input_text_color}}; border-color: {{ login_form.input_border_color }}; border-radius: {{ login_form.input_radius }}px; font-size: {{ login_form.input_font_size}}px;" required>
+                                        <span class="input-group-addon">
+                                            <i class="fa-regular fa-calendar-lines"></i>
+                                        </span>
+                                    </div>                   
                                 </div>
                             </div>
                             <div id="registrationSlideTwo" class="registration-slide-container hidden" style="gap: 24px;">
@@ -217,6 +219,10 @@
 <link rel="stylesheet" href="{% static 'client_admin\css\admin.css' %}">
 <script src="{% static 'custom_dashboard/javascript/login.js' %}"></script>
 <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+<script src="{% static 'learner_dashboard\javascript\learner.js' %}"></script>
 <!-- Main JS for this page -->
 <script src="{% static 'custom_dashboard/javascript/registration.js' %}"></script>
+<script>
+    let flatpickr_format = '{{ flatpickr_format }}';
+</script>
 {% endblock %}

@@ -34,14 +34,35 @@ def custom_logout_view(request):
 # Other Data is loaded on context_processors.py
 @login_required
 def learner_dashboard(request):
+    user = request.user
+    profile = user.profile
+
     dashboard = Dashboard.objects.filter(is_main=True).first()
     header = Header.objects.first()
     footer = Footer.objects.first()
-    # After redirecting (in the redirected view)
+
+    # Fetch UserCourse for last opened course, if available
+    user_course = None
+    if profile.last_opened_course:
+        try:
+            user_course = UserCourse.objects.get(user=user, course=profile.last_opened_course)
+        except UserCourse.DoesNotExist:
+            pass  # Optionally log or handle this case
+
+    context = {
+        'dashboard': dashboard,
+        'header': header,
+        'footer': footer,
+        'profile': profile,
+        'user_course': user_course,
+    }
+
     print("Session data after redirect:", request.session.get('impersonate_user_id'))
+
     if dashboard:
-        return render(request, 'dashboard/learner_dashboard.html', {'dashboard': dashboard, 'header': header, 'footer': footer})
-    return render(request, 'dashboard/default_dashboard.html')
+        return render(request, 'dashboard/learner_dashboard.html', context)
+
+    return render(request, 'dashboard/default_dashboard.html', context)
 
 @login_required
 def learner_courses(request):

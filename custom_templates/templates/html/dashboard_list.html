@@ -27,12 +27,12 @@
                         <div class="card-item">
                             {% if dashboard.is_main %}
                                 <button class="set-main-dashboard tooltip" data-tooltip="Main Dashboard" data-id="{{ dashboard.id }}" data-is-main="true">
-                                    <span style="left: -140%; bottom: -150%; text-wrap: nowrap;" class="tooltiptext">Main Dashboard</span>
+                                    <span style="left: -100%; text-wrap: nowrap;" class="tooltiptext">Main Dashboard</span>
                                     <i style="color: #ffbc00;" class="fa-solid fa-star"></i>
                                 </button>
                             {% else %}
                                 <button class="set-main-dashboard tooltip" data-tooltip="Set As Main" data-id="{{ dashboard.id }}" data-is-main="false">
-                                    <span style="left: -140%; bottom: -150%; text-wrap: nowrap;" class="tooltiptext">Set As Main</span>
+                                    <span style="left: -140%; text-wrap: nowrap;" class="tooltiptext">Set As Main</span>
                                     <i class="fa-regular fa-star"></i>
                                 </button>
                             {% endif %}

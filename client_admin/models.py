@@ -83,6 +83,7 @@ class Profile(models.Model):
     passportphoto = models.ImageField(storage=no_prefix_storage)
     date_joined = models.DateTimeField(('date joined'), auto_now_add=True)
     last_opened_course = models.OneToOneField(Course, on_delete=models.CASCADE, null=True, blank=True)
+    last_opened_lesson_id = models.PositiveIntegerField(null=True, blank=True)
     timezone = models.CharField(
         max_length=500,
         choices=[(tz, tz) for tz in all_timezones],
@@ -109,19 +110,21 @@ def resize_images(sender, instance, **kwargs):
         resize_image(instance.passportphoto)
 
 class EnrollmentKey(models.Model):
-    key = models.CharField(max_length=100, unique=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    max_uses = models.PositiveIntegerField(default=1)  # Optional: limit the number of uses
+    key = models.CharField(max_length=100, unique=True) # This is the key the student will input
+    name = models.CharField(max_length=200, blank=True) # Name to understand what the key is for
+    courses = models.ManyToManyField('content.Course', related_name='enrollment_keys', blank=True)
+    max_uses = models.PositiveIntegerField(default=1, null=True, blank=True)
     uses = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
 
     def is_valid(self):
+        if self.max_uses is None:
+            return self.active  # unlimited uses
         return self.active and self.uses < self.max_uses
 
     def __str__(self):
-        return f"{self.key} for {self.course.title}"
-    
-    
+        course_titles = ", ".join(course.title for course in self.courses.all())
+        return f"{self.key} for {course_titles}"   
 
 class UserCourse(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)

@@ -10,40 +10,79 @@
                         <i class="fa-regular fa-books"></i>
                     </div>
                     <div class="text-wrapper">
-                        <h3 id="headerTitle"> Welcome, {{ first_name }} {{ last_name }}</h3>
-                        <span id="headerSubtext"> Kickstart your online Education </span>
+                        <h3 id="headerTitle" data-header-title="Welcome, {{ first_name }} {{ last_name }}" data-first-name="{{ first_name }}" data-last-name="{{ last_name }}"> Welcome, {{ first_name }} {{ last_name }}</h3>
+                        <span id="headerSubtext" data-header-subtext="Kickstart your online Education" data-first-name="{{ first_name }}" data-last-name="{{ last_name }}"> Kickstart your online Education </span>
                     </div>
                 </div>
                 <div class="dashboard-header-inner-right"></div>
             </div>
         </div>
         <div id="widgets-container">
-            <div class="widget resume-course">
-                <div class="widget-top">
-                    <div class="widget-inner-wrapper">
-                        <div class="widget-icon pastel-purple">
-                            <i class="fa-solid fa-play"></i>
+            {% if profile.last_opened_course and user_course %}
+                <button onclick="launchCourse('{{ profile.last_opened_lesson_id }}'), setDisabledWidget();" class="widget resume-course">
+                    <div class="widget-top">
+                        <div class="widget-inner-wrapper">
+                            {% if user_course.course.thumbnail.thumbnail_link %}
+                                <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_link }});" class="course-item-thumbnail widget-icon"></div>
+                            {% elif user_course.course.thumbnail.thumbnail_image %}
+                                <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_image.url }});" class="course-item-thumbnail widget-icon"></div>
+                            {% else %}
+                                {% if settings.default_course_thumbnail %}
+                                    <div style="background-image: url({{ settings.default_course_thumbnail_image.url }});" class="course-item-thumbnail widget-icon"></div>
+                                {% else %}
+                                    <div class="course-item-thumbnail widget-icon">
+                                        <div class="thumbnail-placeholder">
+                                            <i class="fa-light fa-book-open-cover"></i>
+                                        </div>
+                                    </div> 
+                                {% endif %}                                  
+                            {% endif %}
+                            
+                            <div class="widget-inner-right">
+                                <h3 style="color: {{ widget.widget_title_color }};"> {{ user_course.course.title }} </h3>
+                                <div style="display: flex; gap: 0.3rem; align-items: baseline; color: {{ widget.widget_subtext_color }};">
+                                    <span style="color: {{ widget.widget_subtext_color }};" id="resumeSubtext"> Resume </span><i id="resumeIcon" class="fa-solid fa-angle-right"></i>
+                                </div>
+                                <p hidden>{{ widget.type }}</p>
+                            </div>   
                         </div>
-                        <div class="widget-inner-right">
-                            <h3> Course Name </h3>
-                            <div style="display: flex; gap: 0.3rem; align-items: baseline;">
-                                <span id="resumeSubtext"> Resume </span><i id="resumeIcon" class="fa-solid fa-angle-right"></i>
+                    </div>
+                    <div class="widget-bottom">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" data-progress="{{ user_course.progress }}"></div>
+                        </div>
+                        <span>{{ user_course.progress }}%</span>
+                    </div>          
+                </button>
+            {% else %}
+                <a href="/courses/" class="widget resume-course">
+                    <div class="widget-top">
+                        <div class="widget-inner-wrapper">
+                            <div class="widget-icon pastel-purple">
+                                <i class="fa-light fa-play"></i>
                             </div>
-                        </div>   
+                            <div class="widget-inner-right">
+                                <h3> Nothing in progress... yet. </h3>
+                                <div style="display: flex; gap: 0.3rem; align-items: baseline; color: #6b6b6b;">
+                                    <span id="resumeSubtext"> View My Courses </span><i id="resumeIcon" class="fa-solid fa-angle-right"></i>
+                                </div>
+                                <p hidden>{{ widget.type }}</p>
+                            </div>   
+                        </div>
                     </div>
-                </div>
-                <div class="widget-bottom">
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: 30%;"></div>
-                    </div>
-                    <span>30%</span>
-                </div>          
-            </div>
+                    <div class="widget-bottom">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 0%;"></div>
+                        </div>
+                        <span>0%</span>
+                    </div>          
+                </a>
+            {% endif %}
             <a href="/courses/" class="widget my-courses">
                 <div class="widget-top">
                     <div class="widget-inner-wrapper">
                         <div class="widget-icon pastel-orange">
-                            <i class="fa-solid fa-book-open-cover"></i>
+                            <i class="fa-light fa-book-open-cover"></i>
                         </div>
                         <div class="widget-inner-right">
                             <h3> My Courses </h3>
@@ -52,11 +91,11 @@
                     </div>
                 </div>          
             </a>
-            <div class="widget my-courses">
+            <div onclick="openPopup('enterEnrollmentKey')" class="widget my-courses">
                 <div class="widget-top">
                     <div class="widget-inner-wrapper">
                         <div class="widget-icon pastel-pink">
-                            <i class="fa-solid fa-key"></i>
+                            <i class="fa-light fa-key"></i>
                         </div>
                         <div class="widget-inner-right">
                             <h3> Enrollment Key </h3>
@@ -69,6 +108,7 @@
     </div>
 </div>
 
+{% include 'popups/enter_enrollment_key.html' %}
 <link rel="stylesheet" href="{% static 'content/css/content.css' %}">
 <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">

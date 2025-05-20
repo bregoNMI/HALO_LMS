@@ -14,7 +14,7 @@ html, body, button{
 .learner-body-container{
     margin: 0;
     background-color: var(--bg-color6);
-    height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     /* overflow: hidden; */
@@ -174,8 +174,14 @@ html, body, button{
     text-overflow: ellipsis;
 }
 
+.dropdown-user-icon {
+    background-color: blueviolet;
+    border-radius: 8px;
+    padding: 0.1rem;
+}
+
 .dropdown-user-icon i{
-    font-size: 2rem;
+    font-size: 1.75rem;
     color: blueviolet;
 }
 
@@ -223,7 +229,7 @@ html, body, button{
 }
 
 .widget:hover{
-    transform: translateY(-0.3rem);
+    transform: translateY(-0.25rem);
     box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
 }
 
@@ -332,7 +338,7 @@ html, body, button{
 .learner-top-row h2{
     color: var(--text-color5);
     margin: 0;
-    font-size: var(--fs-xl);
+    font-size: 1.3rem;
 }
 
 .learner-top-row-left span{
@@ -434,7 +440,7 @@ html, body, button{
 }
 
 .course-item:hover {
-    transform: translateY(-0.3rem);
+    transform: translateY(-0.25rem);
     box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
 }
 
@@ -516,6 +522,7 @@ html, body, button{
     position: relative;
     border-radius: 10px;
     overflow: hidden;
+    outline: 1px solid #e4e4e4;
 }
 
 .course-item-thumbnail img{
@@ -725,6 +732,8 @@ html, body, button{
     align-items: center;
     box-shadow: 0px 2px 0px 1px #b8b8b8;
     color: #191c1f;
+    justify-content: center;
+    box-sizing: border-box;
 }.start-course-btn span{
     font-size: 0.9rem;
 }.start-course-btn i{
@@ -793,21 +802,6 @@ html, body, button{
 
 .tab-content.active {
     display: block;
-}
-
-/* Popup animations */
-.popup-content {
-    opacity: 0;
-    transform: scale(0.95);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    max-height: 90vh;
-    margin-top: 5vh;
-    overflow: hidden;
-}
-
-.popup-content.animate-popup-content {
-    opacity: 1;
-    transform: scale(1);
 }
 
 .tab-content-description{

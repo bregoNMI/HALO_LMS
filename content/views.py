@@ -11,7 +11,7 @@ from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
 from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType
-from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse
+from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse, EnrollmentKey, ActivityLog, Profile
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 
 from halo_lms import settings
@@ -892,6 +892,220 @@ def edit_category(request):
         'is_create_page': is_create_page,
     }, status=201)
 
+@require_POST
+def create_enrollment_key(request):
+    name = request.POST.get('name', '').strip()
+    key_name = request.POST.get('key_name', '').strip()
+    course_ids_raw = request.POST.get('course_ids')
+    active = request.POST.get('active') == 'true'
+    max_uses_raw = request.POST.get('max_uses', '').strip()
+    is_create_page = request.POST.get('isCreatePage')
+
+    # Validate required input
+    if not name or not key_name:
+        return JsonResponse({'error': 'Name and Key Name are required.'}, status=400)
+
+    # Check for duplicate key
+    if EnrollmentKey.objects.filter(key=key_name).exists():
+        return JsonResponse({'error': 'This Key Name already exists. Please choose or generate a different one.'}, status=400)
+
+    # Convert max_uses
+    if max_uses_raw.lower() in ('', 'null', 'none'):
+        max_uses = None
+    else:
+        try:
+            max_uses = int(max_uses_raw)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid max_uses value.'}, status=400)
+        
+        if max_uses > 999999999:
+            return JsonResponse({'error': 'Max Number of Uses is too large. Please enter a vale smaller than 999999999.'}, status=400)
+
+    # Create the key
+    key = EnrollmentKey.objects.create(
+        name=name,
+        key=key_name,
+        active=active,
+        max_uses=max_uses,
+    )
+
+    # Assign courses if provided
+    if course_ids_raw:
+        course_ids = [cid.strip() for cid in course_ids_raw.split(',') if cid.strip()]
+        key.courses.set(course_ids)
+
+    if is_create_page == 'true':
+        messages.success(request, 'Enrollment key created successfully!')
+
+    return JsonResponse({
+        'id': key.id,
+        'name': key.name,
+        'is_create_page': is_create_page,
+    }, status=201)
+
+@require_POST
+def edit_enrollment_key(request):
+    id = request.POST.get('id')
+    name = request.POST.get('name', '').strip()
+    key_name = request.POST.get('key_name', '').strip()
+    course_ids_raw = request.POST.get('course_ids')
+    active = request.POST.get('active') == 'true'
+    max_uses_raw = request.POST.get('max_uses', '').strip()
+    is_create_page = request.POST.get('isCreatePage')
+
+    if not name or not key_name:
+        return JsonResponse({'error': 'Name and Key Name are required.'}, status=400)
+
+    # Check uniqueness (exclude current key)
+    if EnrollmentKey.objects.filter(key=key_name).exclude(id=id).exists():
+        return JsonResponse({'error': 'This Key Name already exists. Please choose or generate a different one.'}, status=400)
+
+    # Parse max_uses
+    if max_uses_raw.lower() in ('', 'null', 'none'):
+        max_uses = None
+    else:
+        try:
+            max_uses = int(max_uses_raw)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid max_uses value.'}, status=400)
+        
+        if max_uses < 0:
+            return JsonResponse({'error': 'Max Uses must be 0 or greater.'}, status=400)
+        if max_uses > 999999999:
+            return JsonResponse({'error': 'Max Uses is too large. Please enter a smaller value.'}, status=400)
+
+    # Update the key
+    try:
+        key = EnrollmentKey.objects.get(id=id)
+    except EnrollmentKey.DoesNotExist:
+        return JsonResponse({'error': 'Enrollment key not found.'}, status=404)
+
+    key.name = name
+    key.key = key_name
+    key.active = active
+    key.max_uses = max_uses
+    key.save()
+
+    # Update courses
+    if course_ids_raw:
+        course_ids = [cid.strip() for cid in course_ids_raw.split(',') if cid.strip()]
+        key.courses.set(course_ids)
+    else:
+        key.courses.clear()
+
+    if is_create_page == 'true':
+        messages.success(request, 'Enrollment key updated successfully!')
+
+    return JsonResponse({
+        'id': key.id,
+        'name': key.name,
+        'is_create_page': is_create_page,
+    }, status=200)
+
+@require_POST
+@login_required
+def submit_enrollment_key(request):
+    key_name = request.POST.get('key_name', '').strip()
+
+    # Validate key exists
+    try:
+        key = EnrollmentKey.objects.get(key=key_name)
+    except EnrollmentKey.DoesNotExist:
+        return JsonResponse({'error': "Hmm... we couldn't find a matching enrollment key. Please double-check and try again."}, status=400)
+
+    # Validate if key is still usable
+    if not key.is_valid():
+        return JsonResponse({'error': 'This enrollment key is inactive or has reached its usage limit.'}, status=400)
+
+    courses = key.courses.all()
+    if not courses.exists():
+        return JsonResponse({'error': 'No courses are associated with this key.'}, status=400)
+
+    user = request.user
+    enrolled_courses = []
+    already_enrolled = []
+
+    for course in courses:
+        user_course, created = UserCourse.objects.get_or_create(user=user, course=course)
+
+        if created:
+            # Assign first lesson
+            first_lesson = Lesson.objects.filter(module__course=course).order_by('module__order', 'order').first()
+            if first_lesson:
+                user_course.lesson_id = first_lesson.id
+                user_course.save()
+
+            for module in course.modules.all():
+                ump = UserModuleProgress.objects.create(user_course=user_course, module=module)
+
+                for lesson in module.lessons.all():
+                    UserLessonProgress.objects.create(user_module_progress=ump, lesson=lesson)
+
+            enrolled_courses.append(course.title)
+
+            # Log activity
+            try:
+                ActivityLog.objects.create(
+                    user=user,
+                    action_performer=user,
+                    action_target=user,
+                    action_type='user_enrolled',
+                    action=f"enrolled in: {course.title}",
+                    user_groups=', '.join(group.name for group in user.groups.all()),
+                )
+            except Exception as e:
+                print(f"Failed to log activity for {course.title}: {e}")
+        else:
+            already_enrolled.append(course.title)
+
+    # Increment usage
+    key.uses += 1
+    key.save()
+
+    return JsonResponse({
+        'enrolled_courses': enrolled_courses,
+        'already_enrolled': already_enrolled,
+        'message': f"You were enrolled in {len(enrolled_courses)} new course(s)." if enrolled_courses else "You are already enrolled in all courses tied to this key."
+    }, status=200)
+
+# This is setting the last_opened_course to populate the resume widget on the dashboard
+@require_POST
+@login_required
+def opened_course_data(request):
+    lesson_id = request.POST.get('lesson_id', '').strip()
+
+    if not lesson_id:
+        return JsonResponse({'error': 'Lesson ID is required.'}, status=400)
+
+    # Get the lesson and its course
+    try:
+        lesson = Lesson.objects.select_related('module__course').get(id=lesson_id)
+        course = lesson.module.course
+    except Lesson.DoesNotExist:
+        return JsonResponse({'error': 'Invalid lesson ID.'}, status=404)
+
+    # Check enrollment
+    user = request.user
+    is_enrolled = UserCourse.objects.filter(user=user, course=course).exists()
+
+    if not is_enrolled:
+        return JsonResponse({'error': 'You are not enrolled in this course.'}, status=403)
+
+    # Update the user's profile
+    try:
+        profile = user.profile
+        profile.last_opened_course = course
+        profile.last_opened_lesson_id = lesson_id
+        profile.save()
+    except Profile.DoesNotExist:
+        return JsonResponse({'error': 'User profile not found.'}, status=404)
+
+    return JsonResponse({
+        'course_id': course.id,
+        'course_title': course.title,
+        'message': 'Last opened course updated successfully.'
+    }, status=200)
+
 '''
 def upload_lesson_file(request):
     if request.method == 'POST':
@@ -1179,3 +1393,97 @@ def edit_categories(request, category_id):
     }
 
     return render(request, 'categories/edit_category.html', context)
+
+@login_required
+def admin_enrollment_keys(request):
+    sort_by = request.GET.get('sort_by', 'name_desc')
+    order_by_field = 'name'  # Default sorting field
+    query_string = request.GET.get('query')
+
+    query = Q()
+    active_filters = {}
+
+    # Apply the general search query if provided
+    if query_string:
+        query &= (
+            Q(name__icontains=query_string) |
+            Q(key__icontains=query_string)
+        )
+        active_filters['query'] = query_string
+
+    # Build the query dynamically based on the provided filter parameters
+    for key, value in request.GET.items():
+        if key.startswith('filter_') and value:
+            field_name = key[len('filter_'):]  # Extract field name after 'filter_'
+            query &= Q(**{f"{field_name}__icontains": value})
+            active_filters[field_name] = value
+
+    # Define a dictionary to map sort options to user-friendly text
+    sort_options = {
+        'name_asc': 'Name (A-Z)',
+        'name_desc': 'Name (Z-A)',
+        'key_name_asc': 'Key Name (A-Z)',
+        'key_name_desc': 'Key Name (Z-A)',
+        'uses_asc': 'Times Used (A-Z)',
+        'uses_desc': 'Times Used (Z-A)', 
+        'max_uses_asc': 'Max Uses (A-Z)',
+        'max_uses_desc': 'Max Uses (Z-A)',   
+    }
+
+    # Determine the order by field
+    if sort_by == 'name_asc':
+        order_by_field = 'name'
+    elif sort_by == 'name_desc':
+        order_by_field = '-name'
+    elif sort_by == 'key_name_asc':
+        order_by_field = 'key'
+    elif sort_by == 'key_name_desc':
+        order_by_field = '-key'
+    elif sort_by == 'uses_asc':
+        order_by_field = 'uses'
+    elif sort_by == 'uses_desc':
+        order_by_field = '-uses'
+    elif sort_by == 'max_uses_asc':
+        order_by_field = 'max_uses'
+    elif sort_by == 'max_uses_desc':
+        order_by_field = '-max_uses'
+
+
+    # Add the sort option to the active filters only if it is present in the request
+    if 'sort_by' in request.GET and sort_by:
+        active_filters['sort_by'] = sort_options.get(sort_by, 'Name (Z-A)')
+
+    # Apply the filtering and sorting to the keys list
+    keys_list = EnrollmentKey.objects.filter(query).order_by(order_by_field)
+
+    # Paginate the filtered keys_list
+    paginator = Paginator(keys_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Render the results with the active filters
+    return render(request, 'enrollmentKeys/enrollment_keys.html', {
+        'page_obj': page_obj,
+        'active_filters': active_filters,
+        'sort_by': sort_by,
+    })
+
+@login_required
+def add_enrollment_keys(request):
+    enrollment_key = EnrollmentKey.objects.all()
+
+    context = {
+        'key_list': enrollment_key,
+    }
+
+    return render(request, 'enrollmentKeys/add_enrollment_key.html', context)
+
+@login_required
+def edit_enrollment_keys(request, key_id):
+    enrollment_key = get_object_or_404(EnrollmentKey, pk=key_id)
+
+    context = {
+        'key': enrollment_key,
+    }
+
+    return render(request, 'enrollmentKeys/edit_enrollment_key.html', context)

@@ -31,6 +31,7 @@ h1,h2,h3,h4,h5,h6{
   justify-content: center;
   backface-visibility: hidden;
   transform: translateZ(0);
+  box-sizing: border-box;
 }
 
 .action-button-primary{
@@ -50,6 +51,14 @@ h1,h2,h3,h4,h5,h6{
 
 .action-button-secondary:hover{
   background-color: var(--bg-color1);
+}
+
+.rounded-lg{  
+  width: 100%;
+  border-radius: 24px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: normal;
 }
 
 .details-top-row{
@@ -179,14 +188,14 @@ h1,h2,h3,h4,h5,h6{
 .popup-body{
   padding: var(--pad-xxl) var(--pad-lg);
   border-top: 1px solid var(--bg-color2);
-  max-height: 70vh;
+  max-height: 70dvh;
 }
 
 .popup-body .warning-message{
   /* color: #41454d; */
   color: var(--text-color6);
   font-size: 0.9rem;
-  margin: 0;
+  margin: 0.5rem 0;
 }
 
 .popup-body-flex-inner{
@@ -477,6 +486,12 @@ h1,h2,h3,h4,h5,h6{
 }.max-width-6{
   width: 100%;
   max-width: 500px;
+}.max-width-7{
+  width: 100%;
+  max-width: 400px;
+}.max-width-8{
+  width: 100%;
+  max-width: 300px;
 }.max-width-extend-1{
   width: 100%;
   max-width: 1400px;
@@ -844,7 +859,7 @@ h1,h2,h3,h4,h5,h6{
   pointer-events: none;
 
   min-width: 20px;
-  max-width: 120px;
+  /* max-width: 120px; */
   background-color: #3a3f47fb;
   color: #fff;
   text-align: center;
@@ -862,10 +877,10 @@ h1,h2,h3,h4,h5,h6{
 }
 
 .tooltip:hover .tooltiptext {
-  visibility: visible; /* will apply immediately */
+  visibility: visible;
   opacity: 1;
   transform: translateX(-50%) translateY(30px);
-  transition-delay: 1s; /* override delay on hover */
+  transition-delay: 0.7s;
 }
 
 
@@ -1003,6 +1018,33 @@ h1,h2,h3,h4,h5,h6{
   margin: 0;
 }
 
+.validation-text{
+  display: none;
+  flex-direction: column;
+  margin-top: 0.4rem;
+}.validation-text ul{
+  color: var(--text-color7);
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}.validation-text-error, .validation-text-success{
+  display: flex;
+  flex-direction: row;
+  gap: 0.4rem;
+}.validation-text-error span, .validation-text-success span{
+  font-weight: 400;
+  font-size: 0.8rem;
+}.validation-text-error i, .validation-text-success i{
+  font-size: 1.1rem;
+}
+
+.validation-text-error {
+  color: #f14858;
+}
+
+.validation-text-success {
+  color: #155724;
+}
+
 /* Class to be added to details-top-row when not visible */
 #stickyNavBar {
   display: flex;
@@ -1049,6 +1091,28 @@ h1,h2,h3,h4,h5,h6{
 
 .edit-user-input.disabled .flatpickr-clear-input{
   display: none !important;
+}
+
+.flatpickr-clear-input{
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  padding: var(--pad-xxs) var(--pad-xs);
+  border-radius: 0 6px 6px 0;
+  color: var(--text-color6);
+  cursor: pointer;
+  font-size: 0.9rem;
+  border: none;
+  transition: all 0.2s linear;
+  background-color: var(--bg-color3);
+  border: 1px solid #ececf1;
+}.flatpickr-clear-input:hover{   
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
 }
 
 .popup-header .selected-lesson-type{
@@ -1172,4 +1236,135 @@ input.disabled{
 }.larger-buttons .action-button-secondary-gray:hover{
   background-color: var(--bg-color1);
   color: #191c1f;
+}
+
+/*Searchable User dropdown menu */
+.user-dropdown, .timezone-dropdown, .category-dropdown{
+  position: relative;
+  gap: 1rem;
+}
+
+.user-dropdown .search-icon, .timezone-dropdown .search-icon, .category-dropdown .search-icon{
+  position: absolute;
+  right: 0.6rem;
+  top: 0.65rem;
+  color: gray;
+  font-size: 0.8rem;
+  user-select: none;
+  pointer-events: none;
+}
+
+.user-dropdown input, .timezone-dropdown input, .category-dropdown input{
+  padding-right: 2rem;
+  text-overflow: ellipsis;
+}
+
+.user-dropdown input:focus-visible, .timezone-dropdown input:focus-visible, .category-dropdown input:focus-visible{
+  outline: none;
+  border-bottom: 2px solid #c7c7db;
+}
+
+.userList, .timezoneList, .categoryList{
+  display: none;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #fff;
+  position: absolute;
+  width: 100%;
+  z-index: 2;
+  box-sizing: border-box;
+  top: 2.06rem;
+  border-radius: 2px 2px 8px 8px;
+  margin-bottom: 1rem;
+  border: 2px solid #c7c7db;
+  border-top: 0px;
+  overflow-x: hidden;
+}
+
+.categoryList .container{
+  padding-bottom: 0;
+}
+
+.userList .dropdown-item, .timezoneList .dropdown-item, .categoryList .dropdown-item {
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #ececf1;
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.dropdown-item .dropdown-item-inner{
+  display: flex;
+  flex-direction: column;
+  max-width: 90%;
+}
+
+.dropdown-item .dropdown-item-inner span, .dropdown-item .dropdown-item-inner h5{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color7);
+}
+
+.dropdown-item .dropdown-item-inner span{
+  font-size: 0.71rem;
+  color: #798292;
+  font-weight: 500;
+}
+
+#selectedUsers .right-column-file-wrapper, #selectedCourses .right-column-file-wrapper{
+  margin-top: 0.2rem;
+}
+
+.userList .dropdown-item:hover, .timezoneList .dropdown-item:hover, .categoryList .dropdown-item:hover{
+  background-color: var(--bg-color3);
+}
+
+.userList .dropdown-item:hover .checkmark, .timezoneList .dropdown-item:hover .checkmark, .categoryList .dropdown-item:hover .checkmark{
+  border-color: var(--primary-blue);
+}
+
+.userList .dropdown-item.selected, .timezoneList .dropdown-item.selected, .categoryList .dropdown-item.selected {
+  background-color: var(--item-selected-blue);
+  border-bottom: 1px solid #ffffff;
+}
+
+.userList .dropdown-item:last-child, .userList .dropdown-item.selected:last-child, .timezoneList .dropdown-item:last-child, .timezoneList .dropdown-item.dropdown-item.selected:last-child,  .categoryList .dropdown-item:last-child, .categoryList .dropdown-item.dropdown-item.selected:last-child{
+  border: none;
+}
+
+.no-results {
+  padding: 8px;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.selectedUsers, .selectedTimezones, .selectedCategories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.selectedUsers .selected-user, .selectedTimezones .selected-timezone, .selectedCategories .selected-category, .selectedCourses .selected-course  {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 8px;
+  background-color: #eceff4;
+  border-radius: 6px;
+  outline: 1px solid #e5e7eb;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.selected-user-details, .selected-timezone-details, .selected-category-details, .selected-course-details {
+  font-weight: 600;
+  color: #41454d;
+  font-size: 0.75rem;
+}
+
+.selectedUsers .remove-user, .selectedTimezones .remove-timezone, .selectedCategories .remove-category {
+  cursor: pointer;
 }

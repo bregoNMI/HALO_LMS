@@ -1646,7 +1646,7 @@ function setDisabledSaveBtns() {
         btn.style.width = savedWidth;
         btn.style.height = savedHeight;
 
-        btn.innerHTML = `<i class="fa-light fa-loader fa-spin"></i>`;
+        btn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
     }
 }
 

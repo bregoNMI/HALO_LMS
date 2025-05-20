@@ -21,7 +21,7 @@ class Dashboard(models.Model):
 class Widget(models.Model):
     dashboard = models.ForeignKey(Dashboard, on_delete=models.CASCADE, related_name='widgets')
     widget_title = models.CharField(max_length=255, blank=True, null=True)
-    widget_title_color = models.CharField(max_length=7, default='#333333')
+    widget_title_color = models.CharField(max_length=7, default='#41454d')
     widget_subtext = models.CharField(max_length=255, blank=True, null=True)
     widget_subtext_color = models.CharField(max_length=7, default='#6b6b6b')
     widget_icon = models.CharField(max_length=100, blank=True, null=True)

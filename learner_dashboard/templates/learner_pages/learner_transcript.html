@@ -80,7 +80,7 @@
                                             {% else %}
                                                 <div class="course-item-thumbnail">
                                                     <div class="thumbnail-placeholder">
-                                                        <i class="fa-regular fa-book-open-cover"></i>
+                                                        <i class="fa-light fa-book-open-cover"></i>
                                                     </div>
                                                 </div> 
                                             {% endif %}                                  
@@ -174,22 +174,22 @@
                                     <div class="coure-item-start-btn">
                                         <!-- Button To Start Course -->
                                         {% if user_course.get_status == 'Not Started' %}
-                                            <button class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                            <button class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}')">
                                                 <i class="fa-regular fa-rocket-launch"></i>
                                                 <span> Start</span>
                                             </button>
                                         {% elif user_course.get_status == 'Started' or user_course.get_status == 'Not Completed' %}
-                                            <div class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                            <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}')">
                                                 <i class="fa-regular fa-circle-play"></i>
                                                 <span> Resume </span>
                                             </div>
                                         {% elif user_course.get_status == 'Completed' %}
-                                            <div class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                            <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}')">
                                                 <i class="fa-regular fa-glasses"></i>
                                                 <span> Review </span>
                                             </div>
                                         {% else %}
-                                            <div class="start-course-btn">
+                                            <div class="start-course-btn learner-save-btns">
                                                 <i class="fa-regular fa-stopwatch"></i>
                                                 <span> Expired </span>
                                             </div>
@@ -211,7 +211,7 @@
                                     <div class="course-item-top">                         
                                         <div class="course-item-thumbnail">
                                             <div class="thumbnail-placeholder">
-                                                <i class="fa-regular fa-book-open-cover"></i>
+                                                <i class="fa-light fa-book-open-cover"></i>
                                             </div>
                                         </div> 
                                     </div>

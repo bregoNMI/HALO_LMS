@@ -74,21 +74,35 @@ html, body, button{
     gap: 0.8rem;
 }
 
-.admin-header-user-icon{
+.admin-header-user-icon {
     display: flex;
     font-size: var(--fs-xxxl);
-    color: blueviolet;
+    color: white;
+    background-color: blueviolet;
     padding: var(--pad-xs);
-    border-radius: 50%;
+    border-radius: 8px;
     cursor: pointer;
-    height: 1.5rem;
-    width: 1.5rem;
+    height: 1rem;
+    width: 1rem;
     align-items: center;
     justify-content: center;
     transition: all 0.2s linear;
-}.admin-header-user-icon:hover{
-    background-color: #373737;
-}.admin-header-user-icon i{
+  }
+  
+  /* Hover styling */
+  .admin-header-user-icon:hover {
+    background-color: rgb(163, 77, 243);
+    color: white;
+  }
+  
+  /* Font Awesome icon inside */
+  .admin-header-user-icon:hover i {
+    --fa-primary-color: white;
+    --fa-secondary-color: rgb(163, 77, 243);
+    color: white; /* fallback in case it's not a duotone icon */
+  }
+
+.admin-header-user-icon i{
     height: 32px;
     width: 32px;
 }
@@ -129,8 +143,8 @@ html, body, button{
     padding: var(--pad-xxxl);
     border-top: 1px solid #ececf1;
     border-left: 1px solid #ececf1;
-    /* height: calc(100vh - 74.36px); */
-    height: calc(100vh - 58.59px);
+    /* height: calc(100dvh - 74.36px); */
+    height: calc(100dvh - 58.59px);
     /* Make sure the body height fills the viewport */
     box-sizing: border-box;
     overflow-y: auto;
@@ -138,8 +152,11 @@ html, body, button{
     outline: none;
 }
 
-.sidebar-body h6{
+.sidebar-body .highlight h6{
+    font-weight: 600;
+}.sidebar-body h6{
     font-size: 0.75rem;
+    font-weight: 500;
     margin: 0;
 }
 
@@ -255,14 +272,16 @@ html, body, button{
     top: 6px;
     height: 65%;
     width: 3px;
-    background-color: #191c1f;
+    /* background-color: #191c1f; */
+    background-color: #1b252d;
     border-radius: 16px;
     clip-path: inset(0% 0% 0% 0% round 0 0 4px 4px);
 }
 
 .collapsible-header.current-page, .sidebar-body-item.current-page, .collapsible-header.highlight{
     background-color: #efefef;
-    color: #191c1f;
+    /* color: #191c1f; */
+    color: #1b252d;
 }
 
 .collapsible-header.current-page i, .sidebar-body-item.current-page, .collapsible-header.highlight i{
@@ -274,7 +293,8 @@ html, body, button{
 } */
 
 .sidebar-body-item.current-page{
-    border-color: #191c1f;
+    /* border-color: #191c1f; */
+    border-color: #1b252d;
     background-color: transparent;
     font-weight: 600;
 }
@@ -302,7 +322,7 @@ html, body, button{
 .admin-top-row-left h2{
     color: var(--text-color5);
     margin: 0;
-    font-size: var(--fs-xl);
+    font-size: 1.3rem;
 }
 
 .admin-top-row-right{
@@ -479,7 +499,8 @@ html, body, button{
 }
 
 .selected-options-count{
-    font-size: var(--btn-font);
+    font-size: 0.9rem;
+    color: var(--text-color7);
     gap: 0.25rem;
     align-items: center;
 }
@@ -654,7 +675,7 @@ tr.selected-option th, tr.selected-option td{
     margin-right: -15rem;
     /* transition: all 0.4s ease-out; */
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    height: calc(100vh - 58.59px);
+    height: calc(100dvh - 58.59px);
     box-sizing: border-box;
     overflow-y: hidden;
 }
@@ -906,8 +927,14 @@ tr.selected-option th, tr.selected-option td{
     text-overflow: ellipsis;
 }
 
+.dropdown-user-icon {
+    background-color: blueviolet;
+    border-radius: 8px;
+    padding: 0.1rem;
+}
+
 .dropdown-user-icon i{
-    font-size: 2rem;
+    font-size: 1.75rem;
     color: blueviolet;
 }
 
@@ -922,7 +949,7 @@ tr.selected-option th, tr.selected-option td{
     color: var(--text-color4);
     transition: all 0.2s linear;
     align-items: center;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .dropdown-content-option:hover{
@@ -1151,28 +1178,7 @@ tr.selected-option th, tr.selected-option td{
 }
 
 .selectedCourses {
-    display: flex;
+    display: none;
     flex-wrap: wrap;
     gap: 0.5rem;
-}
-
-.selectedCourses .selected-course {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 8px;
-    background-color: #eceff4;
-    border-radius: 6px;
-    outline: 1px solid #e5e7eb;
-    align-items: center;
-    gap: 0.6rem;
-}
-
-.selected-course-details {
-    font-weight: 600;
-    color: #41454d;
-    font-size: 0.75rem;
-}
-
-.selectedCourse .remove-course {
-    cursor: pointer;
 }

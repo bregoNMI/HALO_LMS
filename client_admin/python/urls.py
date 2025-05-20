@@ -38,6 +38,12 @@ urlpatterns = [
     path('categories/edit/<int:category_id>/', content_views.edit_categories, name='edit_categories'),
     path('categories/delete-categories/', views.delete_categories, name='delete_categories'),
 
+    # Enrollment Keys
+    path('enrollment-keys/', content_views.admin_enrollment_keys, name='admin_enrollment_keys'),
+    path('enrollment-keys/add/', content_views.add_enrollment_keys, name='add_enrollment_keys'),
+    path('enrollment-keys/edit/<int:key_id>/', content_views.edit_enrollment_keys, name='edit_enrollment_keys'),
+    path('enrollment-keys/delete-keys/', views.delete_enrollment_keys, name='delete_enrollment_keys'),
+
     # Settings
     path('settings/', views.admin_settings, name='admin_settings'), 
     path('settings/create-allowed-id/', views.create_allowed_id_photo, name='create_allowed_id_photo'),

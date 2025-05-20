@@ -220,9 +220,10 @@
     font-size: 0.87rem;
     margin-top: 0;
     color: var(--text-color7);
-    margin-bottom: 0;
-    padding-bottom: 0.4rem;
+    margin-bottom: 0.4rem;
+    /* padding-bottom: 0.4rem;*/
     font-weight: 600;
+    position: relative;
 }
 
 .edit-settings-input input{
@@ -345,6 +346,7 @@
     display: flex;
     align-items: center;
     margin-top: 0.5rem;
+    font-size: 1rem !important;
 }
 
 .custom-file-upload {

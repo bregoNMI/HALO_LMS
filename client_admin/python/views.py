@@ -27,7 +27,7 @@ from django.http import HttpResponseForbidden, HttpRequest
 from content.models import Lesson, Category
 from learner_dashboard.views import learner_dashboard
 from django.contrib import messages
-from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos
+from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos, EnrollmentKey
 from course_player.models import LessonSession, SCORMTrackingData
 from client_admin.forms import OrganizationSettingsForm
 from .forms import UserRegistrationForm, ProfileForm, CSVUploadForm
@@ -1196,11 +1196,34 @@ def delete_categories(request):
                 if not category.exists():
                     raise ValueError(f"No category found with ID {category_id}")
                 category.delete()
-            messages.success(request, 'All selected Categories deleted successfully.')
+            messages.success(request, 'All selected categories deleted successfully.')
             return JsonResponse({
                 'status': 'success',
                 'redirect_url': '/admin/categories/',
                 'message': 'All selected categories deleted successfully'
+            })
+    except ValueError as e:
+        logger.error(f"Deletion error: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+    
+def delete_enrollment_keys(request):
+    data = json.loads(request.body)
+    key_ids = data['ids']
+    try:
+        with transaction.atomic():
+            for key_id in key_ids:
+                key = EnrollmentKey.objects.filter(id=key_id)
+                if not key.exists():
+                    raise ValueError(f"No category found with ID {key_id}")
+                key.delete()
+            messages.success(request, 'All selected enrollment keys deleted successfully.')
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': '/admin/enrollment-keys/',
+                'message': 'All selected enrollment keys deleted successfully'
             })
     except ValueError as e:
         logger.error(f"Deletion error: {e}")

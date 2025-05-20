@@ -14,7 +14,7 @@ body{
     background-color: #1d2327;
     border-top: 1px solid #ececf1;
     /* border-left: 1px solid #ececf1; */
-    height: 100vh;
+    height: 100dvh;
     box-sizing: border-box;
     outline: none;
 }
@@ -45,7 +45,7 @@ body{
     width: 20rem;
     z-index: 3;
     transition: all 0.4s ease-out;
-    height: calc(100vh - 48.97px);
+    height: calc(100dvh - 48.97px);
     box-sizing: border-box;
     overflow-y: auto;
 }
@@ -61,6 +61,8 @@ body{
     padding: 0.63rem var(--pad-sm);
     cursor: pointer;
     transition: all 0.3s ease-in-out;
+}.login-form-sidebar .info-card-header.collapsable-header span {
+    font-weight: 500;
 }.login-form-sidebar .info-card-header.collapsable-header:hover {
     background-color: #f2f2f2;
 }.login-form-sidebar .info-card-header.collapsable-header:hover:active {
@@ -229,7 +231,7 @@ body{
     flex-grow: 1;
     background-color: var(--bg-color6);
     border-top: 1px solid #ececf1;
-    height: calc(100vh - 48.97px);
+    height: calc(100dvh - 48.97px);
     box-sizing: border-box;
     overflow-y: auto;
     outline: none;
@@ -336,7 +338,7 @@ body{
 /* This is the container for the real login page */
 .true-login-container .login-form-body-wrapper{
     border: none;
-    height: 100vh;
+    height: 100dvh;
 }.true-login-container .form-heading-wrapper{
     display: flex;
     flex-direction: column;

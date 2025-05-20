@@ -439,7 +439,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Deleting Categories
+    // Deleting Categories 
     document.querySelectorAll('#data-delete-categories').forEach(item => {
         item.addEventListener('click', () => {
             openPopup('categoryDeleteConfirmation');
@@ -451,6 +451,44 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteCategoryConfirmation.addEventListener('click', () => {
             console.log(selectedIds);
             const url = '/admin/categories/delete-categories/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Deleting Enrollment Keys 
+    document.querySelectorAll('#data-delete-enrollment-keys').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('enrollmentKeyDeleteConfirmation');
+        });
+    });
+
+    const deleteEnrollmentKeyConfirmation = document.getElementById('deleteEnrollmentKeyConfirmation');
+    if(deleteEnrollmentKeyConfirmation){
+        deleteEnrollmentKeyConfirmation.addEventListener('click', () => {
+            console.log(selectedIds);
+            const url = '/admin/enrollment-keys/delete-keys/';
     
             fetch(url, {
                 method: 'POST',

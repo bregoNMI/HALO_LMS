@@ -1,8 +1,12 @@
+.dashboard-edit-body{
+    height: 100dvh;
+}
+
 .dashboard-header-container {
     display: flex;
     height: 20rem;
     margin-top: 2rem;
-    background-image: url('/static/images/dashboard/bannerTemplate1.png');
+    background-image: url('/static/images/dashboard/bannerTemplate2.png');
     background-size: cover;
     background-position: bottom right;
     background-repeat: no-repeat;
@@ -93,7 +97,7 @@
     width: 20rem;
     margin-right: -20rem;
     min-width: 20rem;
-    height: 100vh;
+    height: 100dvh;
 }
 
 /* Widget Styling */
@@ -109,6 +113,8 @@
     box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
     justify-content: space-between;
     text-decoration: none;
+    box-sizing: border-box;
+    border: none;
 }
 
 .widget-top{
@@ -139,7 +145,7 @@
 .widget-inner-right h3{
     text-wrap: nowrap;
     text-overflow: ellipsis;
-    color: black;
+    color: var(--text-color7);
     font-size: 1.05rem;
 }
 
@@ -237,7 +243,7 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 0;
-    height: calc(100vh - 122.36px);
+    height: calc(100dvh - 122.36px);
     overflow: auto;
 }
 
@@ -290,7 +296,7 @@
     padding: 1rem;
 }
 
-.icon-selection-item{
+.icon-selection-container .icon-selection-item, .icon-selection-item{
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -443,7 +449,9 @@
 }
 
 .card-item-heading{
-    color: var(--text-color5);
+    color: var(--text-color7);
+}.card-item-heading h3{
+    font-size: 1.1rem;
 }
 
 .card-item-inner{
@@ -594,4 +602,34 @@
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
     border-radius: 8px;
+}
+
+/* Enrollment Key Popup */
+.enrollment-key-popup-body{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}.enrollment-key-text{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}.enrollment-key-text h3{
+    color: var(--text-color7);
+    font-size: var(--fs-lg);
+}.enrollment-key-text span{
+    color: var(--text-color4);
+    font-size: 0.8rem;
+    text-align: center;
+}.enrollment-key-icon{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 5rem;
+    width: 5rem;
+    border-radius: 50%;
+    flex: none;
+    background-color: #ffc9d2;
+    border: 1px solid #f1a3b2;
+}.enrollment-key-icon i{
+    font-size: 2.2rem;
 }

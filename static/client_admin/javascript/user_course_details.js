@@ -184,8 +184,26 @@ function setDisabledSaveBtns() {
         btn.style.width = savedWidth;
         btn.style.height = savedHeight;
 
-        btn.innerHTML = `<i class="fa-light fa-loader fa-spin"></i>`;
+        btn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
     }
+}
+
+function removeDisabledSaveBtns() {
+    setTimeout(() => {
+        const courseSaveBtns = document.querySelectorAll('.course-save-btns');
+        for (const btn of courseSaveBtns) {
+            btn.classList.remove('disabled');
+            btn.removeAttribute('disabled');
+
+            if (btn.dataset.originalHtml) {
+                btn.innerHTML = btn.dataset.originalHtml;
+                delete btn.dataset.originalHtml;
+            }
+
+            btn.style.width = "";
+            btn.style.height = "";
+        }
+    }, 400);
 }
 
 function resetLessonActivity(){

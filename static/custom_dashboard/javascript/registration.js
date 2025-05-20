@@ -485,7 +485,7 @@ function addLoadingSymbol(){
     });
 
     if(areFieldsComplete == true){
-        submitFormBtn.innerHTML = `<i class="fa-light fa-loader fa-spin"></i>`;
+        submitFormBtn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
     }
 }
 

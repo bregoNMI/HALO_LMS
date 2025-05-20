@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loginFormButton.style.width = savedWidth;
             loginFormButton.style.height = savedHeight;
 
-            loginFormButton.innerHTML = `<i class="fa-light fa-loader fa-spin"></i>`;
+            loginFormButton.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
         })
     }
 

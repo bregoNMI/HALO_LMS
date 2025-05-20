@@ -178,7 +178,7 @@ function initializeUserDropdown(containerId, selectedUserIds = []) {
     fetchUsers();
 }
 
-function initializeCourseDropdown(containerId) {
+function initializeCourseDropdown(containerId, initialSelectedCourseIds = []) {
     const container = document.getElementById(containerId);
     const courseSearchInput = container.querySelector('.courseSearch');
     const courseList = container.querySelector('.courseList');
@@ -189,7 +189,13 @@ function initializeCourseDropdown(containerId) {
     let isLoading = false;
     let hasMoreCourses = true;
 
-    let selectedCourseIds = JSON.parse(localStorage.getItem('selectedCourseIds') || '[]');
+    const storedIds = JSON.parse(localStorage.getItem('selectedCourseIds') || '[]');
+    let selectedCourseIds = [...new Set([...initialSelectedCourseIds, ...storedIds])];
+
+    function getSelectedCourseIdsFromDOM() {
+        return Array.from(selectedCoursesList.querySelectorAll('.selected-course'))
+            .map(el => el.dataset.courseId);
+    }
 
     function fetchCourses(searchTerm = '', resetList = false) {
         if (isLoading || !hasMoreCourses) return;
@@ -208,6 +214,13 @@ function initializeCourseDropdown(containerId) {
                 courseList.innerHTML = '';
                 page = 1;
             }
+
+            // Merge localStorage + existing DOM selected course IDs
+            const selectedIdsInDOM = getSelectedCourseIdsFromDOM();
+            const combinedSelectedIds = new Set([
+                ...selectedCourseIds.map(String),
+                ...selectedIdsInDOM
+            ]);
 
             data.courses.forEach(course => {
                 const courseItem = document.createElement('div');
@@ -232,11 +245,15 @@ function initializeCourseDropdown(containerId) {
 
                 const checkbox = checkboxWrapper.querySelector('.course-checkbox');
 
-                // Pre-select the checkbox if the course ID is in the selected IDs array
-                if (selectedCourseIds.includes(String(course.id))) {
+                if (combinedSelectedIds.has(String(course.id))) {
                     checkbox.checked = true;
                     courseItem.classList.add('selected');
-                    appendSelectedCourse(course.title, course.id);
+
+                    if (!selectedCoursesList.querySelector(`[data-course-id="${course.id}"]`)) {
+                        appendSelectedCourse(course.title, course.id);
+                    }
+
+                    // Remove from selectedCourseIds so it's not processed again in future fetches
                     selectedCourseIds = selectedCourseIds.filter(id => id !== String(course.id));
                 }
 
@@ -258,11 +275,14 @@ function initializeCourseDropdown(containerId) {
                 });
             });
 
+            if (data.courses.length === 0 && resetList) {
+                courseList.innerHTML = '<div class="no-results">No results found</div>';
+            }
+
             isLoading = false;
             loadingIndicator.style.display = 'none';
             page += 1;
 
-            // Fetch more courses automatically if there are still IDs to process and more courses to load
             if (selectedCourseIds.length > 0 && hasMoreCourses && data.courses.length > 0) {
                 fetchCourses(searchTerm);
             }
@@ -274,7 +294,6 @@ function initializeCourseDropdown(containerId) {
         });
     }
 
-    // Function to append selected course to the list
     function appendSelectedCourse(name, courseId) {
         const courseItem = document.createElement('div');
         courseItem.classList.add('selected-course');
@@ -295,9 +314,9 @@ function initializeCourseDropdown(containerId) {
 
         courseItem.appendChild(removeButton);
         selectedCoursesList.appendChild(courseItem);
+        updateSelectedCoursesVisibility();
     }
 
-    // Function to remove selected course from the list
     function removeSelectedCourse(courseId) {
         const courseItem = selectedCoursesList.querySelector(`[data-course-id="${courseId}"]`);
         if (courseItem) {
@@ -309,6 +328,12 @@ function initializeCourseDropdown(containerId) {
             dropdownItem.classList.remove('selected');
             dropdownItem.querySelector('.course-checkbox').checked = false;
         }
+        updateSelectedCoursesVisibility();
+    }
+
+    function updateSelectedCoursesVisibility() {
+        selectedCoursesList.style.display =
+            selectedCoursesList.children.length === 0 ? 'none' : 'flex';
     }
 
     courseList.addEventListener('scroll', function () {
@@ -339,7 +364,9 @@ function initializeCourseDropdown(containerId) {
 
     // Initial load
     fetchCourses();
+    updateSelectedCoursesVisibility();
 }
+
 
 function initializeSingularCourseDropdown(containerId) {
     const container = document.getElementById(containerId);
@@ -1121,7 +1148,6 @@ function createCategory(parent_category, name, description, isCreatePage) {
             initializeCategoryDropdown(dropdown.id);
         });
         if(data.is_create_page == 'true'){
-            console.log('MADE ITTT');
             location.href = '/admin/categories/';
         }
     })
@@ -1199,6 +1225,86 @@ function updateCategoryDropdown(categoryId, categoryName) {
 
     categoryItem.prepend(checkboxWrapper);
     categoryList.appendChild(categoryItem);
+}
+
+// Function to create a new enrollment key
+function createEnrollmentKey(name, keyName, courseIds, active, maxUses, isCreatePage) {
+    fetch('/requests/create-enrollment-key/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: new URLSearchParams({
+            'name': name,
+            'key_name': keyName,
+            'course_ids': courseIds,
+            'active': active,
+            'max_uses': maxUses,
+            'isCreatePage': isCreatePage,
+        }),
+    })
+    .then(async response => {
+        const data = await response.json();
+
+        if (!response.ok) {
+            displayValidationMessage(data.error || 'Failed to create key.', false);
+            removeDisabledSaveBtns();
+            return;
+        }
+
+        if (data.is_create_page === 'true') {
+            location.href = '/admin/enrollment-keys/';
+        } else {
+            displayValidationMessage('Enrollment key created successfully!', true);
+        }
+    })
+    .catch(error => {
+        console.error('Unexpected error:', error);
+        displayValidationMessage('Something went wrong. Please try again.', false);
+    });
+}
+
+// Function to create a edit enrollment key
+function editEnrollmentKey(id, name, keyName, courseIds, active, maxUses, isCreatePage) {
+    console.log(id, name, keyName, courseIds, active, maxUses, isCreatePage);
+    fetch('/requests/edit-enrollment-key/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: new URLSearchParams({
+            'id': id,
+            'name': name,
+            'key_name': keyName,
+            'course_ids': courseIds,
+            'active': active,
+            'max_uses': maxUses,
+            'isCreatePage': isCreatePage,
+        }),
+    })
+    .then(async response => {
+        const data = await response.json();
+
+        if (!response.ok) {
+            displayValidationMessage(data.error || 'Failed to create key.', false);
+            removeDisabledSaveBtns();
+            return;
+        }
+
+        if (data.is_create_page === 'true') {
+            location.href = '/admin/enrollment-keys/';
+        } else {
+            displayValidationMessage('Enrollment key edited successfully!', true);
+        }
+    })
+    .catch(error => {
+        console.error('Unexpected error:', error);
+        displayValidationMessage('Something went wrong. Please try again.', false);
+    });
 }
 
 // Helper function to get CSRF token from cookies

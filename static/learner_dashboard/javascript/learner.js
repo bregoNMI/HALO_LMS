@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCardListeners();
     initializeAlertMessages();
     initializeProfileInputListeners();
+    initializeEnrollmentTextListener();
 
     flatpickr(".date-picker", {
         altInput: true,
@@ -141,6 +142,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Animating Resume Course progress bar
+    setTimeout(() => {
+        document.querySelectorAll('.progress-bar').forEach(bar => {
+            const progress = bar.getAttribute('data-progress');
+            bar.style.width = progress + '%';
+        });
+    }, 200);
 });
 
 function initializeHeaderVariables(){
@@ -234,11 +242,9 @@ function initializeProfileInputListeners() {
         if (input.tagName === 'INPUT') {
             input.addEventListener('input', function () {
                 showsaveButtonPlatform();
-                console.log('input detected in:', input);
             });
             input.addEventListener('change', function () {
                 showsaveButtonPlatform();
-                console.log('change detected in:', input);
             });
         }
         
@@ -249,7 +255,6 @@ function initializeProfileInputListeners() {
                 input.closest('.custom-select').querySelectorAll('.select-item').forEach(item => {
                     item.addEventListener('click', function() {
                         showsaveButtonPlatform();
-                        console.log('change detected in custom dropdown:', input);
                     });
                 });
             });
@@ -259,7 +264,7 @@ function initializeProfileInputListeners() {
 
 function showsaveButtonPlatform(){
     const saveButtonPlatform = document.getElementById('saveButtonPlatform');
-    saveButtonPlatform.classList.add('animate-save-button-platform');
+    if(saveButtonPlatform){saveButtonPlatform.classList.add('animate-save-button-platform');}
 }
 
 /* My Courses Page JS */
@@ -365,11 +370,220 @@ function checkOverflow() {
 }
 
 function launchCourse(lessonId){
+    setDisabledSaveBtns();
+
     if (!lessonId) {
         console.log("LessonID: ", lessonId)
         console.error("Lesson ID is missing!");
         return;
     }
-    console.log(`Launching course with Lesson ID: ${lessonId}`);
-    window.location.href = `/launch_scorm_file/${lessonId}/`;
+
+    // Sending request to update last_opened_course
+    fetch('/requests/opened-course-data/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: new URLSearchParams({
+            'lesson_id': lessonId,
+        }),
+    })
+    .then(async response => {
+        const data = await response.json();
+    
+        if (!response.ok) {
+            displayValidationMessage(data.error || 'Failed to open.', false);            
+            return;
+        }
+    
+        console.log(`Launching course with Lesson ID: ${lessonId}`);
+        // This is what actually launches the course
+        window.location.href = `/launch_scorm_file/${lessonId}/`;
+         
+    })    
+    .catch(error => {
+        console.error('Unexpected error:', error);
+        displayValidationMessage('Something went wrong. Please try again.', false);
+    }); 
+}
+
+function setDisabledWidget() {
+    let learnerSaveBtns = document.querySelectorAll('.resume-course');
+    
+    for (const btn of learnerSaveBtns) {
+        setTimeout(() => {
+            btn.setAttribute('disabled', true);
+        }, 100);
+        btn.classList.add('disabled');
+        btn.style.opacity = '0.6';
+        btn.style.color = 'var(--primary-blue)';
+
+        if (!btn.dataset.originalHtml) {
+            btn.dataset.originalHtml = btn.innerHTML;
+        }
+
+        const savedWidth = btn.offsetWidth + "px";
+        const savedHeight = btn.offsetHeight + "px";
+
+        btn.style.width = savedWidth;
+        btn.style.height = savedHeight;
+
+        btn.innerHTML += `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s; position: absolute; top: 50%;left: 50%; transform: translate(-50%, -50%); font-size: 1.4rem;">`;
+    }
+    removeDisabledSaveBtns();
+}
+
+function setDisabledSaveBtns() {
+    let learnerSaveBtns = document.querySelectorAll('.learner-save-btns');
+
+    for (const btn of learnerSaveBtns) {
+        setTimeout(() => {
+            btn.setAttribute('disabled', true);
+        }, 100);
+        btn.classList.add('disabled');
+        btn.style.justifyContent = 'center';
+        btn.style.alignItems = 'center';
+
+        if (!btn.dataset.originalHtml) {
+            btn.dataset.originalHtml = btn.innerHTML;
+        }
+
+        const savedWidth = btn.offsetWidth + "px";
+        const savedHeight = btn.offsetHeight + "px";
+
+        btn.style.width = savedWidth;
+        btn.style.height = savedHeight;
+
+        btn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
+    }
+}
+
+function removeDisabledSaveBtns() {
+    setTimeout(() => {
+        const learnerSaveBtns = document.querySelectorAll('.learner-save-btns');
+        for (const btn of learnerSaveBtns) {
+            btn.classList.remove('disabled');
+            btn.removeAttribute('disabled');
+
+            if (btn.dataset.originalHtml) {
+                btn.innerHTML = btn.dataset.originalHtml;
+                delete btn.dataset.originalHtml;
+            }
+
+            btn.style.width = "";
+            btn.style.height = "";
+        }
+    }, 400);
+}
+
+// Enrollment Key logic
+function initializeEnrollmentTextListener(){
+    const enrollmentKeyName = document.getElementById('enrollment_key_name');
+    if(enrollmentKeyName){
+        enrollmentKeyName.addEventListener('keyup', function() {
+            const enrollmentKeyBtn = document.getElementById('enrollmentKeyBtn');
+            if(this.value.length >= 1){
+                enrollmentKeyBtn.classList.remove('disabled');
+                enrollmentKeyBtn.removeAttribute('disabled');
+            }else{
+                enrollmentKeyBtn.classList.add('disabled');
+                enrollmentKeyBtn.setAttribute('disabled', true);
+            }
+        });
+    }
+}
+
+// Function to create a submit enrollment key
+function submitEnrollmentKey() {
+    
+    setDisabledSaveBtns();
+    document.getElementById('validation-text').innerHTML = '';
+
+    const keyName = document.getElementById('enrollment_key_name').value.trim();
+    console.log(keyName);
+    fetch('/requests/submit-enrollment-key/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: new URLSearchParams({
+            'key_name': keyName,
+        }),
+    })
+    .then(async response => {
+        const data = await response.json();
+    
+        if (!response.ok) {
+            removeDisabledSaveBtns();
+            displayValidationText(data.error || 'Failed to submit key.', false);            
+            return;
+        }
+    
+        if (data.enrolled_courses?.length > 0) {
+            const count = data.enrolled_courses.length;
+            const label = count === 1 ? 'course' : 'courses';
+        
+            const courseList = document.createElement('ul');
+            data.enrolled_courses.forEach(course => {
+                const li = document.createElement('li');
+                li.textContent = course;
+                courseList.appendChild(li);
+            });
+        
+            displayValidationText(`You have been enrolled in the following ${label}:`, true, courseList);
+            showViewCourseBtn();
+        } else {
+            displayValidationText('You are already enrolled in all associated courses.', true);
+            showViewCourseBtn();
+        }        
+    })    
+    .catch(error => {
+        console.error('Unexpected error:', error);
+        displayValidationText('Something went wrong. Please try again.', false);
+    });
+}
+
+function showViewCourseBtn(){
+    removeDisabledSaveBtns();
+    const keyName = document.getElementById('enrollment_key_name');
+    const enrollmentKeyBtn = document.getElementById('enrollmentKeyBtn');
+    const viewCoursesBtn = document.getElementById('viewCoursesBtn');
+
+    enrollmentKeyBtn.style.display = 'none';
+    viewCoursesBtn.style.display = 'flex';
+    keyName.setAttribute('readonly', true);
+    keyName.classList.add('disabled');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Helper function to get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }

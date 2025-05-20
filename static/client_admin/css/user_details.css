@@ -206,6 +206,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 0.95rem;
 }
 
 .card-header-right i{
@@ -307,7 +308,7 @@
 /* Edit User Popup */
 .popup-scroll-wrapper{
     display: flex;
-    max-height: 70vh;
+    max-height: 70dvh;
     overflow-y: auto;
     flex-direction: column;
 }
@@ -404,7 +405,8 @@
     margin-bottom: 0;
     padding-bottom: 0.4rem;
     color: var(--text-color2);
-    max-width: 142px;
+    /* max-width: 142px; */
+    max-width: 200px;
 }
 
 .edit-user-input input{
@@ -442,7 +444,9 @@
 }
 
 .edit-user-input .date-picker, .edit-user-input .time-picker, .edit-user-input .icon-field{
-    padding-left: 2.6rem;
+    padding-left: 2.6rem !important;
+}.edit-user-input .date-picker, .edit-user-input .time-picker{
+    padding-left: 2.6rem !important;
     cursor: pointer;
 }
 
@@ -460,28 +464,6 @@
     border: none;
 }.input-group-addon:hover{
     background-color: dodgerblue;
-}
-
-.flatpickr-clear-input{
-    visibility: hidden;
-    opacity: 0;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    top: 0;
-    padding: var(--pad-xxs) var(--pad-xs);
-    border-radius: 0 6px 6px 0;
-    color: var(--text-color6);
-    cursor: pointer;
-    font-size: 0.9rem;
-    border: none;
-    transition: all 0.2s linear;
-    background-color: var(--bg-color3);
-    border: 1px solid #ececf1;
-}.flatpickr-clear-input:hover{   
-    color: #721c24;
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
 }
 
 /* Course Type Icon */

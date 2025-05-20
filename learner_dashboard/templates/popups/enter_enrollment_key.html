@@ -1,0 +1,28 @@
+<div id="enterEnrollmentKey" class="popup-background">
+    <div class="popup-content max-width-7">
+        <div class="popup-header">
+            <h3></h3>
+            <div onclick="closePopup('enterEnrollmentKey')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <div class="enrollment-key-popup-body">
+                <div class="enrollment-key-icon">
+                    <i style="color: #e03a59;" class="fa-light fa-key"></i>
+                </div>
+                <div class="enrollment-key-text margin-top-12">
+                    <h3>Enrollment Key</h3>
+                    <span class="margin-top-3">Please enter your Enrollment Key Name into the field below then click the 'Enroll' button</span>
+                </div>
+            </div>
+            <div class="edit-user-input margin-top-10">
+                <!-- <label class="edit-user-label" for="enrollment_key_name">Key Name</label> -->
+                <input type="text" id="enrollment_key_name" name="enrollment_key_name" autocomplete="off" placeholder="Key Name">
+                <span id="validation-text" class="validation-text"></span>
+            </div>
+            <button onclick="submitEnrollmentKey()" id="enrollmentKeyBtn" class="action-button-primary rounded-lg margin-top-8 learner-save-btns disabled" disabled>Enroll</button>
+            <a href="/courses/" id="viewCoursesBtn" class="action-button-primary rounded-lg margin-top-8" style="display: none;"><i class="fa-regular fa-book-open-cover"></i>View My Courses</a>
+        </div>
+    </div>
+</div>
