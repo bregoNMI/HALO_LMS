@@ -106,6 +106,7 @@ function initializeRangeSliders() {
 }
 
 function saveLoginForm() {
+    setDisabledSaveBtns();
     const selectedLayoutElement = document.querySelector('input[name="layout-selection"]:checked');
     const layout = selectedLayoutElement.getAttribute('data-layout');
     const is_logo_disabled = document.getElementById('is_logo_disabled').checked;
@@ -291,9 +292,11 @@ function saveLoginForm() {
         } else {
             displayValidationMessage('Failed to update header', false);
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         displayValidationMessage('Something went wrong, please contact an administrator', false);
+        removeDisabledSaveBtns();
     });
 }
 

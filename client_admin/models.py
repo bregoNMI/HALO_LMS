@@ -82,7 +82,7 @@ class Profile(models.Model):
     photoid = models.ImageField(storage=no_prefix_storage)
     passportphoto = models.ImageField(storage=no_prefix_storage)
     date_joined = models.DateTimeField(('date joined'), auto_now_add=True)
-    last_opened_course = models.OneToOneField(Course, on_delete=models.CASCADE, null=True, blank=True)
+    last_opened_course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
     last_opened_lesson_id = models.PositiveIntegerField(null=True, blank=True)
     timezone = models.CharField(
         max_length=500,

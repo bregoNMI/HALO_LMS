@@ -1,11 +1,10 @@
 <!-- Admin Sidebar HTML -->
 <div class="admin-sidebar-container">
-
     <div class="sidebar-body">
         <div class="collapsible-section">
             <a href="/admin/dashboard/" class="collapsible-header test-current-page">
                 <div class="icon-inner-header">
-                    <i class="fa-light fa-objects-column"></i>
+                    <i style="font-size: 1.3rem;" class="fa-light fa-objects-column"></i>
                     <h6>Dashboard</h6>
                 </div>
             </a>              
@@ -80,4 +79,23 @@
             </div>
         </div>
     </div>
+    <div class="sidebar-footer-container">
+        <div class="create-menu-section">
+            <button onclick="toggleCreateSidebar()" class="collapsible-header test-current-page">
+                <div class="icon-inner-header">
+                    <i class="fa-regular fa-plus"></i>
+                    <h6>Create New</h6>
+                </div>
+            </button>              
+        </div>
+        <div class="sidebar-footer">
+            <div class="sidebar-toggle-wrapper">
+                <div onclick="toggleAdminSidebar()" class="sidebar-toggle tooltip" data-tooltip="Collapse Sidebar">
+                    <span style="top: -60px;" class="tooltiptext">Collapse Sidebar</span>
+                    <i class="fa-light fa-sidebar"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'admin_sidebar_create.html' %}
 </div>

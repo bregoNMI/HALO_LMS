@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'global_styles.css' %}">
-<div class="learner-body align-center scrollable-content">
+<div class="learner-dashboard-body align-center scrollable-content">
     <div class="custom-dashboard-body max-width-extend-1">
         <input type="hidden" id="dashboard-id" value="{{ dashboard.id }}">
         <div id="headerImage" class="dashboard-header-container image-section" style="background-image: url('{{ dashboard.header_background_image }}'); background-position: {{ dashboard.header_background_image_position }};">

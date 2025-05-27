@@ -388,23 +388,22 @@ class Lesson(models.Model):
 
     def __str__(self):
         return self.title
-    
-# Define a Quiz model
-class Quiz(models.Model):
-    lesson = models.ForeignKey(Lesson, related_name='quizzes', on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.title
 
 # Define a Question model
 class Question(models.Model):
-    quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
     text = models.TextField()
 
     def __str__(self):
         return self.text
+    
+# Define a Quiz model
+class Quiz(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    questions = models.ManyToManyField(Question, related_name='quizzes')
+
+    def __str__(self):
+        return self.title
 
 # Define an Answer model
 class Answer(models.Model):

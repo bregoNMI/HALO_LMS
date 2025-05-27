@@ -26,7 +26,7 @@ html, body, button{
     flex: 1;
 }
 
-.learner-body{
+.learner-body, .learner-dashboard-body{
     position: relative;
     display: flex;
     flex-direction: column;
@@ -51,12 +51,16 @@ html, body, button{
     background-color: #1a1a1a;
     /* background-color: #00183b; */
     z-index: 4;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .learner-header-container-inner{
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .learner-header-left .header-logo{
@@ -1047,19 +1051,6 @@ html, body, button{
     transform: translateX(-50%) translateY(-5px);
 }
 
-/* Alert/Message Styling */
-.alert-container.animate-alert-container{
-    right: 2rem;
-}
-
-.alert-container {
-    position: absolute;
-    margin: 20px 0;
-    right: -50rem;
-    transition: all 0.5s ease-in-out;
-    z-index: 9999;
-}
-
 .alert {
     display: flex;
     gap: 0.6rem;
@@ -1101,6 +1092,7 @@ html, body, button{
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s linear;
+    text-decoration: none;
 }.learner-impersonate:hover{
     background-color: #f7a5a5;
     color: #cc0202;

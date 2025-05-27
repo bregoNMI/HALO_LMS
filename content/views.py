@@ -26,6 +26,11 @@ from django.views.decorators.http import require_POST
 from django.core.files.storage import default_storage, FileSystemStorage
 from django.core.files.base import ContentFile
 from django.apps import apps
+from django.utils.timezone import now
+from datetime import timedelta
+from collections import OrderedDict
+from django.db.models.functions import TruncDate, TruncMonth
+from django.db.models import Count
 
 # Courses
 @login_required
@@ -1074,6 +1079,9 @@ def submit_enrollment_key(request):
 def opened_course_data(request):
     lesson_id = request.POST.get('lesson_id', '').strip()
 
+    print("🔍 Hit opened_course_data view", lesson_id)
+
+
     if not lesson_id:
         return JsonResponse({'error': 'Lesson ID is required.'}, status=400)
 
@@ -1487,3 +1495,41 @@ def edit_enrollment_keys(request, key_id):
     }
 
     return render(request, 'enrollmentKeys/edit_enrollment_key.html', context)
+
+@require_POST
+def learner_login_data(request):
+    range_label = request.POST.get('range', 'Last 12 months')
+    today = now()
+    if range_label == 'Last 7 days':
+        start_date = today - timedelta(days=7)
+        truncate = TruncDate
+        date_format = '%b %d'
+    elif range_label == 'Last 30 days':
+        start_date = today - timedelta(days=30)
+        truncate = TruncDate
+        date_format = '%b %d'
+    elif range_label == 'Last 6 months':
+        start_date = today - timedelta(days=180)
+        truncate = TruncMonth
+        date_format = '%b %Y'
+    else:
+        start_date = today - timedelta(days=365)
+        truncate = TruncMonth
+        date_format = '%b %Y'
+
+    logins = (
+        User.objects
+        .filter(last_login__gte=start_date)
+        .annotate(period=truncate('last_login'))
+        .values('period')
+        .annotate(count=Count('id'))
+        .order_by('period')
+    )
+
+    labels = []
+    values = []
+    for entry in logins:
+        labels.append(entry['period'].strftime(date_format))
+        values.append(entry['count'])
+
+    return JsonResponse({'labels': labels, 'values': values, 'total_learners': sum(values)})

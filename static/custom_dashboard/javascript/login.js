@@ -77,8 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     flatpickr(".date-picker", {
         altInput: true,
-        altFormat: "F j, Y",  // Display format (e.g., "July 27, 1986")
-        dateFormat: flatpickr_format,   // Format used for submission (e.g., "1986-07-27")
-        allowInput: true       // Allow manual input
+        altFormat: flatpickr_format,
+        dateFormat: "Y-m-d",
     });
 });

@@ -310,6 +310,8 @@ body{
     transition: background-color 0.3s linear, border-color 0.3s linear, color 0.3s linear;
     border-style: solid;
     cursor: pointer;
+    box-sizing: border-box;
+    text-align: center;
 }
 
 .forgot-password-container{
@@ -465,6 +467,8 @@ body{
     transition: background-color 0.3s linear, border-color 0.3s linear, color 0.3s linear;
     border-style: solid;
     cursor: pointer;
+    box-sizing: border-box;
+    text-align: center;
 }
 
 .previous-slide-btn{

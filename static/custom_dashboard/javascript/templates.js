@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 document.getElementById('update-header-btn').addEventListener('click', function(event) {
+    setDisabledSaveBtns();
     event.preventDefault();  // Prevent default form submission
 
     // Gather the data from the input fields
@@ -35,14 +36,17 @@ document.getElementById('update-header-btn').addEventListener('click', function(
             displayValidationMessage('Header failed to update', false);
             console.log('Failed to update header: ' + data.error);
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         displayValidationMessage('Failed to update header', false);
         console.error('Error:', error);
+        removeDisabledSaveBtns();
     });
 });
 
 document.getElementById('update-footer-btn').addEventListener('click', function(event) {
+    setDisabledSaveBtns();
     event.preventDefault();  // Prevent default form submission
 
     // Gather the data from the input fields
@@ -70,10 +74,12 @@ document.getElementById('update-footer-btn').addEventListener('click', function(
             displayValidationMessage('Failed to update footer', false);
             console.log('Failed to update footer: ' + data.error);
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         displayValidationMessage('Failed to update footer', false);
         console.error('Error:', error);
+        removeDisabledSaveBtns();
     });
 });
 

@@ -106,6 +106,7 @@ function testCreateField(){
 const form = document.querySelector('#adminSettingsForm');
 
 function submitSettingsForm(){
+    setDisabledSaveBtns();
     document.getElementById('terms_and_conditions_text').value = getEditorContent('terms_editor');
     console.log(getEditorContent('terms_editor'));
     form.submit();

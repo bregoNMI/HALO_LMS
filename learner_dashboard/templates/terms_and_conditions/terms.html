@@ -54,7 +54,11 @@
                             <button id="declineBtn" type="button" class="action-button-secondary disabled terms-btns" title="You must accept to continue.">
                                 Decline
                             </button>
-                            <button id="acceptBtn" type="submit" class="action-button-primary terms-btns">I Accept</button>
+                            {% if request.is_impersonating %}
+                                <button type="submit" class="action-button-primary terms-btns disabled" disabled>Cannot accept while Impersonating</button>
+                            {% else %}
+                                <button id="acceptBtn" type="submit" class="action-button-primary terms-btns">I Accept</button>
+                            {% endif %}                        
                         </div>
                     </form>
                 </div>

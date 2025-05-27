@@ -1,0 +1,53 @@
+/* Styles for Mobile Devices*/
+@media (max-width: 600px) {
+    /* Learner Dashboard */
+    .learner-dashboard-body .dashboard-header-container{
+        margin-top: unset;
+        border-radius: 0px 0px 6px 6px;
+    }
+    .learner-dashboard-body{
+        border: none;
+        padding: unset;
+    }
+    .custom-dashboard-body .dashboard-header-inner{
+        padding: unset;
+        width: 100%;
+    }
+    .dashboard-header-inner-left {
+        background-color: #0000002b;
+        padding: var(--pad-med);
+        border-radius: 0 0 6px 6px;
+        width: 100%;
+    }#widgets-container{
+        padding: var(--pad-xxxl);
+        padding-top: 0;
+    }#widgets-container .widget{
+        padding: 0.8rem 2rem;
+    }.widget-inner-wrapper {
+        flex-direction: column;
+    }
+
+    /* Learner Pages */
+    .learner-sidebar-container{
+        display: none;
+    }.course-item{
+        width: 100%;
+    }.row-course-item{
+        margin-top: 2rem;
+    }.larger-buttons{
+        flex-wrap: wrap;
+    }.learner-header-logout .action-button-primary{
+        padding: 8px 11px;
+    }.learner-header-logout .action-button-primary span{
+        display: none;
+    }
+
+    /* Profile Save Option */
+    .save-button-platform{
+        left: 2rem;
+        right: 2rem;
+        transform: unset;
+        width: unset;
+    }
+}
+  

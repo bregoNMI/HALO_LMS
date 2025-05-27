@@ -1628,46 +1628,6 @@ function generateCourseData(isSave) {
     });
 }
 
-function setDisabledSaveBtns() {
-    const courseSaveBtns = document.querySelectorAll('.course-save-btns');
-    for (const btn of courseSaveBtns) {
-        setTimeout(() => {
-            btn.setAttribute('disabled', true);
-        }, 100);
-        btn.classList.add('disabled');
-
-        if (!btn.dataset.originalHtml) {
-            btn.dataset.originalHtml = btn.innerHTML;
-        }
-
-        const savedWidth = btn.offsetWidth + "px";
-        const savedHeight = btn.offsetHeight + "px";
-
-        btn.style.width = savedWidth;
-        btn.style.height = savedHeight;
-
-        btn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
-    }
-}
-
-function removeDisabledSaveBtns() {
-    setTimeout(() => {
-        const courseSaveBtns = document.querySelectorAll('.course-save-btns');
-        for (const btn of courseSaveBtns) {
-            btn.classList.remove('disabled');
-            btn.removeAttribute('disabled');
-
-            if (btn.dataset.originalHtml) {
-                btn.innerHTML = btn.dataset.originalHtml;
-                delete btn.dataset.originalHtml;
-            }
-
-            btn.style.width = "";
-            btn.style.height = "";
-        }
-    }, 400);
-}
-
 // Checking to Ensure that all the required fields and filled in
 function validateCourseData() {
     const errors = [];

@@ -59,5 +59,5 @@ function syncNavBarWidth() {
             stickyNavBar.style.width = `${learnerBody.clientWidth}px` - (50 + 'px');
             stickyNavBar.style.marginLeft = `${learnerSidebar.clientWidth}px`;
         }
-    }, 100);
+    }, 10);
 }

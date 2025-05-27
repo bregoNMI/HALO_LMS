@@ -169,6 +169,7 @@ function detectCharacterCounters() {
         const counterContainer = editorEl.parentElement.querySelector('.quill-character-counter');
         const currentCounter = counterContainer?.querySelector('.quill-current-counter');
         const maxCounter = counterContainer?.querySelector('.quill-max-counter');
+        console.log(editorEl, maxCounter);
 
         if (!currentCounter || !maxCounter) return;
         MAX_LENGTH = maxCounter.innerText;
@@ -198,4 +199,107 @@ function detectCharacterCounters() {
             editorEl.dataset.listenerAdded = 'true';
         }
     });
+}
+
+function toggleAdminSidebar(){
+    const adminSidebar = document.querySelector('.admin-sidebar-container');
+    const sidebarBody = document.querySelector('.sidebar-body');
+    const createMenuSection= document.querySelector('.create-menu-section');
+    const sidebarToggle = adminSidebar.querySelector('.sidebar-toggle');
+    const sidebarToggleWrapper = adminSidebar.querySelector('.sidebar-toggle-wrapper');
+
+    const stickyNavBar = document.getElementById('stickyNavBar');
+
+    adminSidebar.classList.toggle('toggle-sidebar');
+
+    if(adminSidebar.classList.contains('toggle-sidebar')){
+        sidebarBody.style.overflow = 'hidden';
+        createMenuSection.style.overflow = 'hidden';
+        sidebarToggle.innerHTML = `<i class="fa-light fa-sidebar-flip"></i>`;
+        setTimeout(() => {
+            sidebarToggle.innerHTML = `<span style="top: -60px; left: 130%;" class="tooltiptext">Expand Sidebar</span><i class="fa-light fa-sidebar-flip"></i>`;
+        }, 300);
+        if(stickyNavBar){stickyNavBar.style.marginLeft = '63px';}
+    }else{
+        sidebarToggle.innerHTML = `<i class="fa-light fa-sidebar"></i>`; 
+        sidebarToggleWrapper.style.justifyContent = 'flex-end';   
+        setTimeout(() => {
+            sidebarBody.style.overflow = 'unset';
+            createMenuSection.style.overflow = 'unset';
+            sidebarToggle.innerHTML = `<span style="top: -60px; left: 50%;" class="tooltiptext">Collapse Sidebar</span><i class="fa-light fa-sidebar"></i>`;   
+                
+        }, 300);
+        if(stickyNavBar){stickyNavBar.style.marginLeft = '222px';}
+    }
+    
+}
+
+let wasAdminOpen = null; // Store outside function for state persistence
+
+function toggleCreateSidebar() {
+    const adminSidebar = document.querySelector('.admin-sidebar-container');
+    const createAdminSidebar = document.querySelector('.create-sidebar-container');
+
+    const isCreateOpen = createAdminSidebar.classList.contains('create-sidebar-toggle');
+
+    if (!isCreateOpen) {
+        // About to OPEN create sidebar
+        wasAdminOpen = !adminSidebar.classList.contains('toggle-sidebar'); // true if admin sidebar is expanded
+
+        // If admin sidebar is collapsed, expand it
+        if (adminSidebar.classList.contains('toggle-sidebar')) {
+            toggleAdminSidebar();
+        }
+
+        createAdminSidebar.classList.add('create-sidebar-toggle');
+
+    } else {
+        // About to CLOSE create sidebar
+        createAdminSidebar.classList.remove('create-sidebar-toggle');
+
+        // Restore previous state of admin sidebar
+        if (!wasAdminOpen && !adminSidebar.classList.contains('toggle-sidebar')) {
+            toggleAdminSidebar();
+        }
+    }
+}
+
+function setDisabledSaveBtns() {
+    const courseSaveBtns = document.querySelectorAll('.course-save-btns');
+    for (const btn of courseSaveBtns) {
+        setTimeout(() => {
+            btn.setAttribute('disabled', true);
+        }, 100);
+        btn.classList.add('disabled');
+
+        if (!btn.dataset.originalHtml) {
+            btn.dataset.originalHtml = btn.innerHTML;
+        }
+
+        const savedWidth = btn.offsetWidth + "px";
+        const savedHeight = btn.offsetHeight + "px";
+
+        btn.style.width = savedWidth;
+        btn.style.height = savedHeight;
+
+        btn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
+    }
+}
+
+function removeDisabledSaveBtns() {
+    setTimeout(() => {
+        const courseSaveBtns = document.querySelectorAll('.course-save-btns');
+        for (const btn of courseSaveBtns) {
+            btn.classList.remove('disabled');
+            btn.removeAttribute('disabled');
+
+            if (btn.dataset.originalHtml) {
+                btn.innerHTML = btn.dataset.originalHtml;
+                delete btn.dataset.originalHtml;
+            }
+
+            btn.style.width = "";
+            btn.style.height = "";
+        }
+    }, 400);
 }

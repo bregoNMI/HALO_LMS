@@ -117,6 +117,7 @@ input[type="text"], input[type="number"]{
     border: 1px solid var(--primary-blue);
     transition: all 0.2s linear;
     font-weight: 500;
+    box-sizing: border-box;
 }
 
 .main-add-btn:hover{

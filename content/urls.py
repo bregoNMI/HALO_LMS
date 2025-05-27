@@ -15,5 +15,6 @@ urlpatterns = [
     path('create-enrollment-key/', views.create_enrollment_key, name='create_enrollment_key'),
     path('edit-enrollment-key/', views.edit_enrollment_key, name='edit_enrollment_key'),
     path('submit-enrollment-key/', views.submit_enrollment_key, name='submit_enrollment_key'),
-    path('opened-course-data/', views.opened_course_data, name='opened_course_data')
+    path('opened-course-data/', views.opened_course_data, name='opened_course_data'),
+    path('learner-login-data/', views.learner_login_data, name='learner_login_data')
 ]

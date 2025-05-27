@@ -59,10 +59,12 @@
                         <i class="fa-light fa-toolbox"></i>
                         <span> Admin  </span>
                     </a>
-                    <a class="learner-sidebar-option" href="/admin/templates/dashboards/{{dashboard.id}}/edit/">
-                        <i class="fa-light fa-rectangle-history"></i>
-                        <span> View Template </span>
-                    </a>
+                    {% if dashboard %}
+                        <a class="learner-sidebar-option" href="/admin/templates/dashboards/{{dashboard.id}}/edit/">
+                            <i class="fa-light fa-rectangle-history"></i>
+                            <span> View Template </span>
+                        </a>
+                    {% endif %}
                 </div>
             {% endif %}
         </div>

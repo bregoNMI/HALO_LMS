@@ -33,14 +33,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     flatpickr(".date-picker", {
         altInput: true,
-        altFormat: "F j, Y",  // Display format (e.g., "July 27, 1986")
-        dateFormat: flatpickr_format,   // Format used for submission (e.g., "1986-07-27")
-        allowInput: true       // Allow manual input
+        altFormat: flatpickr_format,
+        dateFormat: "Y-m-d",
     });
 
     const changePasswordForm = document.getElementById('change-password-form');
     if(changePasswordForm){
         document.getElementById('change-password-form').addEventListener('submit', function(event) {
+            setDisabledSaveBtns();
             event.preventDefault(); // Prevent form from submitting the usual way
             console.log('testing');
         
@@ -68,10 +68,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Display error message
                     displayValidationMessage(`${data.message}`, false);
                 }
+                removeDisabledSaveBtns();
             })
             .catch(error => {
                 console.error('Error:', error);
                 displayValidationMessage('An error occurred. Please try again', false);
+                removeDisabledSaveBtns();
             });
         });
     }
@@ -372,41 +374,50 @@ function checkOverflow() {
 function launchCourse(lessonId){
     setDisabledSaveBtns();
 
-    if (!lessonId) {
+    if (!lessonId || lessonId == 0) {
         console.log("LessonID: ", lessonId)
-        console.error("Lesson ID is missing!");
+        console.error("Lesson ID is sketchy!");
         return;
     }
+
+    console.log(getCookie('csrftoken'));
 
     // Sending request to update last_opened_course
     fetch('/requests/opened-course-data/', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': getCookie('csrftoken'),
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': getCookie('csrftoken'),
         },
-        body: new URLSearchParams({
-            'lesson_id': lessonId,
-        }),
+        body: new URLSearchParams({ 'lesson_id': lessonId }),
     })
     .then(async response => {
-        const data = await response.json();
-    
+        const contentType = response.headers.get('Content-Type');
+        if (contentType && contentType.includes('text/html')) {
+        throw new Error("Redirected to login or invalid session.");
+        }
+
+        let data;
+        try {
+            data = await response.json();
+        } catch (err) {
+            throw new Error("Server returned invalid JSON.");
+        }
+        
         if (!response.ok) {
-            displayValidationMessage(data.error || 'Failed to open.', false);            
+            displayValidationMessage(data?.error || 'Failed to open.', false);            
             return;
         }
-    
+        
         console.log(`Launching course with Lesson ID: ${lessonId}`);
-        // This is what actually launches the course
         window.location.href = `/launch_scorm_file/${lessonId}/`;
-         
-    })    
+    })
     .catch(error => {
         console.error('Unexpected error:', error);
         displayValidationMessage('Something went wrong. Please try again.', false);
-    }); 
+        removeDisabledSaveBtns();
+    });      
 }
 
 function setDisabledWidget() {

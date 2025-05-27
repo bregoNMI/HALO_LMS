@@ -166,47 +166,8 @@ function updateCourseProgress(uuid) {
     });
 }
 
-function setDisabledSaveBtns() {
-    const courseSaveBtns = document.querySelectorAll('.course-save-btns');
-    for (const btn of courseSaveBtns) {
-        btn.classList.add('disabled');
-        setTimeout(() => {
-            btn.setAttribute('disabled', true);
-        }, 100);
-
-        if (!btn.dataset.originalHtml) {
-            btn.dataset.originalHtml = btn.innerHTML;
-        }
-
-        const savedWidth = btn.offsetWidth + "px";
-        const savedHeight = btn.offsetHeight + "px";
-
-        btn.style.width = savedWidth;
-        btn.style.height = savedHeight;
-
-        btn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
-    }
-}
-
-function removeDisabledSaveBtns() {
-    setTimeout(() => {
-        const courseSaveBtns = document.querySelectorAll('.course-save-btns');
-        for (const btn of courseSaveBtns) {
-            btn.classList.remove('disabled');
-            btn.removeAttribute('disabled');
-
-            if (btn.dataset.originalHtml) {
-                btn.innerHTML = btn.dataset.originalHtml;
-                delete btn.dataset.originalHtml;
-            }
-
-            btn.style.width = "";
-            btn.style.height = "";
-        }
-    }, 400);
-}
-
 function resetLessonActivity(){
+    setDisabledSaveBtns();
     // Button to reset lesson activity
     const confirmResetLessonActivity = document.getElementById('confirmResetLessonActivity');
     let lessonId = confirmResetLessonActivity.getAttribute('data-lesson-id');
@@ -232,9 +193,11 @@ function resetLessonActivity(){
         } else {
             displayValidationMessage('Failed to reset activity.', false);
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         displayValidationMessage('Something went wrong, please contact an administrator', false);
+        removeDisabledSaveBtns();
     });
 }
 
@@ -308,6 +271,7 @@ function fetchLessonData(lessonId){
 }
 
 function editLessonActivity(){
+    setDisabledSaveBtns();
     const completed_on_date = document.getElementById('lesson_completed_date').value;
     const completed_on_time = document.getElementById('Lesson_completed_time').value;
     const confirmEditLessonActivity = document.getElementById('confirmEditLessonActivity');
@@ -347,10 +311,12 @@ function editLessonActivity(){
         } else {
             displayValidationMessage('Failed to reset activity.', false);
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         console.log(error);
         displayValidationMessage('Something went wrong, please contact an administrator', false);
+        removeDisabledSaveBtns();
     });
 }
 

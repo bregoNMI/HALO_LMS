@@ -20,16 +20,18 @@ class ImpersonateMiddleware(MiddlewareMixin):
         request.is_impersonating = False
         impersonate_user_id = request.session.get('impersonate_user_id', None)
 
+        MODIFYING_PATHS = ['/admin/', '/users/', '/courses/']  # Move outside the if block
+
         if impersonate_user_id:
             request.is_impersonating = True
-            
-            # Forbid any data modification
+
+            # Only block if method is modifying AND path is restricted
             if request.method in ['POST', 'PUT', 'DELETE']:
-                messages.error(request, "You do not have permission to modify data while impersonating")
-                return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect to the referring page
-                
-        response = self.get_response(request)
-        return response
+                if any(request.path.startswith(p) for p in MODIFYING_PATHS):
+                    messages.error(request, "You do not have permission to modify data while impersonating")
+                    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        return self.get_response(request)  # Always return the response at the end
     
 class TimeZoneMiddleware:
     def __init__(self, get_response):

@@ -231,6 +231,8 @@
 }
 
 .widget-drag-icon{
+    position: absolute;
+    left: 1rem;
     cursor: grab;
     font-size: var(--fs-lg);
 }.widget-drag-icon:active{

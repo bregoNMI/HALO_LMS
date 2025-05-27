@@ -12,7 +12,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.auth import get_user_model
 from django.core.files.base import File
-from django.db.models import Q, Avg
+from django.db.models import Q, Avg, Count
 from django.test import RequestFactory
 from django.http import HttpResponse, JsonResponse
 import logging, csv
@@ -23,6 +23,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.utils import timezone
+from django.utils.timezone import now
 from django.http import HttpResponseForbidden, HttpRequest
 from content.models import Lesson, Category
 from learner_dashboard.views import learner_dashboard
@@ -37,6 +38,9 @@ from django.template.response import TemplateResponse
 import json
 from django.db import IntegrityError, transaction
 from client_admin.models import GeneratedCertificate, EventDate
+from django.db.models.functions import TruncMonth, TruncHour
+from django.db.models import Sum
+import isodate
 #from models import Profile
 #from authentication.python import views
 
@@ -47,10 +51,81 @@ class ImpersonationError(Exception):
     """Custom exception for impersonation errors."""
     pass
 
+def get_total_time_spent_dynamic():
+    now_time = now()
+    one_year_ago = now_time - timedelta(days=365)
+    seven_days_ago = now_time - timedelta(days=7)
+
+    # Check how much activity happened in the last 7 days
+    recent_activity_count = SCORMTrackingData.objects.filter(last_updated__gte=seven_days_ago).count()
+
+    if recent_activity_count > 20:
+        # Show hour-by-hour for recent activity
+        queryset = SCORMTrackingData.objects.filter(last_updated__gte=seven_days_ago) \
+            .annotate(period=TruncHour('last_updated')) \
+            .values('period', 'session_time') \
+            .order_by('period')
+        group_format = '%b %d %I%p'
+    else:
+        # Show month-by-month for longer-term view
+        queryset = SCORMTrackingData.objects.filter(last_updated__gte=one_year_ago) \
+            .annotate(period=TruncMonth('last_updated')) \
+            .values('period', 'session_time') \
+            .order_by('period')
+        group_format = '%b %Y'
+
+    totals = {}
+
+    for entry in queryset:
+        period = entry['period'].strftime(group_format)
+        duration = isodate.parse_duration(entry['session_time'])
+        if period in totals:
+            totals[period] += duration
+        else:
+            totals[period] = duration
+
+    labels = []
+    seconds = []
+
+    for period, duration in sorted(totals.items()):
+        labels.append(period)
+        seconds.append(int(duration.total_seconds()))
+
+    return labels, seconds, 'hour' if recent_activity_count > 20 else 'month'
+
 
 @login_required
 def admin_dashboard(request):
-    return render(request, 'dashboard.html')
+    total_students = User.objects.filter(profile__role='Student').count()
+    completed_courses = UserCourse.objects.filter(is_course_completed=True).count()
+    active_courses = Course.objects.filter(status='Active').count()
+
+    labels, values, granularity = get_total_time_spent_dynamic()
+
+    # Get top 5 most-enrolled courses
+    top_courses_qs = Course.objects.annotate(enrollments=Count('usercourse')) \
+        .order_by('-enrollments')[:5]
+
+    top_course_labels = [course.title for course in top_courses_qs]
+    top_course_data = [course.enrollments for course in top_courses_qs]
+
+    context = {
+        'total_students': total_students,
+        'completed_courses': completed_courses,
+        'active_courses': active_courses,
+        'time_spent_labels': labels,
+        'time_spent_data': values,
+        'time_spent_granularity': granularity,
+        'top_course_labels': top_course_labels,
+        'top_course_data': top_course_data,
+    }
+
+    print(f"Labels: {labels}")
+    print(f"Values: {values}")
+    print(f"Granularity: {granularity}")
+
+
+    return render(request, 'dashboard.html', context)
 
 @login_required
 def admin_settings(request):
@@ -425,9 +500,11 @@ def enroll_users_request(request):
             if created:
                 # Create UserModuleProgress instances for each module in the course
                 first_lesson = Lesson.objects.filter(module__course=course).order_by('module__order', 'order').first()
+                print('first_lesson:', first_lesson)
 
                 if first_lesson:
-                    user_course.lesson_id = first_lesson.id  # ✅ Assign the first lesson
+                    user_course.lesson_id = first_lesson.id  # Assign the first lesson
+                    print(first_lesson)
                     user_course.save()
 
                 for module in course.modules.all():

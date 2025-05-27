@@ -10,10 +10,10 @@
         </div>
         <div class="learner-header-right">
             {% if request.is_impersonating %}
-                <div class="learner-impersonate">
+                <a href="{% url 'stop_impersonating' %}" class="learner-impersonate">
                     <i class="fa-regular fa-masks-theater"></i>
-                    <span class="tooltip-text">Impersonating</span>
-                </div>
+                    <span class="tooltip-text">Stop Impersonating</span>
+                </a>
             {% endif %}
             <div class="learner-header-logout">
                 <a class="action-button-primary" href="{% url 'custom_logout_view' %}">

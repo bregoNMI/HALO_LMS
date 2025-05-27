@@ -788,6 +788,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function sendEnrollmentRequest() {
+    setDisabledSaveBtns();
     // Get selected users and courses
     const selectedUsers = document.querySelectorAll('.selectedUsers .selected-user');
     const selectedCourses = document.querySelectorAll('.selectedCourses .selected-course');
@@ -801,6 +802,7 @@ function sendEnrollmentRequest() {
     // Check if any users or courses are selected
     if (userIds.length === 0 || courseIds.length === 0) {
         displayValidationMessage('Please select at least one user and one course.', false);
+        removeDisabledSaveBtns();
         return;
     }
 
@@ -834,14 +836,17 @@ function sendEnrollmentRequest() {
             // Display validation message for error case
             displayValidationMessage(data.message, false);  // Error message
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         console.error('Error:', error);
         displayValidationMessage('An error occurred during the enrollment process.', false);
+        removeDisabledSaveBtns();
     });
 }
 
 function sendMessageRequest() {
+    setDisabledSaveBtns();
     const selectedUsers = document.querySelectorAll('.selectedUsers .selected-user');
     const subject = document.getElementById('subject').value;
     const body = getEditorContent('body');
@@ -850,13 +855,16 @@ function sendMessageRequest() {
 
     if (userIds.length === 0) {
         displayValidationMessage('Please select at least one user.', false);
+        removeDisabledSaveBtns();
         return;
     }
     if(subject.length === 0){
         displayValidationMessage('Please enter a message subject.', false);
+        removeDisabledSaveBtns();
         return;
     }if(body === '<p><br></p>'){
         displayValidationMessage('Please enter a message body.', false);
+        removeDisabledSaveBtns();
         return;
     }
 
@@ -887,10 +895,12 @@ function sendMessageRequest() {
         } else {
             displayValidationMessage(data.message, false);  // Error message
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         console.error('Error:', error);
         displayValidationMessage('An error occurred while sending the message.', false);
+        removeDisabledSaveBtns();
     });
 }
 

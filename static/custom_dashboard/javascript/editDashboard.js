@@ -436,6 +436,7 @@ function getWidgetData() {
 }
 
 function saveWidgetChanges(widgetId) {
+    setDisabledSaveBtns();
     const widgetData = getWidgetData();
 
     if (widgetData.typeInput) {
@@ -482,12 +483,15 @@ function saveWidgetChanges(widgetId) {
                 displayValidationMessage('Failed to update widget', false);
                 console.error('Failed to update widget:', data.error);
             }
+            removeDisabledSaveBtns();
         })
         .catch(error => {
             displayValidationMessage('Something went wrong, please contact an administrator', false);
             console.error('Fetch error:', error.message);
+            removeDisabledSaveBtns();
         });
     } else {
+        removeDisabledSaveBtns();
         alert('Both title and content are required.');
     }
 }
@@ -645,6 +649,7 @@ function getDashboardHeaderData() {
 }
 
 function saveDashboardHeader(dashboardId) {
+    setDisabledSaveBtns();
     const headerData = getDashboardHeaderData();
 
     fetch(`/admin/templates/dashboard/${dashboardId}/edit-header/`, {
@@ -678,9 +683,11 @@ function saveDashboardHeader(dashboardId) {
         } else {
             displayValidationMessage('Failed to update header', false);
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         displayValidationMessage('Something went wrong, please contact an administrator', false);
+        removeDisabledSaveBtns();
     });
 }
 
