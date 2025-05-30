@@ -1,7 +1,11 @@
 from django.contrib import admin
-from content.models import Course, Module, Lesson, Category, File, Credential, EventDate, Media, Upload, Resources, UploadedFile
+from content.models import (
+    Course, Module, Lesson, Category, File, Credential,
+    EventDate, Media, Upload, Resources, UploadedFile,
+    Quiz, Question, QuestionOrder, Answer
+)
 
-# Register Course, Module, Lesson, and content types
+# Register basic models
 admin.site.register(Category)
 admin.site.register(Course)
 admin.site.register(Module)
@@ -13,3 +17,19 @@ admin.site.register(Media)
 admin.site.register(Upload)
 admin.site.register(Resources)
 admin.site.register(UploadedFile)
+admin.site.register(Answer)
+
+@admin.register(Question)
+class QuestionAdmin(admin.ModelAdmin):
+    search_fields = ['content', 'tags']  # Required for autocomplete
+
+class QuestionOrderInline(admin.TabularInline):
+    model = QuestionOrder
+    extra = 1
+    autocomplete_fields = ['question']
+
+@admin.register(Quiz)
+class QuizAdmin(admin.ModelAdmin):
+    inlines = [QuestionOrderInline]
+    list_display = ['title', 'category', 'duration']
+    search_fields = ['title', 'description']

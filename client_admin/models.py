@@ -202,7 +202,7 @@ class UserCourse(models.Model):
         pdf_stream = fill_certificate_form(template_stream, data)
         filename = f'{self.user.username}_{self.course.title}.pdf'
 
-        # ❗Check if a certificate already exists
+        # Check if a certificate already exists
         generated_cert = GeneratedCertificate.objects.filter(user_course=self).first()
         if generated_cert:
             print("♻️ Updating existing certificate...")
@@ -213,7 +213,7 @@ class UserCourse(models.Model):
         # Save new file
         generated_cert.file.save(filename, ContentFile(pdf_stream.read()), save=True)
 
-        # 🕓 Set or update expiration
+        # Set or update expiration
         cert_expiration_event = self.course.event_dates.filter(type='certificate_expiration_date').first()
         if cert_expiration_event:
             if cert_expiration_event.from_enrollment:
@@ -229,7 +229,7 @@ class UserCourse(models.Model):
                 type='certificate_expiration_date',
                 date=calculated_date
             )
-            print(f"✅ Certificate expiration date set to: {calculated_date}")
+            print(f"Certificate expiration date set to: {calculated_date}")
 
         # Testing if on_login_course is enabled and if the course that was just completed match that course ID
         if (org_settings and org_settings.on_login_course and org_settings.on_login_course_id and org_settings.on_login_course_id == self.course.id):
@@ -237,7 +237,7 @@ class UserCourse(models.Model):
             if profile:
                 profile.completed_on_login_course = True
                 profile.save()
-                print("✅ User completed the required login course. Profile updated.")
+                print("User completed the required login course. Profile updated.")
         
 
     def get_start_date(self):
@@ -435,7 +435,7 @@ class OrganizationSettings(models.Model):
 
     # Portal
     portal_favicon = models.ImageField(upload_to='logos/', blank=True, null=True)
-    allowed_id_photos = models.ManyToManyField(AllowedIdPhotos, related_name='OrganizationSettings', blank=True, null=True)
+    allowed_id_photos = models.ManyToManyField(AllowedIdPhotos, related_name='OrganizationSettings', blank=True)
     
     def save(self, *args, **kwargs):
         if not self.pk and OrganizationSettings.objects.exists():

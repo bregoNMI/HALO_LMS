@@ -10,10 +10,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
-from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType
+from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType, Quiz, Question, QuestionOrder, MCQuestion, Answer, TFQuestion, FITBQuestion, FITBAnswer
 from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse, EnrollmentKey, ActivityLog, Profile
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
-
+import uuid as uuid_lib
 from halo_lms import settings
 from .models import File
 from django.contrib.auth.models import User
@@ -620,6 +620,102 @@ def detect_file_type(filename):
         return 'pdf'
     else:
         return 'other'
+    
+# Quizzes
+@login_required
+def admin_quizzes(request):
+    sort_by = request.GET.get('sort_by', 'title_desc')
+    order_by_field = 'title'  # Default sorting field
+    query_string = request.GET.get('query')
+
+    query = Q()
+    active_filters = {}
+
+    # Apply the general search query if provided
+    if query_string:
+        query &= (
+            Q(title__icontains=query_string)|
+            Q(type__icontains=query_string) |
+            Q(status__icontains=query_string) |
+            Q(category__icontains=query_string)
+        )
+        active_filters['query'] = query_string  # Track the general search query
+
+    # Build the query dynamically based on the provided filter parameters
+    for key, value in request.GET.items():
+        if key.startswith('filter_') and value:
+            field_name = key[len('filter_'):]  # Extract field name after 'filter_'
+            query &= Q(**{f"{field_name}__icontains": value})
+            active_filters[field_name] = value
+
+    # Define a dictionary to map sort options to user-friendly text
+    sort_options = {
+        'title_asc': 'Title (A-Z)',
+        'title_desc': 'Title (Z-A)', 
+        'type_asc': 'Type (A-Z)',
+        'type_desc': 'Type (Z-A)',
+        'status_asc': 'Status (A-Z)',
+        'status_desc': 'Status (Z-A)',
+        'category_asc': 'Category (A-Z)',
+        'category_desc': 'Category (Z-A)',     
+    }
+
+    # Determine the order by field
+    if sort_by == 'title_asc':
+        order_by_field = 'title'
+    elif sort_by == 'title_desc':
+        order_by_field = '-title'
+    elif sort_by == 'type_asc':
+        order_by_field = 'type'
+    elif sort_by == 'type_desc':
+        order_by_field = '-type'
+    elif sort_by == 'status_asc':
+        order_by_field = 'status'
+    elif sort_by == 'status_desc':
+        order_by_field = '-status'
+    elif sort_by == 'category_asc':
+        order_by_field = 'category'
+    elif sort_by == 'category_desc':
+        order_by_field = '-category'
+
+    # Add the sort option to the active filters only if it is present in the request
+    if 'sort_by' in request.GET and sort_by:
+        active_filters['sort_by'] = sort_options.get(sort_by, 'Title (Z-A)')
+
+    # Apply the filtering and sorting to the users list
+    quizzes_list = Quiz.objects.filter(query).order_by(order_by_field)
+
+    # Paginate the filtered users_list
+    paginator = Paginator(quizzes_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Render the results with the active filters
+    return render(request, 'quizzes/quizzes.html', {
+        'page_obj': page_obj,
+        'active_filters': active_filters,
+        'sort_by': sort_by,
+    })
+
+@login_required
+def create_or_edit_quiz(request, uuid=None):
+    if uuid:
+        # Edit mode
+        quiz = get_object_or_404(Quiz, uuid=uuid)
+    else:
+        # Create mode
+        generated_uuid = uuid_lib.uuid4()
+        quiz = Quiz.objects.create(
+            uuid=generated_uuid,
+            title="Untitled Quiz",
+            url=str(generated_uuid),  # Using UUID as slug-friendly URL
+            author=request.user,
+            draft=True  # Mark as draft until edited
+        )
+        return redirect('edit_quiz', uuid=quiz.uuid)  # Redirect to edit mode
+
+    # Render your edit template
+    return render(request, 'quizzes/edit_quiz.html', {'quiz': quiz})
 
 @login_required
 def file_upload(request):
@@ -1533,3 +1629,261 @@ def learner_login_data(request):
         values.append(entry['count'])
 
     return JsonResponse({'labels': labels, 'values': values, 'total_learners': sum(values)})
+
+@require_POST
+def get_question_data(request):
+    uuid = request.POST.get('uuid')
+    try:
+        quiz = Quiz.objects.get(uuid=uuid)
+        questions = Question.objects.filter(quizzes=quiz).order_by('questionorder__order')
+
+        data = []
+        for q in questions:
+            if hasattr(q, 'mcquestion'):
+                q_type = 'MCQuestion'
+            elif hasattr(q, 'tfquestion'):
+                q_type = 'TFQuestion'
+            elif hasattr(q, 'fitbquestion'):
+                q_type = 'FITBQuestion'
+            else:
+                q_type = 'Question'
+
+            data.append({
+                'id': q.id,
+                'content': q.content,
+                'type': q_type,
+            })
+
+        return JsonResponse({'success': True, 'questions': data})
+    except Quiz.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Quiz not found'})
+    
+@require_POST
+def create_question(request):
+    try:
+        data = json.loads(request.body)
+        quiz_uuid = data.get('quiz_uuid')
+        q_type = data.get('type')
+
+        if not quiz_uuid or not q_type:
+            return JsonResponse({'success': False, 'error': 'Missing required data'})
+
+        quiz = Quiz.objects.get(uuid=quiz_uuid)
+
+        # Map types to classes
+        question_classes = {
+            'multiple-choice': MCQuestion,
+            'true-false': TFQuestion,
+            'open-response': FITBQuestion,
+        }
+
+        QuestionClass = question_classes.get(q_type)
+        if not QuestionClass:
+            return JsonResponse({'success': False, 'error': 'Invalid question type'})
+
+        # Create question with type-specific defaults
+        if q_type == 'true-false':
+            new_question = QuestionClass.objects.create(
+                content="Enter question title here...",
+                correct=False  # Default answer
+            )
+        elif q_type == 'multiple-choice':
+            new_question = QuestionClass.objects.create(
+                content="Enter question title here...",
+                answer_order='none'  # optional field in MCQuestion
+            )
+        elif q_type == 'open-response':
+            new_question = QuestionClass.objects.create(
+                content="Enter question title here...",
+                case_sensitive=False,
+                strip_whitespace=True
+            )
+        else:
+            return JsonResponse({'success': False, 'error': 'Unsupported question type'})
+
+        # Assign order in quiz
+        order = QuestionOrder.objects.filter(quiz=quiz).count()
+
+        QuestionOrder.objects.create(
+            quiz=quiz,
+            question=new_question,
+            order=order
+        )
+
+        return JsonResponse({'success': True, 'question_id': new_question.id})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
+@require_POST
+def update_question_order(request):
+    try:
+        data = json.loads(request.body)
+        quiz_uuid = data['quiz_uuid']
+        question_ids = data['ordered_ids']  # e.g., [3, 5, 1, 4]
+
+        quiz = Quiz.objects.get(uuid=quiz_uuid)
+
+        for order, qid in enumerate(question_ids):
+            QuestionOrder.objects.update_or_create(
+                quiz=quiz,
+                question_id=qid,
+                defaults={'order': order}
+            )
+
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
+@require_POST
+def delete_question(request):
+    try:
+        data = json.loads(request.body)
+        question_id = data.get('question_id')
+
+        if not question_id:
+            return JsonResponse({'success': False, 'error': 'Missing question_id'})
+
+        question = Question.objects.get(id=question_id)
+        question.delete()
+
+        return JsonResponse({'success': True})
+
+    except Question.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Question not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@require_POST
+def get_answer_data(request):
+    try:
+        data = json.loads(request.body)
+        question_id = data.get('question_id')
+        question = Question.objects.get(id=question_id)
+
+        if hasattr(question, 'mcquestion'):
+            q_type = 'MCQuestion'
+            answers = [
+                {
+                    'id': a.id,
+                    'text': a.text,
+                    'is_correct': a.is_correct
+                } for a in question.answers.all()
+            ]
+
+        elif hasattr(question, 'tfquestion'):
+            q_type = 'TFQuestion'
+            answers = [
+                {
+                    'label': 'True',
+                    'value': True,
+                    'is_correct': question.tfquestion.correct is True
+                },
+                {
+                    'label': 'False',
+                    'value': False,
+                    'is_correct': question.tfquestion.correct is False
+                }
+            ]
+
+        elif hasattr(question, 'fitbquestion'):
+            q_type = 'FITBQuestion'
+            answers = [
+                {
+                    'id': a.id,
+                    'text': a.content
+                } for a in question.fitbquestion.acceptable_answers.all()
+            ]
+        else:
+            q_type = 'Question'
+            answers = []
+
+        return JsonResponse({
+            'success': True,
+            'question': {
+                'id': question.id,
+                'content': question.content,
+                'explanation': question.explanation,
+                'type': q_type,
+                'answers': answers,
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
+@require_POST
+def save_question_data(request):
+    
+    try:
+        data = json.loads(request.body)
+        question_id = data.get('question_id')
+        q_type = data.get('type')
+        content = data.get('content')
+        explanation = data.get('explanation')
+
+        if not question_id or not q_type:
+            return JsonResponse({'success': False, 'error': 'Missing question ID or type'})
+
+        question = Question.objects.get(id=question_id)
+        question.content = content
+        question.explanation = explanation
+        question.save()
+
+        # Save answers
+        if q_type == 'MCQuestion':
+            existing = {a.id: a for a in Answer.objects.filter(question=question)}
+            incoming_ids = set()
+
+            for ans in data['answers']:
+                answer_id = ans.get('id')
+                incoming_ids.add(int(answer_id)) if answer_id else None
+
+                if answer_id and int(answer_id) in existing:
+                    a = existing[int(answer_id)]
+                    a.text = ans['text']
+                    a.is_correct = ans['is_correct']
+                    a.save()
+                else:
+                    Answer.objects.create(
+                        question=question,
+                        text=ans['text'],
+                        is_correct=ans['is_correct']
+                    )
+
+            # Delete removed
+            for old_id in existing:
+                if old_id not in incoming_ids:
+                    existing[old_id].delete()
+
+        elif q_type == 'TFQuestion':
+            tf = TFQuestion.objects.get(id=question_id)
+            tf.correct = data.get('correct', False)
+            tf.save()
+
+        elif q_type == 'FITBQuestion':
+            fitb = FITBQuestion.objects.get(id=question_id)
+            existing = {a.id: a for a in fitb.acceptable_answers.all()}
+            incoming_ids = set()
+
+            for ans in data['answers']:
+                answer_id = ans.get('id')
+                incoming_ids.add(int(answer_id)) if answer_id else None
+
+                if answer_id and int(answer_id) in existing:
+                    a = existing[int(answer_id)]
+                    a.content = ans['text']
+                    a.save()
+                else:
+                    FITBAnswer.objects.create(
+                        question=fitb,
+                        content=ans['text']
+                    )
+
+            for old_id in existing:
+                if old_id not in incoming_ids:
+                    existing[old_id].delete()
+
+        return JsonResponse({'success': True})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

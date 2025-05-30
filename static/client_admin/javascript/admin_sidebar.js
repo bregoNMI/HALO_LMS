@@ -127,7 +127,7 @@ window.addEventListener('click', function(event) {
     var toggleButton = document.querySelector('.admin-header-user-icon');
 
     // Check if the click was outside the dropdown and the toggle button
-    if (!event.target.matches('.admin-header-user-icon') && !dropdown.contains(event.target)) {
+    if (dropdown && !event.target.matches('.admin-header-user-icon') && !dropdown.contains(event.target)) {
         if (dropdown.classList.contains('show')) {
             dropdown.classList.remove('show');
         }
@@ -219,7 +219,7 @@ function toggleAdminSidebar(){
         setTimeout(() => {
             sidebarToggle.innerHTML = `<span style="top: -60px; left: 130%;" class="tooltiptext">Expand Sidebar</span><i class="fa-light fa-sidebar-flip"></i>`;
         }, 300);
-        if(stickyNavBar){stickyNavBar.style.marginLeft = '63px';}
+        if(stickyNavBar){stickyNavBar.style.marginLeft = '58.79px';}
     }else{
         sidebarToggle.innerHTML = `<i class="fa-light fa-sidebar"></i>`; 
         sidebarToggleWrapper.style.justifyContent = 'flex-end';   

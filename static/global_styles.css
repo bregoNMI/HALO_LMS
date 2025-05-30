@@ -18,7 +18,7 @@ h1,h2,h3,h4,h5,h6{
 }
 
 /* Primary and Secondary buttons */
-.action-button-primary, .action-button-secondary{
+.action-button-primary, .action-button-secondary, .action-button-border{
   display: flex;
   gap: 0.5rem;
   /* padding: 5px var(--pad-sm); */
@@ -40,19 +40,23 @@ h1,h2,h3,h4,h5,h6{
   background-color: var(--primary-blue);
   color: white;
   gap: 0.5rem;
-}
-
-.action-button-primary:hover{
+}.action-button-primary:hover{
   background-color: dodgerblue;
 }
 
 .action-button-secondary{
   background-color: var(--bg-color4);
   color: var(--text-color5);
+}.action-button-secondary:hover{
+  background-color: var(--bg-color1);
 }
 
-.action-button-secondary:hover{
-  background-color: var(--bg-color1);
+.action-button-border{
+  background-color: white;
+  color: var(--text-color5);
+  border: 1px solid #ececf1;
+}.action-button-border:hover{
+  background-color: var(--bg-color3);
 }
 
 .rounded-lg{  
@@ -85,6 +89,7 @@ h1,h2,h3,h4,h5,h6{
   color: var(--text-color5);
 }.details-top-row-left h3{
   font-size: 1rem;
+  color: var(--text-color2);
   /* font-size: 1.1rem; */
 }
 
@@ -99,7 +104,8 @@ h1,h2,h3,h4,h5,h6{
   padding: var(--pad-xxs);
   border-radius: 8px;
   transition: all 0.3s ease-in-out;
-  color: var(--text-color5);
+  /* color: var(--text-color5); */
+  color: var(--text-color2);
   height: 1rem;
   width: 1rem;
 }
@@ -515,6 +521,34 @@ h1,h2,h3,h4,h5,h6{
 }.max-width-extend-4{
   width: 100%;
   max-width: 1700px;
+}.width-0{
+  width: 15rem;
+}.width-1{
+  width: 14rem;
+}.width-2{
+  width: 13rem;
+}.width-3{
+  width: 12rem;
+}.width-4{
+  width: 11rem;
+}.width-5{
+  width: 10rem;
+}.width-6{
+  width: 9rem;
+}.width-7{
+  width: 8rem;
+}.width-8{
+  width: 7rem;
+}.width-9{
+  width: 6rem;
+}.width-10{
+  width: 5rem;
+}.width-11{
+  width: 4rem;
+}.width-12{
+  width: 3rem;
+}.width-13{
+  width: 2rem;
 }
 
 .align-center{
@@ -1076,6 +1110,7 @@ h1,h2,h3,h4,h5,h6{
   padding-right: 46px;
   box-shadow: rgba(0, 0, 0, 0.03) 0px 0px 0px 1px;
   border-bottom: 1px solid rgb(236, 236, 241);
+  border-left: 1px solid #ececf1;
   opacity: 0;
   visibility: hidden;
   will-change: top;
@@ -1546,4 +1581,140 @@ input.disabled{
 .alert-container.animate-alert-container, .new-alert-container.animate-alert-container{
   right: 2rem;
   /* top: 4.5rem; */
+}
+
+
+.relative-container{
+  position: relative;
+}
+
+.quiz-builder-dropdown-options {
+  position: absolute;
+  top: 100%; /* positioned below the toggle */
+  left: 0;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px); /* Start slightly above */
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease,
+    transform 0.3s ease;
+  background-color: white;
+  padding: var(--pad-xxxs) var(--pad-xxs);
+  border: 1px solid #ececf1;
+  border-radius: 8px;
+  z-index: 2;
+  box-sizing: border-box;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.quiz-builder-dropdown-options.visible {
+  max-height: 500px;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0); /* Slide into place */
+}
+
+.quiz-builder-question-item .quiz-builder-dropdown-options{
+  right: 0.8rem;
+  top: 2rem;
+  left: unset;
+}
+
+.quiz-builder-type-option, .quiz-builder-dropdown-option{
+  display: flex;
+  align-items: center;
+  padding: var(--pad-xxs) var(--pad-med);
+  transition: all 0.2s linear;
+  border-radius: 8px;
+  cursor: pointer;
+}.quiz-builder-dropdown-option{
+  gap: 0.6rem;
+}.quiz-builder-type-option:hover, .quiz-builder-dropdown-option:hover{
+  background-color: var(--bg-color6);
+}.quiz-builder-type-option span, .quiz-builder-dropdown-option span{
+  font-size: 0.95rem;
+  color: #41454d;
+}.quiz-builder-dropdown-option i{
+  color: #41454d;
+  font-size: 1rem;
+}
+
+.quiz-builder-dropdown-toggle{
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* Custom Slider */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 58px;
+  height: 21px;
+  cursor: pointer;
+  padding-bottom: 0.05rem !important;
+}
+
+.toggle-switch input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-switch-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #eaeaea;
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 1px #ccc;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.toggle-switch-handle {
+  position: absolute;
+  top: 3.9px;
+  left: 5px;
+  width: 14px;
+  height: 14px;
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+
+.toggle-switch::before {
+  content: "";
+  position: absolute;
+  top: -25px;
+  right: -35px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #aaa;
+  text-shadow: 1px 1px #fff;
+  transition: color 0.3s ease-in-out;
+}
+
+.toggle-switch input[type="checkbox"]:checked + .toggle-switch-handle {
+  transform: translateX(45px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 0 3px var(--primary-blue);
+}
+
+.toggle-switch input[type="checkbox"]:checked + .toggle-switch-background {
+  background-color: var(--primary-blue);
+  box-shadow: inset 0 0 0 2px var(--primary-blue);
+}
+
+.toggle-switch input[type="checkbox"]:checked + .toggle-switch:before {
+  content: "On";
+  color: var(--primary-blue);
+  right: -15px;
+}
+
+.toggle-switch input[type="checkbox"]:checked + .toggle-switch-background .toggle-switch-handle {
+  transform: translateX(35px);
 }

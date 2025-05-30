@@ -32,6 +32,11 @@ urlpatterns = [
     path('courses/online/edit/<int:course_id>/', content_views.edit_online_courses, name='edit_online_courses'),
     path('courses/delete-courses/', views.delete_courses, name='delete_courses'),
 
+    # Quizzes
+    path('quizzes/', content_views.admin_quizzes, name='admin_quizzes'),
+    path('quizzes/create/', content_views.create_or_edit_quiz, name='create_quiz'),
+    path('quizzes/<uuid:uuid>/', content_views.create_or_edit_quiz, name='edit_quiz'),
+
     # Categories
     path('categories/', content_views.admin_categories, name='admin_categories'),
     path('categories/add/', content_views.add_categories, name='add_categories'),

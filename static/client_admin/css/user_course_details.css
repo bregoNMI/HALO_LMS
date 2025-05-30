@@ -125,6 +125,7 @@
     background-repeat: no-repeat;
     position: relative;
     overflow: hidden;
+    outline: 1px solid #e4e4e4;
 }.thumbnail-placeholder {
     display: flex;
     justify-content: center;

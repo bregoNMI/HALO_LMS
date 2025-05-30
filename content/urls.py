@@ -16,5 +16,11 @@ urlpatterns = [
     path('edit-enrollment-key/', views.edit_enrollment_key, name='edit_enrollment_key'),
     path('submit-enrollment-key/', views.submit_enrollment_key, name='submit_enrollment_key'),
     path('opened-course-data/', views.opened_course_data, name='opened_course_data'),
-    path('learner-login-data/', views.learner_login_data, name='learner_login_data')
+    path('learner-login-data/', views.learner_login_data, name='learner_login_data'),
+    path('get-quiz-data/', views.get_question_data, name='get_question_data'),
+    path('create-question/', views.create_question, name='create_question'),
+    path('update-question-order/', views.update_question_order, name='update_question_order'),
+    path('delete-question/', views.delete_question, name='delete_question'),
+    path('get-answer-data/', views.get_answer_data, name='get_answer_data'),
+    path('save-question-data/', views.save_question_data, name='save_question_data'),
 ]

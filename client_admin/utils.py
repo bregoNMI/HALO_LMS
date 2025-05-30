@@ -11,6 +11,7 @@ def display_user_time(user, utc_datetime):
     return timezone.localtime(utc_datetime, user_tz)
 
 def fill_certificate_form(template_stream, data):
+    print('data:', data)
     """
     Fills form fields in a PDF template loaded from a BytesIO stream.
 

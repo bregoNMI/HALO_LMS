@@ -1,0 +1,85 @@
+{% extends 'quizzes\quizzes_base.html' %}
+{% load static %}
+{% block content %}
+{% include 'messageContainer/message_container.html' %}
+<input id="quizUUID" type="hidden" value="{{ quiz.uuid }}">
+<div class="quiz-builder-header-container">
+    <div class="quiz-builder-header-container-inner">
+        <div class="quiz-builder-header-left">
+            <div class="details-top-row-left">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3> {{ quiz.title }} </h3>
+            </div>
+            <div class="quiz-builder-header-item">             
+                <div class="header-icon pastel-yellow">
+                    <i class="fa-regular fa-lightbulb"></i>         
+                </div>    
+                <span> Quiz </span>                    
+            </div>
+        </div>
+        <div class="quiz-builder-header-right">
+            <button class="action-button-border course-save-btns">
+                <i class="fa-regular fa-gear"></i>
+            </button>
+            <button onclick="saveQuiz('{{ quiz.uuid }}', 'save')" class="action-button-border course-save-btns">
+                <i class="fa-regular fa-floppy-disk"></i>
+                <span>Save</span>
+            </button>   
+            <button onclick="saveQuiz('{{ quiz.uuid }}')" class="action-button-primary course-save-btns">
+                <i class="fa-regular fa-paper-plane"></i>
+                <span>Publish</span>
+            </button>         
+        </div>
+    </div>
+</div>
+<div class="quiz-builder-content-container">
+    <div class="quiz-builder-questions-container">
+        <div class="quiz-builder-questions-header">
+            <h4>Questions</h4>
+            <div class="quiz-builder-dropdown-container relative-container">
+                <div class="quiz-builder-dropdown-toggle quiz-builder-add-question-icon">
+                    <i style="height: 0.8rem;" class="fa-regular fa-plus"></i>
+                </div>
+                <div id="questionDropdown" class="quiz-builder-dropdown-options width-3">
+                    <div onclick="createQuestion('multiple-choice')" class="quiz-builder-type-option">
+                        <div class="question-item-icon pastel-purple">
+                            <i class="fa-regular fa-check-double"></i>
+                        </div>
+                        <span>Multiple Choice</span>
+                    </div>
+                    <div onclick="createQuestion('true-false')" class="quiz-builder-type-option">
+                        <div class="question-item-icon pastel-blue">
+                            <i class="fa-regular fa-circle-half-stroke"></i>
+                        </div>
+                        <span>True/False</span>
+                    </div>
+                    <div onclick="createQuestion('open-response')" class="quiz-builder-type-option">
+                        <div class="question-item-icon pastel-orange">
+                            <i class="fa-regular fa-comment-dots"></i>
+                        </div>
+                        <span>Open Response</span>
+                    </div>
+                </div>
+            </div>            
+        </div>
+        <div id="questionList" class="quiz-builder-questions-wrapper"></div>
+    </div>
+    <div class="quiz-builder-body-container align-center">
+        <div id="loadingContainer" class="no-questions-container" style="display: none;">
+            <i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;"></i>
+        </div>
+        <div id="noQuestionsSelected" class="no-questions-container">
+            <i class="fa-light fa-box-open"></i>
+            <h3> No Questions Selected...</h3>
+            <span> Please select a question from the left to edit.</span>
+        </div>
+        <div id="questionEditor" class="quiz-builder-body-container-inner max-width-extend-1"></div>
+    </div>
+</div>
+
+<script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
+<script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+{% include 'popups/delete_quiz_question_popup.html' %}
+{% endblock %}

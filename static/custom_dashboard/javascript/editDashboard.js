@@ -58,8 +58,8 @@ function initializeAddWidgets() {
                 widget_title = 'Enrollment Key';
                 widget_subtext = 'Have an Enrollment Key?';
                 widget_icon = 'fa-light fa-key';
-                widget_icon_color = '#e03a59';
-                widget_icon_background_color = '#ffc9d2';
+                widget_icon_color = '#059f48';
+                widget_icon_background_color = '#b3ecb3';
             }else if(type === 'externalLink'){
                 widget_title = 'External Link';
                 widget_subtext = 'Link to an external source';
@@ -232,7 +232,7 @@ function appendEnrollmentKeyWidget(data){
                 <i class="fa-light fa-grip-dots-vertical"></i>
             </div>
             <div class="widget-inner-wrapper">
-                <div class="widget-icon pastel-pink">
+                <div class="widget-icon pastel-green">
                     <i class="fa-light fa-key"></i>
                 </div>
                 <div class="widget-inner-right">
