@@ -594,7 +594,9 @@ console.log("iplayer.html script loaded");
         }
     }
 
+    // THIS FUNCTION DOES NOT RUN!!!!!!!!!!!
     function updateSCORMProgress(iframe) {
+        // THIS FUNCTION DOES NOT RUN!!!!!!!!!!!
         if (!isScormLesson()) return;
     
         let iframeDocument = iframe.contentWindow.document;
@@ -644,7 +646,9 @@ console.log("iplayer.html script loaded");
                 
                     // Circle runner inside SVG
                     const runnerCircle = sidebarItem.querySelector("circle.progress-circle__runner, circle.progress-circle_runner");
+                    console.log('runnerCircleFake:', runnerCircle);
                     if (runnerCircle) {
+                        console.log('runnerCircle:', runnerCircle);
                         runnerCircle.setAttribute("stroke-dashoffset", "0");
                         runnerCircle.classList.add("progress-circle__runner--completed");
                         runnerCircle.classList.remove("progress-circle__runner--unstarted");
@@ -865,7 +869,7 @@ console.log("iplayer.html script loaded");
         }
     
         const iframeDocument = iframe.contentWindow.document;
-        const progressCircles = iframeDocument.querySelectorAll("circle.progress-circle__runner");
+        const progressCircles = iframeDocument.querySelectorAll("circle.progress-circle__runner, circle.progress-circle_runner");
     
         if (!progressCircles.length) {
             console.warn("⚠️ No progress circles found inside SCORM iframe. Retrying...");
@@ -915,9 +919,12 @@ console.log("iplayer.html script loaded");
             circle.setAttribute("stroke-dashoffset", strokeOffset);
 
             if (progressPercentage === 100) {
+                console.log('progressPercentage', progressPercentage);
                 svg.setAttribute("aria-label", "Completed");
                 svg.classList.add("progress-circle--done");
                 circle.classList.add("progress-circle__runner--done", "progress-circle__runner--passed");
+                circle.classList.remove("progress-circle__runner--unstarted");
+
                 circle.setAttribute("stroke-dashoffset", "0");
 
                 const checkmark = svg.querySelector("path.progress-circle__pass");
@@ -977,19 +984,19 @@ console.log("iplayer.html script loaded");
         console.log("✅ All checkmarks should now be visible.");
     }  
 
-    function observeSCORMCheckmarks(iframe) {
-        if (!isScormLesson()) return;
-        let iframeDocument = iframe.contentWindow.document;
-        let observer = new MutationObserver(() => {
-            console.log("🔄 SCORM UI updated, ensuring checkmarks remain visible...");
-            showSCORMCheckmarks(iframe);
-        });
+    // function observeSCORMCheckmarks(iframe) {
+    //     if (!isScormLesson()) return;
+    //     let iframeDocument = iframe.contentWindow.document;
+    //     let observer = new MutationObserver(() => {
+    //         console.log("🔄 SCORM UI updated, ensuring checkmarks remain visible...");
+    //         showSCORMCheckmarks(iframe);
+    //     });
 
-        observer.observe(iframeDocument.body, {
-            childList: true,
-            subtree: true
-        });
-    }
+    //     observer.observe(iframeDocument.body, {
+    //         childList: true,
+    //         subtree: true
+    //     });
+    // }
     /*
     function trackMiniLessonProgress() {
         if (!isScormLesson()) return;
@@ -1031,7 +1038,54 @@ console.log("iplayer.html script loaded");
         }
     }
     */
-   function trackMiniLessonProgress() {
+    function rebuildMiniLessonProgressFromSCORM() {
+        if (!window.API_1484_11 || typeof window.API_1484_11.GetValue !== "function") {
+            console.warn("⚠️ SCORM API not ready — cannot rebuild mini lesson progress.");
+            return;
+        }
+
+        console.log('REBUILLLLLLLLLLLLLLLLLD');
+
+        try {
+            const suspendRaw = window.API_1484_11.GetValue("cmi.suspend_data");
+            console.log("📦 Raw suspend_data string from SCORM API:", suspendRaw);
+
+            if (!suspendRaw) {
+                console.warn("⚠️ No suspend_data found.");
+                return;
+            }
+
+            const parsed = JSON.parse(suspendRaw);
+
+            if (!parsed || !parsed.miniObjectives || !Array.isArray(parsed.miniObjectives)) {
+                console.warn("⚠️ suspend_data format invalid or miniObjectives not found");
+                return;
+            }
+
+            console.log("📥 Rehydrated mini-lesson progress from suspend_data:", parsed.miniObjectives);
+
+            // ✅ Update in-memory tracking
+            window.miniLessonProgress = parsed.miniObjectives;
+
+            // ✅ Write each objective back to SCORM
+            parsed.miniObjectives.forEach(obj => {
+                const idx = obj.mini_lesson_index;
+                const isComplete = obj.progress === "Completed";
+
+                window.API_1484_11.SetValue(`cmi.objectives.${idx}.id`, `mini_${idx}`);
+                window.API_1484_11.SetValue(`cmi.objectives.${idx}.progress_measure`, isComplete ? "1.0" : "0.0");
+                window.API_1484_11.SetValue(`cmi.objectives.${idx}.completion_status`, isComplete ? "completed" : "incomplete");
+            });
+
+            window.API_1484_11.Commit();
+            console.log("✅ SCORM objectives restored from suspend_data");
+
+        } catch (e) {
+            console.error("❌ Failed to parse suspend_data or restore objectives:", e);
+        }
+    }
+
+    function trackMiniLessonProgress() {
         if (!isScormLesson()) return;
 
         console.log("🔍 Checking mini-lesson progress...");
@@ -1055,6 +1109,20 @@ console.log("iplayer.html script loaded");
                     progress: progressText
                 });
             }
+
+            // ✅ SCORM Objective API Sync
+            try {
+                if (window.API_1484_11 && typeof window.API_1484_11.SetValue === "function") {
+                    const api = window.API_1484_11;
+                    const isComplete = progressText === "Completed";
+
+                    api.SetValue(`cmi.objectives.${index}.id`, `mini_${index}`);
+                    api.SetValue(`cmi.objectives.${index}.progress_measure`, isComplete ? "1.0" : "0.0");
+                    api.SetValue(`cmi.objectives.${index}.completion_status`, isComplete ? "completed" : "incomplete");
+                }
+            } catch (err) {
+                console.warn(`⚠️ Could not sync mini-lesson ${index} to SCORM`, err);
+            }
         });
 
         // ✅ Update frontend copy only with trimmed data
@@ -1070,6 +1138,30 @@ console.log("iplayer.html script loaded");
 
         console.log("✅ Cleaned Mini-Lesson Progress for backend:", serverPayload);
         sendMiniLessonProgress(serverPayload);
+
+        // ✅ Save to suspend_data
+        try {
+            let suspendPayload = { miniObjectives: updated };
+
+            const existing = window.API_1484_11.GetValue("cmi.suspend_data");
+            console.log("🔍 Existing suspend_data before update:", existing);
+            if (existing) {
+                const parsed = JSON.parse(existing);
+                suspendPayload = { ...parsed, miniObjectives: updated };
+            }
+
+            const suspendString = JSON.stringify(suspendPayload);
+            window.API_1484_11.SetValue("cmi.suspend_data", suspendString);
+            console.log("🧪 Writing suspend_data to SCORM API:", suspendString);
+        } catch (e) {
+            console.warn("⚠️ Could not save to suspend_data", e);
+        }
+
+
+        // ✅ Final commit to LMS
+        if (window.API_1484_11?.Commit) {
+            window.API_1484_11.Commit();
+        }
     }
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -1646,33 +1738,31 @@ console.log("iplayer.html script loaded");
 
         iframe.addEventListener("load", function () {
             console.log("✅ SCORM iframe loaded, restoring lesson progress...");
-            restoreLessonProgress();
+            restoreLessonProgress();  // OK to keep before
+
             waitForSCORMUI((iframe) => {
+                console.log("🧱 Rebuilding progress from SCORM...");
+                rebuildMiniLessonProgressFromSCORM();  // ✅ moved inside UI-ready callback
+
                 annotateSidebarCircles();
-                updateProgressCircles();
+                updateProgressCircles(); // ✅ now uses freshly rebuilt progress
                 observeSCORMChanges(iframe);
-                observeSCORMCheckmarks(iframe);
+
                 setTimeout(() => {
                     console.log("⏳ Triggering SCORM completion after sidebar setup...");
+                    trackMiniLessonProgress(); // ✅ now captures rebuilt + updated visuals
                     markLessonAsCompletedInSCORM();
                 }, 1000);
             });
+
             try {
                 iframe.contentWindow.addEventListener("scroll", function () {
                     console.log("📌 Detected scroll in SCORM iframe");
-                    //trackScrollPosition();
                     saveLessonProgress();
                 });
             } catch (e) {
                 console.warn("⚠️ Could not attach scroll listener inside iframe:", e);
             }
-        });
-        
-        // Restore scroll position when SCORM loads
-        iframe.addEventListener("load", function () {
-            console.log("✅ SCORM iframe loaded, restoring lesson progress...");
-            //restoreScrollPosition();
-            //restoreLessonProgress();
         });
 
         // Ensure scroll position is saved every 30 seconds
@@ -1750,10 +1840,11 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("✅ SCORM iframe loaded — applying saved progress");
 
             waitForSCORMUI((iframe) => {
+                rebuildMiniLessonProgressFromSCORM();
                 annotateSidebarCircles();
                 updateProgressCircles();
                 observeSCORMChanges(iframe);
-                observeSCORMCheckmarks(iframe);
+                //observeSCORMCheckmarks(iframe);
             });
         });
     }
