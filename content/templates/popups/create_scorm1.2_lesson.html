@@ -9,15 +9,20 @@
         </div>
         <div class="popup-body">
             <div class="course-content-input">
-                <label class="edit-user-label" for="SCORM1.2lessonTitle">Lesson Title</label>
-                <input type="text" id="SCORM1.2lessonTitle" name="SCORM1.2lessonTitle" placeholder="Lesson Title (Required)">
+                <label class="edit-user-label" for="SCORM1.2lessonTitle">Lesson Title<span class="required-asterisk">*</span></label>
+                <input type="text" id="SCORM1.2lessonTitle" name="SCORM1.2lessonTitle" placeholder="Lesson Title" maxlength="200">
             </div>
             <div class="course-content-input padding-top-2 padding-bottom-1">
                 <label class="edit-user-label" for="SCORM12lessonDescription">Lesson Description</label>
                 <div class="editor-container" id="SCORM12lessonDescription"></div>
+                <div class="quill-character-counter">
+                    <div class="quill-current-counter">0</div>
+                    <span>/</span>
+                    <div class="quill-max-counter">2000</div>
+                </div>
             </div>
             <div class="choose-file-wrapper">
-                <h5 class="popup-content-header">Upload Lesson File <span class="file-required-text">(Required)</span></h5>
+                <h5 class="popup-content-header">Upload Lesson File <span class="required-asterisk">*</span></h5>
                 <label for="SCORM1.2fileInput" class="custom-file-upload-container">
                     <div class="custom-file-upload">
                         <input type="file" id="SCORM1.2fileInput" name="file" style="display: none;" accept=".zip">
@@ -30,8 +35,8 @@
                     <!-- <input type="file" id="fileInput" name="file">               -->   
                 </label> 
             </div>
-            <div class="file-upload-loading">
-                <svg class="file-loading" viewBox="25 25 50 50">
+            <div class="loading-symbol-blue-sm">
+                <svg class="loading-symbol-sm-inner" viewBox="25 25 50 50">
                     <circle r="20" cy="50" cx="50"></circle>
                 </svg>
                 <span>Uploading Lesson File, please wait...</span>
@@ -41,7 +46,7 @@
         <div class="popup-footer">
             <div class="spacer"></div>
             <div class="popup-btns">
-                <button onclick="closeCreateLessonPopup('scorm1.2Popup')" class="popup-btn close-popup-btn">Back</button>
+                <button type="button" onclick="closeCreateLessonPopup('scorm1.2Popup')" class="popup-btn close-popup-btn">Back</button>
                 <button id="create12LessonBtn" onclick="createLesson('SCORM1.2')" class="popup-btn disabled" disabled>Create Lesson</button>   
             </div>
         </div>

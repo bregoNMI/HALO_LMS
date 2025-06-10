@@ -5,15 +5,16 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponseNotFound
 import json
-from .models import Dashboard, Widget, Header, Footer
+from .models import Dashboard, Widget, Header, Footer, LoginForm
 from .forms import DashboardForm
 
 @login_required
 def templates(request):
+    dashboard = Dashboard.objects.filter(is_main=True).first()
     header = Header.objects.first()
     footer = Footer.objects.first()
 
-    return render(request, 'html/templates.html', {'header': header, 'footer': footer})
+    return render(request, 'html/templates.html', {'header': header, 'footer': footer, 'dashboard': dashboard})
 
 @login_required
 def set_main_dashboard(request, dashboard_id):
@@ -58,10 +59,10 @@ def dashboard_create(request):
                 
                 # Create Default Template
                 if data['layout'] == 'layout2':
-                    Widget.objects.create(dashboard=dashboard, type='resumeCourses', widget_title='Course Name', widget_title_color='#000000', widget_subtext='Resume', widget_subtext_color='#6b6b6b', widget_icon='fa-solid fa-play', widget_icon_color='#8a2be2', widget_icon_background_color='#e5caff', widget_external_link=None)
-                    Widget.objects.create(dashboard=dashboard, type='myCourses', widget_title='My Courses', widget_title_color='#000000', widget_subtext='See courses you are enrolled in', widget_subtext_color='#6b6b6b', widget_icon='fa-solid fa-book-open-cover', widget_icon_color='#dc6618', widget_icon_background_color='#ffbf7c', widget_external_link=None)
-                    Widget.objects.create(dashboard=dashboard, type='enrollmentKey', widget_title='Enrollment Key', widget_title_color='#000000', widget_subtext='Have an Enrollment Key?', widget_subtext_color='#6b6b6b', widget_icon='fa-solid fa-key', widget_icon_color='#e03a59', widget_icon_background_color='#ffc9d2', widget_external_link=None)
-                    Widget.objects.create(dashboard=dashboard, type='externalLink', widget_title='External Link', widget_title_color='#000000', widget_subtext='Link to an external source', widget_subtext_color='#6b6b6b', widget_icon='fa-solid fa-link', widget_icon_color='#1863dc', widget_icon_background_color='#d0e0ff', widget_external_link=None)
+                    Widget.objects.create(dashboard=dashboard, type='resumeCourses', widget_title='Nothing in progress... yet.', widget_title_color='#41454d', widget_subtext='View My Courses', widget_subtext_color='#6b6b6b', widget_icon='fa-light fa-play', widget_icon_color='#8a2be2', widget_icon_background_color='#e5caff', widget_external_link=None)
+                    Widget.objects.create(dashboard=dashboard, type='myCourses', widget_title='My Courses', widget_title_color='#41454d', widget_subtext='See courses you are enrolled in', widget_subtext_color='#6b6b6b', widget_icon='fa-light fa-book-open-cover', widget_icon_color='#dc6618', widget_icon_background_color='#ffbf7c', widget_external_link=None)
+                    Widget.objects.create(dashboard=dashboard, type='enrollmentKey', widget_title='Enrollment Key', widget_title_color='#41454d', widget_subtext='Have an Enrollment Key?', widget_subtext_color='#6b6b6b', widget_icon='fa-light fa-key', widget_icon_color='#e03a59', widget_icon_background_color='#ffc9d2', widget_external_link=None)
+                    Widget.objects.create(dashboard=dashboard, type='externalLink', widget_title='External Link', widget_title_color='#41454d', widget_subtext='Link to an external source', widget_subtext_color='#6b6b6b', widget_icon='fa-light fa-link', widget_icon_color='#1863dc', widget_icon_background_color='#d0e0ff', widget_external_link=None)
                     
                 return JsonResponse({'success': True, 'dashboard_id': dashboard.id})
             else:
@@ -275,4 +276,108 @@ def update_footer(request):
         
         return JsonResponse({'success': True, 'message': 'Footer updated successfully'})
     
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+@login_required
+def login_form(request):
+    login_form = LoginForm.objects.first()
+
+    return render(request, 'html/login_form.html', {'login_form': login_form})
+
+@login_required
+def login_edit(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        login = LoginForm.objects.first()
+
+        login.layout = data.get('layout', login.layout)
+        login.is_logo_disabled = data.get('is_logo_disabled', login.is_logo_disabled)
+        login.login_logo = data.get('loginLogoURLInput', login.login_logo)
+        login.login_logo_title = data.get('loginLogoImageDisplay', login.login_logo_title)
+        login.logo_width = data.get('logo_width', login.logo_width)
+        login.logo_height = data.get('logo_height', login.logo_height)
+        login.logo_space_bottom = data.get('logo_space_bottom', login.logo_space_bottom)
+        login.logo_url = data.get('logo_url', login.logo_url)
+
+        login.background_color = data.get('background_colorHex', login.background_color)
+        login.is_background_disabled = data.get('is_background_disabled', login.is_background_disabled)
+        login.background_image = data.get('loginBackgroundURLInput', login.background_image)
+        login.background_image_title = data.get('loginBackgroundImageDisplay', login.background_image_title)
+        login.background_repeat = data.get('background_repeat', login.background_repeat)
+        login.background_position = data.get('background_position', login.background_position)
+        login.background_size = data.get('background_size', login.background_size)
+
+        login.form_enable_transparency = data.get('form_enable_transparency', login.form_enable_transparency)
+        login.form_background_color = data.get('form_background_colorHex', login.form_background_color)
+        login.form_background_image = data.get('formBackgroundURLInput', login.form_background_image)
+        login.form_image_title = data.get('formBackgroundImageDisplay', login.form_image_title)
+        login.form_max_width = data.get('form_max_width', login.form_max_width)
+        login.form_radius = data.get('form_radius', login.form_radius)
+        login.form_shadow = data.get('form_shadow', login.form_shadow)
+        login.form_shadow_opacity = data.get('form_shadow_opacity', login.form_shadow_opacity)
+        login.form_padding_top = data.get('form_padding_top', login.form_padding_top)
+        login.form_padding_right = data.get('form_padding_right', login.form_padding_right)
+        login.form_padding_bottom = data.get('form_padding_bottom', login.form_padding_bottom)
+        login.form_padding_left = data.get('form_padding_left', login.form_padding_left)
+        login.form_border_width = data.get('form_border_width', login.form_border_width)
+        login.form_border_style = data.get('form_border_style', login.form_border_style)
+        login.form_border_color = data.get('form_border_colorHex', login.form_border_color)
+
+        login.input_background_color = data.get('input_background_colorHex', login.input_background_color)
+        login.input_text_color = data.get('input_text_colorHex', login.input_text_color)
+        login.input_padding_top = data.get('input_padding_top', login.input_padding_top)
+        login.input_padding_right = data.get('input_padding_right', login.input_padding_right)
+        login.input_padding_bottom = data.get('input_padding_bottom', login.input_padding_bottom)
+        login.input_padding_left = data.get('input_padding_left', login.input_padding_left)
+        login.input_width = data.get('input_width', login.input_width)
+        login.input_border_color = data.get('input_border_color', login.input_border_color)
+        login.input_radius = data.get('input_radius', login.input_radius)
+        login.input_font_size = data.get('input_font_size', login.input_font_size)
+        login.input_space_between = data.get('input_space_between', login.input_space_between)
+
+        login.label_color = data.get('label_color', login.label_color)
+        login.label_font_size = data.get('label_font_size', login.label_font_size)
+        login.label_font_weight = data.get('label_font_weight', login.label_font_weight)
+        login.label_space_bottom = data.get('label_space_bottom', login.label_space_bottom)
+
+        login.button_color = data.get('button_colorHex', login.button_color)
+        login.button_color_hover = data.get('button_color_hoverHex', login.button_color_hover)
+        login.button_text = data.get('button_textHex', login.button_text)
+        login.button_text_hover = data.get('button_text_hoverHex', login.button_text_hover)
+        login.button_border_color = data.get('button_border_colorHex', login.button_border_color)
+        login.button_border_color_hover = data.get('button_border_color_hoverHex', login.button_border_color_hover)
+        login.button_space_above = data.get('button_space_above', login.button_space_above)
+        login.button_width = data.get('button_width', login.button_width)
+        login.button_radius = data.get('button_radius', login.button_radius)
+        login.button_padding_top = data.get('button_padding_top', login.button_padding_top)
+        login.button_padding_right = data.get('button_padding_right', login.button_padding_right)
+        login.button_padding_bottom = data.get('button_padding_bottom', login.button_padding_bottom)
+        login.button_padding_left = data.get('button_padding_left', login.button_padding_left)
+        login.button_font_size = data.get('button_font_size', login.button_font_size)
+        login.button_font_weight = data.get('button_font_weight', login.button_font_weight)
+
+        login.is_forgot_disabled = data.get('is_forgot_disabled', login.is_forgot_disabled)
+        login.forgot_text_decoration = data.get('forgot_text_decoration', login.forgot_text_decoration)
+        login.forgot_text_decoration_hover = data.get('forgot_text_decoration_hover', login.forgot_text_decoration_hover)
+        login.forgot_font_size = data.get('forgot_font_size', login.forgot_font_size)
+        login.forgot_space_above = data.get('forgot_space_above', login.forgot_space_above)
+        login.forgot_link_color = data.get('forgot_link_colorHex', login.forgot_link_color)
+        login.forgot_link_color_hover = data.get('forgot_link_color_hoverHex', login.forgot_link_color_hover)
+
+        login.is_signup_disabled = data.get('is_signup_disabled', login.is_signup_disabled)
+        login.signup_font_size = data.get('signup_font_size', login.signup_font_size)
+        login.signup_font_weight = data.get('signup_font_weight', login.signup_font_weight)
+        login.signup_space_above = data.get('signup_space_above', login.signup_space_above)
+        login.signup_link_color = data.get('signup_link_colorHex', login.signup_link_color)
+        login.signup_link_color_hover = data.get('signup_link_color_hoverHex', login.signup_link_color_hover)
+        login.signup_text_decoration = data.get('signup_text_decoration', login.signup_text_decoration)
+        login.signup_text_decoration_hover = data.get('signup_text_decoration_hover', login.signup_text_decoration_hover)
+        login.signup_text_color = data.get('signup_text_colorHex', login.signup_text_color)
+
+        print('data:', data)
+
+        login.save()
+
+        return JsonResponse({'success': True, 'message': 'Portal updated successfully'})
+
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)

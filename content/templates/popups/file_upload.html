@@ -2,9 +2,9 @@
     <div class="popup-content max-width-6">
         <div class="popup-header">
             <h3>Upload a File</h3>
-            <div onclick="closeFileUpload()" class="close-popup-icon">
+            <button type="button" onclick="closeFileUpload()" class="close-popup-icon">
                 <i class="fa-solid fa-xmark"></i>
-            </div>
+            </button>
         </div>
         <form id="fileUploadForm" enctype="multipart/form-data">
             <div class="popup-body">
@@ -20,11 +20,17 @@
                         </div>
                     </label>                  
                 </div>
+                <div class="loading-symbol-blue-sm">
+                    <svg class="loading-symbol-sm-inner" viewBox="25 25 50 50">
+                        <circle r="20" cy="50" cx="50"></circle>
+                    </svg>
+                    <span>Uploading File, please wait...</span>
+                </div>
             </div>
             <div class="popup-footer">
                 <div class="spacer"></div>
                 <div class="popup-btns">
-                    <div onclick="closeFileUpload()" class="popup-btn close-popup-btn">Cancel</div>
+                    <button type="button" onclick="closeFileUpload()" class="popup-btn close-popup-btn">Cancel</button>
                     <button id="fileUploadSubmit" type="submit" class="popup-btn disabled" disabled>Upload</button>
                 </div>
             </div>

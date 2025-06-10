@@ -23,9 +23,9 @@
         <div class="max-width-0">
             <div class="details-top-row">
                 <div class="details-top-row-left">
-                    <a href="{% url 'admin_users' %}" class="back-btn">
+                    <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
                         <i class="fa-solid fa-arrow-left"></i>
-                    </a>
+                    </button>
                     <h3> User History </h3>
                 </div>
                 <div class="details-top-row-right">
@@ -76,9 +76,19 @@
                                     <div class="user-history-item">
                                         <div class="user-history-header">
                                             <div class="user-history-left">
-                                                <div class="user-history-icon">
-                                                    <i class="fa-light fa-pencil"></i>
-                                                </div>
+                                                {% if log.action_type == 'course_completed' %}
+                                                    <div class="user-history-icon">
+                                                        <i class="fa-light fa-badge-check"></i>
+                                                    </div>
+                                                {% elif log.action_type == 'user_updated' %}
+                                                    <div class="user-history-icon">
+                                                        <i class="fa-light fa-pencil"></i>
+                                                    </div>
+                                                {% elif log.action_type == 'user_enrolled' %}
+                                                    <div class="user-history-icon">
+                                                        <i class="fa-light fa-hand-holding-box"></i>
+                                                    </div>
+                                                {% endif %}
                                                 <div class="user-history-action">
                                                     <span><b>{{ log.action_performer }}</b> {{ log.action }}</span>
                                                 </div>
@@ -110,7 +120,7 @@
                     <div class="details-info-card details-info-card-overflow">
                         <div class="info-card-header collapsable-header">
                             <div class="card-header-left">
-                                <i class="fa-regular fa-message-captions"></i>
+                                <i class="fa-regular fa-envelope-open-text"></i>
                                 <span> Message History </span>
                             </div>
                             <div class="card-header-right">
@@ -124,7 +134,7 @@
                                     <div id="message-{{ message.id }}" class="message {% if message.read %}read{% endif %} message-container" onclick="openMessagePopup({{ message.id }})">
                                         <div class="message-left">
                                             <div class="dropdown-user-icon">
-                                                <i class="fa-regular fa-comment-dots"></i>
+                                                <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
                                             </div>
                                             <div class="message-content">
                                                 <div class="message-content-header">
@@ -156,7 +166,7 @@
                                                 <div class="message-container" style="cursor: auto; background-color: white; border-radius: 8px;">
                                                     <div class="message-popup-left">
                                                         <div class="dropdown-user-icon">
-                                                            <i class="fa-regular fa-comment-dots"></i>
+                                                            <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
                                                         </div>
                                                         <div class="message-content">
                                                             <div class="message-content-header">
@@ -190,4 +200,5 @@
     <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
     <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
 {% endblock content %}

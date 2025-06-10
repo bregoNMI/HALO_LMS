@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 document.getElementById('update-header-btn').addEventListener('click', function(event) {
+    setDisabledSaveBtns();
     event.preventDefault();  // Prevent default form submission
 
     // Gather the data from the input fields
@@ -35,14 +36,17 @@ document.getElementById('update-header-btn').addEventListener('click', function(
             displayValidationMessage('Header failed to update', false);
             console.log('Failed to update header: ' + data.error);
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         displayValidationMessage('Failed to update header', false);
         console.error('Error:', error);
+        removeDisabledSaveBtns();
     });
 });
 
 document.getElementById('update-footer-btn').addEventListener('click', function(event) {
+    setDisabledSaveBtns();
     event.preventDefault();  // Prevent default form submission
 
     // Gather the data from the input fields
@@ -70,10 +74,12 @@ document.getElementById('update-footer-btn').addEventListener('click', function(
             displayValidationMessage('Failed to update footer', false);
             console.log('Failed to update footer: ' + data.error);
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         displayValidationMessage('Failed to update footer', false);
         console.error('Error:', error);
+        removeDisabledSaveBtns();
     });
 });
 
@@ -167,26 +173,4 @@ function initializeTextColorListeners() {
 function isValidHex(hex) {
     // Check if the hex code matches the valid 6-digit hex pattern
     return /^#[0-9A-F]{6}$/i.test(hex);
-}
-
-const validationMessageContainer = document.getElementById('validation-message-container');
-const validationMessageInner = document.getElementById('validation-message-inner');
-const validationMessage = document.getElementById('validation-message');
-const validationIcon = document.getElementById('validation-icon');
-
-function displayValidationMessage(message, isSuccess) {
-    validationMessage.textContent = message;
-    validationMessageContainer.style.display = 'flex';
-    setTimeout(() => {
-        validationMessageContainer.className = isSuccess ? 'alert-container animate-alert-container' : 'alert-container animate-alert-container';
-    }, 100);
-    validationMessageInner.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
-    setTimeout(() => {
-        validationMessageContainer.classList.remove('animate-alert-container');
-    }, 10000);
-    if(isSuccess){
-        validationIcon.className = 'fa-solid fa-circle-check';
-    }else{
-        validationIcon.className = 'fa-solid fa-triangle-exclamation';
-    }
 }

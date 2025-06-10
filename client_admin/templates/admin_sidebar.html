@@ -1,11 +1,10 @@
 <!-- Admin Sidebar HTML -->
 <div class="admin-sidebar-container">
-
     <div class="sidebar-body">
         <div class="collapsible-section">
             <a href="/admin/dashboard/" class="collapsible-header test-current-page">
                 <div class="icon-inner-header">
-                    <i class="fa-regular fa-objects-column"></i>
+                    <i style="font-size: 1.3rem;" class="fa-light fa-objects-column"></i>
                     <h6>Dashboard</h6>
                 </div>
             </a>              
@@ -13,22 +12,22 @@
         <div class="collapsible-section">
             <div class="collapsible-header">
                 <div class="icon-inner-header">
-                    <i class="fa-regular fa-people-pants-simple"></i>
+                    <i class="fa-light fa-people-pants-simple"></i>
                     <h6>Users</h6>
                 </div>
                 <i class="fa-solid fa-angle-right"></i>
             </div>              
             <div class="collapsible-content">
                 <a href="/admin/users/" class="sidebar-body-item test-current-page">
-                    <i class="fa-regular fa-people-pants-simple"></i>
+                    <i class="fa-light fa-people-pants-simple"></i>
                     <p>Users</p>
                 </a>
                 <a href="/admin/roles/" class="sidebar-body-item test-current-page">
-                    <i class="fa-regular fa-id-card-clip"></i>
+                    <i class="fa-light fa-id-card-clip"></i>
                     <p>Roles</p>
                 </a>
                 <a href="/admin/enrollment-keys/" class="sidebar-body-item test-current-page">
-                    <i class="fa-regular fa-key"></i>
+                    <i class="fa-light fa-key"></i>
                     <p>Enrollment Keys</p>
                 </a>
             </div>
@@ -36,18 +35,22 @@
         <div class="collapsible-section">
             <div class="collapsible-header">
                 <div class="icon-inner-header">
-                    <i class="fa-regular fa-book-copy"></i>
+                    <i class="fa-light fa-book-copy"></i>
                     <h6>Courses</h6>
                 </div>
                 <i class="fa-solid fa-angle-right"></i>
             </div>              
             <div class="collapsible-content">
                 <a href="/admin/courses/" class="sidebar-body-item test-current-page">
-                    <i class="fa-regular fa-book-copy"></i>
+                    <i class="fa-light fa-book-copy"></i>
                     <p>Courses</p>
                 </a>
+                <a href="/admin/categories/" class="sidebar-body-item test-current-page">
+                    <i class="fa-light fa-grid-2"></i>
+                    <p>Categories</p>
+                </a>
                 <a href="/admin/analytics/" class="sidebar-body-item test-current-page">
-                    <i class="fa-regular fa-ranking-star"></i>
+                    <i class="fa-light fa-ranking-star"></i>
                     <p>Analytics</p>
                 </a>
             </div>
@@ -55,25 +58,44 @@
         <div class="collapsible-section">
             <div class="collapsible-header">
                 <div class="icon-inner-header">
-                    <i class="fa-regular fa-wand-magic-sparkles"></i>
+                    <i class="fa-light fa-wand-magic-sparkles"></i>
                     <h6>Customize</h6>
                 </div>
                 <i class="fa-solid fa-angle-right"></i>
             </div>              
             <div class="collapsible-content">
                 <a href="/admin/templates/" class="sidebar-body-item test-current-page">
-                    <i class="fa-regular fa-rectangle-history"></i>
+                    <i class="fa-light fa-rectangle-history"></i>
                     <p>Templates</p>
                 </a>
             </div>
             <div class="collapsible-section">
                 <a href="/admin/settings/" class="collapsible-header test-current-page">
                     <div class="icon-inner-header">
-                        <i class="fa-regular fa-gear"></i>
+                        <i class="fa-light fa-gear"></i>
                         <h6>Settings</h6>
                     </div>
                 </a>              
             </div>
         </div>
     </div>
+    <div class="sidebar-footer-container">
+        <div class="create-menu-section">
+            <button onclick="toggleCreateSidebar()" class="collapsible-header test-current-page">
+                <div class="icon-inner-header">
+                    <i class="fa-regular fa-plus"></i>
+                    <h6>Create New</h6>
+                </div>
+            </button>              
+        </div>
+        <div class="sidebar-footer">
+            <div class="sidebar-toggle-wrapper">
+                <div onclick="toggleAdminSidebar()" class="sidebar-toggle tooltip" data-tooltip="Collapse Sidebar">
+                    <span style="top: -60px;" class="tooltiptext">Collapse Sidebar</span>
+                    <i class="fa-light fa-sidebar"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'admin_sidebar_create.html' %}
 </div>

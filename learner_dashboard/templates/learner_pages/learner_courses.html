@@ -4,13 +4,7 @@
 {% block content %}
 {% include 'learner_sidebar.html' %}
 <div class="learner-body align-center scrollable-content">
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="alert-container" style="display: none;">   
-        <div id="validation-message-inner">
-            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
-            <span id="validation-message"></span>
-        </div>
-    </div>
+    {% include 'messageContainer/message_container.html' %}
     <div class="max-width-extend-1">
         <div class="learner-top-row">
             <div class="learner-top-row-left">
@@ -39,7 +33,7 @@
                                 {% else %}
                                     <div class="course-item-thumbnail">
                                         <div class="thumbnail-placeholder">
-                                            <i class="fa-regular fa-book-open-cover"></i>
+                                            <i class="fa-light fa-book-open-cover"></i>
                                         </div>
                                     </div> 
                                 {% endif %}                                  
@@ -56,6 +50,10 @@
                                 {% elif user_course.get_status == 'Completed' %}
                                     <div class="course-item-status-item green-status-item">
                                         <i class="fa-solid fa-check"></i>
+                                    </div>
+                                {% elif user_course.get_status == 'Not Completed' %}
+                                    <div class="course-item-status-item yellow-status-item">
+                                        <i class="fa-regular fa-light-emergency-on"></i>
                                     </div>
                                 {% else %}
                                     <div class="course-item-status-item red-status-item">
@@ -93,20 +91,22 @@
                                         <span>{{ user_course.course.get_lesson_count }} Lesson</span>
                                     {% endif %}
                                 </div>
+                                {% if user_course.get_expiration_date or user_course.get_due_date or user_course.get_start_date %}
+                                    <div class="course-item-footer-item">
+                                        <i class="fa-solid fa-circle-small footer-spacer"></i>
+                                    </div>
+                                {% endif %}
                                 <div class="course-item-footer-item">
-                                    <i class="fa-solid fa-circle-small footer-spacer"></i>
-                                </div>
-                                <div class="course-item-footer-item">
-                                    {% if user_course.course.get_expiration_date %}
+                                    {% if user_course.get_expiration_date %}
                                         <!-- <i class="fa-regular fa-stopwatch"></i> -->
                                         <i class="fa-regular fa-calendar-clock"></i>
-                                        <span> {{ user_course.course.get_expiration_date }}</span>
-                                    {% elif user_course.course.get_due_date %}
+                                        <span> {{ user_course.get_expiration_date }}</span>
+                                    {% elif user_course.get_due_date %}
                                         <i class="fa-regular fa-calendar-exclamation"></i>
-                                        <span> {{ user_course.course.get_due_date }}</span>
-                                    {% elif user_course.course.get_start_date %}
+                                        <span> {{ user_course.get_due_date }}</span>
+                                    {% elif user_course.get_start_date %}
                                         <i class="fa-regular fa-calendar-star"></i>
-                                        <span> {{ user_course.course.get_start_date }}</span>
+                                        <span> {{ user_course.get_start_date }}</span>
                                     {% endif %}
                                 </div>
                             </div>
@@ -135,24 +135,22 @@
                                     {% endif %}
                                     <!-- Button To Start Course -->
                                     {% if user_course.get_status == 'Not Started' %}
-                                        <button class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                        <button class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}')">
                                             <i class="fa-regular fa-rocket-launch"></i>
                                             <span> Start Course</span>
                                         </button>
-                                        <script src="{% static 'learner_dashboard/javascript/learner.js' %}"></script>
-                                    {% elif user_course.get_status == 'Started' %}
-                                        <div class="start-course-btn" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                    {% elif user_course.get_status == 'Started' or user_course.get_status == 'Not Completed' %}
+                                        <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}')">
                                             <i class="fa-regular fa-circle-play"></i>
                                             <span> Resume Course</span>
                                         </div>
-                                        <script src="{% static 'learner_dashboard/javascript/learner.js' %}"></script>
                                     {% elif user_course.get_status == 'Completed' %}
-                                        <div class="start-course-btn">
+                                        <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}')">
                                             <i class="fa-regular fa-glasses"></i>
                                             <span> Review Course</span>
                                         </div>
                                     {% else %}
-                                        <div class="start-course-btn">
+                                        <div class="start-course-btn learner-save-btns">
                                             <i class="fa-regular fa-stopwatch"></i>
                                             <span> Course Expired</span>
                                         </div>
@@ -183,33 +181,33 @@
                                                     <div class="read-more-toggle" onclick="toggleDescription(event)">Read More</div>
                                                 </div>
                                             {% endif %}
-                                            {% if user_course.course.get_start_date or user_course.course.get_due_date or user_course.course.get_expiration_date %}
+                                            {% if user_course.get_start_date or user_course.get_due_date or user_course.get_expiration_date %}
                                                 <div class="tab-content-event-dates">
-                                                    {% if user_course.course.get_start_date %}
+                                                    {% if user_course.get_start_date %}
                                                         <div class="tab-content-event-dates-item">
                                                             <div class="tab-content-event-dates-item-top">
                                                                 <i class="fa-regular fa-calendar-star"></i>
                                                                 <span>Start Date</span>
                                                             </div>
-                                                            <span class="event-dates-subtext"> {{ user_course.course.get_start_date }} </span>
+                                                            <span class="event-dates-subtext"> {{ user_course.get_start_date }} </span>
                                                         </div>
                                                     {% endif %}
-                                                    {% if user_course.course.get_due_date %}
+                                                    {% if user_course.get_due_date %}
                                                         <div class="tab-content-event-dates-item">
                                                             <div class="tab-content-event-dates-item-top">
                                                                 <i class="fa-regular fa-calendar-exclamation"></i>
                                                                 <span>Due Date</span>
                                                             </div>
-                                                            <span class="event-dates-subtext"> {{ user_course.course.get_due_date }} </span>
+                                                            <span class="event-dates-subtext"> {{ user_course.get_due_date }} </span>
                                                         </div>
                                                     {% endif %}
-                                                    {% if user_course.course.get_expiration_date %}
+                                                    {% if user_course.get_expiration_date %}
                                                         <div class="tab-content-event-dates-item">
                                                             <div class="tab-content-event-dates-item-top">
                                                                 <i class="fa-regular fa-calendar-clock"></i>
                                                                 <span>Expiration Date</span>
                                                             </div>
-                                                            <span class="event-dates-subtext"> {{ user_course.course.get_expiration_date }} </span>
+                                                            <span class="event-dates-subtext"> {{ user_course.get_expiration_date }} </span>
                                                         </div>                                         
                                                     {% endif %}
                                                 </div>
@@ -239,9 +237,11 @@
                                                                     {% endif %}                                                                
                                                                     <h5 class="course-item-lesson-title">{{ lesson_progress.lesson.title }}</h5>
                                                                 </div>
-                                                                <div class="course-item-lesson-body">
-                                                                    <span class="course-item-lesson-description">{{ lesson_progress.lesson.description }}</span>
-                                                                </div>
+                                                                {% if lesson_progress.lesson.description != '<p><br></p>' and lesson_progress.lesson.description %}
+                                                                    <div class="course-item-lesson-body">
+                                                                        <div class="course-item-lesson-description">{{ lesson_progress.lesson.description|safe }}</div>
+                                                                    </div>
+                                                                {% endif %}
                                                             </div>
                                                         {% empty %}
                                                             <span>No lessons available.</span>
@@ -289,4 +289,5 @@
 <link rel="stylesheet" href="{% static 'content/css/content.css' %}">
 <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+<script src="{% static 'learner_dashboard/javascript/learner.js' %}"></script>
 {% endblock %}

@@ -12,7 +12,13 @@ document.addEventListener('DOMContentLoaded', function() {
     testTotalWidgetCards();
     // Call the function to initialize text color listeners
     initializeTextColorListeners();
+    initializeColorChanges();
+    initializeTextChanges();
+    initializeURLChanges();
+    initializeImageChanges();
+    initializePositionChanges();
 });
+let widgetIdGlobal;
 
 function checkBannerPosition() {
     const headerBackgroundImage = checkBannerPositionItems;
@@ -37,31 +43,31 @@ function initializeAddWidgets() {
             let widget_icon_background_color;
             let widget_external_link;
             if(type === 'resumeCourses'){
-                widget_title = 'Course Name';
-                widget_subtext = 'Resume';
-                widget_icon = 'fa-solid fa-play';
+                widget_title = 'Nothing in progress... yet.';
+                widget_subtext = 'View My Courses';
+                widget_icon = 'fa-light fa-play';
                 widget_icon_color = '#8a2be2';
                 widget_icon_background_color = '#e5caff';
             }else if(type === 'myCourses'){
                 widget_title ='My Courses';
                 widget_subtext = 'See courses you are enrolled in';
-                widget_icon = 'fa-solid fa-book-open-cover';
+                widget_icon = 'fa-light fa-book-open-cover';
                 widget_icon_color = '#dc6618';
                 widget_icon_background_color = '#ffbf7c';
             }else if(type === 'enrollmentKey'){
                 widget_title = 'Enrollment Key';
                 widget_subtext = 'Have an Enrollment Key?';
-                widget_icon = 'fa-solid fa-key';
+                widget_icon = 'fa-light fa-key';
                 widget_icon_color = '#e03a59';
                 widget_icon_background_color = '#ffc9d2';
             }else if(type === 'externalLink'){
                 widget_title = 'External Link';
                 widget_subtext = 'Link to an external source';
-                widget_icon = 'fa-solid fa-link';
+                widget_icon = 'fa-light fa-link';
                 widget_icon_color = '#1863dc';
                 widget_icon_background_color = '#d0e0ff';
             } 
-            let widget_title_color = '#000000'; 
+            let widget_title_color = '#41454d'; 
             let widget_subtext_color = '#6b6b6b';
 
             if (dashboardIdInput && type) {  // Updated to include type check
@@ -144,12 +150,12 @@ function appendResumeCoursesWidget(data){
             </div>
             <div class="widget-inner-wrapper">
                 <div class="widget-icon pastel-purple">
-                    <i class="fa-solid fa-play"></i>
+                    <i class="fa-light fa-play"></i>
                 </div>
                 <div class="widget-inner-right">
-                    <h3> Course Name</h3>
+                    <h3> Nothing in progress... yet. </h3>
                     <div style="display: flex; gap: 0.3rem; align-items: baseline; color: {{ widget.widget_subtext_color }};">
-                        <span id="resumeSubtext"> Resume </span><i id="resumeIcon" class="fa-solid fa-angle-right"></i>
+                        <span id="resumeSubtext"> View My Courses </span><i id="resumeIcon" class="fa-solid fa-angle-right"></i>
                     </div>
                 </div>   
             </div>
@@ -189,7 +195,7 @@ function appendMyCoursesWidget(data){
             </div>
             <div class="widget-inner-wrapper">
                 <div class="widget-icon pastel-orange">
-                    <i class="fa-solid fa-book-open-cover"></i>
+                    <i class="fa-light fa-book-open-cover"></i>
                 </div>
                 <div class="widget-inner-right">
                     <h3> My Courses </h3>
@@ -227,7 +233,7 @@ function appendEnrollmentKeyWidget(data){
             </div>
             <div class="widget-inner-wrapper">
                 <div class="widget-icon pastel-pink">
-                    <i class="fa-solid fa-key"></i>
+                    <i class="fa-light fa-key"></i>
                 </div>
                 <div class="widget-inner-right">
                     <h3> Enrollment Key</h3>
@@ -265,7 +271,7 @@ function appendExternalLinkWidget(data){
             </div>
             <div class="widget-inner-wrapper">
                 <div class="widget-icon pastel-blue">
-                    <i class="fa-solid fa-link"></i>
+                    <i class="fa-light fa-link"></i>
                 </div>
                 <div class="widget-inner-right">
                     <h3> External Link</h3>
@@ -414,29 +420,36 @@ function initializeWidgetReordering() {
     }
 }
 
+// Function to collect dashboard header data
+function getWidgetData() {
+    return {
+        typeInput: document.getElementById('edit-widget-type').value,
+        widgetEditTitle: document.getElementById('widgetEditTitle').value,
+        widgetEditTitleColor: document.getElementById('widgetEditTextColorHex').value,
+        widgetEditSubtext: document.getElementById('widgetEditSubtext').value,
+        widgetEditSubtextColor: document.getElementById('widgetEditSubtextColorHex').value,
+        widgetEditIcon: document.getElementById('currentSelectedIconWidget').className,
+        widgetEditIconColor: document.getElementById('widgetEditIconColorHex').value,
+        widgetEditIconBackgroundColor: document.getElementById('widgetEditIconBackgroundColorHex').value,
+        widgetEditExternalLinkInput: document.getElementById('widgetEditExternalLinkInput').value,
+    };
+}
+
 function saveWidgetChanges(widgetId) {
-    const typeInput = document.getElementById('edit-widget-type');
-    const widgetEditTitle = document.getElementById('widgetEditTitle');
-    const widgetEditTitleColor = document.getElementById('widgetEditTextColorHex');
-    const widgetEditSubtext = document.getElementById('widgetEditSubtext');
-    const widgetEditSubtextColor = document.getElementById('widgetEditSubtextColorHex');
-    const widgetEditIcon = document.getElementById('currentSelectedIconWidget').className;
-    const widgetEditIconColor = document.getElementById('widgetEditIconColorHex');
-    const widgetEditIconBackgroundColor = document.getElementById('widgetEditIconBackgroundColorHex');
-    const widgetEditExternalLinkInput = document.getElementById('widgetEditExternalLinkInput');
+    setDisabledSaveBtns();
+    const widgetData = getWidgetData();
 
-    if (typeInput) {
-        const type = typeInput.value;
-        const widget_title = widgetEditTitle.value;
-        const widget_title_color = widgetEditTitleColor.value;
-        const widget_subtext = widgetEditSubtext.value;
-        const widget_subtext_color = widgetEditSubtextColor.value;
-        const widget_icon = widgetEditIcon;
-        const widget_icon_color = widgetEditIconColor.value;
-        const widget_icon_background_color = widgetEditIconBackgroundColor.value;
-        const widget_external_link = widgetEditExternalLinkInput.value;
-
-        console.log(widget_icon, widget_icon_color);
+    if (widgetData.typeInput) {
+        console.log(widgetData);
+        const type = widgetData.typeInput;
+        const widget_title = widgetData.widgetEditTitle;
+        const widget_title_color = widgetData.widgetEditTitleColor;
+        const widget_subtext = widgetData.widgetEditSubtext;
+        const widget_subtext_color = widgetData.widgetEditSubtextColor;
+        const widget_icon = widgetData.widgetEditIcon;
+        const widget_icon_color = widgetData.widgetEditIconColor;
+        const widget_icon_background_color = widgetData.widgetEditIconBackgroundColor;
+        const widget_external_link = widgetData.widgetEditExternalLinkInput;
 
         fetch(`/admin/templates/widgets/edit/${widgetId}/`, {
             method: 'POST',
@@ -464,33 +477,39 @@ function saveWidgetChanges(widgetId) {
         })
         .then(data => {
             if (data.success) {
-                // Update the widget in the DOM
-                const widgetDiv = document.querySelector(`.widget[data-id="${widgetId}"]`);
-                if (widgetDiv) {
-                    widgetDiv.querySelector('h3').textContent = widget_title;
-                    widgetDiv.querySelector('h3').style.color = widget_title_color;
-                    widgetDiv.querySelector('span').textContent = widget_subtext;
-
-                    if(widgetDiv.querySelector('#resumeIcon')){
-                        widgetDiv.querySelector('#resumeIcon').style.color = widget_subtext_color;
-                    }   widgetDiv.querySelector('#resumeSubtext').style.color = widget_subtext_color;               
-
-                    widgetDiv.querySelector('.widget-icon i').className =  widget_icon;
-                    widgetDiv.querySelector('.widget-icon i').style.color =  widget_icon_color;
-                    widgetDiv.querySelector('.widget-icon').style.backgroundColor =  widget_icon_background_color;
-                }
+                updateWidget(widgetData, widgetId);              
                 displayValidationMessage('Widget updated successfully', true);
             } else {
                 displayValidationMessage('Failed to update widget', false);
                 console.error('Failed to update widget:', data.error);
             }
+            removeDisabledSaveBtns();
         })
         .catch(error => {
             displayValidationMessage('Something went wrong, please contact an administrator', false);
             console.error('Fetch error:', error.message);
+            removeDisabledSaveBtns();
         });
     } else {
+        removeDisabledSaveBtns();
         alert('Both title and content are required.');
+    }
+}
+
+function updateWidget(data, widgetId){
+    const widgetDiv = document.querySelector(`.widget[data-id="${widgetId}"]`);
+    if (widgetDiv) {
+        widgetDiv.querySelector('h3').textContent = data.widgetEditTitle;
+        widgetDiv.querySelector('h3').style.color = data.widgetEditTitleColor;
+        widgetDiv.querySelector('span').textContent = data.widgetEditSubtext;
+
+        if(widgetDiv.querySelector('#resumeIcon')){
+            widgetDiv.querySelector('#resumeIcon').style.color = data.widgetEditSubtextColor;
+        }   widgetDiv.querySelector('#resumeSubtext').style.color = data.widgetEditSubtextColor;               
+
+        widgetDiv.querySelector('.widget-icon i').className =  data.widgetEditIcon;
+        widgetDiv.querySelector('.widget-icon i').style.color =  data.widgetEditIconColor;
+        widgetDiv.querySelector('.widget-icon').style.backgroundColor =  data.widgetEditIconBackgroundColor;
     }
 }
 
@@ -513,6 +532,7 @@ const optionsSidebar = document.getElementById('optionsSidebar');
 const widgetEditOptions = document.getElementById('widgetEditOptions');
 const headerEditOptions = document.getElementById('headerEditOptions');
 function openEditSidebar(widgetId) {
+    widgetIdGlobal = widgetId;
     // Open the sidebar
     optionsSidebar.classList.add('show-options-sidebar');
 
@@ -575,6 +595,17 @@ function populateSidebarWithWidgetData(widgetData, widgetId) {
     }else{
         document.getElementById('externalLinkContainer').style.display = 'none';
     }
+
+    // Test if it needs to show the resume widget subtexts
+    if(widgetData.type === 'resumeCourses'){
+        document.getElementById('resumeTitleExplanation').style.display = 'flex';
+        document.getElementById('resumeSubtextExplanation').style.display = 'flex';
+        document.getElementById('resumeIconExplanation').style.display = 'flex';
+    }else{
+        document.getElementById('resumeTitleExplanation').style.display = 'none';
+        document.getElementById('resumeSubtextExplanation').style.display = 'none';
+        document.getElementById('resumeIconExplanation').style.display = 'none';
+    }
     
     if (typeInput) {
         typeInput.value = widgetData.type || '';
@@ -602,17 +633,24 @@ function populateSidebarWithWidgetData(widgetData, widgetId) {
     }
 }
 
+// Function to collect dashboard header data
+function getDashboardHeaderData() {
+    return {
+        headerBackgroundImage: document.getElementById('dashboardURLInput').value,
+        headerBackgroundPosition: document.querySelector('input[name="position-selection"]:checked').getAttribute('data-position'),
+        headerTitle: document.getElementById('headerEditTitle').value,
+        headerSubtext: document.getElementById('headerEditSubtext').value,
+        headerIcon: document.getElementById('headerEditIcon').value,
+        headerIconColor: document.getElementById('headerEditIconColorHex').value,
+        headerIconBackgroundColor: document.getElementById('headerEditIconBackgroundColorHex').value,
+        headerTextColor: document.getElementById('headerEditTextColorHex').value,
+        headerSubtextColor: document.getElementById('headerEditSubtextColorHex').value
+    };
+}
+
 function saveDashboardHeader(dashboardId) {
-    const headerBackgroundImage = document.getElementById('dashboardURLInput').value;
-    const selectedElement = document.querySelector('input[name="position-selection"]:checked');
-    const headerBackgroundPosition = selectedElement.getAttribute('data-position');
-    const headerTitle = document.getElementById('headerEditTitle').value;
-    const headerSubtext = document.getElementById('headerEditSubtext').value;
-    const headerIcon = document.getElementById('headerEditIcon').value;
-    const headerIconColor = document.getElementById('headerEditIconColorHex').value;
-    const headerIconBackgroundColor = document.getElementById('headerEditIconBackgroundColorHex').value;
-    const headerTextColor = document.getElementById('headerEditTextColorHex').value;
-    const headerSubtextColor = document.getElementById('headerEditSubtextColorHex').value;
+    setDisabledSaveBtns();
+    const headerData = getDashboardHeaderData();
 
     fetch(`/admin/templates/dashboard/${dashboardId}/edit-header/`, {
         method: 'POST',
@@ -621,15 +659,15 @@ function saveDashboardHeader(dashboardId) {
             'X-CSRFToken': getCookie('csrftoken'),
         },
         body: JSON.stringify({
-            header_background_image: headerBackgroundImage,
-            header_background_image_position: headerBackgroundPosition,
-            header_title: headerTitle,
-            header_subtext: headerSubtext,
-            header_icon: headerIcon,
-            header_icon_color: headerIconColor,
-            header_icon_background_color: headerIconBackgroundColor,
-            header_text_color: headerTextColor,
-            header_subtext_color: headerSubtextColor,
+            header_background_image: headerData.headerBackgroundImage,
+            header_background_image_position: headerData.headerBackgroundPosition,
+            header_title: headerData.headerTitle,
+            header_subtext: headerData.headerSubtext,
+            header_icon: headerData.headerIcon,
+            header_icon_color: headerData.headerIconColor,
+            header_icon_background_color: headerData.headerIconBackgroundColor,
+            header_text_color: headerData.headerTextColor,
+            header_subtext_color: headerData.headerSubtextColor,
         }),
     })
     .then(response => {
@@ -640,33 +678,36 @@ function saveDashboardHeader(dashboardId) {
     })
     .then(data => {
         if (data.success) {
-            // Update the DOM elements with the new values
-            document.getElementById('headerImage').style.backgroundImage = `url(${headerBackgroundImage})`;
-            document.getElementById('headerImage').style.backgroundPosition = headerBackgroundPosition;
-            document.getElementById('headerTitle').innerText = headerTitle;
-            document.getElementById('headerSubtext').innerText = headerSubtext;
-
-            const iconWrapper = document.getElementById('headerIcon');
-            iconWrapper.innerHTML = `<i style="color: ${headerIconColor};" class="${headerIcon}"></i>`;
-            iconWrapper.style.backgroundColor = headerIconBackgroundColor;
-
-            document.getElementById('headerTitle').style.color = headerTextColor;
-            document.getElementById('headerSubtext').style.color = headerSubtextColor;
-
+            updateDashboardHeader(headerData);
             displayValidationMessage('Dashboard updated successfully', true);
         } else {
             displayValidationMessage('Failed to update header', false);
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         displayValidationMessage('Something went wrong, please contact an administrator', false);
+        removeDisabledSaveBtns();
     });
+}
+
+function updateDashboardHeader(data){
+    document.getElementById('headerImage').style.backgroundImage = `url(${data.headerBackgroundImage})`;
+    document.getElementById('headerImage').style.backgroundPosition = data.headerBackgroundPosition;
+    document.getElementById('headerTitle').innerText = data.headerTitle;
+    document.getElementById('headerSubtext').innerText = data.headerSubtext;
+
+    const iconWrapper = document.getElementById('headerIcon');
+    iconWrapper.innerHTML = `<i style="color: ${data.headerIconColor};" class="${data.headerIcon}"></i>`;
+    iconWrapper.style.backgroundColor = data.headerIconBackgroundColor;
+
+    document.getElementById('headerTitle').style.color = data.headerTextColor;
+    document.getElementById('headerSubtext').style.color = data.headerSubtextColor;
 }
 
 function closeEditSidebar(){
     optionsSidebar.classList.remove('show-options-sidebar');
 }
-
 
 function updateColorInfo(inputId) {
     const colorInput = document.getElementById(inputId);
@@ -755,9 +796,13 @@ function checkSelectedIcon(context) {
         if (context === 'headerIcon') {
             document.getElementById('headerEditIcon').value = iconClass;
             document.getElementById('currentSelectedIconHeader').className = iconClass;
+            const headerData = getDashboardHeaderData();
+            updateDashboardHeader(headerData);
         } else if (context === 'widgetIcon') {
             document.getElementById('widgetEditIcon').value = iconClass;
             document.getElementById('currentSelectedIconWidget').className = iconClass;
+            const widgetData = getWidgetData();
+            updateWidget(widgetData, widgetIdGlobal);
         }
     }
 }
@@ -840,28 +885,6 @@ function initializeExternalLink(){
     visitLinkBtn.addEventListener('click', visitExternalLink);
 }
 
-const validationMessageContainer = document.getElementById('validation-message-container');
-const validationMessageInner = document.getElementById('validation-message-inner');
-const validationMessage = document.getElementById('validation-message');
-const validationIcon = document.getElementById('validation-icon');
-
-function displayValidationMessage(message, isSuccess) {
-    validationMessage.textContent = message;
-    validationMessageContainer.style.display = 'flex';
-    setTimeout(() => {
-        validationMessageContainer.className = isSuccess ? 'alert-container animate-alert-container' : 'alert-container animate-alert-container';
-    }, 100);
-    validationMessageInner.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
-    setTimeout(() => {
-        validationMessageContainer.classList.remove('animate-alert-container');
-    }, 10000);
-    if(isSuccess){
-        validationIcon.className = 'fa-solid fa-circle-check';
-    }else{
-        validationIcon.className = 'fa-solid fa-triangle-exclamation';
-    }
-}
-
 function hideNoWidgetsContainer(){
     const noWidgetsContainer = document.getElementById('noWidgetsContainer');
     noWidgetsContainer.style.display = 'none';
@@ -880,4 +903,93 @@ function testTotalWidgetCards(){
     }else{
         hideNoWidgetsContainer();
     }
+}
+
+// When URL Inputs get changed
+function initializeURLChanges(){
+    const urlInputs = document.querySelectorAll('#optionsSidebar .external-link-input');
+
+    urlInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const headerData = getDashboardHeaderData();
+            updateDashboardHeader(headerData);
+            const widgetData = getWidgetData();
+            updateWidget(widgetData, widgetIdGlobal);
+        });
+    });
+}
+
+// When Text Inputs get changed (Padding Amounts)
+function initializeTextChanges(){
+    const urlInputs = document.querySelectorAll('#optionsSidebar .custom-text-value');
+
+    urlInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const headerData = getDashboardHeaderData();
+            updateDashboardHeader(headerData);
+            const widgetData = getWidgetData();
+            updateWidget(widgetData, widgetIdGlobal);
+        });
+    });
+}
+// When Color Inputs get changed
+function initializeColorChanges(){
+    const colorInputs = document.querySelectorAll('#optionsSidebar .color-picker-container input[type="color"]');
+    const textColorInputs = document.querySelectorAll('#optionsSidebar .color-picker-container input[type="text"]');
+
+    colorInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const headerData = getDashboardHeaderData();
+            updateDashboardHeader(headerData);
+            const widgetData = getWidgetData();
+            updateWidget(widgetData, widgetIdGlobal);
+        });
+    });
+
+    textColorInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const headerData = getDashboardHeaderData();
+            updateDashboardHeader(headerData);
+            const widgetData = getWidgetData();
+            updateWidget(widgetData, widgetIdGlobal);
+        });
+    });
+}
+// When Images get changed
+function initializeImageChanges() {
+    const imageInputs = document.querySelectorAll('#optionsSidebar .custom-file-upload-container input[type="hidden"]');
+
+    const handleMutation = (mutations) => {
+        mutations.forEach(mutation => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                const headerData = getDashboardHeaderData();
+                updateDashboardHeader(headerData);
+                const widgetData = getWidgetData();
+                updateWidget(widgetData, widgetIdGlobal);
+            }
+        });
+    };
+
+    imageInputs.forEach(input => {
+        const observer = new MutationObserver(handleMutation);
+        observer.observe(input, {
+            attributes: true,
+            attributeFilter: ['value']
+        });
+
+        input.observer = observer;
+    });
+}
+// When the position Inputs get changed (arrows)
+function initializePositionChanges(){
+    const positionInputs = document.querySelectorAll('#optionsSidebar .position-selection-item');
+
+    positionInputs.forEach(input => {
+        input.addEventListener('click', function() {
+            const headerData = getDashboardHeaderData();
+            updateDashboardHeader(headerData);
+            const widgetData = getWidgetData();
+            updateWidget(widgetData, widgetIdGlobal);
+        });
+    });
 }

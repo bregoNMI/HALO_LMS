@@ -4,13 +4,7 @@
 {% include 'learner_sidebar.html' %}
 {% include 'popups/change_password.html' %}
 <div class="learner-body align-center scrollable-content">
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="alert-container" style="display: none;">   
-        <div id="validation-message-inner">
-            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
-            <span id="validation-message"></span>
-        </div>
-    </div>
+    {% include 'messageContainer/message_container.html' %}
     {% if messages %}
         <div class="alert-container">
             {% for message in messages %}
@@ -39,10 +33,27 @@
 
     
     <div class="max-width-0">
-        <div class="learner-top-row">
+        <div id="stickyNavBar">
+            <div class="learner-top-row max-width-0">
+                <div class="learner-top-row-left">
+                    <h2>Profile Information</h2>
+                </div>
+                <div class="learner-top-row-right">
+                    <div onclick="openPopup('changePasswordPopup')" class="learner-primary-button">
+                        <i class="fa-regular fa-lock-keyhole"></i>
+                        <span> Change Password </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="mainNavBar" class="learner-top-row">
             <div class="learner-top-row-left">
                 <h2>Profile Information</h2>
-                <span>View or edit your profile</span>
+                {% if settings.profile_customization %}
+                    <span>View or edit your profile</span>
+                {% else %}
+                    <span>View your profile</span>
+                {% endif %}
             </div>
             <div class="learner-top-row-right">
                 <div onclick="openPopup('changePasswordPopup')" class="learner-primary-button">
@@ -107,7 +118,7 @@
                                     <div class="edit-user-input">
                                         <label class="edit-user-label" for="country">Country</label>
                                         <div class="custom-select margin-0">
-                                            <i class="fa-regular fa-angle-down"></i>     
+                                            <i class="fa-light fa-angles-up-down"></i>     
                                             <input class="select-selected" type="text" id="country" name="country" value="{{ profile.country }}" readonly>
                                             <div class="select-items scrollable-content" style="display: none;">
                                                 {% include 'dropdownOptions/country_options.html' %}
@@ -133,7 +144,7 @@
                                     <div class="edit-user-input">
                                         <label class="edit-user-label" for="citizenship">Citizenship</label>
                                         <div class="custom-select margin-0">
-                                            <i class="fa-regular fa-angle-down"></i>     
+                                            <i class="fa-light fa-angles-up-down"></i>     
                                             <input class="select-selected" type="text" id="citizenship" name="citizenship" value="{{ profile.citizenship }}" readonly>
                                             <div class="select-items scrollable-content" style="display: none;">
                                                 {% include 'dropdownOptions/citizenship_options.html' %}
@@ -164,15 +175,17 @@
                                 <div class="edit-user-row">
                                     <div class="edit-user-input">
                                         <label class="edit-user-label" for="birth_date">Date of Birth</label>
-                                        <input type="text" id="birth_date" name="birth_date" class="date-picker" value="{{ profile.birth_date|date:'Y-m-d' }}">
-                                        <span class="input-group-addon">
-                                            <i class="fa-regular fa-calendar-lines"></i>
-                                        </span>
+                                        <div class="edit-user-input flatpickr-input-field">              
+                                            <input type="text" id="birth_date" name="birth_date" class="date-picker" value="{{ profile.birth_date|date:'Y-m-d' }}">
+                                            <button type="button" class="input-group-addon">
+                                                <i class="fa-regular fa-calendar-lines"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="edit-user-input">
                                         <label class="edit-user-label" for="sex">Gender</label>
                                         <div class="custom-select margin-0">
-                                            <i class="fa-regular fa-angle-down"></i>     
+                                            <i class="fa-light fa-angles-up-down"></i>     
                                             <input class="select-selected" type="text" id="sex" name="sex" value="{{ profile.sex }}" readonly>
                                             <div class="select-items scrollable-content" style="display: none;">
                                                 {% include 'dropdownOptions/gender_options.html' %}
@@ -218,7 +231,7 @@
                                                     <i class="fa-regular fa-user-graduate"></i>
                                                 </div>
                                             {% endif %}
-                                            <!-- <label for="photoid" class="custom-file-upload-container">
+                                            <label for="photoid" class="custom-file-upload-container">
                                                 <div class="custom-file-upload">
                                                     <input type="file" id="photoid" name="photoid" accept="image/*" onchange="previewImage('photoid', 'photoidPreview')" style="display: none;">
                                                     <i class="fa-solid fa-upload" aria-hidden="true"></i> Choose File
@@ -231,7 +244,7 @@
                                                     {% endif %}
                                                     
                                                 </div>
-                                            </label>  -->
+                                            </label>
                                         </div>
                                         <div class="edit-image">
                                             <label class="edit-user-label" for="passportphoto">Identification Image</label>
@@ -242,7 +255,7 @@
                                                     <i class="fa-regular fa-user-graduate"></i>
                                                 </div>
                                             {% endif %}
-                                            <!-- <label for="passportphoto" class="custom-file-upload-container">
+                                            <label for="passportphoto" class="custom-file-upload-container">
                                                 <div class="custom-file-upload">
                                                     <input type="file" id="passportphoto" name="passportphoto" accept="image/*" onchange="previewImage('passportphoto', 'passportphotoPreview')" style="display: none;">
                                                     <i class="fa-solid fa-upload" aria-hidden="true"></i> Choose File
@@ -255,7 +268,7 @@
                                                     {% endif %}
                                                     
                                                 </div>
-                                            </label>  -->
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -263,15 +276,17 @@
                         </div>
                     </div>
                 </div>
-                <div id="saveButtonPlatform" class="save-button-platform max-width-0">
-                    <div class="save-button-platform-inner">
-                        <span>You have unsaved changes</span>
-                        <div class="save-button-row">
-                            <div onclick="location.reload()" class="close-popup-btn popup-btn">Reset</div>
-                            <button type="submit" id="saveUserBtn" class="popup-btn"> Save Changes </button>
-                        </div>                       
+                {% if settings.profile_customization %}
+                    <div id="saveButtonPlatform" class="save-button-platform max-width-0">
+                        <div class="save-button-platform-inner">
+                            <span>You have unsaved changes</span>
+                            <div class="save-button-row">
+                                <button type="button" onclick="location.reload()" class="close-popup-btn popup-btn">Reset</button>
+                                <button type="submit" id="saveUserBtn" class="popup-btn learner-save-btns"> Save Changes </button>
+                            </div>                       
+                        </div>
                     </div>
-                </div>
+                {% endif %}
             </form>
         </div>
     </div>
@@ -280,4 +295,47 @@
 <link rel="stylesheet" href="{% static 'content/css/content.css' %}">
 <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let profileCustomization = '{{ settings.profile_customization }}';
+
+        if (profileCustomization != 'True') {
+            const emailField = document.querySelector('input[type="email"]');
+            emailField.classList.add('disabled');
+            emailField.setAttribute('readonly', true);
+
+            const inputFields = document.querySelectorAll('input[type="text"]');            
+            for (let input of inputFields) {
+                input.classList.add('disabled');
+                input.setAttribute('readonly', true);
+            }
+
+            const selectFields = document.querySelectorAll('.custom-select');
+            for(let field of selectFields){
+                field.classList.add('disabled');
+                field.querySelector('.select-selected').style.pointerEvents = 'none';
+                field.querySelector('.select-selected').classList.remove('disabled');
+            }
+
+            const labels = document.querySelectorAll('label');
+            for(let label of labels){
+                label.style.pointerEvents = 'none';
+            }
+
+            const fileUploads = document.querySelectorAll('.custom-file-upload-container');
+            for(let upload of fileUploads){
+                // upload.classList.add('disabled');
+                upload.style.display = 'none';
+            }
+
+            const flatPickrFields = document.querySelectorAll('.flatpickr-input-field');
+            for(let field of flatPickrFields){
+                field.classList.add('disabled');
+                field.classList.add('control-disabled-opacity');
+                field.querySelector('.form-control').classList.remove('disabled');
+            }
+        }
+    });
+
+</script>
 {% endblock %}

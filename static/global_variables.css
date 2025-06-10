@@ -24,6 +24,7 @@
     --bg-color6: #f3f3f3;
     /* Main Fonts */
     --primary-font: 'Roboto', sans-serif;
+    /* --primary-font: 'Montserrat', sans-serif; */
     /* Font Size */
     --fs-xxs: 0.4rem;
     --fs-xs: 0.6rem;
@@ -46,6 +47,9 @@
     --pad-xl: 1.4rem;
     --pad-xxl: 1.6rem;
     --pad-xxxl: 2rem;
+    --pad-xxxxl: 2.4rem;
+    --pad-xxxxxl: 2.8rem;
+    --pad-xxxxxxl: 3.2rem;
     /* Margin */
     --margin-xs: 0.6rem;
     --margin-sm: 0.8rem;

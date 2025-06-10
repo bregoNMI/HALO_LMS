@@ -1,63 +1,71 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="alert-container" style="display: none;">   
-        <div id="validation-message-inner">
-            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
-            <span id="validation-message"></span>
-        </div>
-    </div>
-    <div class="admin-body">
-        <div class="admin-top-row">
-            <div class="admin-top-row-left">
-                <h2>Templates</h2>
+    {% include 'messageContainer/message_container.html' %}
+    <div class="admin-body align-center">
+        <div class="max-width-extend-4">
+            <div class="admin-top-row">
+                <div class="admin-top-row-left">
+                    <h2>Templates</h2>
+                </div>
+                <div class="admin-top-row-right">
+                    <div class="option-btn-row">
+                        <a href="/admin/templates/dashboards/{{ dashboard.id }}/preview/" target="_blank" class="action-button-primary">
+                            <i class="fa-regular fa-binoculars"></i>
+                            <span>Preview Dashboard</span>
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="admin-top-row-right">
-                <div class="option-btn-row">
-                    <a href="/admin/templates/dashboards/9/preview/" target="_blank" class="action-button-primary">
-                        <span>Preview Dashboard</span>
+            <div class="custom-dashboard-body">
+                <div class="template-card-items-container">
+                    <a class="template-card" href="/admin/templates/dashboards/">
+                        <div class="template-option-card">
+                            <div class="template-option-icon pastel-purple">
+                                <i class="fa-light fa-objects-column"></i>
+                            </div>             
+                            <div class="template-option-text">
+                                <h3>Dashboards</h3>
+                                <span>Create, edit and set a main dashboard for your Learners to view</span>
+                            </div>
+                        </div>
                     </a>
-                </div>
+                    <div onclick="openPopup('editHeaderPopup')" class="template-card">
+                        <div class="template-option-card">
+                            <div class="template-option-icon pastel-blue">
+                                <i class="fa-light fa-diagram-previous"></i>
+                            </div>             
+                            <div class="template-option-text">
+                                <h3>Header</h3>
+                                <span>Customize the Header for your Learners to view</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div onclick="openPopup('editFooterPopup')" class="template-card">
+                        <div class="template-option-card">
+                            <div class="template-option-icon pastel-orange">
+                                <i class="fa-light fa-diagram-successor"></i>
+                            </div>             
+                            <div class="template-option-text">
+                                <h3>Footer</h3>
+                                <span>Customize the Footer for your Learners to view</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a class="template-card" href="/admin/templates/login/">
+                        <div class="template-option-card">
+                            <div class="template-option-icon pastel-green">
+                                <i class="fa-light fa-person-to-portal"></i>
+                            </div>             
+                            <div class="template-option-text">
+                                <h3>Login Portal</h3>
+                                <span>Create a custom login portal for all Learners and Admins</span>
+                            </div>
+                        </div>
+                    </a>    
+                </dv>
             </div>
-        </div>
-        <div class="custom-dashboard-body">
-            <div class="template-card-items-container">
-                <a class="template-card" href="/admin/templates/dashboards/">
-                    <div class="template-option-card">
-                        <div class="template-option-icon pastel-purple">
-                            <i class="fa-regular fa-objects-column"></i>
-                        </div>             
-                        <div class="template-option-text">
-                            <h3>Dashboards</h3>
-                            <span>Create, edit and set a main dashboard for your Learners to view</span>
-                        </div>
-                    </div>
-                </a>
-                <div onclick="openPopup('editHeaderPopup')" class="template-card">
-                    <div class="template-option-card">
-                        <div class="template-option-icon pastel-blue">
-                            <i class="fa-regular fa-diagram-previous"></i>
-                        </div>             
-                        <div class="template-option-text">
-                            <h3>Header</h3>
-                            <span>Customize the Header for your Learners to view</span>
-                        </div>
-                    </div>
-                </div>
-                <div onclick="openPopup('editFooterPopup')" class="template-card" href="/admin/templates/footer/">
-                    <div class="template-option-card">
-                        <div class="template-option-icon pastel-orange">
-                            <i class="fa-regular fa-diagram-successor"></i>
-                        </div>             
-                        <div class="template-option-text">
-                            <h3>Footer</h3>
-                            <span>Customize the Footer for your Learners to view</span>
-                        </div>
-                    </div>
-                </div>    
-            </dv>
-        </div>
+        </div>      
     </div>
     {% include 'popups/file_library.html' %}
     {% include 'popups/edit_header.html' %}

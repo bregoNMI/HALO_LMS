@@ -1,0 +1,73 @@
+<div id="takePhotoPopup" class="popup-background">
+    <div class="popup-content max-width-5">
+        <div class="popup-header">
+            <h3 id="takePhotoHeader">Take a Registration Photo</h3>
+            <div onclick="closePopup('takePhotoPopup')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <div id="cameraErrorContainer" class="camera-error-container hidden">
+                <div class="form-heading-wrapper">
+                    <div class="icon-warning">
+                        <i class="fa-regular fa-triangle-exclamation"></i>
+                    </div>
+                    <h1 id="cameraErrorHeading"> </h1>
+                    <h6 id="cameraErrorSubtext"> </h6>
+                </div>
+                <div id="cameraAccessTroubleshooting" class="camera-error-body hidden">
+                    <div class="help-steps-item-wrapper">
+                        <div class="help-steps-item-header">
+                            <div class="help-steps-item-icon">1</div>
+                            <h5 class="help-steps-item-title">Ensure that no other applications, browser tabs or windows are actively using your camera. Your camera can only be used on one application at a time. Close all other apps or browser tabs that may be using your camera.</h5>
+                        </div>
+                        <div class="help-steps-item-header">
+                            <div class="help-steps-item-icon">2</div>
+                            <h5 class="help-steps-item-title">Your camera may be disabled, not plugged in or not selected within your browser's settings. Please check your camera's connection to ensure that it is working properly. You may test this within your device's camera app or within your browser's settings.</h5>
+                        </div>
+                        <div class="help-steps-item-header">
+                            <div class="help-steps-item-icon">3</div>
+                            <h5 class="help-steps-item-title">Your browser may not have received the proper access to your camera. Please click on the "Refresh Page" button below to re-attempt camera access.</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="cameraLoading" class="item-loading-container">
+                <svg viewBox="0 0 240 240" height="240" width="240" class="pl">
+                    <circle stroke-linecap="round" stroke-dashoffset="-330" stroke-dasharray="0 660" stroke-width="10" stroke="#000" fill="none" r="105" cy="120" cx="120" class="pl__ring pl__ring--a"></circle>
+                    <circle stroke-linecap="round" stroke-dashoffset="-110" stroke-dasharray="0 220" stroke-width="10" stroke="#000" fill="none" r="35" cy="120" cx="120" class="pl__ring pl__ring--b"></circle>
+                    <circle stroke-linecap="round" stroke-dasharray="0 440" stroke-width="10" stroke="#000" fill="none" r="70" cy="120" cx="85" class="pl__ring pl__ring--c"></circle>
+                    <circle stroke-linecap="round" stroke-dasharray="0 440" stroke-width="10" stroke="#000" fill="none" r="70" cy="120" cx="155" class="pl__ring pl__ring--d"></circle>
+                </svg>       
+            </div>
+            <video class="take-photo-container hidden" id="cameraFeed" autoplay></video> <!-- Video feed -->
+            <canvas class="take-photo-container" id="photoCanvas" style="display: none;"></canvas> <!-- Canvas for captured image -->
+        </div>
+        <div class="popup-footer">
+            <button type="button" onclick="closePopup('takePhotoPopup')" class="popup-btn close-popup-btn">Cancel</button> 
+            <div class="footer-buttons-right">
+                <button id="saveRegistrationPhoto" class="popup-btn use-photo-btn hidden">
+                    <!-- <i class="fa-regular fa-hand-pointer"></i> -->
+                    <i class="fa-regular fa-circle-check"></i>
+                    <span>Use Photo</span>
+                </button>
+                <button id="retakeRegistrationPhoto" class="popup-btn hidden">
+                    <i class="fa-regular fa-repeat"></i>
+                    <span>Re-Take Photo</span>
+                </button>
+                <button id="captureRegistrationPhoto" class="popup-btn disabled" disabled>
+                    <i class="fa-regular fa-camera-retro"></i>
+                    <span>Capture Photo</span>
+                </button>
+                <a target="_blank" id="fixPermissionsBtn" class="popup-btn hidden" disabled>
+                    <i class="fa-regular fa-wrench"></i>
+                    <span>Fix Permissions</span>
+                </a>
+                <button onclick="location.reload()" id="refreshPageBtn" class="popup-btn hidden" disabled>
+                    <i class="fa-regular fa-rotate-reverse"></i>
+                    <span>Refresh Page</span>
+                </button>
+            </div>         
+        </div>
+    </div>
+</div>

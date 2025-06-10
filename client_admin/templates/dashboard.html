@@ -1,5 +1,199 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 {% block content %}
-    <div class="admin-body">Dashboard</div>
+    {% include 'messageContainer/message_container.html' %} 
+    <div class="admin-body align-center">
+        <div class="max-width-extend-4">
+            <div class="admin-top-row">
+                <div class="admin-top-row-left">
+                    <h2>Dashboard</h2>
+                </div>
+                <div class="admin-top-row-right">
+                    
+                </div>
+            </div>
+            <div class="dashboard-action-row">
+                <a href="/admin/courses/online/add/" class="dashboard-action-item">
+                    <div class="action-item-icon pastel-purple">
+                        <i class="fa-regular fa-book-copy"></i>
+                    </div>
+                    <div class="action-item-right">
+                        <span>Add Course</span>
+                        <i class="fa-regular fa-plus"></i>
+                    </div>
+                </a>
+                <a href="/admin/users/add/" class="dashboard-action-item">
+                    <div class="action-item-icon pastel-blue">
+                        <i class="fa-regular fa-people-pants-simple"></i>
+                    </div>
+                    <div class="action-item-right">
+                        <span>Add User</span>
+                        <i class="fa-regular fa-plus"></i>
+                    </div>
+                </a>
+                <a href="/admin/categories/add/" class="dashboard-action-item">
+                    <div class="action-item-icon pastel-orange">
+                        <i class="fa-regular fa-grid-2"></i>
+                    </div>
+                    <div class="action-item-right">
+                        <span>Create Category</span>
+                        <i class="fa-regular fa-plus"></i>
+                    </div>
+                </a>
+                <a href="/admin/enrollment-keys/add/" class="dashboard-action-item">
+                    <div class="action-item-icon pastel-green">
+                        <i class="fa-regular fa-key"></i>
+                    </div>
+                    <div class="action-item-right">
+                        <span>Create Enrollment Key</span>
+                        <i class="fa-regular fa-plus"></i>
+                    </div>
+                </a>
+            </div>
+            <div class="admin-dashboard-container">
+                <div class="admin-dashboard-left">
+                    <div class="display-card-wrapper">
+                        <div class="display-card-header">
+                            <div class="display-card-header-left">
+                                <span>Active Learners</span>
+                                <div class="display-card-header-info">
+                                    <h5 id="activeLearnersCounter"></h5>
+                                    <i class="fa-solid fa-circle-small"></i>
+                                    <span id="activeLearnersFilter" class="display-card-heading">Last 12 months</span>
+                                </div>
+                            </div>
+                            <div class="display-card-header-right">
+                                <div id="activeLearnersFilter" class="date-selection-dropdown date-custom-select">
+                                    <div class="date-selection-dropdown-left">
+                                        <i class="fa-light fa-calendar-lines"></i>
+                                        <span class="date-select-selected">Last 12 months</span>
+                                        <div class="date-select-items scrollable-content" style="display: none;">
+                                            <div class="select-item" data-value="Last 7 days">Last 7 days</div>
+                                            <div class="select-item" data-value="Last 30 days">Last 30 days</div>
+                                            <div class="select-item" data-value="Last 6 months">Last 6 months</div>
+                                            <div class="select-item" data-value="Last 12 months">Last 12 months</div>
+                                        </div>
+                                    </div>
+                                    <div class="date-selection-dropdown-right">
+                                        <i class="fa-regular fa-angle-down"></i>
+                                    </div>                               
+                                </div>
+                            </div>
+                        </div>
+                        <div class="display-card-body">
+                            <canvas id="activeLearnersGraph" width="100%"></canvas>
+                        </div>
+                    </div>
+                    <div class="display-card-wrapper">
+                        <div class="display-card-header">
+                            <div class="display-card-header-left">
+                                <span>Top Course Enrollments</span>
+                                <div class="display-card-header-info">
+                                    <span class="display-card-heading">Learners enrolled this year</span>
+                                </div>
+                            </div>
+                            <div class="display-card-header-right">
+                                <div class="date-selection-dropdown disabled">
+                                    <div class="date-selection-dropdown-left">
+                                        <i class="fa-light fa-calendar-lines"></i>
+                                        <span class="date-select-selected">Last 12 months</span>
+                                    </div>                           
+                                </div>
+                            </div>
+                        </div>
+                        <div class="display-card-body justify-center">
+                            <div class="doughnut-chart-container">
+                                <div class="doughnut-chart-wrapper">
+                                    <canvas id="topCoursesChart" width="300" height="300"></canvas>
+                                </div>
+                                <div class="doughnut-chart-labels" id="customTopCoursesLabels"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-dashboard-right">
+                    <div class="display-card-wrapper">
+                        <div class="display-card-header">
+                            <div class="display-card-header-left">
+                                <span>At a Glance</span>
+                                <div class="display-card-header-info">
+                                    <span class="display-card-heading">Everything we’ve seen so far</span>
+                                </div>
+                            </div>
+                            <div class="display-card-header-right">
+                                <div class="date-selection-dropdown disabled">
+                                    <div class="date-selection-dropdown-left">
+                                        <i class="fa-light fa-calendar-lines"></i>
+                                        <span class="date-select-selected">All History</span>
+                                    </div>                           
+                                </div>
+                            </div>
+                        </div>
+                        <div class="display-card-body">
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-book-open-reader"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5 class="info-card-heading"> Total Learners </h5>
+                                    <span class="info-card-subheading">{{ total_students }}</span>
+                                </div>
+                            </div>
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-kit fa-light-book-open-cover-circle-check"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5 class="info-card-heading"> Courses Completed </h5>
+                                    <span class="info-card-subheading">{{ completed_courses }}</span>
+                                </div>
+                            </div>
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-book-sparkles"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5 class="info-card-heading"> Active Courses </h5>
+                                    <span class="info-card-subheading">{{ active_courses }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="display-card-wrapper">
+                        <div class="display-card-header">
+                            <div class="display-card-header-left">
+                                <span>Learning Time</span>
+                                <div class="display-card-header-info">
+                                    <span class="display-card-heading">Time spent this year</span>
+                                </div>
+                            </div>
+                            <div class="display-card-header-right">
+                                <div class="date-selection-dropdown disabled">
+                                    <div class="date-selection-dropdown-left">
+                                        <i class="fa-light fa-calendar-lines"></i>
+                                        <span class="date-select-selected">Last 12 months</span>
+                                    </div>                           
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-card-body">
+                            <canvas id="timeSpentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>       
+    </div>
+    <link rel="stylesheet" href="{% static 'client_admin\css\admin_dashboard.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
+    <script>
+        const timeSpentLabels = {{ time_spent_labels|safe }};
+        const timeSpentData = {{ time_spent_data|safe }};
+        const timeSpentGranularity = '{{ time_spent_granularity }}';
+        const topCourseLabels = {{ top_course_labels|safe }};
+        const topCourseData = {{ top_course_data|safe }};
+    </script>
+    <script src="{% static 'client_admin\javascript\admin_dashboard.js' %}"></script>    
 {% endblock content %}

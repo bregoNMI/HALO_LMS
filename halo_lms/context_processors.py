@@ -1,6 +1,9 @@
 from custom_templates.models import Dashboard, Header, Footer
 from client_admin.models import Profile, Message, OrganizationSettings
+from client_admin.utils import get_strftime_format, get_flatpickr_format
+
 from django.contrib.auth import get_user_model
+from client_admin.models import OrganizationSettings
 
 def user_info(request):
     if request.user.is_authenticated:
@@ -66,3 +69,13 @@ def user_impersonation(request):
         'original_user': original_user_instance,
         'impersonated_user': impersonated_user,
     }
+
+def date_format_context(request):
+    settings = OrganizationSettings.get_instance()
+    date_format = get_strftime_format(settings.date_format)
+    return {'org_date_format': date_format}
+
+def flatpickr_format_context(request):
+    settings = OrganizationSettings.get_instance()
+    date_format = get_flatpickr_format(settings.date_format)
+    return {'flatpickr_format': date_format}

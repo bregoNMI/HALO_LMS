@@ -1,0 +1,174 @@
+.admin-dashboard-container {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+  
+.admin-dashboard-left {
+    display: flex;
+    flex: 2;
+    gap: 1.5rem;
+    flex-direction: column;
+}
+  
+.admin-dashboard-right {
+    display: flex;
+    flex: 1;
+    gap: 1.5rem;
+    max-width: 350px;
+    flex-direction: column;
+}
+ 
+.dashboard-action-row{
+    display: flex;
+    flex-direction: row;
+}
+
+.display-card-wrapper{
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 8px;
+    /* outline: 1px solid #d7d7d7; */
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+    flex: 1 1 0; /* allow to grow and shrink */
+    min-width: 0; /* allows proper shrinking */
+    max-width: 100%;
+}.display-card-header {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: var(--pad-sm);
+}.display-card-header-right{
+    position: relative;
+}.display-card-header-left span{
+    font-size: 1rem;
+    color: #41454d;
+    font-weight: 500;
+    text-wrap: nowrap;
+}.display-card-body {
+    display: flex;
+    padding: 1rem var(--pad-sm);
+    gap: 1.5rem;
+    /* border-top: 1px solid #d7d7d7; */
+    border-top: 1px solid #ededed;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    flex-wrap: wrap;
+}.display-card-body canvas{
+    max-height: 250px;
+    width: 100% !important;
+    height: auto !important;
+}
+
+.chart-card-body{
+    display: flex;
+    border-top: 1px solid #ededed;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    flex-wrap: wrap;
+    padding-top: 2rem;
+}.chart-card-body canvas{
+    max-height: 125px;
+}
+
+.display-card-header-info{
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 0.7rem;
+}.display-card-header-info h5{
+    font-size: 0.8rem;
+    /* color: #41454d; */
+    color: #191c1f;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}.display-card-header-info span{
+    color: var(--text-color6);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+}.display-card-header-info i{
+    color: var(--text-color6);
+    font-size: var(--fs-sm);
+    font-size: 0.4rem;
+}
+
+.date-selection-dropdown{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: var(--pad-xxs) var(--pad-xs);
+    border: 1px solid #ececf1;
+    border-radius: 8px;
+    font-size: var(--btn-font);
+    color: var(--text-color8);
+    flex: 1;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: all 0.2s linear;
+    text-wrap: nowrap;
+}.date-selection-dropdown.disabled{
+    opacity: 1;
+}.date-selection-dropdown:hover{
+    background-color: var(--bg-color3);
+}.date-selection-dropdown-right{
+    font-size: 0.8rem;
+}
+
+.doughnut-chart-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem;
+}.doughnut-chart-wrapper{
+    float: left;
+    width: 100%;  
+    max-width: 350px;
+}.doughnut-chart-wrapper canvas{
+    flex-shrink: 0;
+}.doughnut-chart-labels{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+    gap: 10px;
+}.custom-label-row{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: var(--pad-xxs) var(--pad-xs);
+    border: 1px solid #ececf1;
+    border-radius: 16px;
+    font-size: var(--btn-font);
+    color: var(--text-color8);
+    flex: 1;
+    text-overflow: ellipsis;
+    transition: all 0.2s linear;
+    text-wrap: nowrap;
+}.custom-label-left{
+    height: 9px;
+    width: 9px;
+    border-radius: 50%;
+}.custom-label-right{
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-color6);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    flex: 1;
+    gap: 1rem;
+}.custom-label-percent{
+    font-weight: 500;
+}
+
+@media(max-width: 1274px){
+    .admin-dashboard-right {
+        max-width: unset;
+    }
+}

@@ -13,22 +13,30 @@
             <div class="user-card-info">
                 <h3>{{ profile.first_name }} {{ profile.last_name }}</h3>
                 <div class="card-info-icons">
+                    {% if profile.username %}
                     <div class="card-info-icon">
                         <i class="fa-regular fa-signature"></i>
                         <span>{{ profile.username }}</span>
                     </div>
+                    {% endif %}
+                    {% if profile.city %}
                     <div class="card-info-icon">
                         <i class="fa-regular fa-map-location-dot"></i>
                         <span>{{ profile.city }}, {{ profile.state }}</span>
                     </div>
+                    {% endif %}
+                    {% if profile.birth_date %}
                     <div class="card-info-icon">
                         <i class="fa-regular fa-cake-candles"></i>
                         <span>{{ profile.birth_date }}</span>
                     </div>
+                    {% endif %}
+                    {% if profile.role %}
                     <div class="card-info-icon">
                         <i class="fa-regular fa-id-card-clip"></i>
                         <span>{{ profile.role }}</span>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

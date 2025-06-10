@@ -24,19 +24,25 @@
                     <label class="icon-selection-item" for="icon3">
                         <input id="icon3" type="radio" name="icon-selection" hidden="">
                         <div class="icon-selection-icon">
-                            <i class="fa-regular fa-key"></i>
+                            <i class="fa-regular fa-book-open-cover"></i>
+                        </div>
+                    </label>
+                    <label class="icon-selection-item" for="icon3.1">
+                        <input id="icon3.1" type="radio" name="icon-selection" hidden="">
+                        <div class="icon-selection-icon">
+                            <i class="fa-light fa-book-open-cover"></i>
                         </div>
                     </label>
                     <label class="icon-selection-item" for="icon4">
                         <input id="icon4" type="radio" name="icon-selection" hidden="">
                         <div class="icon-selection-icon">
-                            <i class="fa-regular fa-atom-simple"></i>
+                            <i class="fa-regular fa-book-open"></i>
                         </div>
                     </label>
                     <label class="icon-selection-item" for="icon5">
                         <input id="icon5" type="radio" name="icon-selection" hidden="">
                         <div class="icon-selection-icon">
-                            <i class="fa-regular fa-thought-bubble"></i>
+                            <i class="fa-regular fa-book-open-reader"></i>
                         </div>
                     </label>
                     <label class="icon-selection-item" for="icon6">
@@ -63,6 +69,12 @@
                             <i class="fa-regular fa-bell"></i>
                         </div>
                     </label>
+                    <label class="icon-selection-item" for="icon8.1">
+                        <input id="icon8.1" type="radio" name="icon-selection" hidden="">
+                        <div class="icon-selection-icon">
+                            <i class="fa-light fa-bell"></i>
+                        </div>
+                    </label>
                     <label class="icon-selection-item" for="icon9">
                         <input id="icon9" type="radio" name="icon-selection" hidden="">
                         <div class="icon-selection-icon">
@@ -78,7 +90,7 @@
                     <label class="icon-selection-item" for="icon11">
                         <input id="icon11" type="radio" name="icon-selection" hidden="">
                         <div class="icon-selection-icon">
-                            <i class="fa-regular fa-book-open-reader"></i>
+                            <i class="fa-regular fa-thought-bubble"></i>
                         </div>
                     </label>
                     <label class="icon-selection-item" for="icon12">
@@ -96,7 +108,7 @@
                     <label class="icon-selection-item" for="icon14">
                         <input id="icon14" type="radio" name="icon-selection" hidden="">
                         <div class="icon-selection-icon">
-                            <i class="fa-regular fa-book-open"></i>
+                            <i class="fa-regular fa-atom-simple"></i>
                         </div>
                     </label> 
                     <label class="icon-selection-item" for="icon15">
@@ -270,7 +282,13 @@
                     <label class="icon-selection-item" for="icon43">
                         <input id="icon43" type="radio" name="icon-selection" hidden="">
                         <div class="icon-selection-icon">
-                            <i class="fa-solid fa-play"></i>
+                            <i class="fa-regular fa-link"></i>
+                        </div>
+                    </label>
+                    <label class="icon-selection-item" for="icon43.1">
+                        <input id="icon43.1" type="radio" name="icon-selection" hidden="">
+                        <div class="icon-selection-icon">
+                            <i class="fa-light fa-link"></i>
                         </div>
                     </label>
                     <label class="icon-selection-item" for="icon44">
@@ -282,7 +300,43 @@
                     <label class="icon-selection-item" for="icon45">
                         <input id="icon45" type="radio" name="icon-selection" hidden="">
                         <div class="icon-selection-icon">
+                            <i class="fa-regular fa-key"></i>
+                        </div>
+                    </label>
+                    <label class="icon-selection-item" for="icon45.1">
+                        <input id="icon45.1" type="radio" name="icon-selection" hidden="">
+                        <div class="icon-selection-icon">
+                            <i class="fa-light fa-key"></i>
+                        </div>
+                    </label>
+                    <label class="icon-selection-item" for="icon46">
+                        <input id="icon46" type="radio" name="icon-selection" hidden="">
+                        <div class="icon-selection-icon">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+                    </label>
+                    <label class="icon-selection-item" for="icon47">
+                        <input id="icon47" type="radio" name="icon-selection" hidden="">
+                        <div class="icon-selection-icon">
+                            <i class="fa-regular fa-play"></i>
+                        </div>
+                    </label>
+                    <label class="icon-selection-item" for="icon47.1">
+                        <input id="icon47.1" type="radio" name="icon-selection" hidden="">
+                        <div class="icon-selection-icon">
+                            <i class="fa-light fa-play"></i>
+                        </div>
+                    </label>
+                    <label class="icon-selection-item" for="icon48">
+                        <input id="icon48" type="radio" name="icon-selection" hidden="">
+                        <div class="icon-selection-icon">
                             <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </div>
+                    </label>
+                    <label class="icon-selection-item" for="icon49">
+                        <input id="icon49" type="radio" name="icon-selection" hidden="">
+                        <div class="icon-selection-icon">
+                            <i class="fa-regular fa-arrow-up-right-from-square"></i>
                         </div>
                     </label>
                 </div>
@@ -291,7 +345,7 @@
         <div class="popup-footer">
             <div class="spacer"></div>
             <div class="popup-btns">
-                <button onclick="closePopup('iconSelectionPopup')" class="popup-btn close-popup-btn">Cancel</button>
+                <button type="button" onclick="closePopup('iconSelectionPopup')" class="popup-btn close-popup-btn">Cancel</button>
                 <button id="iconSelectionBtn" onclick="closePopup('iconSelectionPopup'), checkSelectedIcon()" class="popup-btn">Select Icon</button>   
             </div>
         </div>

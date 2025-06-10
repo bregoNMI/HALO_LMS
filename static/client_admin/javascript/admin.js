@@ -412,17 +412,17 @@ document.addEventListener("DOMContentLoaded", function () {
     if(deleteCourseConfirmation){
         deleteCourseConfirmation.addEventListener('click', () => {
             console.log(selectedCourseIds);
-            const url = '/admin/courses/delete-courses/';  // Change this to your actual endpoint
+            const url = '/admin/courses/delete-courses/';
     
             fetch(url, {
-                method: 'POST',   // or 'DELETE', depending on how your API is set up
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCsrfToken()
                 },
                 body: JSON.stringify({ ids: selectedCourseIds })
             })
-            .then(response => response.json())  // Assuming the server responds with JSON
+            .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
                 if (data.redirect_url) {
@@ -435,7 +435,82 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch((error) => {
                 console.error('Error:', error);
-                // Handle errors here, such as displaying a message to the user
+            });
+        });
+    }
+
+    // Deleting Categories 
+    document.querySelectorAll('#data-delete-categories').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('categoryDeleteConfirmation');
+        });
+    });
+
+    const deleteCategoryConfirmation = document.getElementById('deleteCategoryConfirmation');
+    if(deleteCategoryConfirmation){
+        deleteCategoryConfirmation.addEventListener('click', () => {
+            console.log(selectedIds);
+            const url = '/admin/categories/delete-categories/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Deleting Enrollment Keys 
+    document.querySelectorAll('#data-delete-enrollment-keys').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('enrollmentKeyDeleteConfirmation');
+        });
+    });
+
+    const deleteEnrollmentKeyConfirmation = document.getElementById('deleteEnrollmentKeyConfirmation');
+    if(deleteEnrollmentKeyConfirmation){
+        deleteEnrollmentKeyConfirmation.addEventListener('click', () => {
+            console.log(selectedIds);
+            const url = '/admin/enrollment-keys/delete-keys/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
             });
         });
     }
@@ -443,30 +518,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function getCsrfToken() {
         const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
         return cookieValue;
-    }
-
-    const validationMessageContainer = document.getElementById('validation-message-container');
-    const validationMessageInner = document.getElementById('validation-message-inner');
-    const validationMessage = document.getElementById('validation-message');
-    const validationIcon = document.getElementById('validation-icon');
-
-    function displayValidationMessage(message, isSuccess) {
-        validationMessage.textContent = message;
-        validationMessageContainer.style.display = 'flex';
-        setTimeout(() => {
-            validationMessageContainer.className = isSuccess ? 'alert-container animate-alert-container' : 'alert-container animate-alert-container';
-        }, 100);
-        validationMessageInner.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
-        setTimeout(() => {
-            validationMessageContainer.classList.remove('animate-alert-container');
-        }, 10000);
-        if(isSuccess){
-            validationIcon.className = 'fa-solid fa-circle-check';
-        }else{
-            validationIcon.className = 'fa-solid fa-triangle-exclamation';
-        }
-    }
-    
+    } 
 });
 
 // Dynamically Opening Popups

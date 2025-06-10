@@ -1,6 +1,7 @@
-function initializeUserDropdown(containerId) {
+function initializeUserDropdown(containerId, selectedUserIds = []) {
     const container = document.getElementById(containerId);
     const userSearchInput = container.querySelector('.userSearch');
+    console.log(container);
     const userList = container.querySelector('.userList');
     const loadingIndicator = container.querySelector('.loadingIndicator');
     const selectedUsersList = container.querySelector('.selectedUsers');
@@ -21,86 +22,85 @@ function initializeUserDropdown(containerId) {
                 'X-Requested-With': 'XMLHttpRequest',
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (resetList) {
-                userList.innerHTML = '';
-                page = 1;
-            }
-
-            // Retrieve selected IDs from localStorage
-            const selectedIds = JSON.parse(localStorage.getItem('selectedUserIds') || '[]');
-
-            // Append users to the dropdown list
-            data.users.forEach(user => {
-                const userItem = document.createElement('div');
-                userItem.classList.add('dropdown-item');
-                userItem.innerHTML = `
-                    <div class="dropdown-item-inner">
-                        <h5>${user.first_name} ${user.last_name}</h5><span>${user.username} (${user.email})</span>
-                    </div>
-                `;
-                userItem.dataset.userId = user.id;
-
-                // Create the checkbox with the proper structure
-                const checkboxWrapper = document.createElement('div');
-                checkboxWrapper.innerHTML = `
-                    <label class="container">
-                        <input value="${user.id}" class="user-checkbox" type="checkbox">
-                        <div class="checkmark"></div>
-                    </label>
-                `;
-
-                userItem.prepend(checkboxWrapper);
-                userList.appendChild(userItem);
-
-                const checkbox = checkboxWrapper.querySelector('.user-checkbox');
-
-                // Pre-select the checkbox if the user is already in the selected IDs
-                if (selectedIds.includes(String(user.id))) {
-                    checkbox.checked = true;
-                    userItem.classList.add('selected');
-                    appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
+            .then(response => response.json())
+            .then(data => {
+                if (resetList || selectedUserIds) {
+                    userList.innerHTML = '';
+                    page = 1;
                 }
-
-                // Click event for the entire item
-                userItem.addEventListener('click', function () {
-                    if (checkbox.checked) {
-                        removeSelectedUser(user.id);
-                        checkbox.checked = false;
-                        userItem.classList.remove('selected');
-                    } else {
-                        appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
-                        checkbox.checked = true;
+    
+                // Append users to the dropdown list
+                data.users.forEach(user => {
+                    const userItem = document.createElement('div');
+                    userItem.classList.add('dropdown-item');
+                    userItem.innerHTML = `
+                        <div class="dropdown-item-inner">
+                            <h5>${user.first_name} ${user.last_name}</h5><span>${user.username} (${user.email})</span>
+                        </div>
+                    `;
+                    userItem.dataset.userId = user.id;
+    
+                    // Create the checkbox with the proper structure
+                    const checkboxWrapper = document.createElement('div');
+                    checkboxWrapper.innerHTML = `
+                        <label class="container">
+                            <input value="${user.id}" class="user-checkbox" type="checkbox">
+                            <div class="checkmark"></div>
+                        </label>
+                    `;
+    
+                    userItem.prepend(checkboxWrapper);
+                    userList.appendChild(userItem);
+    
+                    const checkbox = checkboxWrapper.querySelector('.user-checkbox');
+                    // Pre-select users who are already approvers (based on selectedUserIds)
+                    if (selectedUserIds.includes(user.id)) {
                         userItem.classList.add('selected');
+                        checkbox.checked = true;
+                        appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
                     }
+    
+                    // Check if the user is already selected and mark the checkbox
+                    if (selectedUsersList.querySelector(`[data-user-id="${user.id}"]`)) {
+                        userItem.classList.add('selected');
+                        checkbox.checked = true; // Ensure the checkbox is checked
+                    }
+    
+                    // Click event for the entire item
+                    userItem.addEventListener('click', function (event) {
+                        if (checkbox.checked) {
+                            removeSelectedUser(user.id);
+                            checkbox.checked = false;
+                            userItem.classList.remove('selected');
+                        } else {
+                            appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
+                            checkbox.checked = true;
+                            userItem.classList.add('selected');
+                        }
+                    });
+    
+                    // Ensure checkbox triggers parent item click
+                    checkbox.addEventListener('click', function (event) {
+                        event.stopPropagation();  // Prevent checkbox click from triggering twice
+                        userItem.click();  // Trigger the parent item click
+                    });
                 });
-
-                // Ensure checkbox triggers parent item click
-                checkbox.addEventListener('click', function (event) {
-                    event.stopPropagation();  // Prevent checkbox click from triggering twice
-                    userItem.click();  // Trigger the parent item click
-                });
+    
+                if (data.users.length === 0 && resetList) {
+                    userList.innerHTML = '<div class="no-results">No results found</div>';
+                }
+    
+                hasMoreUsers = data.has_more;
+                isLoading = false;
+                loadingIndicator.style.display = 'none';
+                page += 1;
+            })
+            .catch(error => {
+                console.error('Error fetching users:', error);
+                isLoading = false;
+                loadingIndicator.style.display = 'none';
             });
-
-            if (data.users.length === 0 && resetList) {
-                userList.innerHTML = '<div class="no-results">No results found</div>';
-            }
-
-            hasMoreUsers = data.has_more;
-            isLoading = false;
-            loadingIndicator.style.display = 'none';
-            page += 1;
-
-            // Optionally clear the localStorage after retrieval
-            localStorage.removeItem('selectedUserIds');
-        })
-        .catch(error => {
-            console.error('Error fetching users:', error);
-            isLoading = false;
-            loadingIndicator.style.display = 'none';
-        });      
-    }    
+    }
 
     // Function to append selected user to the list
     function appendSelectedUser(username, email, userId, first_name, last_name) {
@@ -178,7 +178,7 @@ function initializeUserDropdown(containerId) {
     fetchUsers();
 }
 
-function initializeCourseDropdown(containerId) {
+function initializeCourseDropdown(containerId, initialSelectedCourseIds = []) {
     const container = document.getElementById(containerId);
     const courseSearchInput = container.querySelector('.courseSearch');
     const courseList = container.querySelector('.courseList');
@@ -189,7 +189,13 @@ function initializeCourseDropdown(containerId) {
     let isLoading = false;
     let hasMoreCourses = true;
 
-    let selectedCourseIds = JSON.parse(localStorage.getItem('selectedCourseIds') || '[]');
+    const storedIds = JSON.parse(localStorage.getItem('selectedCourseIds') || '[]');
+    let selectedCourseIds = [...new Set([...initialSelectedCourseIds, ...storedIds])];
+
+    function getSelectedCourseIdsFromDOM() {
+        return Array.from(selectedCoursesList.querySelectorAll('.selected-course'))
+            .map(el => el.dataset.courseId);
+    }
 
     function fetchCourses(searchTerm = '', resetList = false) {
         if (isLoading || !hasMoreCourses) return;
@@ -208,6 +214,13 @@ function initializeCourseDropdown(containerId) {
                 courseList.innerHTML = '';
                 page = 1;
             }
+
+            // Merge localStorage + existing DOM selected course IDs
+            const selectedIdsInDOM = getSelectedCourseIdsFromDOM();
+            const combinedSelectedIds = new Set([
+                ...selectedCourseIds.map(String),
+                ...selectedIdsInDOM
+            ]);
 
             data.courses.forEach(course => {
                 const courseItem = document.createElement('div');
@@ -232,11 +245,15 @@ function initializeCourseDropdown(containerId) {
 
                 const checkbox = checkboxWrapper.querySelector('.course-checkbox');
 
-                // Pre-select the checkbox if the course ID is in the selected IDs array
-                if (selectedCourseIds.includes(String(course.id))) {
+                if (combinedSelectedIds.has(String(course.id))) {
                     checkbox.checked = true;
                     courseItem.classList.add('selected');
-                    appendSelectedCourse(course.title, course.id);
+
+                    if (!selectedCoursesList.querySelector(`[data-course-id="${course.id}"]`)) {
+                        appendSelectedCourse(course.title, course.id);
+                    }
+
+                    // Remove from selectedCourseIds so it's not processed again in future fetches
                     selectedCourseIds = selectedCourseIds.filter(id => id !== String(course.id));
                 }
 
@@ -258,11 +275,14 @@ function initializeCourseDropdown(containerId) {
                 });
             });
 
+            if (data.courses.length === 0 && resetList) {
+                courseList.innerHTML = '<div class="no-results">No results found</div>';
+            }
+
             isLoading = false;
             loadingIndicator.style.display = 'none';
             page += 1;
 
-            // Fetch more courses automatically if there are still IDs to process and more courses to load
             if (selectedCourseIds.length > 0 && hasMoreCourses && data.courses.length > 0) {
                 fetchCourses(searchTerm);
             }
@@ -274,7 +294,6 @@ function initializeCourseDropdown(containerId) {
         });
     }
 
-    // Function to append selected course to the list
     function appendSelectedCourse(name, courseId) {
         const courseItem = document.createElement('div');
         courseItem.classList.add('selected-course');
@@ -295,9 +314,9 @@ function initializeCourseDropdown(containerId) {
 
         courseItem.appendChild(removeButton);
         selectedCoursesList.appendChild(courseItem);
+        updateSelectedCoursesVisibility();
     }
 
-    // Function to remove selected course from the list
     function removeSelectedCourse(courseId) {
         const courseItem = selectedCoursesList.querySelector(`[data-course-id="${courseId}"]`);
         if (courseItem) {
@@ -309,6 +328,12 @@ function initializeCourseDropdown(containerId) {
             dropdownItem.classList.remove('selected');
             dropdownItem.querySelector('.course-checkbox').checked = false;
         }
+        updateSelectedCoursesVisibility();
+    }
+
+    function updateSelectedCoursesVisibility() {
+        selectedCoursesList.style.display =
+            selectedCoursesList.children.length === 0 ? 'none' : 'flex';
     }
 
     courseList.addEventListener('scroll', function () {
@@ -339,7 +364,9 @@ function initializeCourseDropdown(containerId) {
 
     // Initial load
     fetchCourses();
+    updateSelectedCoursesVisibility();
 }
+
 
 function initializeSingularCourseDropdown(containerId) {
     const container = document.getElementById(containerId);
@@ -427,6 +454,13 @@ function initializeSingularCourseDropdown(containerId) {
                     event.stopPropagation(); // Prevent checkbox click from triggering twice
                     courseItem.click(); // Trigger the parent item click
                 });
+
+                // Mark the item as selected if it matches the input value
+                if (course.title === courseSearchInput.value) {
+                    appendSelectedCourse(course.title, course.id);
+                    checkbox.checked = true;
+                    courseItem.classList.add('selected');
+                }
             });
 
             if (data.courses.length === 0 && resetList) {
@@ -494,6 +528,10 @@ function initializeSingularCourseDropdown(containerId) {
         courseSearchInput.style.borderRadius = '8px 8px 0 0';
         courseList.style.display = 'block';
         courseSearchInput.style.border = '2px solid #c7c7db';
+        
+        page = 1;
+        hasMoreCourses = true;
+        fetchCourses(courseSearchInput.value, true);
     });
 
     // Hide the dropdown list when clicking outside
@@ -508,6 +546,19 @@ function initializeSingularCourseDropdown(containerId) {
     // Initial load
     fetchCourses();
 }
+
+const timezoneMap = {
+    "(UTC)": "UTC",
+    "(UTC-05:00) Eastern Time (US & Canada)": "America/New_York",
+    "(UTC-06:00) Central Time (US & Canada)": "America/Chicago",
+    "(UTC-07:00) Mountain Time (US & Canada)": "America/Denver",
+    "(UTC-08:00) Pacific Time (US & Canada)": "America/Los_Angeles",
+    "(UTC+00:00) London": "Europe/London",
+    "(UTC+01:00) Paris": "Europe/Paris",
+    "(UTC+05:30) India Standard Time": "Asia/Kolkata",
+    "(UTC+09:00) Japan Standard Time": "Asia/Tokyo",
+    "(UTC+10:00) Sydney": "Australia/Sydney"
+};
 
 function initializeTimeZoneDropdown(containerId) { 
     const container = document.getElementById(containerId);
@@ -621,6 +672,10 @@ function initializeTimeZoneDropdown(containerId) {
     function appendSelectedTimezone(name, timezoneId) {
         // Update the input field with the selected timezone name
         timeZoneSearchInput.value = name;
+
+        // Setting the hidden IANA Field
+        const actualValue = timezoneMap[name] || '';  // fallback to empty
+        document.querySelector('#iana_name').value = actualValue;
     }
 
     // Function to remove selected timezone from the list
@@ -660,6 +715,10 @@ function initializeTimeZoneDropdown(containerId) {
         timeZoneSearchInput.style.borderRadius = '8px 8px 0 0';
         timeZoneList.style.display = 'block';
         timeZoneSearchInput.style.border = '2px solid #c7c7db';
+
+        page = 1;
+        hasMoreTimeZones = true;
+        fetchTimeZones(timeZoneSearchInput.value, true);
     });
 
     // Hide the dropdown list when clicking outside
@@ -691,6 +750,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }); 
     document.querySelectorAll('.singular-course-dropdown').forEach(dropdown => {
         initializeSingularCourseDropdown(dropdown.id);
+    });
+    // Initialize dropdown for all category containers on the page
+    document.querySelectorAll('.category-dropdown').forEach(dropdown => {
+        initializeCategoryDropdown(dropdown.id);
     });
 
     // Retrieve the selected IDs from localStorage
@@ -725,6 +788,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function sendEnrollmentRequest() {
+    setDisabledSaveBtns();
     // Get selected users and courses
     const selectedUsers = document.querySelectorAll('.selectedUsers .selected-user');
     const selectedCourses = document.querySelectorAll('.selectedCourses .selected-course');
@@ -738,6 +802,7 @@ function sendEnrollmentRequest() {
     // Check if any users or courses are selected
     if (userIds.length === 0 || courseIds.length === 0) {
         displayValidationMessage('Please select at least one user and one course.', false);
+        removeDisabledSaveBtns();
         return;
     }
 
@@ -771,14 +836,17 @@ function sendEnrollmentRequest() {
             // Display validation message for error case
             displayValidationMessage(data.message, false);  // Error message
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         console.error('Error:', error);
         displayValidationMessage('An error occurred during the enrollment process.', false);
+        removeDisabledSaveBtns();
     });
 }
 
 function sendMessageRequest() {
+    setDisabledSaveBtns();
     const selectedUsers = document.querySelectorAll('.selectedUsers .selected-user');
     const subject = document.getElementById('subject').value;
     const body = getEditorContent('body');
@@ -787,13 +855,16 @@ function sendMessageRequest() {
 
     if (userIds.length === 0) {
         displayValidationMessage('Please select at least one user.', false);
+        removeDisabledSaveBtns();
         return;
     }
     if(subject.length === 0){
         displayValidationMessage('Please enter a message subject.', false);
+        removeDisabledSaveBtns();
         return;
     }if(body === '<p><br></p>'){
         displayValidationMessage('Please enter a message body.', false);
+        removeDisabledSaveBtns();
         return;
     }
 
@@ -824,10 +895,12 @@ function sendMessageRequest() {
         } else {
             displayValidationMessage(data.message, false);  // Error message
         }
+        removeDisabledSaveBtns();
     })
     .catch(error => {
         console.error('Error:', error);
         displayValidationMessage('An error occurred while sending the message.', false);
+        removeDisabledSaveBtns();
     });
 }
 
@@ -835,28 +908,6 @@ function sendMessageRequest() {
 function getCsrfToken() {
     const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
     return cookieValue;
-}
-
-const validationMessageContainer = document.getElementById('validation-message-container');
-const validationMessageInner = document.getElementById('validation-message-inner');
-const validationMessage = document.getElementById('validation-message');
-const validationIcon = document.getElementById('validation-icon');
-
-function displayValidationMessage(message, isSuccess) {
-    validationMessage.textContent = message;
-    validationMessageContainer.style.display = 'flex';
-    setTimeout(() => {
-        validationMessageContainer.className = isSuccess ? 'alert-container animate-alert-container' : 'alert-container animate-alert-container';
-    }, 100);
-    validationMessageInner.className = isSuccess ? 'alert alert-success' : 'alert alert-error';
-    setTimeout(() => {
-        validationMessageContainer.classList.remove('animate-alert-container');
-    }, 10000);
-    if(isSuccess){
-        validationIcon.className = 'fa-solid fa-circle-check';
-    }else{
-        validationIcon.className = 'fa-solid fa-triangle-exclamation';
-    }
 }
 
 // Declare quillEditors as a global variable to store all Quill instances
@@ -887,6 +938,8 @@ function initializeQuill() {
                             container: [
                                 [{ 'header': [1, 2, 3, false] }],
                                 ['bold', 'italic', 'underline'],
+                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                [{ 'color': [] }, { 'background': [] }],
                                 ['link', 'image']
                             ],
                             handlers: {
@@ -898,6 +951,7 @@ function initializeQuill() {
 
                 // Mark this container as initialized
                 editor.classList.add('quill-initialized');
+                editor.classList.add('scrollable-content');
 
                 // Push the instance to the quillEditors array
                 quillEditors.push(quill);
@@ -909,5 +963,372 @@ function initializeQuill() {
 
 function getEditorContent(editorId) {
     const quillEditor = new Quill(`#${editorId}`);
-    return quillEditor.root.innerHTML; // or quillEditor.getText() for plain text
+    return quillEditor.root.innerHTML;
+}
+
+// Category Dropdown Search
+function initializeCategoryDropdown(containerId) {
+    const container = document.getElementById(containerId);
+    console.log('container:', container);
+    const searchInput = container.querySelector('.categorySearch');
+    const dropdownList = container.querySelector('.categoryList');
+    const loading = container.querySelector('.loadingIndicator');
+    const selectedDisplay = container.querySelector('.selectedCategories');
+    const noResultsDisplay = container.querySelector('.no-results');
+
+    let page = 1;
+    let isLoading = false;
+    let hasMore = true;
+
+    if (noResultsDisplay) noResultsDisplay.style.display = 'none';
+
+    function fetchCategories(searchTerm = '', reset = false) {
+        if (isLoading || !hasMore) return;
+
+        isLoading = true;
+        if (loading) loading.style.display = 'block';
+
+        fetch(`/requests/get-categories/?page=${page}&search=${searchTerm}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (reset) {
+                dropdownList.innerHTML = '';
+                page = 1;
+            }
+
+            if (data.categories.length === 0) {
+                if (reset) dropdownList.innerHTML = '<div class="no-results">No categories found</div>';
+                hasMore = false;
+                isLoading = false;
+                if (loading) loading.style.display = 'none';
+                return;
+            }            
+
+            data.categories.forEach(cat => {
+                const item = document.createElement('div');
+                item.classList.add('dropdown-item');
+                item.innerHTML = `<div class="dropdown-item-inner"><h5>${cat.name}</h5></div>`;
+                item.dataset.categoryId = cat.id;
+
+                const checkboxWrap = document.createElement('div');
+                checkboxWrap.innerHTML = `
+                    <label class="container">
+                        <input value="${cat.id}" class="category-checkbox" type="checkbox">
+                        <div class="checkmark"></div>
+                    </label>
+                `;
+
+                const checkbox = checkboxWrap.querySelector('.category-checkbox');
+                item.prepend(checkboxWrap);
+                dropdownList.appendChild(item);
+
+                item.addEventListener('click', function () {
+                    const checkboxes = dropdownList.querySelectorAll('.category-checkbox');
+                    checkboxes.forEach(cb => {
+                        if (cb !== checkbox) {
+                            cb.checked = false;
+                            cb.closest('.dropdown-item').classList.remove('selected');
+                        }
+                    });
+
+                    if (!checkbox.checked) {
+                        appendSelected(cat.name, cat.id);
+                        checkbox.checked = true;
+                        item.classList.add('selected');
+                    } else {
+                        removeSelected(cat.id);
+                        checkbox.checked = false;
+                        item.classList.remove('selected');
+                    }
+                });
+
+                checkbox.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    item.click();
+                });
+
+                // Only auto-select if the input has data-id matching the current cat
+                const preSelectedId = searchInput.getAttribute('data-id');
+                if (preSelectedId && parseInt(preSelectedId) === cat.id && cat.name === searchInput.value) {
+                    appendSelected(cat.name, cat.id);
+                    checkbox.checked = true;
+                    item.classList.add('selected');
+                }
+            });
+
+            hasMore = data.has_more;
+            isLoading = false;
+            if (loading) loading.style.display = 'none';
+            page += 1;
+        })
+        .catch(err => {
+            console.error('Error fetching categories:', err);
+            isLoading = false;
+            if (loading) loading.style.display = 'none';
+        });
+    }
+
+    function appendSelected(name, id) {
+        searchInput.value = name;
+        searchInput.setAttribute('data-id', id);
+    }
+
+    function removeSelected(id) {
+        if (selectedDisplay) {
+            const item = selectedDisplay.querySelector(`[data-id="${id}"]`);
+            if (item) item.remove();
+        }
+
+        searchInput.value = '';
+        const item = dropdownList.querySelector(`[data-id="${id}"]`);
+        if (item) {
+            item.classList.remove('selected');
+            item.querySelector('.category-checkbox').checked = false;
+        }
+    }
+
+    dropdownList.addEventListener('scroll', function () {
+        if (dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight) {
+            fetchCategories(searchInput.value);
+        }
+    });
+
+    searchInput.addEventListener('input', function () {
+        page = 1;
+        hasMore = true;
+        fetchCategories(searchInput.value, true);
+    });
+
+    searchInput.addEventListener('focus', function () {
+        searchInput.style.borderRadius = '8px 8px 0 0';
+        dropdownList.style.display = 'block';
+        searchInput.style.border = '2px solid #c7c7db';
+        page = 1;
+        hasMore = true;
+        fetchCategories(searchInput.value, true);
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!container.contains(e.target)) {
+            dropdownList.style.display = 'none';
+            searchInput.style.borderRadius = '8px';
+            searchInput.style.border = '1px solid #ececf1';
+        }
+    });
+
+    fetchCategories();
+}
+
+// Function to create a new category
+function createCategory(parent_category, name, description, isCreatePage) {
+    fetch('/requests/create-category/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: new URLSearchParams({
+            'parent_category': parent_category || '',
+            'name': name,
+            'description': description,
+            'isCreatePage': isCreatePage,
+        }),
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('Error creating category');
+    })
+    .then(data => {
+        // Update the dropdown list with the new category
+        updateCategoryDropdown(data.id, data.name);
+        // Fully resetting the category dropdown to add the newly added category
+        const categoryList = document.querySelector('.categoryList');
+        const dropdownItems = categoryList.querySelectorAll('.dropdown-item');
+        // Remove each dropdown item
+        dropdownItems.forEach(item => {
+            categoryList.removeChild(item);
+        });
+
+        document.querySelectorAll('.category-dropdown').forEach(dropdown => {
+            initializeCategoryDropdown(dropdown.id);
+        });
+        if(data.is_create_page == 'true'){
+            location.href = '/admin/categories/';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+// Function to create a new category
+function editCategory(id, parent_category, name, description, isCreatePage) {
+    fetch('/requests/edit-category/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: new URLSearchParams({
+            'id': id,
+            'parent_category': parent_category || '',
+            'name': name,
+            'description': description,
+            'isCreatePage': isCreatePage,
+        }),
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('Error editing category');
+    })
+    .then(data => {
+        // Update the dropdown list with the new category
+        updateCategoryDropdown(data.id, data.name);
+        // Fully resetting the category dropdown to add the newly added category
+        const categoryList = document.querySelector('.categoryList');
+        const dropdownItems = categoryList.querySelectorAll('.dropdown-item');
+        // Remove each dropdown item
+        dropdownItems.forEach(item => {
+            categoryList.removeChild(item);
+        });
+
+        document.querySelectorAll('.category-dropdown').forEach(dropdown => {
+            initializeCategoryDropdown(dropdown.id);
+        });
+        if(data.is_create_page == true){
+            location.href = '/admin/categories/';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+// Function to update the category dropdown list
+function updateCategoryDropdown(categoryId, categoryName) {
+    const categoryList = document.querySelector('.categoryList');  // Adjust if necessary
+
+    const categoryItem = document.createElement('div');
+    categoryItem.classList.add('dropdown-item');
+    categoryItem.innerHTML = `
+        <div class="dropdown-item-inner">
+            <h5>${categoryName}</h5>
+        </div>
+    `;
+    categoryItem.dataset.categoryId = categoryId;
+
+    const checkboxWrapper = document.createElement('div');
+    checkboxWrapper.innerHTML = `
+        <label class="container">
+            <input value="${categoryId}" class="category-checkbox" type="checkbox">
+            <div class="checkmark"></div>
+        </label>
+    `;
+
+    categoryItem.prepend(checkboxWrapper);
+    categoryList.appendChild(categoryItem);
+}
+
+// Function to create a new enrollment key
+function createEnrollmentKey(name, keyName, courseIds, active, maxUses, isCreatePage) {
+    fetch('/requests/create-enrollment-key/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: new URLSearchParams({
+            'name': name,
+            'key_name': keyName,
+            'course_ids': courseIds,
+            'active': active,
+            'max_uses': maxUses,
+            'isCreatePage': isCreatePage,
+        }),
+    })
+    .then(async response => {
+        const data = await response.json();
+
+        if (!response.ok) {
+            displayValidationMessage(data.error || 'Failed to create key.', false);
+            removeDisabledSaveBtns();
+            return;
+        }
+
+        if (data.is_create_page === 'true') {
+            location.href = '/admin/enrollment-keys/';
+        } else {
+            displayValidationMessage('Enrollment key created successfully!', true);
+        }
+    })
+    .catch(error => {
+        console.error('Unexpected error:', error);
+        displayValidationMessage('Something went wrong. Please try again.', false);
+    });
+}
+
+// Function to create a edit enrollment key
+function editEnrollmentKey(id, name, keyName, courseIds, active, maxUses, isCreatePage) {
+    console.log(id, name, keyName, courseIds, active, maxUses, isCreatePage);
+    fetch('/requests/edit-enrollment-key/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: new URLSearchParams({
+            'id': id,
+            'name': name,
+            'key_name': keyName,
+            'course_ids': courseIds,
+            'active': active,
+            'max_uses': maxUses,
+            'isCreatePage': isCreatePage,
+        }),
+    })
+    .then(async response => {
+        const data = await response.json();
+
+        if (!response.ok) {
+            displayValidationMessage(data.error || 'Failed to create key.', false);
+            removeDisabledSaveBtns();
+            return;
+        }
+
+        if (data.is_create_page === 'true') {
+            location.href = '/admin/enrollment-keys/';
+        } else {
+            displayValidationMessage('Enrollment key edited successfully!', true);
+        }
+    })
+    .catch(error => {
+        console.error('Unexpected error:', error);
+        displayValidationMessage('Something went wrong. Please try again.', false);
+    });
+}
+
+// Helper function to get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }

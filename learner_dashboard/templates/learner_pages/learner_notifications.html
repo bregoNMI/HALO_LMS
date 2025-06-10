@@ -5,13 +5,7 @@
 {% include 'learner_sidebar.html' %}
 {% include 'popups/change_password.html' %}
 <div class="learner-body align-center scrollable-content">
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="alert-container" style="display: none;">   
-        <div id="validation-message-inner">
-            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
-            <span id="validation-message"></span>
-        </div>
-    </div>
+    {% include 'messageContainer/message_container.html' %}
     {% if messages %}
         <div class="alert-container">
             {% for message in messages %}
@@ -59,12 +53,12 @@
                                     <div id="message-{{ message.id }}" class="message {% if message.read %}read{% endif %} message-container" onclick="openMessagePopup({{ message.id }})">
                                         <div class="message-left">
                                             <div class="dropdown-user-icon">
-                                                <i class="fa-solid fa-circle-{{ message.sender.first_name|first_letter }}"></i>
+                                                <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
                                             </div>
                                             <div class="message-content">
                                                 <div class="message-content-header">
                                                     <p>{{ message.sender.first_name }} {{ message.sender.last_name }}</p>
-                                                    <span class="lesson-counter pastel-blue">{{ message.sender.profile.role }}</span>
+                                                    <span class="lesson-counter pastel-blue" style="padding: 0.05rem var(--pad-xs);">{{ message.sender.profile.role }}</span>
                                                 </div>
                                                 <div class="message-body">
                                                     {{ message.body|safe }}
@@ -92,12 +86,12 @@
                                                 <div class="message-container" style="cursor: auto; background-color: white !important;">
                                                     <div class="message-popup-left">
                                                         <div class="dropdown-user-icon">
-                                                            <i class="fa-solid fa-circle-{{ message.sender.first_name|first_letter }}"></i>
+                                                            <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
                                                         </div>
                                                         <div class="message-content">
                                                             <div class="message-content-header">
                                                                 <p>{{ message.sender.first_name }} {{ message.sender.last_name }}</p>
-                                                                <span class="lesson-counter pastel-blue">{{ message.sender.profile.role }}</span>
+                                                                <span class="lesson-counter pastel-blue" style="padding: 0.05rem var(--pad-xs);">{{ message.sender.profile.role }}</span>
                                                             </div>
                                                             <div class="message-popup-body">
                                                                 {{ message.body|safe }}

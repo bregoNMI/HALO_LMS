@@ -13,7 +13,7 @@
                     <label id="resumeCoursesLabel" class="lesson-selection-item purple" for="resumeCourses">
                         <input id="resumeCourses" type="radio" name="type-selection" hidden="" checked="">
                         <div class="lesson-selection-icon pastel-purple">
-                            <i class="fa-solid fa-play"></i>
+                            <i class="fa-light fa-play"></i>
                         </div>
                         <h4>Resume Course</h4>
                         <span>Resume last opened course</span>
@@ -21,7 +21,7 @@
                     <label id="myCoursesLabel" class="lesson-selection-item orange" for="myCourses">
                         <input id="myCourses" type="radio" name="type-selection" hidden="">
                         <div class="lesson-selection-icon pastel-orange">
-                            <i class="fa-solid fa-book-open-cover"></i>
+                            <i class="fa-light fa-book-open-cover"></i>
                         </div>
                         <h4>My Courses</h4>
                         <span>Access to Learner's course library</span>
@@ -29,7 +29,7 @@
                     <label id="enrollmentKeyLabel" class="lesson-selection-item pink" for="enrollmentKey">
                         <input id="enrollmentKey" type="radio" name="type-selection" hidden="">
                         <div class="lesson-selection-icon pastel-pink">
-                            <i class="fa-solid fa-key"></i>
+                            <i class="fa-light fa-key"></i>
                         </div>
                         <h4>Enrollment Key</h4>
                         <span>Option to enter an enrollment key</span>
@@ -39,7 +39,7 @@
                     <label id="externalLinkLabel" class="lesson-selection-item blue" for="externalLink">
                         <input id="externalLink" type="radio" name="type-selection" hidden="">
                         <div class="lesson-selection-icon pastel-blue">
-                            <i class="fa-solid fa-link"></i>
+                            <i class="fa-light fa-link"></i>
                         </div>
                         <h4>Link</h4>
                         <span>Link to an external source</span>
@@ -50,7 +50,7 @@
         <div class="popup-footer">
             <div class="spacer"></div>
             <div class="popup-btns">
-                <button onclick="closePopup('addWidgetPopup')" class="popup-btn close-popup-btn">Cancel</button>
+                <button type="button" onclick="closePopup('addWidgetPopup')" class="popup-btn close-popup-btn">Cancel</button>
                 <button onclick="closePopup('addWidgetPopup')" id="save-widget" class="popup-btn">Add Widget</button>   
             </div>
         </div>

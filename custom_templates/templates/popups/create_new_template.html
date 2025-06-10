@@ -9,22 +9,22 @@
         <div id="dashboard-form" class="popup-body">
             {% csrf_token %}
             <div class="course-content-input">
-                <label class="edit-user-label" for="dashboard-name">Template Title</label>
-                <input type="text" id="dashboard-name" name="name" placeholder="Template Title (Required)">
+                <label class="edit-user-label" for="dashboard-name">Template Title<span class="required-asterisk">*</span></label>
+                <input type="text" id="dashboard-name" name="name" placeholder="Template Title">
             </div>
             <div class="lesson-selection-container">
-                <label id="layout-label1" class="lesson-selection-item blue" for="layout1">
+                <label id="layout-label1" class="lesson-selection-item blue" for="layout1" style="max-width: unset !important;">
                     <input id="layout1" type="radio" name="lesson-selection" hidden="" checked="">
                     <div class="lesson-selection-icon pastel-blue">
-                        <i class="fa-regular fa-square-dashed-circle-plus"></i>
+                        <i class="fa-light fa-square-dashed-circle-plus"></i>
                     </div>
                     <h4>Blank Template</h4>
                     <span>Start creating with a blank template</span>
                 </label>
-                <label id="layout-label2" class="lesson-selection-item purple" for="layout2">
+                <label id="layout-label2" class="lesson-selection-item purple" for="layout2" style="max-width: unset !important;">
                     <input id="layout2" type="radio" name="lesson-selection" hidden="">
                     <div class="lesson-selection-icon pastel-purple">
-                        <i class="fa-regular fa-rocket-launch"></i>
+                        <i class="fa-light fa-rocket-launch"></i>
                     </div>
                     <h4>Default Template</h4>
                     <span>Start creating with our default template</span>
@@ -34,7 +34,7 @@
         <div class="popup-footer">
             <div class="spacer"></div>
             <div class="popup-btns">
-                <button onclick="closePopup('templateCreationPopup')" class="popup-btn close-popup-btn">Back</button>
+                <button type="button" onclick="closePopup('templateCreationPopup')" class="popup-btn close-popup-btn">Back</button>
                 <button id="create-dashboard-btn" class="popup-btn disabled" disabled>Create Template</button>   
             </div>
         </div>

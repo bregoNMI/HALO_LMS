@@ -2,13 +2,7 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
-    <!-- Message Wrapper -->
-    <div id="validation-message-container" class="alert-container" style="display: none;">   
-        <div id="validation-message-inner">
-            <i id="validation-icon" class="fa-solid fa-triangle-exclamation"></i>
-            <span id="validation-message"></span>
-        </div>
-    </div>
+    {% include 'messageContainer/message_container.html' %}
     {% if messages %}
         <div class="alert-container">
             {% for message in messages %}
@@ -36,6 +30,7 @@
                     <span>Import</span>
                 </div> -->
                 <a href="{% url 'add_online_courses' %}" class="action-button-primary">
+                    <i class="fa-regular fa-plus"></i>
                     <span>Add Course</span>
                 </a>
             </div>
@@ -53,7 +48,7 @@
                         <i class="fa-regular fa-magnifying-glass search-icon"></i>                  
                         <input id="searchTable" name="query" value="{{ active_filters.query }}" type="text" placeholder="Search all courses">
                         <button style="display: none;" id="searchAllUsersBtn" class="search-all-users-btn" type="submit">
-                            <i class="fa-solid fa-paper-plane-top"></i>
+                            <i class="fa-solid fa-magnifying-glass"></i>
                         </button> 
                     </form>                   
                 </div>
@@ -101,6 +96,60 @@
                                         <label for="radio2" class="radio-button__label">
                                             <span class="radio-button__custom"></span>
                                             <div>Title (Z-A)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="type_asc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio3" class="radio-button__input" type="radio">
+                                        <label for="radio3" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Type (A-Z)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="type_desc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio4" class="radio-button__input" type="radio">
+                                        <label for="radio4" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Type (Z-A)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="status_asc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio5" class="radio-button__input" type="radio">
+                                        <label for="radio5" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Status (A-Z)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="status_desc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio6" class="radio-button__input" type="radio">
+                                        <label for="radio6" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Status (Z-A)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="category_asc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio7" class="radio-button__input" type="radio">
+                                        <label for="radio7" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Category (A-Z)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="category_desc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio8" class="radio-button__input" type="radio">
+                                        <label for="radio8" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Category (Z-A)</div>
                                         </label>
                                     </div>
                                 </div>
@@ -173,7 +222,7 @@
             {% else %}
                 <div class="no-results-found">
                     <img src="{% static 'client_admin\Images\HALO LMS No Graphic Test-27.png' %}" alt="HALO Graphic">    
-                    <span><b>No Courses Found</b></span>          
+                    <span>No Courses Found</span>          
                 </div>
             {% endif %}
             <div class="pagination-row-wrapper">

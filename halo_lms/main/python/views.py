@@ -4,9 +4,12 @@ import boto3
 import requests
 from jose import jwt, JWTError
 from django.http import JsonResponse
+from custom_templates.models import Dashboard, Widget, Header, Footer, LoginForm
 
 def login(request):
-    return render(request, 'main/login.html')
+    login_form = LoginForm.objects.first()
+
+    return render(request, 'main/login.html', {'login_form': login_form})
 
 def custom_404_view(request, exception=None):
     return render(request, 'main/404.html', status=404)

@@ -1,16 +1,25 @@
 from django.db import models
 from django.contrib.auth.models import User
-from content.models import Course, Module, Lesson
+from content.models import Course, Module, Lesson, EventDate
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from storages.backends.s3boto3 import S3Boto3Storage
 from PIL import Image
 from io import BytesIO
-import uuid
+from django.conf import settings
+import requests
+from django.utils import timezone
 from django.core.files.base import ContentFile
+from client_admin.utils import fill_certificate_form
+from django.contrib.contenttypes.fields import GenericRelation
+from datetime import date
 from datetime import datetime
 from pytz import all_timezones
 from course_player.models import SCORMTrackingData 
+import uuid
+from datetime import timedelta
+import re
+import os
 
 no_prefix_storage = S3Boto3Storage()
 no_prefix_storage.location = ''  # Disable tenant prefix
@@ -73,12 +82,18 @@ class Profile(models.Model):
     photoid = models.ImageField(storage=no_prefix_storage)
     passportphoto = models.ImageField(storage=no_prefix_storage)
     date_joined = models.DateTimeField(('date joined'), auto_now_add=True)
-    last_opened_course = models.OneToOneField(Course, on_delete=models.CASCADE, null=True, blank=True)
+    last_opened_course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
+    last_opened_lesson_id = models.PositiveIntegerField(null=True, blank=True)
     timezone = models.CharField(
-        max_length=50,
+        max_length=500,
         choices=[(tz, tz) for tz in all_timezones],
         default='UTC'
     )
+
+    terms_accepted = models.BooleanField(default=False)
+    terms_accepted_on = models.DateTimeField(null=True, blank=True)
+    accepted_terms_version = models.CharField(max_length=10, blank=True, null=True)
+    completed_on_login_course = models.BooleanField(default=False)
 
 
     objects = ProfileManager()
@@ -94,14 +109,32 @@ def resize_images(sender, instance, **kwargs):
     if instance.passportphoto:
         resize_image(instance.passportphoto)
 
+class EnrollmentKey(models.Model):
+    key = models.CharField(max_length=100, unique=True) # This is the key the student will input
+    name = models.CharField(max_length=200, blank=True) # Name to understand what the key is for
+    courses = models.ManyToManyField('content.Course', related_name='enrollment_keys', blank=True)
+    max_uses = models.PositiveIntegerField(default=1, null=True, blank=True)
+    uses = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
+
+    def is_valid(self):
+        if self.max_uses is None:
+            return self.active  # unlimited uses
+        return self.active and self.uses < self.max_uses
+
+    def __str__(self):
+        course_titles = ", ".join(course.title for course in self.courses.all())
+        return f"{self.key} for {course_titles}"   
+
 class UserCourse(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     progress = models.PositiveIntegerField(default=0)  # percentage of the course completed by the user
+    enrollment_date = models.DateField(auto_now_add=True)
+    stored_progress = models.PositiveIntegerField(default=0) # Stores course progress. Reverts back to this integer if status is changed from completed to not completed 
     lesson_id = models.PositiveIntegerField(default=0) #links o the individual lesson to launch the course
     locked = models.BooleanField(default=False)
-    uuid = models.UUIDField(default=uuid.uuid4, unique=True, null=True)
-
 
     def get_status(self):
         expiration_date = self.course.get_event_date('expiration_date')
@@ -110,41 +143,85 @@ class UserCourse(models.Model):
 
         if self.progress == 0:
             return 'Not Started'
-        elif self.progress == 100:
-            return 'Completed'
-        else:
-            return 'Started'
+
+        if self.progress == 100:
+            if self.is_course_completed:
+                return 'Completed'
+            else:
+                return 'Not Completed'
+
+        return 'Started'
     
     def update_progress(self):
         """
         Recalculates the user's progress in this course based on the highest recorded progress per lesson.
+        If progress reaches 100%, marks course as completed.
         """
         lessons = Lesson.objects.filter(module__course=self.course)
         total_lessons = lessons.count()
-
+ 
         if total_lessons == 0:
-            self.progress = 0.0
+            self.progress = 0
+            self.stored_progress = 0
+            self.is_course_completed = False
             self.save()
             return
-
+ 
         # Get max progress per lesson
         lesson_progress = (
             SCORMTrackingData.objects
             .filter(user=self.user, lesson_id__in=lessons.values_list('id', flat=True))
             .values('lesson_id')
-            .annotate(max_progress=models.Max('progress'))  # Get max progress per lesson
+            .annotate(max_progress=models.Max('progress'))
         )
-
+ 
         total_progress = sum(lp['max_progress'] for lp in lesson_progress)
-
-        # Normalize to 100%
-        self.progress = min((total_progress / total_lessons) * 100, 100)
+        self.progress = int(min((total_progress / total_lessons) * 100, 100))
+ 
+        # ✅ NEW: check for full completion
+        if self.progress >= 100 and not self.is_course_completed:
+            self.is_course_completed = True
+            self.completed_on_date = datetime.now().date()
+            self.completed_on_time = datetime.now().time()
+ 
+        self.stored_progress = self.progress
         self.save()
 
+    def get_scorm_total_time(self):
+        scorm_sessions = SCORMTrackingData.objects.filter(
+            user=self.user,
+            lesson__module__course=self.course
+        )
+
+        total_time = timedelta()
+        for session in scorm_sessions:
+            total_time += parse_iso_duration(session.session_time)
+
+        if total_time.total_seconds() == 0:
+            return "No Activity"
+        else:
+            total_hours, remainder = divmod(total_time.total_seconds(), 3600)
+            total_minutes, total_seconds = divmod(remainder, 60)
+
+            if total_hours > 0:
+                return f"{int(total_hours)}h {int(total_minutes)}m {int(total_seconds)}s"
+            else:
+                return f"{int(total_minutes)}m {int(total_seconds)}s"
 
     def __str__(self):
         return f"{self.user.username} - {self.course.title}"
+    
+def parse_iso_duration(duration_str):
+    pattern = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
+    match = pattern.fullmatch(duration_str)
+    if not match:
+        return timedelta()
 
+    hours = int(match.group(1)) if match.group(1) else 0
+    minutes = int(match.group(2)) if match.group(2) else 0
+    seconds = int(match.group(3)) if match.group(3) else 0
+
+    return timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
 class UserModuleProgress(models.Model):
     user_course = models.ForeignKey(UserCourse, related_name='module_progresses', on_delete=models.CASCADE)
@@ -164,6 +241,9 @@ class UserLessonProgress(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
+    completed_on_date = models.DateField(blank=True, null=True)  # This is the date the learner completed this lesson
+    completed_on_time = models.TimeField(blank=True, null=True)  # This is the time the learner completed this lesson
+    attempts = models.PositiveIntegerField(default=0) # Total times learner has attempted this lesson
 
     class Meta:
         ordering = ['order']
@@ -171,9 +251,19 @@ class UserLessonProgress(models.Model):
     def __str__(self):
         return f"{self.user_module_progress.user_course.user.username} - {self.lesson.title}"
     
+class GeneratedCertificate(models.Model):
+    user_course = models.ForeignKey('UserCourse', on_delete=models.CASCADE, related_name='certificates', blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certificates', blank=True, null=True)
+    file = models.FileField(upload_to='certificates/')
+    issued_at = models.DateTimeField(auto_now_add=True)
+    event_dates = GenericRelation('content.EventDate')
+
+    def __str__(self):
+        return f"Certificate for {self.user_course.user.username} - {self.user_course.course.title}"
+    
 class Message(models.Model):
     subject = models.CharField(max_length=255)
-    body = models.TextField()
+    body = models.TextField(max_length=2000)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     recipients = models.ManyToManyField(User, related_name='received_messages')
     sent_at = models.DateTimeField(auto_now_add=True)
@@ -182,9 +272,16 @@ class Message(models.Model):
     def __str__(self):
         return self.subject
     
+class AllowedIdPhotos(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=1000)
+
+    def __str__(self):
+        return self.name
+    
 class OrganizationSettings(models.Model):
     # Client Profile
-    lms_name = models.CharField(max_length=255, blank=True, null=True, default='LMS Name')
+    lms_name = models.CharField(max_length=255, blank=True, null=True)
     organization_name = models.CharField(max_length=255, blank=True, null=True)
     
     # Main Contact
@@ -200,7 +297,8 @@ class OrganizationSettings(models.Model):
 
     # Date & Time Preferences
     date_format = models.CharField(max_length=255, blank=True, null=True)
-    time_zone = models.CharField(max_length=255, blank=True, null=True)
+    time_zone = models.CharField(max_length=255, blank=True, null=True, default='(UTC-05:00) Eastern Time (US & Canada)')
+    iana_name = models.CharField(max_length=100, unique=True, default='America/New_York')
 
     # User settings
     on_login_course = models.BooleanField(default=False, blank=True, null=True)
@@ -211,10 +309,24 @@ class OrganizationSettings(models.Model):
     default_course_thumbnail = models.BooleanField(default=False, blank=True, null=True)
     default_course_thumbnail_image = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
     default_certificate = models.BooleanField(default=False, blank=True, null=True)
-    default_certificate_image = models.ImageField(upload_to='certificates/', blank=True, null=True)
+    default_certificate_template = models.FileField(upload_to='certificates/', blank=True, null=True)
+    terms_and_conditions = models.BooleanField(default=False, blank=True, null=True)
+    terms_and_conditions_text = models.TextField(max_length=50000, blank=True, null=True)
+    terms_last_modified = models.DateTimeField(blank=True, null=True)
 
     # Portal
     portal_favicon = models.ImageField(upload_to='logos/', blank=True, null=True)
+    allowed_id_photos = models.ManyToManyField(AllowedIdPhotos, related_name='OrganizationSettings', blank=True, null=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.pk and OrganizationSettings.objects.exists():
+            raise ValidationError('There is already a Login Settings instance. You cannot create another one.')
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def get_instance(cls):
+        instance, created = cls.objects.get_or_create(id=1)
+        return instance
 
     def __str__(self):
         return self.lms_name
@@ -229,7 +341,8 @@ class ActivityLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Assuming you want to log the user as well
     action_performer = models.CharField(max_length=150)  # Changed from ForeignKey to CharField
     action_target = models.CharField(max_length=150)  # Changed from ForeignKey to CharField
-    action = models.CharField(max_length=50)
+    action_type = models.CharField(max_length=150)
+    action = models.CharField(max_length=500)
     timestamp = models.DateTimeField(auto_now_add=True)
     user_groups = models.CharField(max_length=255, null=True, blank=True)
 

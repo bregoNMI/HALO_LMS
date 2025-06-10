@@ -7,14 +7,17 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-
+from django.contrib.contenttypes.fields import GenericRelation
 from halo_lms import settings
 
 class Category(models.Model):
+    parent_category = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='subcategories')
     name = models.CharField(max_length=200, blank=True)
+    description = models.TextField(blank=True, max_length=2000)
 
     def __str__(self):
         return self.name
+
     
 # The lesson files that originally get uploaded
 class UploadedFile(models.Model):
@@ -162,10 +165,34 @@ class File(models.Model):
         # Ensure that SCORM files are validated
         if self.file_type == 'scorm' and not self.is_scorm_package():
             raise ValidationError("The uploaded file is not a valid SCORM package.")
+        
+class EventDateMixin:
 
+    def calculate_event_date(self, event, enrollment_date):
+        offset = event.from_enrollment or {}
+
+        def safe_int(value):
+            try:
+                return int(value)
+            except (ValueError, TypeError):
+                return 0
+
+        years = safe_int(offset.get('years'))
+        months = safe_int(offset.get('months'))
+        days = safe_int(offset.get('days'))
+
+        return enrollment_date + relativedelta(years=years, months=months) + timedelta(days=days)
+
+    def get_event_date(self, event_type, enrollment_date=None):
+        event = self.event_dates.filter(type=event_type).first()
+        if not event:
+            return None
+        if enrollment_date and event.from_enrollment:
+            return self.calculate_event_date(event, enrollment_date)
+        return event.date
 
 # Define a Course model
-class Course(models.Model):
+class Course(models.Model, EventDateMixin):
     COURSE_TYPES = [
         ('bundle', 'Course Bundle'),
         ('in_person', 'In Person Course'),
@@ -184,15 +211,15 @@ class Course(models.Model):
 
     scorm_id = models.CharField(max_length=255, null=True, blank=True)
     title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, max_length=5000)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     type = models.CharField(max_length=20, choices=COURSE_TYPES, default='bundle')
     status = models.CharField(max_length=20, choices=STATUS_TYPES, default='Inactive')
     thumbnail = models.ForeignKey('Media', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_thumbnail')
-    credential = models.OneToOneField('Credential', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_credential')
-    upload_instructions = models.TextField(blank=True)
+    credential = models.ForeignKey('Credential', on_delete=models.SET_NULL, null=True, blank=True, related_name='course_credential')
+    upload_instructions = models.TextField(blank=True, max_length=5000)
     locked = models.BooleanField(default=False)
     estimated_completion_time = models.DurationField(null=True, blank=True, help_text="Estimated time to complete the course (e.g., 3 hours)")
     terms_and_conditions = models.BooleanField(default=False)
@@ -201,32 +228,7 @@ class Course(models.Model):
     )
     referencesEnabled = models.BooleanField(default=False)
     uploadsEnabled = models.BooleanField(default=False)
-
-    def calculate_event_date(self, event, enrollment_date):
-        """Helper function to calculate the event date relative to enrollment_date."""
-        if event.from_enrollment:
-            offset = event.from_enrollment
-            years = offset.get('years', 0)
-            months = offset.get('months', 0)
-            days = offset.get('days', 0)
-            
-            # Add years and months using relativedelta for accurate month/year handling
-            relative_date = enrollment_date + relativedelta(years=years, months=months) + timedelta(days=days)
-            return relative_date
-        return event.date
-
-    def get_event_date(self, event_type, enrollment_date=None):
-        """Retrieve the event date, considering 'from_enrollment' if applicable."""
-        event = self.event_dates.filter(type=event_type).first()
-        if not event:
-            return None
-        
-        # If there's an enrollment_date and from_enrollment is defined, calculate it
-        if enrollment_date and event.from_enrollment:
-            return self.calculate_event_date(event, enrollment_date)
-        
-        # Otherwise, return the static date
-        return event.date
+    event_dates = GenericRelation('EventDate')
 
     def __str__(self):
         return self.title
@@ -265,7 +267,7 @@ class Course(models.Model):
         return Lesson.objects.filter(module__course=self).count()
 
 # New Credential model for managing course credentials like certificates
-class Credential(models.Model):
+class Credential(models.Model, EventDateMixin):
     CREDENTIAL_TYPES = [
         ('certificate', 'Certificate'),
         # Add more types as needed
@@ -276,6 +278,7 @@ class Credential(models.Model):
     title = models.CharField(max_length=200, blank=True)  # Title for the credential
     source_title = models.CharField(max_length=200, blank=True)
     source = models.URLField(max_length=500, blank=True)  # URL or file path to the credential
+    event_dates = GenericRelation('EventDate')
 
     def __str__(self):
         return f'{self.get_type_display()} for {self.course.title}'
@@ -285,16 +288,20 @@ class EventDate(models.Model):
         ('start_date', 'Start Date'),
         ('expiration_date', 'Expiration Date'),
         ('due_date', 'Due Date'),
+        ('certificate_expiration_date', 'Certificate Expiration Date')
     ]
 
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='event_dates')
-    type = models.CharField(max_length=20, choices=EVENT_TYPES)
-    date = models.DateField(blank=True, null=True)  # Use DateField for actual dates
-    time = models.TimeField(blank=True, null=True)  # Use TimeField for optional times
-    from_enrollment = models.JSONField(blank=True, null=True)  # Store enrollment offset in years, months, days
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    type = models.CharField(max_length=50, choices=EVENT_TYPES)
+    date = models.DateField(blank=True, null=True)
+    time = models.TimeField(blank=True, null=True)
+    from_enrollment = models.JSONField(blank=True, null=True)  # {'years': 0, 'months': 0, 'days': 0}
 
     def __str__(self):
-        return f'{self.get_type_display()} for {self.course.title}'
+        return f"{self.get_type_display()} for {self.content_object}"
     
 class Media(models.Model):
     MEDIA_TYPES = [
@@ -321,7 +328,7 @@ class Resources(models.Model):
     url = models.URLField(max_length=500, blank=True)
     file_type = models.CharField(max_length=200, blank=True, null=True)
     file_title = models.CharField(max_length=200, blank=True, null=True)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, max_length=2000)
     order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
@@ -339,6 +346,7 @@ class Upload(models.Model):
     approval_type = models.CharField(max_length=30, choices=APPROVAL_CHOICES, default=None, null=True, blank=True)
     approvers = models.ManyToManyField(User, blank=True)  # Users who approve the upload, relevant when 'other' is selected
     title = models.CharField(max_length=255, default='title')
+    description = models.TextField(blank=True, max_length=2000)
 
     def __str__(self):
         return self.title
@@ -360,6 +368,7 @@ class Module(models.Model):
 class Lesson(models.Model):
     module = models.ForeignKey(Module, related_name='lessons', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, max_length=2000)
     order = models.PositiveIntegerField()
     content_type = models.CharField(max_length=200, default='file')
     file = models.ForeignKey(File, on_delete=models.CASCADE, null=True, blank=True)
@@ -379,23 +388,22 @@ class Lesson(models.Model):
 
     def __str__(self):
         return self.title
-    
-# Define a Quiz model
-class Quiz(models.Model):
-    lesson = models.ForeignKey(Lesson, related_name='quizzes', on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.title
 
 # Define a Question model
 class Question(models.Model):
-    quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
     text = models.TextField()
 
     def __str__(self):
         return self.text
+    
+# Define a Quiz model
+class Quiz(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    questions = models.ManyToManyField(Question, related_name='quizzes')
+
+    def __str__(self):
+        return self.title
 
 # Define an Answer model
 class Answer(models.Model):
@@ -406,3 +414,19 @@ class Answer(models.Model):
     def __str__(self):
         return self.text
     
+
+class Classroom(models.Model):
+    name = models.CharField(max_length=100)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='classrooms')
+    teachers = models.ManyToManyField(User, related_name='teaching_classrooms')
+    students = models.ManyToManyField(User, related_name='student_classrooms')
+    schedule = models.TextField(blank=True, help_text="Optional notes like 'M/W/F at 10am'")
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self):
+        return f"{self.name} ({self.course.title})"
+
+    def is_active(self):
+        today = datetime.today().date()
+        return self.start_date <= today <= self.end_date

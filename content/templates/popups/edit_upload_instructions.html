@@ -8,7 +8,14 @@
         </div>
         <div class="popup-body">
             <div class="course-content-input">
-                <label class="edit-user-label" for="uploadInstructions">Upload Instructions</label>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label class="edit-user-label" for="uploadInstructions">Upload Instructions</label>
+                    <div class="quill-character-counter">
+                        <div class="quill-current-counter">0</div>
+                        <span>/</span>
+                        <div class="quill-max-counter">5000</div>
+                    </div>
+                </div>
                 <div class="editor-container" id="uploadInstructions">{{ course.upload_instructions|safe }}</div>
             </div>
             <span class="course-content-input-subtext"> Provide Instructions for course uploads that Learners can review.</span>
@@ -16,7 +23,7 @@
         <div class="popup-footer">
             <div class="spacer"></div>
             <div class="popup-btns">
-                <button onclick="closePopup('editUploadInstructions')" class="popup-btn close-popup-btn">Back</button>
+                <button type="button" onclick="closePopup('editUploadInstructions')" class="popup-btn close-popup-btn">Back</button>
                 <button onclick="closePopup('editUploadInstructions')" class="popup-btn">Save Changes</button>   
             </div>
         </div>

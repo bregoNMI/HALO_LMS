@@ -9,15 +9,20 @@
         </div>
         <div class="popup-body">
             <div class="course-content-input">
-                <label class="edit-user-label" for="editLessonTitle">Lesson Title</label>
-                <input type="text" id="editLessonTitle" name="editLessonTitle" placeholder="Lesson Title (Required)">
+                <label class="edit-user-label" for="editLessonTitle">Lesson Title<span class="required-asterisk">*</span></label>
+                <input type="text" id="editLessonTitle" name="editLessonTitle" placeholder="Lesson Title" maxlength="200">
             </div>
             <div class="course-content-input padding-top-2 padding-bottom-1">
                 <label class="edit-user-label" for="editLessonDescription">Lesson Description</label>
                 <div class="editor-container" id="editLessonDescription"></div>
+                <div class="quill-character-counter">
+                    <div class="quill-current-counter">0</div>
+                    <span>/</span>
+                    <div class="quill-max-counter">2000</div>
+                </div>
             </div>
             <div class="choose-file-wrapper">
-                <h5 class="popup-content-header">Choose File <span class="file-required-text">(Required)</span></h5>
+                <h5 class="popup-content-header">Choose File <span class="required-asterisk">*</span></h5>
                 <div id="editFileUploadSection">
                     <!-- <div id="lessonFileUploadBtn" for="lessonFile" class="custom-file-upload-container">
                         <div class="custom-file-upload">
@@ -31,8 +36,8 @@
                 </div>
             </div>
             <input type="hidden" id="editFileURLInput" name="fileURL">
-            <div class="file-upload-loading">
-                <svg class="file-loading" viewBox="25 25 50 50">
+            <div class="loading-symbol-blue-sm">
+                <svg class="loading-symbol-sm-inner" viewBox="25 25 50 50">
                     <circle r="20" cy="50" cx="50"></circle>
                 </svg>
                 <span>Uploading Lesson File, please wait...</span>
@@ -45,7 +50,7 @@
         <div class="popup-footer">
             <div class="spacer"></div>
             <div class="popup-btns">
-                <button onclick="closePopup('editLesson')" class="popup-btn close-popup-btn">Back</button>
+                <button type="button" onclick="closePopup('editLesson')" class="popup-btn close-popup-btn">Back</button>
                 <button id="editLessonBtn" class="popup-btn">Save Lesson</button>   
             </div>
         </div>

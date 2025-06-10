@@ -19,7 +19,7 @@
     padding: var(--pad-sm);
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    border-radius: 0px;
+    border-radius: 8px;
 }.message-container:hover{
     border-radius: 8px;
     box-shadow: rgb(0 0 0 / 3%) 0px 0px 2px;

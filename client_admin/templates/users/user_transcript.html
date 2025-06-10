@@ -22,9 +22,9 @@
         <div class="max-width-0">
             <div class="details-top-row">
                 <div class="details-top-row-left">
-                    <a href="{% url 'admin_users' %}" class="back-btn">
+                    <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
                         <i class="fa-solid fa-arrow-left"></i>
-                    </a>
+                    </button>
                     <h3> User Transcript </h3>
                 </div>
                 <div class="details-top-row-right">
@@ -61,6 +61,7 @@
                 <div class="details-info-card">
                     <div class="info-card-header collapsable-header">
                         <div class="card-header-left">
+                            <!-- <i class="fa-regular fa-diploma"></i> -->
                             <i class="fa-regular fa-award"></i>
                             <span> Certificates </span>
                         </div>
@@ -69,32 +70,41 @@
                         </div>
                     </div>
                     <div class="info-card-body">
-                        <div class="info-card-column">
-                            <div class="card-body-item">
-                                <div class="card-body-left">
-                                    <i class="fa-light fa-award"></i>
-                                </div>
-                                <div class="card-body-right">
-                                    <h5> Enrollments in Progress</h5>
-                                    <span>10</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="info-card-column">
-                            <div class="card-body-item">
-                                <div class="card-body-left">
-                                    <i class="fa-light fa-clipboard-check"></i>
-                                </div>
-                                <div class="card-body-right">
-                                    <h5> Enrollments Completed</h5>
-                                    <span>4</span>
-                                </div>
-                            </div>
+                        <div class="certificate-items-container">
+                            {% for cert in user_certificates %}
+                                <a href="{{ cert.file.url }}" class="certificate-item-wrapper" target="_blank">
+                                    <div class="certificate-item-left">
+                                        <i class="fa-light fa-file-certificate pastel-blue"></i>
+                                    </div>
+                                    <div class="certificate-item-right">
+                                        <span class="certificate-item-title">{{ cert.user_course.course.title }}</span>
+                                        <div class="course-item-footer">
+                                            <div class="course-item-footer-item">
+                                                <i class="fa-regular fa-calendar-check"></i>
+                                                <span><b>Issued On:</b> {{ cert.issued_at.date }}</span>
+                                            </div>
+                                            {% for event in cert.event_dates.all %}
+                                                {% if event.type == "certificate_expiration_date" %}
+                                                    <div class="course-item-footer-item">
+                                                        <i class="fa-solid fa-circle-small footer-spacer"></i>
+                                                    </div>
+                                                    <div class="course-item-footer-item">
+                                                        <i class="fa-regular fa-calendar-clock"></i>
+                                                        <span><b>Expires:</b> {{ event.date }}</span>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}            
+                                        </div>                                                                      
+                                    </div>
+                                </a>
+                            {% empty %}
+                                <span class="card-info-icon">Learner does not have any certificates yet.</span>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="details-info-section">
+            <div class="details-info-section hidden" hidden>
                 <div class="details-info-card">
                     <div class="info-card-header collapsable-header">
                         <div class="card-header-left">
@@ -132,7 +142,7 @@
                 </div>
             </div>
             <div class="details-info-section">
-                <div class="details-info-card">
+                <div class="details-info-card details-info-card-overflow-hidden">
                     <div class="info-card-header collapsable-header">
                         <div class="card-header-left">
                             <i class="fa-regular fa-pallet-box"></i>
@@ -142,53 +152,70 @@
                             <i class="fa-regular fa-angle-down"></i>
                         </div>
                     </div>
-                    <div style="border: 0;" class="info-card-body padding-0">
-                        <table>
-                            <thead>      
-                                <tr>
-                                    <th>Course Name</th>
-                                    <th style="width: 12%;">Status</th>
-                                    <th>% Complete</th>
-                                    <th>Enrollment Date</th>
-                                    <th>Time Spent</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="table-select-option">
-                                    <td>
-                                        <div class="course-type-icon online-course tooltip" data-tooltip="Online Course">
-                                            <span class="tooltiptext"></span>
-                                            <i class="fa-solid fa-signal-bars"></i>         
-                                        </div>
-                                        <span class="course-name">Online Course</span>
-                                    </td>
-                                    <td><span class="status course-active pastel-yellow"> In Progress </span></td>                   
-                                    <td>85%</td>
-                                    <td>{{ profile.birth_date }}</td>
-                                    <td>2d 15m 34s</td>
-                                </tr>
-                                <tr class="table-select-option">
-                                    <td>
-                                        <div class="course-type-icon inperson-course tooltip" data-tooltip="In Person Course">
-                                            <span class="tooltiptext"></span>
-                                            <i class="fa-solid fa-chalkboard-user"></i>                   
-                                        </div>
-                                        <span class="course-name">In Person Course</span>
-                                    </td>
-                                    <td><span class="status course-active pastel-green">Completed</span></td>                 
-                                    <td>85%</td>
-                                    <td>{{ profile.birth_date }}</td>
-                                    <td>2d 15m 34s</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    {% if user_courses %}
+                        <div style="border: 0;" class="info-card-body padding-0">
+                            <table>
+                                <thead>      
+                                    <tr>
+                                        <th>Course Name</th>
+                                        <th style="width: 12%;">Status</th>
+                                        <th>% Complete</th>
+                                        <th>Enrollment Date</th>
+                                        <th>Time Spent</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                    {% for user_course in user_courses %}
+                                        <tr class="table-select-option clickable-row" data-href="{% url 'usercourse_detail_view' uuid=user_course.uuid %}">
+                                            <td>
+                                                {% if user_course.course.type == 'online' %}
+                                                    <div class="course-type-icon online-course tooltip" data-tooltip="Online Course">
+                                                        <span class="tooltiptext"></span>
+                                                        <i class="fa-solid fa-signal-bars"></i>         
+                                                    </div>         
+                                                {% else %}
+                                                    <div class="course-type-icon inperson-course tooltip" data-tooltip="In Person Course">
+                                                        <span class="tooltiptext"></span>
+                                                        <i class="fa-solid fa-chalkboard-user"></i>                   
+                                                    </div>
+                                                {% endif %}
+                                                <span class="course-name">{{ user_course.course.title }}</span>                                
+                                            </td>
+                                            {% if user_course.get_status == 'Not Started' %}
+                                                <td><span class="status course-active pastel-gray"> Not Started </span></td>
+                                            {% elif user_course.get_status == 'Started' %}
+                                                <td><span class="status course-active pastel-yellow"> In Progress </span></td>
+                                            {% elif user_course.get_status == 'Completed' %}
+                                                <td><span class="status course-active pastel-green"> Completed </span></td>
+                                            {% elif user_course.get_status == 'Not Completed' %}
+                                                <td><span class="status course-active pastel-gray"> Not Completed </span></td>
+                                            {% else %}
+                                                <td><span class="status course-active pastel-red"> Expired </span></td>
+                                            {% endif %}                                                            
+                                            <td>{{ user_course.progress }}%</td>
+                                            <td>{{ user_course.enrollment_date }}</td>
+                                            <td>{{ user_course.get_scorm_total_time }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div style="border: 0;" class="info-card-body padding-0">
+                            <div class="no-results-found-small">
+                                <img src="/static/client_admin/Images/HALO%20LMS%20No%20Graphic%20Test-30.png" alt="HALO Graphic">    
+                                <span>User is not enrolled in any courses</span>          
+                            </div>
+                        </div>                   
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
     {% include 'popups/edit_user_popup.html' %}
     <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin\css\user_course_details.css' %}">
     <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
     <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>

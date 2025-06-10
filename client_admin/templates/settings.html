@@ -19,17 +19,31 @@
             {% endfor %}
         </div>
     {% endif %}
+    <div id="realTimeAlert" class="alert-container hidden"></div>
+    <div id="stickyNavBar">
+        <div class="details-top-row max-width-0">
+            <div class="admin-top-row-left">
+                <h2>Settings</h2>
+            </div>
+            <div class="admin-top-row-right">
+                <button onclick="submitSettingsForm()" type="button" class="action-button-primary course-save-btns">
+                    <i class="fa-regular fa-floppy-disk"></i>
+                    <span>Save Settings</span>
+                </button>
+            </div>
+        </div>
+    </div>
     <div class="admin-body align-center">
         <div class="max-width-0">         
-            <form method="POST" action="{% url 'admin_settings' %}" enctype="multipart/form-data">
+            <form id="adminSettingsForm" method="POST" action="{% url 'admin_settings' %}" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="admin-top-row">
+                <div id="mainNavBar" class="admin-top-row">
                     <div class="admin-top-row-left">
                         <h2>Settings</h2>
                         <span class="admin-header-subtext">Customize your LMS</span>
                     </div>
                     <div class="admin-top-row-right">
-                        <button type="submit" class="action-button-primary">
+                        <button onclick="submitSettingsForm()" type="button" class="action-button-primary course-save-btns">
                             <i class="fa-regular fa-floppy-disk"></i>
                             <span>Save Settings</span>
                         </button>
@@ -38,10 +52,10 @@
                 <div class="settings-container">
                     <div id="settingsTabs" class="tabs-container">
                         <div class="tabs">
-                            <div class="tab active" data-target="tab1">General</div>
-                            <div class="tab" data-target="tab2">Learners</div>
-                            <div class="tab" data-target="tab3">Courses</div>
-                            <div class="tab" data-target="tab4">Portal</div>
+                            <button type="button" class="tab active" data-target="tab1">General</button>
+                            <button type="button" class="tab" data-target="tab2">Learners</button>
+                            <button type="button" class="tab" data-target="tab3">Courses</button>
+                            <button type="button" class="tab" data-target="tab4">Portal</button>
                             <div class="tab-indicator"></div>
                         </div>
                     
@@ -64,13 +78,13 @@
                                                 <div class="edit-settings-row">
                                                     <div class="edit-settings-input">
                                                         <label for="id_lms_name">LMS Name</label>
-                                                        <input type="text" id="id_lms_name" name="lms_name" value="{{ form.lms_name.value|default:'' }}" placeholder="LMS Name" required>
+                                                        <input type="text" id="id_lms_name" name="lms_name" value="{{ form.lms_name.value|default:'' }}" placeholder="LMS Name" maxlength="255" required>
                                                     </div>
                                                 </div>
                                                 <div class="edit-settings-row">
                                                     <div class="edit-settings-input">
                                                         <label for="id_organization_name">Organization Name</label>
-                                                        <input type="text" id="id_organization_name" name="organization_name" value="{{ form.organization_name.value|default:'' }}" placeholder="Organization Name">
+                                                        <input type="text" id="id_organization_name" name="organization_name" value="{{ form.organization_name.value|default:'' }}" maxlength="255" placeholder="Organization Name">
                                                     </div>
                                                 </div> 
                                             </div>                 
@@ -92,7 +106,7 @@
                                                     <div class="edit-settings-input">
                                                         <label class="edit-settings-label" for="date_format">Date Format</label>
                                                         <div class="custom-select margin-0">
-                                                            <i class="fa-regular fa-angle-down"></i>     
+                                                            <i class="fa-light fa-angles-up-down"></i>     
                                                             <input class="select-selected" type="text" id="date_format" name="date_format" value="{{ form.date_format.value|default:'' }}" placeholder="Date Format" readonly>
                                                             <div class="select-items scrollable-content" style="display: none;">
                                                                 {% include 'dropdownOptions/date_format_options.html' %}
@@ -104,7 +118,7 @@
                                                         <div id="selectedTimeZones">
                                                             <div class="right-column-file-wrapper">
                                                                 <div id="userDropdown1" class="timezone-dropdown course-content-input">
-                                                                    <input type="text" id="time_zone" name="time_zone" class="timezoneSearch" value="{{ form.time_zone.value|default:'' }}" placeholder="Search timezones...">
+                                                                    <input type="text" id="time_zone" name="time_zone" class="timezoneSearch" value="{{ form.time_zone.value|default:'' }}" placeholder="Search timezones..." autocomplete="off">
                                                                     <i class="fa-regular fa-magnifying-glass search-icon"></i>
                                                                     <div class="timezoneList scrollable-content-inner">
                                                                         <div class="loadingIndicator" style="display:none;">Loading...</div>
@@ -113,6 +127,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <input type="text" id="iana_name" name="iana_name" value="{{ form.iana_name.value|default:'' }}" autocomplete="off" hidden>
                                                 </div>
                                             </div>                 
                                         </div>
@@ -147,7 +162,7 @@
                                                     <div class="edit-settings-input">
                                                         <label class="edit-settings-label" for="contact_country">Country</label>
                                                         <div class="custom-select margin-0">
-                                                            <i class="fa-regular fa-angle-down"></i>     
+                                                            <i class="fa-light fa-angles-up-down"></i>     
                                                             <input class="select-selected" type="text" id="contact_country" name="contact_country" value="{{ form.contact_country.value|default:'' }}" placeholder="Country" readonly>
                                                             <div class="select-items scrollable-content" style="display: none;">
                                                                 {% include 'dropdownOptions/country_options.html' %}
@@ -204,8 +219,8 @@
                                                 <div class="edit-settings-row">
                                                     <div class="edit-settings-input">
                                                         <label class="edit-settings-label" for="on_login_course">One-time Course</label>
-                                                        <label class="toggle-switch">
-                                                            <input class="toggle-hidden-settings-input" type="checkbox" id="on_login_course" name="on_login_course" {% if form.on_login_course.value %}checked{% endif %}>
+                                                        <label class="toggle-switch" tabindex="0" role="switch" aria-checked="{{ form.on_login_course.value|yesno:'true,false' }}">
+                                                            <input class="toggle-hidden-settings-input" type="checkbox" id="on_login_course" name="on_login_course" {% if form.on_login_course.value %}checked{% endif %} aria-hidden="true">
                                                             <div class="toggle-switch-background">
                                                             <div class="toggle-switch-handle"></div>
                                                             </div>
@@ -243,8 +258,7 @@
                                                         </label>
                                                         <span class="settings-input-subtext"> Allow Learners to edit their profile information and re-upload images.</span>
                                                     </div> 
-                                                </div>
-                                                
+                                                </div>               
                                             </div>                 
                                         </div>
                                     </div>
@@ -296,7 +310,7 @@
                                                 
                                                 <div class="edit-settings-row">
                                                     <div class="edit-settings-input">
-                                                        <label class="edit-settings-label" for="default_certificate">Default Certificate Image</label>
+                                                        <label class="edit-settings-label" for="default_certificate">Default Certificate</label>
                                                         <label class="toggle-switch">
                                                             <input class="toggle-hidden-settings-input" type="checkbox" id="default_certificate" name="default_certificate" {% if form.default_certificate.value %}checked{% endif %}>
                                                             <div class="toggle-switch-background">
@@ -306,14 +320,14 @@
                                                         <span class="settings-input-subtext">Enable to add a default certificate if none are selected for a course.</span>
                                                     </div>
                                                     <div class="edit-settings-input hidden-settings-input">
-                                                        <label for="default_certificate_image" class="custom-file-upload-container">
+                                                        <label for="default_certificate_template" class="custom-file-upload-container">
                                                             <div class="custom-file-upload">
-                                                                <input type="file" id="default_certificate_image" name="default_certificate_image" accept="image/*" style="display: none;">
+                                                                <input type="file" id="default_certificate_template" name="default_certificate_template" accept="application/pdf" style="display: none;">
                                                                 <i class="fa-solid fa-upload"></i> Choose File
                                                             </div>
                                                             <div class="custom-file-title">
-                                                                {% if form.default_certificate_image.value %}
-                                                                    <span id="certificateImageDisplay" class="file-name-display">{{ form.default_certificate_image.value.name|filename }}</span>
+                                                                {% if form.default_certificate_template.value %}
+                                                                    <span id="certificateImageDisplay" class="file-name-display">{{ form.default_certificate_template.value.name|filename }}</span>
                                                                 {% else %}
                                                                     <span id="certificateImageDisplay" class="file-name-display">No file selected</span>
                                                                 {% endif %}                                
@@ -321,7 +335,7 @@
                                                         </label> 
                                                     </div>                                                   
                                                 </div>
-                                                
+                                            
                                             </div>                 
                                         </div>
                                     </div>
@@ -361,11 +375,107 @@
                                                         <span class="settings-input-subtext">Upload a Favicon that will apear at the top of your browser tabs (Suggested size 16 x 16 px).</span> 
                                                     </div>
                                                     <div class="edit-settings-input">
+                                                        {% if form.portal_favicon.value %}
                                                         <div class="favicon-preview">
                                                             <img id="faviconPreview" src="{{ form.portal_favicon.value.url }}" alt="Favicon">
                                                         </div>
+                                                        {% endif %}
                                                     </div>                                                   
                                                 </div>                                             
+                                            </div>                 
+                                        </div>
+                                    </div>
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-pen-swirl"></i>
+                                                <span> Account Registration </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="settings-card-wrapper">
+                                                <div class="edit-settings-input">
+                                                    <div class="settings-header-row">
+                                                        <label class="edit-settings-label" for="alowed_ids">Acceptable Identification Types</label>
+                                                        <button onclick="openPopup('createAllowedId')" type="button" class="action-button-primary">
+                                                            <i class="fa-regular fa-plus"></i>
+                                                            <span>Create new</span>
+                                                        </button>
+                                                    </div>
+                                                    <div id="identificationPhotos" class="custom-list-options-container">
+                                                        {% if allowed_photos %}
+                                                            {% for allowed_photo in allowed_photos %}
+                                                                <div class="custom-list-option">
+                                                                    <div class="custom-list-option-left">
+                                                                        <span>{{ allowed_photo.name }}</span>
+                                                                    </div>
+                                                                    <div class="custom-list-option-right">
+                                                                        <div class="class-action-icon edit-icon tooltip" data-id="{{ allowed_photo.id }}" data-name="{{ allowed_photo.name }}" data-tooltip="Edit">
+                                                                            <i class="fa-regular fa-pen"></i>
+                                                                            <span class="tooltiptext">Edit</span>
+                                                                        </div>
+                                                                        <div class="class-action-icon custom-list-option-delete delete-icon tooltip" data-id="{{ allowed_photo.id }}" data-tooltip="Delete">
+                                                                            <i class="fa-regular fa-trash"></i>
+                                                                            <span class="tooltiptext">Delete</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>                                          
+                                                            {% endfor %}                            
+                                                        {% else %}
+                                                            <div class="custom-list-option">
+                                                                <span class="no-disapprovals"> No acceptable ID Types created. </span>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <span class="settings-input-subtext">Create a list of acceptable image types that learners can upload as their Identification Photo when registering for an account (e.g., Driver’s License, Passport, Student ID). This list will be displayed during the registration process.</span> 
+                                                </div>                                        
+                                            </div>                 
+                                        </div>
+                                    </div>
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-gavel"></i>
+                                                <span> Terms & Conditions </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="settings-card-wrapper">
+                                                <div class="edit-settings-column">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="terms_and_conditions">Require Terms & Conditions</label>
+                                                        <label class="toggle-switch">
+                                                            <input class="toggle-hidden-settings-input" type="checkbox" id="terms_and_conditions" name="terms_and_conditions" {% if form.terms_and_conditions.value %}checked{% endif %}>
+                                                            <div class="toggle-switch-background">
+                                                            <div class="toggle-switch-handle"></div>
+                                                            </div>
+                                                        </label>
+                                                        <span class="settings-input-subtext"> Force Learners to accept Terms & Conditions to gain access.</span>
+                                                    </div>
+                                                    <div class="edit-settings-input hidden-settings-input toggle-option-details show-toggle-option-details">
+                                                        <div class="editor-container scrollable-content-inner" id="terms_editor"> {{ form.terms_and_conditions_text.value|safe }}</div>
+                                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                            {% if form.instance.terms_last_modified %}
+                                                                <span class="settings-input-subtext">Last Modified: {{ form.instance.terms_last_modified|date:"F j, Y, g:i a" }}</span>
+                                                            {% else %}
+                                                                <div class="spacer"></div>
+                                                            {% endif %}
+                                                            <div class="quill-character-counter">
+                                                                <div class="quill-current-counter">0</div>
+                                                                <span>/</span>
+                                                                <div class="quill-max-counter">50000</div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <input type="hidden" name="terms_and_conditions_text" id="terms_and_conditions_text">
+                                                    </div> 
+                                                </div>                                        
                                             </div>                 
                                         </div>
                                     </div>
@@ -377,10 +487,13 @@
             </form>
         </div>   
     </div>
+    {% include 'popups/create_allowed_id_photo.html' %}
+    {% include 'popups/edit_allowed_id_photo.html' %}
     <link rel="stylesheet" href="{% static 'client_admin\css\settings.css' %}">
     <script src="{% static 'client_admin\javascript\settings.js' %}"></script>
     <script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
     <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <script src="{% static 'client_admin\javascript\ajax_search_options.js' %}"></script>
     <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
+    <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
 {% endblock content %}

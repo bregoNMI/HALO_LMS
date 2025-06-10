@@ -22,9 +22,9 @@
         <div class="max-width-0">
             <div class="details-top-row">
                 <div class="details-top-row-left">
-                    <a href="{% url 'admin_users' %}" class="back-btn">
+                    <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
                         <i class="fa-solid fa-arrow-left"></i>
-                    </a>
+                    </button>
                     <h3> User Overview </h3>
                 </div>
                 <div class="details-top-row-right">
@@ -61,8 +61,8 @@
                 <div class="details-info-card">
                     <div class="info-card-header">
                         <div class="card-header-left">
-                            <i class="fa-regular fa-chart-simple"></i>
-                            <span> User Progress </span>
+                            <i class="fa-regular fa-chart-line"></i>
+                            <span> Enrollment Progress </span>
                         </div>
                         <div class="spacer"></div>
                     </div>
@@ -70,31 +70,50 @@
                         <div class="info-card-column">
                             <div class="card-body-item">
                                 <div class="card-body-left">
-                                    <i class="fa-light fa-arrow-progress"></i>
+                                    <i class="fa-light fa-truck-ramp-box"></i>
                                 </div>
                                 <div class="card-body-right">
-                                    <h5> Enrollments in Progress</h5>
-                                    <span>10</span>
+                                    <h5 class="info-card-heading"> Enrollments in Progress</h5>
+                                    <span class="info-card-subheading">{{ total_in_progress }}</span>
                                 </div>
                             </div>
                             <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-boxes-stacked"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5 class="info-card-heading"> Total Enrollments </h5>
+                                    <span class="info-card-subheading">{{ total_enrollments }}</span>
+                                </div>
+                            </div> 
+                            <!-- <div class="card-body-item">
                                 <div class="card-body-left">
                                     <i class="fa-light fa-coin"></i>
                                 </div>
                                 <div class="card-body-right">
-                                    <h5>"Talent Bucks" Earned</h5>
-                                    <span>365</span>
+                                    <h5 class="info-card-heading">"Talent Bucks" Earned</h5>
+                                    <span class="info-card-subheading">365</span>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                         <div class="info-card-column">
                             <div class="card-body-item">
                                 <div class="card-body-left">
-                                    <i class="fa-light fa-box-check"></i>
+                                    <!-- <i class="fa-kit fa-light-box-taped-circle-check"></i> -->
+                                    <i class="fa-light fa-box-open-full"></i>
                                 </div>
                                 <div class="card-body-right">
-                                    <h5> Enrollments Completed</h5>
-                                    <span>4</span>
+                                    <h5 class="info-card-heading"> Enrollments Completed</h5>
+                                    <span class="info-card-subheading">{{ total_completed }}</span>
+                                </div>
+                            </div>
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-kit fa-light-box-taped-clock"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5 class="info-card-heading"> Enrollments Expired </h5>
+                                    <span class="info-card-subheading">{{ expired_enrollments }}</span>
                                 </div>
                             </div>
                         </div>
@@ -104,7 +123,8 @@
                     <div class="info-card-header">
                         <div class="card-header-left">
                             <i class="fa-regular fa-circle-info"></i>
-                            <span> User Info </span>
+                            <!-- <i class="fa-regular fa-user-graduate"></i> -->
+                            <span> Learner Details </span>
                         </div>
                         <div class="spacer"></div>
                     </div>
@@ -115,8 +135,8 @@
                                     <i class="fa-light fa-signature"></i>
                                 </div>
                                 <div class="card-body-right">
-                                    <h5> Username</h5>
-                                    <span> {{ profile.username }} </span>
+                                    <h5 class="info-card-heading"> Username</h5>
+                                    <span class="info-card-subheading"> {{ profile.username }} </span>
                                 </div>
                             </div>
                             <div class="card-body-item">
@@ -124,8 +144,8 @@
                                     <i class="fa-light fa-user"></i>
                                 </div>
                                 <div class="card-body-right">
-                                    <h5> Full Name</h5>
-                                    <span> {{ profile.first_name }} {{ profile.last_name }}</span>
+                                    <h5 class="info-card-heading"> Full Name</h5>
+                                    <span class="info-card-subheading"> {{ profile.first_name }} {{ profile.last_name }}</span>
                                 </div>
                             </div>
                         </div>
@@ -135,8 +155,8 @@
                                     <i class="fa-light fa-envelope"></i>
                                 </div>
                                 <div class="card-body-right">
-                                    <h5> Email </h5>
-                                    <span> {{ profile.email }}</span>
+                                    <h5 class="info-card-heading"> Email </h5>
+                                    <span class="info-card-subheading"> {{ profile.email }}</span>
                                 </div>
                             </div>
                             <div class="card-body-item">
@@ -144,11 +164,66 @@
                                     <i class="fa-light fa-calendar"></i>
                                 </div>
                                 <div class="card-body-right">
-                                    <h5> Date Joined </h5>
-                                    <span> {{ profile.date_joined }}</span>
+                                    <h5 class="info-card-heading"> Date Joined </h5>
+                                    <span class="info-card-subheading"> {{ profile.date_joined }}</span>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="details-info-section">
+                <div class="details-info-card">
+                    <div class="info-card-header">
+                        <div class="card-header-left">
+                            <i class="fa-regular fa-person-carry-box"></i>
+                            <span> Learner Activity </span>
+                        </div>
+                        <div class="spacer"></div>
+                    </div>
+                    <div class="info-card-body"> 
+                        <div class="info-card-column">
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-percent"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5 class="info-card-heading"> Average Enrollment Progress</h5>
+                                    <span class="info-card-subheading"> {{ average_progress }}% </span>
+                                </div>
+                            </div>
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-bullseye-pointer"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5 class="info-card-heading"> Last Session </h5>
+                                    <span class="info-card-subheading"> {{ last_active }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card-column">
+                            <div class="card-body-item">
+                                <div class="card-body-left">
+                                    <i class="fa-light fa-hourglass-end"></i>
+                                </div>
+                                <div class="card-body-right">
+                                    <h5 class="info-card-heading"> Total Session Time </h5>
+                                    <span class="info-card-subheading"> {{ total_time_spent }}</span>
+                                </div>
+                            </div>
+                            <div class="info-card-column">
+                                <div class="card-body-item">
+                                    <div class="card-body-left">
+                                        <i class="fa-light fa-award"></i>
+                                    </div>
+                                    <div class="card-body-right">
+                                        <h5 class="info-card-heading"> Certificates Earned </h5>
+                                        <span class="info-card-subheading"> {{ total_certificates }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
                     </div>
                 </div>
             </div>

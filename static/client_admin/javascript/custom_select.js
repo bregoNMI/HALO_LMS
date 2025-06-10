@@ -34,8 +34,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 var fieldName = this.getAttribute('data-name');
                 var fieldValue = this.getAttribute('data-value');
 
+                console.log('selected');
+
                 // Update the select box text and field value input
-                selectSelected.value = fieldValue;
+                selectSelected.setAttribute('value', fieldValue);
                 selectItems.querySelectorAll('div').forEach(function(el) {
                     el.classList.remove('same-as-selected');
                 });
@@ -44,6 +46,60 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     });
+
+    const dateCustomSelects = document.querySelectorAll('.date-custom-select');
+    
+        dateCustomSelects.forEach(customSelect => {
+            const selectSelected = customSelect.querySelector('.date-select-selected');
+            const selectItems = customSelect.querySelector('.date-select-items');
+            const selectOptions = selectItems.querySelectorAll('.select-item');
+    
+            // Toggle the dropdown open/close
+            customSelect.addEventListener('click', function (e) {
+                e.stopPropagation();
+    
+                // Close any other open dropdowns
+                dateCustomSelects.forEach(other => {
+                    if (other !== customSelect) {
+                        other.querySelector('.date-select-items').style.display = 'none';
+                    }
+                });
+    
+                const isOpen = selectItems.style.display === 'block';
+                selectItems.style.display = isOpen ? 'none' : 'block';
+            });
+    
+            // Handle selecting a value
+            selectOptions.forEach(option => {
+                option.addEventListener('click', function (e) {
+                    e.stopPropagation();
+    
+                    const value = this.getAttribute('data-value');
+    
+                    // Update the visible label
+                    selectSelected.textContent = value;
+                    selectSelected.setAttribute('value', value);
+    
+                    // Update selected class
+                    selectOptions.forEach(opt => opt.classList.remove('same-as-selected'));
+                    this.classList.add('same-as-selected');
+    
+                    // Close dropdown
+                    selectItems.style.display = 'none';
+
+                    // Call function to detect date filter
+                    updateDateFilter(customSelect, value);
+                });
+            });
+    
+            // Close dropdown if clicked outside
+            document.addEventListener('click', function (e) {
+                if (!customSelect.contains(e.target)) {
+                    selectItems.style.display = 'none';
+                }
+            });
+        });
+    
 });
 
 // Dynamically Opening Popups

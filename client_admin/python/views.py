@@ -1,15 +1,18 @@
 from io import BytesIO
+import re
+from datetime import timedelta
 import boto3
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.forms.models import model_to_dict
 from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.auth import get_user_model
 from django.core.files.base import File
-from django.db.models import Q
+from django.db.models import Q, Avg, Count
 from django.test import RequestFactory
 from django.http import HttpResponse, JsonResponse
 import logging, csv
@@ -19,11 +22,14 @@ from django.core.files.base import ContentFile
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
+from django.utils import timezone
+from django.utils.timezone import now
 from django.http import HttpResponseForbidden, HttpRequest
-from content.models import Lesson
+from content.models import Lesson, Category
 from learner_dashboard.views import learner_dashboard
 from django.contrib import messages
-from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog
+from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos, EnrollmentKey
+from course_player.models import LessonSession, SCORMTrackingData
 from client_admin.forms import OrganizationSettingsForm
 from .forms import UserRegistrationForm, ProfileForm, CSVUploadForm
 from django.contrib.auth import update_session_auth_hash, login
@@ -31,18 +37,95 @@ from authentication.python.views import addUserCognito, modifyCognito, register_
 from django.template.response import TemplateResponse
 import json
 from django.db import IntegrityError, transaction
+from client_admin.models import GeneratedCertificate, EventDate
+from django.db.models.functions import TruncMonth, TruncHour
+from django.db.models import Sum
+import isodate
 #from models import Profile
 #from authentication.python import views
+
+cognito_client = boto3.client('cognito-idp', region_name=settings.AWS_REGION)
 
 # Define the custom exception at the top of your views file
 class ImpersonationError(Exception):
     """Custom exception for impersonation errors."""
     pass
 
+def get_total_time_spent_dynamic():
+    now_time = now()
+    one_year_ago = now_time - timedelta(days=365)
+    seven_days_ago = now_time - timedelta(days=7)
+
+    # Check how much activity happened in the last 7 days
+    recent_activity_count = SCORMTrackingData.objects.filter(last_updated__gte=seven_days_ago).count()
+
+    if recent_activity_count > 20:
+        # Show hour-by-hour for recent activity
+        queryset = SCORMTrackingData.objects.filter(last_updated__gte=seven_days_ago) \
+            .annotate(period=TruncHour('last_updated')) \
+            .values('period', 'session_time') \
+            .order_by('period')
+        group_format = '%b %d %I%p'
+    else:
+        # Show month-by-month for longer-term view
+        queryset = SCORMTrackingData.objects.filter(last_updated__gte=one_year_ago) \
+            .annotate(period=TruncMonth('last_updated')) \
+            .values('period', 'session_time') \
+            .order_by('period')
+        group_format = '%b %Y'
+
+    totals = {}
+
+    for entry in queryset:
+        period = entry['period'].strftime(group_format)
+        duration = isodate.parse_duration(entry['session_time'])
+        if period in totals:
+            totals[period] += duration
+        else:
+            totals[period] = duration
+
+    labels = []
+    seconds = []
+
+    for period, duration in sorted(totals.items()):
+        labels.append(period)
+        seconds.append(int(duration.total_seconds()))
+
+    return labels, seconds, 'hour' if recent_activity_count > 20 else 'month'
+
 
 @login_required
 def admin_dashboard(request):
-    return render(request, 'dashboard.html')
+    total_students = User.objects.filter(profile__role='Student').count()
+    completed_courses = UserCourse.objects.filter(is_course_completed=True).count()
+    active_courses = Course.objects.filter(status='Active').count()
+
+    labels, values, granularity = get_total_time_spent_dynamic()
+
+    # Get top 5 most-enrolled courses
+    top_courses_qs = Course.objects.annotate(enrollments=Count('usercourse')) \
+        .order_by('-enrollments')[:5]
+
+    top_course_labels = [course.title for course in top_courses_qs]
+    top_course_data = [course.enrollments for course in top_courses_qs]
+
+    context = {
+        'total_students': total_students,
+        'completed_courses': completed_courses,
+        'active_courses': active_courses,
+        'time_spent_labels': labels,
+        'time_spent_data': values,
+        'time_spent_granularity': granularity,
+        'top_course_labels': top_course_labels,
+        'top_course_data': top_course_data,
+    }
+
+    print(f"Labels: {labels}")
+    print(f"Values: {values}")
+    print(f"Granularity: {granularity}")
+
+
+    return render(request, 'dashboard.html', context)
 
 @login_required
 def admin_settings(request):
@@ -51,9 +134,13 @@ def admin_settings(request):
     # Create a new instance if none exists
     if settings is None:
         settings = OrganizationSettings()
+        settings.save()
 
     if request.method == 'POST':
-        form = form = OrganizationSettingsForm(request.POST, request.FILES, instance=settings)
+        existing_text = (settings.terms_and_conditions_text or '').strip()
+        previously_modified = settings.terms_last_modified
+
+        form = OrganizationSettingsForm(request.POST, request.FILES, instance=settings)
 
         if form.is_valid():
             # Handle boolean fields
@@ -61,36 +148,53 @@ def admin_settings(request):
             settings.profile_customization = request.POST.get('profile_customization') == 'on'
             settings.default_course_thumbnail = request.POST.get('default_course_thumbnail') == 'on' 
             settings.default_certificate = request.POST.get('default_certificate') == 'on' 
+            settings.terms_and_conditions = request.POST.get('terms_and_conditions') == 'on'
 
-            # Save the on_login_course_id (make sure it exists in the POST data)
+            # Check for course ID if on_login_course is enabled
             course_id = request.POST.get('on_login_course_id')
+            if settings.on_login_course and not course_id:
+                messages.error(request, 'Please select a course for the One-time Course setting.')
+                return redirect('admin_settings')
+
+            # Handle Text Fields
+            new_terms_text = (request.POST.get('terms_and_conditions_text') or '').strip()
+            if existing_text != new_terms_text:
+                settings.terms_last_modified = timezone.now()
+            else:
+                settings.terms_last_modified = previously_modified
+
+            # Save cleaned text and course ID if present
+            settings.terms_and_conditions_text = new_terms_text
             if course_id:
                 settings.on_login_course_id = int(course_id)
-            
-            messages.success(request, 'Settings updated successfully')
 
-            # Save the form data
+            settings.save()
             form.save()
+
+            messages.success(request, 'Settings updated successfully')
             return redirect('admin_settings')
+
         else:
             messages.error(request, form.errors)
-            print(form.errors)  # Print errors for debugging
+            print(form.errors)
 
     else:
         form = OrganizationSettingsForm(instance=settings)
 
-    # If a course is already selected, fetch the course name to display it
     selected_course_name = ''
     if settings.on_login_course_id:
         try:
             selected_course = Course.objects.get(id=settings.on_login_course_id)
             selected_course_name = selected_course.title
         except Course.DoesNotExist:
-            selected_course_name = ''
+            pass
+
+    allowed_photos = settings.allowed_id_photos.order_by('id')
 
     return render(request, 'settings.html', {
         'form': form,
         'selected_course_name': selected_course_name,
+        'allowed_photos': allowed_photos,
     })
 
 @login_required
@@ -300,6 +404,8 @@ def edit_user(request, user_id):
             if parsed_birth_date:
                 birth_date = parsed_birth_date
                 user.birth_date = birth_date
+        else:
+            birth_date = None
 
         # Handle password change
         if password and confirm_password:
@@ -355,11 +461,12 @@ def edit_user(request, user_id):
             user=user.user,
             action_performer=request.user.username,
             action_target=user.user.username,
+            action_type= 'user_updated',
             action=f'Updated User Information: {changes_log}',
             user_groups=', '.join(group.name for group in request.user.groups.all()),
         )
 
-        messages.success(request, 'User information updated successfully')
+        messages.success(request, 'Information updated successfully')
 
         referer = request.META.get('HTTP_REFERER')
         return redirect(referer if referer else 'user_details', user_id=user.id)
@@ -393,9 +500,11 @@ def enroll_users_request(request):
             if created:
                 # Create UserModuleProgress instances for each module in the course
                 first_lesson = Lesson.objects.filter(module__course=course).order_by('module__order', 'order').first()
+                print('first_lesson:', first_lesson)
 
                 if first_lesson:
-                    user_course.lesson_id = first_lesson.id  # ✅ Assign the first lesson
+                    user_course.lesson_id = first_lesson.id  # Assign the first lesson
+                    print(first_lesson)
                     user_course.save()
 
                 for module in course.modules.all():
@@ -421,16 +530,16 @@ def enroll_users_request(request):
                     'lesson_id': user_course.lesson_id
                 })
                 try:
-                    # Log the activity in the ActivityLog
                     ActivityLog.objects.create(
-                        user=user,  # Assuming this is the user being edited
-                        action_performer=request.user,  # User performing the action
-                        action_target=user,  # User being enrolled
-                        action=f"Enrolled in Course: {course.title}",
-                        user_groups=', '.join(group.name for group in request.user.groups.all()),  # Optional: Add user groups
+                        user=user,
+                        action_performer=request.user,
+                        action_target=user,
+                        action_type= 'user_enrolled',
+                        action=f"was enrolled in: {course.title}",
+                        user_groups=', '.join(group.name for group in request.user.groups.all()),
                     )
                 except Exception as e:
-                    print(f"Failed to create activity log: {e}")  # Replace with proper logging mechanism
+                    print(f"Failed to create activity log: {e}")
             else:
                 response_data['already_enrolled'].append({
                     'user_id': user.id,
@@ -449,19 +558,98 @@ def enroll_users_request(request):
 
 @login_required
 def user_details(request, user_id):
-    user = get_object_or_404(Profile, pk=user_id)
+    profile = get_object_or_404(Profile, pk=user_id)
+    user_courses = UserCourse.objects.filter(user=profile.user) \
+        .select_related('course') \
+        .prefetch_related('module_progresses__module__lessons') \
+        .order_by('course__title')
+
+    # Enrollment Progress
+    total_enrollments = user_courses.count()
+    total_in_progress = 0
+    total_completed = 0
+    expired_enrollments = 0
+
+    for course in user_courses:
+        status = course.get_status()
+        if status == 'Completed':
+            total_completed += 1
+        elif status in ['Started', 'Not Completed']:  # Assuming these mean "in progress"
+            total_in_progress += 1
+        elif status == 'Expired':
+            expired_enrollments += 1
+
+    # Learner Activity
+    average_progress = user_courses.aggregate(avg_progress=Avg('progress'))['avg_progress'] or 0
+    average_progress = round(average_progress, 2)
+    last_session = LessonSession.objects.filter(user=profile.user).order_by('-start_time').first()
+    last_active = last_session.start_time if last_session else None
+    sessions = SCORMTrackingData.objects.filter(user=profile.user)
+
+    total_time = timedelta()
+    for session in sessions:
+        total_time += parse_iso_duration(session.session_time)
+
+    if total_time.total_seconds() == 0:
+        formatted_total_time = "No Activity"
+    else:
+        total_hours, remainder = divmod(total_time.total_seconds(), 3600)
+        total_minutes, total_seconds = divmod(remainder, 60)
+
+        if total_hours > 0:
+            formatted_total_time = f"{int(total_hours)}h {int(total_minutes)}m {int(total_seconds)}s"
+        else:
+            formatted_total_time = f"{int(total_minutes)}m {int(total_seconds)}s"
+
+    total_certificates = GeneratedCertificate.objects.filter(user=profile.user).count()
 
     context = {
-        'profile': user
+        'profile': profile,
+        'user_courses': user_courses,
+        'total_in_progress': total_in_progress,
+        'total_completed': total_completed,
+        'total_enrollments': total_enrollments,
+        'expired_enrollments': expired_enrollments,
+        'average_progress': average_progress,
+        'last_active': last_active,
+        'total_time_spent': formatted_total_time,
+        'total_certificates': total_certificates,
     }
+
     return render(request, 'users/user_details.html', context)
+
+def parse_iso_duration(duration_str):
+    pattern = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
+    match = pattern.fullmatch(duration_str)
+    if not match:
+        return timedelta()
+
+    hours = int(match.group(1)) if match.group(1) else 0
+    minutes = int(match.group(2)) if match.group(2) else 0
+    seconds = int(match.group(3)) if match.group(3) else 0
+
+    return timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
 @login_required
 def user_transcript(request, user_id):
-    user = get_object_or_404(Profile, pk=user_id)
+    profile = get_object_or_404(Profile, pk=user_id)
+
+    user_courses = (
+        UserCourse.objects.filter(user=profile.user)
+        .select_related('course')
+        .prefetch_related('module_progresses__module__lessons')
+        .order_by('course__title')
+    )
+
+    user_certificates = (
+        GeneratedCertificate.objects.filter(user=profile.user)
+        .prefetch_related('event_dates', 'user_course__course')
+    )
 
     context = {
-        'profile': user
+        'profile': profile,
+        'user_courses': user_courses,
+        'user_certificates': user_certificates,
     }
     return render(request, 'users/user_transcript.html', context)
 
@@ -474,6 +662,7 @@ def user_history(request, user_id):
 
     # Fetch activity log entries related to the user
     activity_logs = ActivityLog.objects.filter(action_target=user.user)
+    print('activity_logs', activity_logs)
 
     context = {
         'profile': user,
@@ -778,21 +967,32 @@ def delete_users(request):
     try:
         with transaction.atomic():
             for user_id in user_ids:
-                user = User.objects.filter(id=user_id)
-                if not user.exists():
+                user = User.objects.filter(id=user_id).first()
+                if not user:
                     raise ValueError(f"No user found with ID {user_id}")
+
+                try:
+                    cognito_client.admin_delete_user(
+                        UserPoolId=settings.COGNITO_USER_POOL_ID,
+                        Username=user.username.lower()  # Normalize username for Cognito
+                    )
+                except cognito_client.exceptions.UserNotFoundException:
+                    logger.warning(f"User {user.username} not found in Cognito — continuing.")
+
                 user.delete()
+
             messages.success(request, 'All selected Users deleted successfully.')
             return JsonResponse({
                 'status': 'success',
                 'redirect_url': '/admin/users/',
                 'message': 'All selected users deleted successfully'
             })
+
     except ValueError as e:
         logger.error(f"Deletion error: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"Unexpected error: {e}", exc_info=True)
         return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
     
 def delete_courses(request):
@@ -810,6 +1010,297 @@ def delete_courses(request):
                 'status': 'success',
                 'redirect_url': '/admin/courses/',
                 'message': 'All selected courses deleted successfully'
+            })
+    except ValueError as e:
+        logger.error(f"Deletion error: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+    
+def create_allowed_id_photo(request):
+    try:
+        data = json.loads(request.body)
+        name = data.get('name')
+
+        if name:
+            allowedPhoto = AllowedIdPhotos.objects.create(name=name)
+
+            # Get the current organization settings (this assumes there's one or use a filter for your use case)
+            settings = OrganizationSettings.objects.first()
+            if settings:
+                settings.allowed_id_photos.add(allowedPhoto)
+                settings.save()
+
+            return JsonResponse({'id': allowedPhoto.id, 'name': allowedPhoto.name}, status=201)
+        else:
+            return JsonResponse({'error': 'Name is missing'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+def get_allowed_id_photos(request):
+    try:
+        settings = OrganizationSettings.objects.first()
+        if settings:
+            disapprovals = settings.allowed_id_photos.order_by('id').values('id', 'name')
+            return JsonResponse(list(disapprovals), safe=False)
+        else:
+            return JsonResponse({'error': 'Organization not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+def edit_allowed_id_photos(request):
+    if request.method == 'POST':
+        try:
+            photo_id = request.POST.get('id')
+            new_name = request.POST.get('name')
+            
+            allowedPhoto = AllowedIdPhotos.objects.get(id=photo_id)
+            allowedPhoto.name = new_name
+            allowedPhoto.save()
+            
+            return JsonResponse({'status': 'success', 'msg': 'Updated successfully'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'msg': str(e)})
+        
+def delete_allowed_id_photos(request):
+    if request.method == 'POST':
+        try:
+            reasoning_id = request.POST.get('id')
+            reasoning = AllowedIdPhotos.objects.get(id=reasoning_id)
+            reasoning.delete()
+            return JsonResponse({'status': 'success', 'msg': 'Deleted successfully'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'msg': str(e)})
+        
+@login_required
+def usercourse_detail_view(request, uuid):
+    user_course = get_object_or_404(UserCourse, uuid=uuid)
+    lesson_sessions_map = {}
+
+    # Build the lesson_sessions_map as before
+    for module_progress in user_course.module_progresses.all():
+        for lesson_progress in module_progress.lesson_progresses.all():
+            sessions = LessonSession.objects.filter(
+                lesson=lesson_progress.lesson,
+                user=user_course.user
+            )
+            lesson_sessions_map[lesson_progress.id] = sessions
+
+    # ➤ Calculate Total Time Spent for THIS Course from SCORMTrackingData
+    scorm_sessions = SCORMTrackingData.objects.filter(
+        user=user_course.user,
+        lesson__module__course=user_course.course
+    )
+
+    total_time = timedelta()
+    for session in scorm_sessions:
+        total_time += parse_iso_duration(session.session_time)
+
+    if total_time.total_seconds() == 0:
+        formatted_total_time = "No Activity"
+    else:
+        total_hours, remainder = divmod(total_time.total_seconds(), 3600)
+        total_minutes, total_seconds = divmod(remainder, 60)
+
+        if total_hours > 0:
+            formatted_total_time = f"{int(total_hours)}h {int(total_minutes)}m {int(total_seconds)}s"
+        else:
+            formatted_total_time = f"{int(total_minutes)}m {int(total_seconds)}s"
+
+    return render(request, 'userCourse/user_course_details.html', {
+        'user_course': user_course,
+        'lesson_sessions_map': lesson_sessions_map,
+        'total_time_spent': formatted_total_time,
+    })
+
+def edit_usercourse_detail_view(request, uuid):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        user_course = get_object_or_404(UserCourse, uuid=uuid)
+
+        user_course.progress = data.get('progress', user_course.progress)
+        user_course.stored_progress = data.get('storedProgress', user_course.stored_progress)
+        user_course.is_course_completed = data.get('is_course_completed', user_course.is_course_completed)
+
+        # Expiration Date & Time
+        expiration_event = user_course.course.event_dates.filter(type='expiration_date').first()
+        if expiration_event:
+            expires_on_date = data.get('expires_on_date', '').strip()
+            expires_on_time = data.get('expires_on_time', '').strip()
+
+            if expires_on_date:
+                try:
+                    expiration_event.date = datetime.strptime(expires_on_date, '%Y-%m-%d').date()
+                except ValueError:
+                    pass
+            else:
+                expiration_event.date = None
+
+            if expires_on_time:
+                try:
+                    expiration_event.time = datetime.strptime(expires_on_time, '%I:%M %p').time()
+                except ValueError:
+                    pass
+            else:
+                expiration_event.time = None
+
+            expiration_event.save()
+
+        # Due Date & Time
+        due_event = user_course.course.event_dates.filter(type='due_date').first()
+        if due_event:
+            due_on_date = data.get('due_on_date', '').strip()
+            due_on_time = data.get('due_on_time', '').strip()
+
+            if due_on_date:
+                try:
+                    due_event.date = datetime.strptime(due_on_date, '%Y-%m-%d').date()
+                except ValueError:
+                    pass
+            else:
+                due_event.date = None
+
+            if due_on_time:
+                try:
+                    due_event.time = datetime.strptime(due_on_time, '%I:%M %p').time()
+                except ValueError:
+                    pass
+            else:
+                due_event.time = None
+
+            due_event.save()
+
+        # Completed Date & Time
+        completed_on_date = data.get('completed_on_date', '').strip()
+        completed_on_time = data.get('completed_on_time', '').strip()
+
+        if completed_on_date:
+            try:
+                user_course.completed_on_date = datetime.strptime(completed_on_date, '%Y-%m-%d').date()
+            except ValueError:
+                pass
+        else:
+            user_course.completed_on_date = None
+
+        if completed_on_time:
+            try:
+                user_course.completed_on_time = datetime.strptime(completed_on_time, '%I:%M %p').time()
+            except ValueError:
+                pass
+        else:
+            user_course.completed_on_time = None
+
+        user_course.save()
+
+        messages.success(request, 'Course progress updated successfully.')
+        return JsonResponse({'success': True, 'message': 'Course progress updated successfully'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+def reset_lesson_progress(request, user_lesson_progress_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
+
+        lesson_progress.attempts = 0
+        lesson_progress.completed = False
+        lesson_progress.save()
+
+        lesson = lesson_progress.lesson
+        user = lesson_progress.user_module_progress.user_course.user
+
+        sessions_to_delete = LessonSession.objects.filter(lesson=lesson, user=user)
+        deleted_count, _ = sessions_to_delete.delete()
+
+        messages.success(request, f'Lesson progress reset.')
+        return JsonResponse({'success': True, 'message': f'Lesson progress reset.'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+def edit_lesson_progress(request, user_lesson_progress_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
+        print(data, lesson_progress)
+
+        lesson_progress.completed = data.get('completed', lesson_progress.completed)
+            
+        # Completed Date & Time
+        completed_on_date = data.get('completed_on_date', '').strip()
+        completed_on_time = data.get('completed_on_time', '').strip()
+
+        if completed_on_date:
+            try:
+                lesson_progress.completed_on_date = datetime.strptime(completed_on_date, '%Y-%m-%d').date()
+            except ValueError:
+                pass
+        else:
+            lesson_progress.completed_on_date = None
+
+        if completed_on_time:
+            try:
+                lesson_progress.completed_on_time = datetime.strptime(completed_on_time, '%I:%M %p').time()
+            except ValueError:
+                pass
+        else:
+            lesson_progress.completed_on_time = None
+
+        lesson_progress.save()
+
+        # messages.success(request, f'Lesson Activity updated successfully.')
+        return JsonResponse({'success': True, 'message': 'Lesson Activity updated successfully.'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+def fetch_lesson_progress(request, user_lesson_progress_id):
+    if request.method == 'POST':
+        lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
+
+        lesson_progress_data = model_to_dict(lesson_progress)
+
+        return JsonResponse({'success': True, 'data': lesson_progress_data})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+def delete_categories(request):
+    data = json.loads(request.body)
+    category_ids = data['ids']
+    try:
+        with transaction.atomic():
+            for category_id in category_ids:
+                category = Category.objects.filter(id=category_id)
+                if not category.exists():
+                    raise ValueError(f"No category found with ID {category_id}")
+                category.delete()
+            messages.success(request, 'All selected categories deleted successfully.')
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': '/admin/categories/',
+                'message': 'All selected categories deleted successfully'
+            })
+    except ValueError as e:
+        logger.error(f"Deletion error: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+    
+def delete_enrollment_keys(request):
+    data = json.loads(request.body)
+    key_ids = data['ids']
+    try:
+        with transaction.atomic():
+            for key_id in key_ids:
+                key = EnrollmentKey.objects.filter(id=key_id)
+                if not key.exists():
+                    raise ValueError(f"No category found with ID {key_id}")
+                key.delete()
+            messages.success(request, 'All selected enrollment keys deleted successfully.')
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': '/admin/enrollment-keys/',
+                'message': 'All selected enrollment keys deleted successfully'
             })
     except ValueError as e:
         logger.error(f"Deletion error: {e}")

@@ -47,5 +47,35 @@ def format_time(estimated_time):
         minutes = (total_seconds % 3600) // 60
         return f"{hours}h {minutes}m"
 
-    # In case it's already a string, return as is (if needed)
     return str(estimated_time)
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
+@register.filter
+def format_session_time(value):
+    """
+    Converts 'PT0H1M0S' to '1m 0s', removing hours if 0.
+    """
+    if not value.startswith('PT'):
+        return value  # Return as-is if format is unexpected
+
+    time_str = value[2:]  # Remove 'PT'
+    hours, minutes, seconds = 0, 0, 0
+
+    if 'H' in time_str:
+        hours_part, time_str = time_str.split('H')
+        hours = int(hours_part)
+    if 'M' in time_str:
+        minutes_part, time_str = time_str.split('M')
+        minutes = int(minutes_part)
+    if 'S' in time_str:
+        seconds_part = time_str.replace('S', '')
+        seconds = int(seconds_part)
+
+    result = ""
+    if hours > 0:
+        result += f"{hours}h "
+    result += f"{minutes}m {seconds}s"
+    return result.strip()

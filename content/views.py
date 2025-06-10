@@ -10,8 +10,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
-from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile
-from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse
+from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType
+from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse, EnrollmentKey, ActivityLog, Profile
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 
 from halo_lms import settings
@@ -26,6 +26,11 @@ from django.views.decorators.http import require_POST
 from django.core.files.storage import default_storage, FileSystemStorage
 from django.core.files.base import ContentFile
 from django.apps import apps
+from django.utils.timezone import now
+from datetime import timedelta
+from collections import OrderedDict
+from django.db.models.functions import TruncDate, TruncMonth
+from django.db.models import Count
 
 # Courses
 @login_required
@@ -40,7 +45,10 @@ def admin_courses(request):
     # Apply the general search query if provided
     if query_string:
         query &= (
-            Q(title__icontains=query_string)
+            Q(title__icontains=query_string)|
+            Q(type__icontains=query_string) |
+            Q(status__icontains=query_string) |
+            Q(category__icontains=query_string)
         )
         active_filters['query'] = query_string  # Track the general search query
 
@@ -54,7 +62,13 @@ def admin_courses(request):
     # Define a dictionary to map sort options to user-friendly text
     sort_options = {
         'title_asc': 'Title (A-Z)',
-        'title_desc': 'Title (Z-A)',      
+        'title_desc': 'Title (Z-A)', 
+        'type_asc': 'Type (A-Z)',
+        'type_desc': 'Type (Z-A)',
+        'status_asc': 'Status (A-Z)',
+        'status_desc': 'Status (Z-A)',
+        'category_asc': 'Category (A-Z)',
+        'category_desc': 'Category (Z-A)',     
     }
 
     # Determine the order by field
@@ -62,6 +76,18 @@ def admin_courses(request):
         order_by_field = 'title'
     elif sort_by == 'title_desc':
         order_by_field = '-title'
+    elif sort_by == 'type_asc':
+        order_by_field = 'type'
+    elif sort_by == 'type_desc':
+        order_by_field = '-type'
+    elif sort_by == 'status_asc':
+        order_by_field = 'status'
+    elif sort_by == 'status_desc':
+        order_by_field = '-status'
+    elif sort_by == 'category_asc':
+        order_by_field = 'category'
+    elif sort_by == 'category_desc':
+        order_by_field = '-category'
 
     # Add the sort option to the active filters only if it is present in the request
     if 'sort_by' in request.GET and sort_by:
@@ -113,6 +139,7 @@ def edit_online_courses(request, course_id):
     start_date = course.event_dates.filter(type='start_date').first()
     expiration_date = course.event_dates.filter(type='expiration_date').first()
     due_date = course.event_dates.filter(type='due_date').first()
+    certificate_expiration_date = course.event_dates.filter(type='certificate_expiration_date').first()
     thumbnail_media = course.media.filter(type='thumbnail').first()
     references_resources = course.resources.filter(type='reference').all()
     course_uploads = course.uploads.all()
@@ -124,6 +151,7 @@ def edit_online_courses(request, course_id):
         'certificate_credential': certificate_credential,
         'start_date': start_date,
         'expiration_date': expiration_date,
+        'certificate_expiration_date': certificate_expiration_date,
         'due_date': due_date,
         'thumbnail_media': thumbnail_media,
         'references_resources': references_resources,
@@ -181,7 +209,7 @@ def create_or_update_course(request):
 
     def handle_event_dates(course, event_dates):
         """ Handle event dates for the course """
-        existing_event_dates = EventDate.objects.filter(course=course)
+        existing_event_dates = course.event_dates.all()
 
         # Extract types from the incoming event dates for easy comparison
         incoming_event_types = {event.get('type') for event in event_dates}
@@ -201,7 +229,8 @@ def create_or_update_course(request):
                 }, status=400)
 
             EventDate.objects.update_or_create(
-                course=course,
+                content_type=ContentType.objects.get_for_model(Course),
+                object_id=course.id,
                 type=event_date_type,
                 defaults={
                     'date': date_value,
@@ -240,6 +269,7 @@ def create_or_update_course(request):
                 lesson_id = lesson_data.get('id')
                 lesson = get_object_or_404(Lesson, id=lesson_id) if lesson_id else Lesson(module=module)
                 lesson.title = lesson_data.get('title', '')
+                lesson.description = lesson_data.get('description', '')
                 lesson.order = lesson_data.get('order', 0)
                 lesson.content_type = lesson_data.get('content_type', '')
 
@@ -250,6 +280,7 @@ def create_or_update_course(request):
                     'id': lesson.id,
                     'temp_id': lesson_data.get('temp_id'),
                     'title': lesson.title,
+                    'description': lesson.description,
                 }
 
                 module_response[-1]['lessons'].append(lesson_response)
@@ -384,6 +415,7 @@ def create_or_update_course(request):
                         'id': reference.id,
                         'temp_id': reference_data.get('temp_id'),
                         'title': reference.title,
+                        'description': reference.description,
                     })
                     print(f"New resource created: {title}")
 
@@ -570,6 +602,24 @@ def create_or_update_course(request):
 
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+def detect_file_type(filename):
+    ext = os.path.splitext(filename)[1].lower()
+
+    if ext in ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp']:
+        return 'image'
+    elif ext in ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt']:
+        return 'document'
+    elif ext in ['.mp4', '.mov', '.wmv', '.flv', '.avi', '.mkv']:
+        return 'video'
+    elif ext in ['.mp3', '.wav', '.aac', '.ogg', '.flac']:
+        return 'audio'
+    elif ext in ['.zip', '.rar', '.scorm', '.xml']:   # Adjust for SCORM packaging
+        return 'scorm'
+    elif ext in ['.pdf']:
+        return 'pdf'
+    else:
+        return 'other'
 
 @login_required
 def file_upload(request):
@@ -577,20 +627,23 @@ def file_upload(request):
     if request.method == 'POST':
         try:
             uploaded_file = request.FILES['file']
-            
-            # Create a file instance
+            file_name = uploaded_file.name
+
+            # Detect file type based on extension
+            file_type = detect_file_type(file_name)
+
+            # Create a file instance with detected file type
             file_instance = File(
                 user=request.user,
                 file=uploaded_file,
-                title=uploaded_file.name
+                title=file_name,
+                file_type=file_type
             )
             file_instance.save()
 
-            # Format the uploaded_at date
             uploaded_at_formatted = file_instance.uploaded_at.strftime('%b %d, %Y %I:%M')
             uploaded_at_formatted += ' ' + ('p.m.' if file_instance.uploaded_at.hour >= 12 else 'a.m.')
 
-            # Respond with success and file details
             return JsonResponse({
                 'success': True,
                 'message': 'File uploaded successfully.',
@@ -598,7 +651,6 @@ def file_upload(request):
                     'title': file_instance.title,
                     'file_type': file_instance.file_type,
                     'uploaded_at': uploaded_at_formatted,
-                    'file_type': file_instance.file_type,
                     'size': file_instance.file.size,
                 }
             })
@@ -778,19 +830,290 @@ def get_categories(request):
     
 @require_POST
 def create_category(request):
-    category_name = request.POST.get('name', '').strip()
+    name = request.POST.get('name', '').strip()
+    description = request.POST.get('description', '').strip()
+    parent_id = request.POST.get('parent_category')
+    is_create_page = request.POST.get('isCreatePage')
 
-    if category_name:
-        # Create a new category
-        category = Category.objects.create(name=category_name)
+    if not name:
+        return JsonResponse({'error': 'Category name is required.'}, status=400)
+
+    parent_category = None
+    if parent_id:
+        try:
+            parent_category = Category.objects.get(id=parent_id)
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Invalid parent category.'}, status=400)
+
+    category = Category.objects.create(
+        name=name,
+        description=description,
+        parent_category=parent_category
+    )
+
+    if is_create_page == 'true':
+        messages.success(request, 'Category created successfully!')
+
+    return JsonResponse({
+        'id': category.id,
+        'name': category.name,
+        'is_create_page': is_create_page,
+    }, status=201)
+
+@require_POST
+def edit_category(request):
+    id = request.POST.get('id')
+    name = request.POST.get('name', '').strip()
+    description = request.POST.get('description', '').strip()
+    parent_id = request.POST.get('parent_category')
+    is_create_page = request.POST.get('isCreatePage')
+
+    if not name:
+        return JsonResponse({'error': 'Category name is required.'}, status=400)
+
+    parent_category = None
+    if parent_id:
+        try:
+            parent_category = Category.objects.get(id=parent_id)
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Invalid parent category.'}, status=400)
+
+    try:
+        category = Category.objects.get(id=id)
+    except Category.DoesNotExist:
+        return JsonResponse({'error': 'Category not found.'}, status=404)
+
+    category.name = name
+    category.description = description
+    category.parent_category = parent_category
+    category.save()
+
+    if is_create_page == 'true':
+        messages.success(request, 'Category edited successfully!')
+
+    return JsonResponse({
+        'id': category.id,
+        'name': category.name,
+        'is_create_page': is_create_page,
+    }, status=201)
+
+@require_POST
+def create_enrollment_key(request):
+    name = request.POST.get('name', '').strip()
+    key_name = request.POST.get('key_name', '').strip()
+    course_ids_raw = request.POST.get('course_ids')
+    active = request.POST.get('active') == 'true'
+    max_uses_raw = request.POST.get('max_uses', '').strip()
+    is_create_page = request.POST.get('isCreatePage')
+
+    # Validate required input
+    if not name or not key_name:
+        return JsonResponse({'error': 'Name and Key Name are required.'}, status=400)
+
+    # Check for duplicate key
+    if EnrollmentKey.objects.filter(key=key_name).exists():
+        return JsonResponse({'error': 'This Key Name already exists. Please choose or generate a different one.'}, status=400)
+
+    # Convert max_uses
+    if max_uses_raw.lower() in ('', 'null', 'none'):
+        max_uses = None
+    else:
+        try:
+            max_uses = int(max_uses_raw)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid max_uses value.'}, status=400)
         
-        # Return the created category data
-        return JsonResponse({
-            'id': category.id,
-            'name': category.name,
-        }, status=201)  # HTTP 201 Created
+        if max_uses > 999999999:
+            return JsonResponse({'error': 'Max Number of Uses is too large. Please enter a vale smaller than 999999999.'}, status=400)
 
-    return JsonResponse({'error': 'Category name is required.'}, status=400)
+    # Create the key
+    key = EnrollmentKey.objects.create(
+        name=name,
+        key=key_name,
+        active=active,
+        max_uses=max_uses,
+    )
+
+    # Assign courses if provided
+    if course_ids_raw:
+        course_ids = [cid.strip() for cid in course_ids_raw.split(',') if cid.strip()]
+        key.courses.set(course_ids)
+
+    if is_create_page == 'true':
+        messages.success(request, 'Enrollment key created successfully!')
+
+    return JsonResponse({
+        'id': key.id,
+        'name': key.name,
+        'is_create_page': is_create_page,
+    }, status=201)
+
+@require_POST
+def edit_enrollment_key(request):
+    id = request.POST.get('id')
+    name = request.POST.get('name', '').strip()
+    key_name = request.POST.get('key_name', '').strip()
+    course_ids_raw = request.POST.get('course_ids')
+    active = request.POST.get('active') == 'true'
+    max_uses_raw = request.POST.get('max_uses', '').strip()
+    is_create_page = request.POST.get('isCreatePage')
+
+    if not name or not key_name:
+        return JsonResponse({'error': 'Name and Key Name are required.'}, status=400)
+
+    # Check uniqueness (exclude current key)
+    if EnrollmentKey.objects.filter(key=key_name).exclude(id=id).exists():
+        return JsonResponse({'error': 'This Key Name already exists. Please choose or generate a different one.'}, status=400)
+
+    # Parse max_uses
+    if max_uses_raw.lower() in ('', 'null', 'none'):
+        max_uses = None
+    else:
+        try:
+            max_uses = int(max_uses_raw)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid max_uses value.'}, status=400)
+        
+        if max_uses < 0:
+            return JsonResponse({'error': 'Max Uses must be 0 or greater.'}, status=400)
+        if max_uses > 999999999:
+            return JsonResponse({'error': 'Max Uses is too large. Please enter a smaller value.'}, status=400)
+
+    # Update the key
+    try:
+        key = EnrollmentKey.objects.get(id=id)
+    except EnrollmentKey.DoesNotExist:
+        return JsonResponse({'error': 'Enrollment key not found.'}, status=404)
+
+    key.name = name
+    key.key = key_name
+    key.active = active
+    key.max_uses = max_uses
+    key.save()
+
+    # Update courses
+    if course_ids_raw:
+        course_ids = [cid.strip() for cid in course_ids_raw.split(',') if cid.strip()]
+        key.courses.set(course_ids)
+    else:
+        key.courses.clear()
+
+    if is_create_page == 'true':
+        messages.success(request, 'Enrollment key updated successfully!')
+
+    return JsonResponse({
+        'id': key.id,
+        'name': key.name,
+        'is_create_page': is_create_page,
+    }, status=200)
+
+@require_POST
+@login_required
+def submit_enrollment_key(request):
+    key_name = request.POST.get('key_name', '').strip()
+
+    # Validate key exists
+    try:
+        key = EnrollmentKey.objects.get(key=key_name)
+    except EnrollmentKey.DoesNotExist:
+        return JsonResponse({'error': "Hmm... we couldn't find a matching enrollment key. Please double-check and try again."}, status=400)
+
+    # Validate if key is still usable
+    if not key.is_valid():
+        return JsonResponse({'error': 'This enrollment key is inactive or has reached its usage limit.'}, status=400)
+
+    courses = key.courses.all()
+    if not courses.exists():
+        return JsonResponse({'error': 'No courses are associated with this key.'}, status=400)
+
+    user = request.user
+    enrolled_courses = []
+    already_enrolled = []
+
+    for course in courses:
+        user_course, created = UserCourse.objects.get_or_create(user=user, course=course)
+
+        if created:
+            # Assign first lesson
+            first_lesson = Lesson.objects.filter(module__course=course).order_by('module__order', 'order').first()
+            if first_lesson:
+                user_course.lesson_id = first_lesson.id
+                user_course.save()
+
+            for module in course.modules.all():
+                ump = UserModuleProgress.objects.create(user_course=user_course, module=module)
+
+                for lesson in module.lessons.all():
+                    UserLessonProgress.objects.create(user_module_progress=ump, lesson=lesson)
+
+            enrolled_courses.append(course.title)
+
+            # Log activity
+            try:
+                ActivityLog.objects.create(
+                    user=user,
+                    action_performer=user,
+                    action_target=user,
+                    action_type='user_enrolled',
+                    action=f"enrolled in: {course.title}",
+                    user_groups=', '.join(group.name for group in user.groups.all()),
+                )
+            except Exception as e:
+                print(f"Failed to log activity for {course.title}: {e}")
+        else:
+            already_enrolled.append(course.title)
+
+    # Increment usage
+    key.uses += 1
+    key.save()
+
+    return JsonResponse({
+        'enrolled_courses': enrolled_courses,
+        'already_enrolled': already_enrolled,
+        'message': f"You were enrolled in {len(enrolled_courses)} new course(s)." if enrolled_courses else "You are already enrolled in all courses tied to this key."
+    }, status=200)
+
+# This is setting the last_opened_course to populate the resume widget on the dashboard
+@require_POST
+@login_required
+def opened_course_data(request):
+    lesson_id = request.POST.get('lesson_id', '').strip()
+
+    print("🔍 Hit opened_course_data view", lesson_id)
+
+
+    if not lesson_id:
+        return JsonResponse({'error': 'Lesson ID is required.'}, status=400)
+
+    # Get the lesson and its course
+    try:
+        lesson = Lesson.objects.select_related('module__course').get(id=lesson_id)
+        course = lesson.module.course
+    except Lesson.DoesNotExist:
+        return JsonResponse({'error': 'Invalid lesson ID.'}, status=404)
+
+    # Check enrollment
+    user = request.user
+    is_enrolled = UserCourse.objects.filter(user=user, course=course).exists()
+
+    if not is_enrolled:
+        return JsonResponse({'error': 'You are not enrolled in this course.'}, status=403)
+
+    # Update the user's profile
+    try:
+        profile = user.profile
+        profile.last_opened_course = course
+        profile.last_opened_lesson_id = lesson_id
+        profile.save()
+    except Profile.DoesNotExist:
+        return JsonResponse({'error': 'User profile not found.'}, status=404)
+
+    return JsonResponse({
+        'course_id': course.id,
+        'course_title': course.title,
+        'message': 'Last opened course updated successfully.'
+    }, status=200)
+
 '''
 def upload_lesson_file(request):
     if request.method == 'POST':
@@ -995,3 +1318,218 @@ def delete_object_ajax(request):
         return JsonResponse({"error": f"{object_type} with ID {object_id} does not exist."}, status=404)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+# Categories
+@login_required
+def admin_categories(request):
+    sort_by = request.GET.get('sort_by', 'name_desc')
+    order_by_field = 'name'  # Default sorting field
+    query_string = request.GET.get('query')
+
+    query = Q()
+    active_filters = {}
+
+    # Apply the general search query if provided
+    if query_string:
+        query &= (
+            Q(name__icontains=query_string) |
+            Q(parent_category__name__icontains=query_string)
+        )
+        active_filters['query'] = query_string
+
+    # Build the query dynamically based on the provided filter parameters
+    for key, value in request.GET.items():
+        if key.startswith('filter_') and value:
+            field_name = key[len('filter_'):]  # Extract field name after 'filter_'
+            query &= Q(**{f"{field_name}__icontains": value})
+            active_filters[field_name] = value
+
+    # Define a dictionary to map sort options to user-friendly text
+    sort_options = {
+        'name_asc': 'Name (A-Z)',
+        'name_desc': 'Name (Z-A)',
+        'parent_category__name_asc': 'Parent Name (A-Z)',
+        'parent_category__name_desc': 'Parent Name (Z-A)',      
+    }
+
+    # Determine the order by field
+    if sort_by == 'name_asc':
+        order_by_field = 'name'
+    elif sort_by == 'name_desc':
+        order_by_field = '-name'
+    elif sort_by == 'parent_category__name_asc':
+        order_by_field = 'parent_category__name'
+    elif sort_by == 'parent_category__name_desc':
+        order_by_field = '-parent_category__name'
+
+
+    # Add the sort option to the active filters only if it is present in the request
+    if 'sort_by' in request.GET and sort_by:
+        active_filters['sort_by'] = sort_options.get(sort_by, 'Name (Z-A)')
+
+    # Apply the filtering and sorting to the users list
+    courses_list = Category.objects.filter(query).order_by(order_by_field)
+
+    # Paginate the filtered users_list
+    paginator = Paginator(courses_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Render the results with the active filters
+    return render(request, 'categories/categories.html', {
+        'page_obj': page_obj,
+        'active_filters': active_filters,
+        'sort_by': sort_by,
+    })
+
+@login_required
+def add_categories(request):
+    category = Category.objects.all()
+
+    context = {
+        'category_list': category,
+    }
+
+    return render(request, 'categories/add_category.html', context)
+
+@login_required
+def edit_categories(request, category_id):
+    category = get_object_or_404(Category, pk=category_id)
+
+    context = {
+        'category': category,
+    }
+
+    return render(request, 'categories/edit_category.html', context)
+
+@login_required
+def admin_enrollment_keys(request):
+    sort_by = request.GET.get('sort_by', 'name_desc')
+    order_by_field = 'name'  # Default sorting field
+    query_string = request.GET.get('query')
+
+    query = Q()
+    active_filters = {}
+
+    # Apply the general search query if provided
+    if query_string:
+        query &= (
+            Q(name__icontains=query_string) |
+            Q(key__icontains=query_string)
+        )
+        active_filters['query'] = query_string
+
+    # Build the query dynamically based on the provided filter parameters
+    for key, value in request.GET.items():
+        if key.startswith('filter_') and value:
+            field_name = key[len('filter_'):]  # Extract field name after 'filter_'
+            query &= Q(**{f"{field_name}__icontains": value})
+            active_filters[field_name] = value
+
+    # Define a dictionary to map sort options to user-friendly text
+    sort_options = {
+        'name_asc': 'Name (A-Z)',
+        'name_desc': 'Name (Z-A)',
+        'key_name_asc': 'Key Name (A-Z)',
+        'key_name_desc': 'Key Name (Z-A)',
+        'uses_asc': 'Times Used (A-Z)',
+        'uses_desc': 'Times Used (Z-A)', 
+        'max_uses_asc': 'Max Uses (A-Z)',
+        'max_uses_desc': 'Max Uses (Z-A)',   
+    }
+
+    # Determine the order by field
+    if sort_by == 'name_asc':
+        order_by_field = 'name'
+    elif sort_by == 'name_desc':
+        order_by_field = '-name'
+    elif sort_by == 'key_name_asc':
+        order_by_field = 'key'
+    elif sort_by == 'key_name_desc':
+        order_by_field = '-key'
+    elif sort_by == 'uses_asc':
+        order_by_field = 'uses'
+    elif sort_by == 'uses_desc':
+        order_by_field = '-uses'
+    elif sort_by == 'max_uses_asc':
+        order_by_field = 'max_uses'
+    elif sort_by == 'max_uses_desc':
+        order_by_field = '-max_uses'
+
+
+    # Add the sort option to the active filters only if it is present in the request
+    if 'sort_by' in request.GET and sort_by:
+        active_filters['sort_by'] = sort_options.get(sort_by, 'Name (Z-A)')
+
+    # Apply the filtering and sorting to the keys list
+    keys_list = EnrollmentKey.objects.filter(query).order_by(order_by_field)
+
+    # Paginate the filtered keys_list
+    paginator = Paginator(keys_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Render the results with the active filters
+    return render(request, 'enrollmentKeys/enrollment_keys.html', {
+        'page_obj': page_obj,
+        'active_filters': active_filters,
+        'sort_by': sort_by,
+    })
+
+@login_required
+def add_enrollment_keys(request):
+    enrollment_key = EnrollmentKey.objects.all()
+
+    context = {
+        'key_list': enrollment_key,
+    }
+
+    return render(request, 'enrollmentKeys/add_enrollment_key.html', context)
+
+@login_required
+def edit_enrollment_keys(request, key_id):
+    enrollment_key = get_object_or_404(EnrollmentKey, pk=key_id)
+
+    context = {
+        'key': enrollment_key,
+    }
+
+    return render(request, 'enrollmentKeys/edit_enrollment_key.html', context)
+
+@require_POST
+def learner_login_data(request):
+    range_label = request.POST.get('range', 'Last 12 months')
+    today = now()
+    if range_label == 'Last 7 days':
+        start_date = today - timedelta(days=7)
+        truncate = TruncDate
+        date_format = '%b %d'
+    elif range_label == 'Last 30 days':
+        start_date = today - timedelta(days=30)
+        truncate = TruncDate
+        date_format = '%b %d'
+    elif range_label == 'Last 6 months':
+        start_date = today - timedelta(days=180)
+        truncate = TruncMonth
+        date_format = '%b %Y'
+    else:
+        start_date = today - timedelta(days=365)
+        truncate = TruncMonth
+        date_format = '%b %Y'
+
+    logins = (
+        User.objects
+        .filter(last_login__gte=start_date)
+        .annotate(period=truncate('last_login'))
+        .values('period')
+        .annotate(count=Count('id'))
+        .order_by('period')
+    )
+
+    labels = []
+    values = []
+    for entry in logins:
+        labels.append(entry['period'].strftime(date_format))
+        values.append(entry['count'])
+
+    return JsonResponse({'labels': labels, 'values': values, 'total_learners': sum(values)})

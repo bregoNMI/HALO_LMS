@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    {% include 'messageContainer/message_container.html' %}
+    <div id="stickyNavBar">
+        <div class="details-top-row max-width-extend-1">
+            <div class="details-top-row-left">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3> Create New Category </h3>
+            </div>
+            <div class="details-top-row-right">
+                <div class="option-btn-row">
+                    <button id="createCategoryBtn" class="action-button-primary create-category-btn course-save-btns disabled" disabled>
+                        <i class="fa-regular fa-paper-plane"></i>
+                        <span>Create Category</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="admin-body align-center">
+        <div class="max-width-extend-1">
+            <div id="mainNavBar" class="details-top-row">
+                <div class="details-top-row-left">
+                    <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <h3> Create New Category </h3>
+                </div>
+                <div class="details-top-row-right">
+                    <div class="option-btn-row">
+                        <button id="createCategoryBtn" class="action-button-primary course-save-btns create-category-btn disabled" disabled>
+                            <i class="fa-regular fa-paper-plane"></i>
+                            <span>Create Category</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="course-content-container margin-top-10">
+                <!-- Left Column -->
+                <div class="course-content-left-column">
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-grid-2-plus"></i>
+                                <span> Category Details </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">
+                            <div class="edit-user-input">
+                                <label class="edit-user-label" for="category">Parent Category</label>
+                                <div id="selectedCategories">
+                                    <div class="right-column-file-wrapper">
+                                        <div id="userDropdown2" class="category-dropdown course-content-input">
+                                            <input type="text" id="category" name="category" class="categorySearch" placeholder="Search categories..." autocomplete="off">
+                                            <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                                            <div class="categoryList scrollable-content-inner">
+                                                <div class="loadingIndicator" style="display:none;">Loading...</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="name">Name<span class="required-asterisk">*</span></label>
+                                <input type="text" id="name" name="name" placeholder="Name">
+                            </div>
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="description">Description</label>
+                                <div class="editor-container" id="description"></div>
+                                <div class="quill-character-counter">
+                                    <div class="quill-current-counter">0</div>
+                                    <span>/</span>
+                                    <div class="quill-max-counter">2000</div>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'client_admin\javascript\ajax_search_options.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nameInput = document.getElementById('name');
+            const createCategoryButtons = document.querySelectorAll('.create-category-btn');
+
+            nameInput.addEventListener('keyup', function () {
+                createCategoryButtons.forEach(btn => {
+                    if (this.value.trim().length >= 1) {
+                        btn.classList.remove('disabled');
+                        btn.removeAttribute('disabled');
+                    } else {
+                        btn.classList.add('disabled');
+                        btn.setAttribute('disabled', true);
+                    }
+                });
+            });
+
+            createCategoryButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const parentCategory = document.getElementById('category').getAttribute('data-id');
+                    console.log(parentCategory);
+                    const categoryName = nameInput.value.trim();
+                    const categoryDescription = getEditorContent('description');
+                    if (categoryName) {
+                        createCategory(parentCategory, categoryName, categoryDescription, true);
+
+                        createCategoryButtons.forEach(button => {
+                            button.classList.add('disabled');
+                            button.setAttribute('disabled', true);
+                        });
+                        setDisabledSaveBtns()
+                    } else {
+                        alert('Please enter a category name.');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock content %}

@@ -1,0 +1,13 @@
+<h2>Your Grade for {{ course.title }}</h2>
+<table>
+    <tr><th>Category</th><th>Weight (%)</th><th>Grade (%)</th></tr>
+    {% for cg in category_grades %}
+    <tr>
+        <td>{{ cg.category }}</td>
+        <td>{{ cg.weight }}</td>
+        <td>{{ cg.percentage }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<p><strong>Final Grade:</strong> {{ final_grade }}%</p>
