@@ -8,6 +8,7 @@ from PIL import Image
 from io import BytesIO
 from django.conf import settings
 import requests
+from uuid import uuid4
 from django.utils import timezone
 from django.core.files.base import ContentFile
 from client_admin.utils import fill_certificate_form
@@ -135,6 +136,126 @@ class UserCourse(models.Model):
     stored_progress = models.PositiveIntegerField(default=0) # Stores course progress. Reverts back to this integer if status is changed from completed to not completed 
     lesson_id = models.PositiveIntegerField(default=0) #links o the individual lesson to launch the course
     locked = models.BooleanField(default=False)
+    completed_on_date = models.DateField(blank=True, null=True)  # This is the date the learner completed their course
+    completed_on_time = models.TimeField(blank=True, null=True)  # This is the time the learner completed their course
+    is_course_completed = models.BooleanField(default=False)
+    generated_certificate = models.FileField(upload_to='certificates/', null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        just_completed = False
+        if self.pk:
+            previous = UserCourse.objects.get(pk=self.pk)
+            just_completed = not previous.is_course_completed and self.is_course_completed
+        else:
+            just_completed = self.is_course_completed
+
+        super().save(*args, **kwargs)
+
+        if just_completed:
+            self.on_course_completed()
+
+    def on_course_completed(self):
+        ActivityLog.objects.create(
+            user=self.user,
+            action_performer=self.user.username,
+            action_target=self.user.username,
+            action_type= 'course_completed',
+            action=f'completed course: {self.course.title}',
+            user_groups=', '.join(group.name for group in self.user.groups.all()),
+        )
+
+        certificate_credential = self.course.credentials.filter(type='certificate').first()
+
+        if not certificate_credential:
+            print("❌ Certificates are not enabled for this course. Skipping certificate generation.")
+            return
+
+        org_settings = OrganizationSettings.objects.first()
+
+        # Determine certificate template source
+        if certificate_credential and certificate_credential.source:
+            template_url = certificate_credential.source
+        elif org_settings and org_settings.default_certificate:
+            template_url = org_settings.default_certificate_template.url
+        else:
+            template_path = os.path.join(settings.BASE_DIR, 'static/images/certificates/default.pdf')
+            with open(template_path, 'rb') as f:
+                template_stream = BytesIO(f.read())
+
+        try:
+            if 'template_url' in locals():
+                response = requests.get(template_url)
+                response.raise_for_status()
+                template_stream = BytesIO(response.content)
+        except Exception as e:
+            print(f"⚠️ Failed to download certificate template: {e}")
+            return
+
+        # Prepare form data
+        data = {
+            'LearnerName': self.user.get_full_name(),
+            'CourseName': self.course.title,
+            'AcquiredDate': str(self.completed_on_date or timezone.now().date()),
+            'CertificateId': str(self.uuid),
+        }
+
+        # Generate the certificate PDF
+        pdf_stream = fill_certificate_form(template_stream, data)
+        filename = f'{self.user.username}_{self.course.title}.pdf'
+
+        # ❗Check if a certificate already exists
+        generated_cert = GeneratedCertificate.objects.filter(user_course=self).first()
+        if generated_cert:
+            print("♻️ Updating existing certificate...")
+            generated_cert.file.delete(save=False)  # Remove old file
+        else:
+            generated_cert = GeneratedCertificate(user_course=self, user=self.user)
+
+        # Save new file
+        generated_cert.file.save(filename, ContentFile(pdf_stream.read()), save=True)
+
+        # 🕓 Set or update expiration
+        cert_expiration_event = self.course.event_dates.filter(type='certificate_expiration_date').first()
+        if cert_expiration_event:
+            if cert_expiration_event.from_enrollment:
+                calculated_date = self.course.calculate_event_date(cert_expiration_event, self.enrollment_date)
+            else:
+                calculated_date = cert_expiration_event.date
+
+            # Delete previous expiration events attached to this certificate
+            generated_cert.event_dates.filter(type='certificate_expiration_date').delete()
+
+            EventDate.objects.create(
+                content_object=generated_cert,
+                type='certificate_expiration_date',
+                date=calculated_date
+            )
+            print(f"✅ Certificate expiration date set to: {calculated_date}")
+
+        # Testing if on_login_course is enabled and if the course that was just completed match that course ID
+        if (org_settings and org_settings.on_login_course and org_settings.on_login_course_id and org_settings.on_login_course_id == self.course.id):
+            profile = getattr(self.user, 'profile', None)
+            if profile:
+                profile.completed_on_login_course = True
+                profile.save()
+                print("✅ User completed the required login course. Profile updated.")
+        
+
+    def get_start_date(self):
+        if hasattr(self.course, 'get_event_date'):
+            return self.course.get_event_date('start_date', self.enrollment_date)
+        return None
+
+    def get_expiration_date(self):
+        if hasattr(self.course, 'get_event_date'):
+            return self.course.get_event_date('expiration_date', self.enrollment_date)
+        return None
+
+    def get_due_date(self):
+        if hasattr(self.course, 'get_event_date'):
+            return self.course.get_event_date('due_date', self.enrollment_date)
+        return None
+
 
     def get_status(self):
         expiration_date = self.course.get_event_date('expiration_date')

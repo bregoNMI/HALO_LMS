@@ -152,6 +152,23 @@ def proxy_scorm_file(request, file_path):
         raise Http404("SCORM file not found")
     
 @login_required
+def get_scorm_progress(request, lesson_id):
+    user = request.user
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+
+    tracking = SCORMTrackingData.objects.filter(user=user, lesson=lesson).first()
+    suspend_data = ""
+    if tracking:
+        try:
+            cmi_data = json.loads(tracking.cmi_data or "{}")
+            suspend_data = cmi_data.get("suspend_data", "")
+        except Exception as e:
+            print(f"Error parsing cmi_data: {e}")
+
+    return JsonResponse({"suspend_data": suspend_data})
+
+    
+@login_required
 def launch_scorm(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     user = request.user
