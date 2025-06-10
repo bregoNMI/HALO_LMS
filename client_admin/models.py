@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from storages.backends.s3boto3 import S3Boto3Storage
 from PIL import Image
 from io import BytesIO
+import uuid
 from django.core.files.base import ContentFile
 from datetime import datetime
 from pytz import all_timezones
@@ -99,6 +100,8 @@ class UserCourse(models.Model):
     progress = models.PositiveIntegerField(default=0)  # percentage of the course completed by the user
     lesson_id = models.PositiveIntegerField(default=0) #links o the individual lesson to launch the course
     locked = models.BooleanField(default=False)
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, null=True)
+
 
     def get_status(self):
         expiration_date = self.course.get_event_date('expiration_date')
