@@ -136,16 +136,6 @@ function getTotalPagesFromIframe() {
     return 0; // Default fallback if pages are not found
 }
 
-function updateTotalPages() {
-    const iframe = document.getElementById("scormContentIframe");
-    if (iframe) {
-        iframe.addEventListener("load", () => {
-            totalPages = getTotalPagesFromIframe();
-            console.log("Total Pages Updated:", totalPages); // Display total pages in the console
-        });
-    }
-}
-
 document.addEventListener("DOMContentLoaded", function () {
     updateTotalPages(); // Initialize the process to count total pages
 });
@@ -468,94 +458,6 @@ function restoreScrollPosition() {
     }
 }
 
-// THIS FUNCTION DOES NOT RUN!!!!!!!!!!!
-function updateSCORMProgress(iframe) {
-    // THIS FUNCTION DOES NOT RUN!!!!!!!!!!!
-    if (!isScormLesson()) return;
-
-    let iframeDocument = iframe.contentWindow.document;
-    let sidebarItems = iframeDocument.querySelectorAll("svg.progress-circle--sidebar");
-
-    if (!sidebarItems.length) {
-        console.warn("⚠️ No sidebar progress circles found inside SCORM iframe. Retrying...");
-        return;
-    }
-
-    console.log("✅ Found Sidebar Progress Elements in SCORM iframe:", sidebarItems);
-
-    let miniLessonProgress = [];
-    try {
-        miniLessonProgress = window.progressDataString ? JSON.parse(window.progressDataString) : [];
-    } catch (error) {
-        console.error("Failed to parse miniLessonProgress:", error, window.progressDataString);
-    }
-
-    miniLessonProgress.forEach((miniLesson, index) => {
-        let { mini_lesson_index, progress } = miniLesson;
-
-        if (mini_lesson_index >= sidebarItems.length) {
-            console.warn(`⚠️ Skipping mini-lesson ${mini_lesson_index} (No matching sidebar item found)`);
-            return;
-        }
-
-        let sidebarItem = sidebarItems[mini_lesson_index];
-
-        if (sidebarItem) {
-            console.log(`🔄 Processing sidebar item ${mini_lesson_index} with progress: ${progress}`);
-
-            let progressCircle = sidebarItem.querySelector("circle.progress-circle__runner, circle");
-            let checkmark = sidebarItem.querySelector("path.progress-circle__pass");
-            let failPath = sidebarItem.querySelector("path.progress-circle__fail");
-
-            let progressPercentage = parseFloat(progress.replace("% Completed", "").trim()) || 0;
-            let totalStroke = 43.982297150257104;
-            let strokeOffset = totalStroke * (1 - (progressPercentage / 100));
-
-            // Apply completion styling
-            if (progress === "Completed" || progressPercentage === 100) {
-                // Set on the <svg> itself
-                sidebarItem.setAttribute("aria-label", "Completed");
-                sidebarItem.classList.add("progress-circle--done");
-                sidebarItem.classList.remove("progress-circle--unstarted"); // just in case
-            
-                // Circle runner inside SVG
-                const runnerCircle = sidebarItem.querySelector("circle.progress-circle__runner, circle.progress-circle_runner");
-                console.log('runnerCircleFake:', runnerCircle);
-                if (runnerCircle) {
-                    console.log('runnerCircle:', runnerCircle);
-                    runnerCircle.setAttribute("stroke-dashoffset", "0");
-                    runnerCircle.classList.add("progress-circle__runner--completed");
-                    runnerCircle.classList.remove("progress-circle__runner--unstarted");
-                    runnerCircle.style.fill = "#162c53";  // Optional fill override
-                }
-            
-                // Show the checkmark icon
-                const checkmark = sidebarItem.querySelector("path.progress-circle__pass");
-                if (checkmark) {
-                    checkmark.style.display = "block";
-                    checkmark.style.opacity = "1";
-                    checkmark.style.visibility = "visible";
-                }
-            
-                // Hide the fail icon
-                const failPath = sidebarItem.querySelector("path.progress-circle__fail");
-                if (failPath) {
-                    failPath.style.display = "none";
-                }
-            }                     
-        }
-    });
-
-    // Force UI redraw
-    if (iframeDocument.body) {
-        iframeDocument.body.style.display = "none";
-        setTimeout(() => {
-            iframeDocument.body.style.display = "";
-            console.log("🔄 SCORM UI refreshed to apply changes.");
-        }, 500);
-    }
-}    
-
 function markPdfLessonComplete() {
     const lessonId = window.lessonId;
     const userId = window.userId;
@@ -676,7 +578,6 @@ function observeSCORMChanges(iframe) {
     let iframeDocument = iframe.contentWindow.document;
     let observer = new MutationObserver(() => {
         console.log("🔄 SCORM UI updated, ensuring progress circles stay correct...");
-        //updateSCORMProgress(iframe);
     });
 
     observer.observe(iframeDocument.body, {
@@ -686,7 +587,6 @@ function observeSCORMChanges(iframe) {
 }
 
 waitForSCORMIframe((iframe) => {
-    //updateSCORMProgress(iframe);
     //observeSCORMChanges(iframe);
     //updateProgressCircles();
     iframe.addEventListener("load", () => {
