@@ -151,23 +151,26 @@ def proxy_scorm_file(request, file_path):
         print(f"❌ Error fetching file {decoded_file_path} from S3: {e}")
         raise Http404("SCORM file not found")
     
-@login_required
 def get_scorm_progress(request, lesson_id):
     user = request.user
     lesson = get_object_or_404(Lesson, pk=lesson_id)
 
     tracking = SCORMTrackingData.objects.filter(user=user, lesson=lesson).first()
-    suspend_data = ""
-    if tracking:
-        try:
-            cmi_data = json.loads(tracking.cmi_data or "{}")
-            suspend_data = cmi_data.get("suspend_data", "")
-        except Exception as e:
-            print(f"Error parsing cmi_data: {e}")
 
-    return JsonResponse({"suspend_data": suspend_data})
+    if tracking is None:
+        print(f"[get_scorm_progress] No tracking data found for user={user.id}, lesson={lesson.id}")
+        return JsonResponse({"suspend_data": ""}, status=404)
 
-    
+    try:
+        # Use cmi_data directly if it's already a dict
+        cmi_data = tracking.cmi_data if isinstance(tracking.cmi_data, dict) else json.loads(tracking.cmi_data or "{}")
+        suspend_data = cmi_data.get("suspend_data", "")
+        print(f"[get_scorm_progress] Found suspend_data for user={user.id}, lesson={lesson.id}: {suspend_data}")
+        return JsonResponse({"suspend_data": suspend_data})
+    except Exception as e:
+        print(f"[get_scorm_progress] Error parsing cmi_data: {e}")
+        return JsonResponse({"suspend_data": ""}, status=500)
+
 @login_required
 def launch_scorm(request, course_id):
     course = get_object_or_404(Course, pk=course_id)

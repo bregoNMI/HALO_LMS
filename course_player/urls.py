@@ -9,7 +9,8 @@ urlpatterns = [
     path('launch/<int:lesson_id>/', views.launch_scorm_file, name='launch_scorm'),
     path('track-scorm-data/', views.track_scorm_data, name='track_scorm_data'),
     path('track-mini-lesson-progress/', views.track_mini_lesson_progress, name='track_mini_lesson_progress'),
-    path('scorm-content/<path:file_path>/', views.proxy_scorm_file, name='proxy_scorm_file')
+    path('scorm-content/<path:file_path>/', views.proxy_scorm_file, name='proxy_scorm_file'),
+    path("get-scorm-progress/<int:lesson_id>/", views.get_scorm_progress, name="get_scorm_progress"),
 
     # SCORM iPlayer URL pattern
     #path('scorm/launch/<int:id>/', views.launch_scorm_file, name='launch_scorm_file'),
