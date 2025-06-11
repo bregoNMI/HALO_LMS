@@ -118,7 +118,7 @@ function initializeUserDropdown(containerId, selectedUserIds = []) {
         removeButton.innerHTML = `
         <div class="upload-delete tooltip" data-tooltip="Remove User">
             <span class="tooltiptext">Remove User</span>
-            <i class="fa-regular fa-trash"></i>
+            <i class="fa-regular fa-trash-can"></i>
         </div>
         `;
         removeButton.addEventListener('click', function () {
@@ -305,7 +305,7 @@ function initializeCourseDropdown(containerId, initialSelectedCourseIds = []) {
         removeButton.innerHTML = `
             <div class="upload-delete tooltip" data-tooltip="Remove Course">
                 <span class="tooltiptext">Remove Course</span>
-                <i class="fa-regular fa-trash"></i>
+                <i class="fa-regular fa-trash-can"></i>
             </div>
         `;
         removeButton.addEventListener('click', function () {
@@ -953,8 +953,10 @@ function initializeQuill() {
                 editor.classList.add('quill-initialized');
                 editor.classList.add('scrollable-content');
 
-                // Push the instance to the quillEditors array
-                quillEditors.push(quill);
+                const editorId = editor.id;
+                if (editorId) {
+                    quillEditors[editorId] = quill;
+                }
             }
         });
     }
@@ -962,14 +964,14 @@ function initializeQuill() {
 }
 
 function getEditorContent(editorId) {
-    const quillEditor = new Quill(`#${editorId}`);
-    return quillEditor.root.innerHTML;
+    const quillEditor = quillEditors[editorId];
+    return quillEditor ? quillEditor.root.innerHTML : '';
 }
 
 // Category Dropdown Search
 function initializeCategoryDropdown(containerId) {
     const container = document.getElementById(containerId);
-    console.log('container:', container);
+    const clearBtn = container.querySelector('.dropdown-clear-input');
     const searchInput = container.querySelector('.categorySearch');
     const dropdownList = container.querySelector('.categoryList');
     const loading = container.querySelector('.loadingIndicator');
@@ -1082,6 +1084,8 @@ function initializeCategoryDropdown(containerId) {
         }
 
         searchInput.value = '';
+        searchInput.removeAttribute('data-id');
+
         const item = dropdownList.querySelector(`[data-id="${id}"]`);
         if (item) {
             item.classList.remove('selected');
@@ -1117,6 +1121,21 @@ function initializeCategoryDropdown(containerId) {
             searchInput.style.border = '1px solid #ececf1';
         }
     });
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+            searchInput.value = '';
+            searchInput.removeAttribute('data-id');
+    
+            // Optionally reset dropdown selection
+            const selected = dropdownList.querySelector('.dropdown-item.selected');
+            if (selected) {
+                selected.classList.remove('selected');
+                const checkbox = selected.querySelector('.category-checkbox');
+                if (checkbox) checkbox.checked = false;
+            }
+        });
+    }    
 
     fetchCategories();
 }

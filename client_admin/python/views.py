@@ -497,6 +497,8 @@ def enroll_users_request(request):
             # Check if the UserCourse already exists (user is already enrolled)
             user_course, created = UserCourse.objects.get_or_create(user=user, course=course)
 
+            print('ENROLL USERS REQUEST')
+
             if created:
                 # Create UserModuleProgress instances for each module in the course
                 first_lesson = Lesson.objects.filter(module__course=course).order_by('module__order', 'order').first()

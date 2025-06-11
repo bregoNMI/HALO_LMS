@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("content", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ("client_admin", "__first__"),
+        ("client_admin", "0002_allowedidphotos_timezone_usercourse_and_more"),
     ]
 
     operations = [

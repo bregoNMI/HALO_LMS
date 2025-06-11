@@ -117,6 +117,9 @@
                                                 <div class="categoryList scrollable-content-inner">
                                                     <div class="loadingIndicator" style="display:none;">Loading...</div>
                                                 </div>
+                                                <div class="dropdown-clear-input">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>                 
@@ -214,7 +217,7 @@
                                                 <div class="module-header-right">
                                                     <div onclick="openPopup('moduleDeleteConfirmation', 'deleteModule', this)" id="deleteModule" class="module-delete tooltip" data-tooltip="Delete Module">
                                                         <span class="tooltiptext">Delete Module</span>
-                                                        <i class="fa-regular fa-trash"></i>
+                                                        <i class="fa-regular fa-trash-can"></i>
                                                     </div>
                                                     <div class="module-dropdown">
                                                         <i class="fa-regular fa-angle-down"></i>
@@ -251,7 +254,7 @@
                                                                     </div>
                                                                     <div class="lesson-delete tooltip" data-tooltip="Delete Lesson">
                                                                         <span class="tooltiptext">Delete Lesson</span>
-                                                                        <i class="fa-regular fa-trash"></i>
+                                                                        <i class="fa-regular fa-trash-can"></i>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -696,11 +699,11 @@
                                     {% if thumbnail_media.thumbnail_link or thumbnail_media.thumbnail_image.url %}
                                         <input id="thumbnailId" type="hidden" value="{{ thumbnail_media.id }}">
                                         <div id="thumbnailDelete" onclick="openPopup('thumbnailDeleteConfirmation')" style="display: flex;" class="table-filter-item-small thumbnail-delete">
-                                            <i class="fa-regular fa-trash"></i>
+                                            <i class="fa-regular fa-trash-can"></i>
                                         </div>
                                     {% else %}
                                         <div id="thumbnailDelete" onclick="openPopup('thumbnailDeleteConfirmation')" style="display: none;" class="table-filter-item-small thumbnail-delete">
-                                            <i class="fa-regular fa-trash"></i>
+                                            <i class="fa-regular fa-trash-can"></i>
                                         </div>
                                     {% endif %}
                                 </div>
@@ -747,7 +750,7 @@
                                                     <div class="reference-header-right">
                                                         <div onclick="openPopup('referenceDeleteConfirmation', 'deleteReference', this)" id="deleteReference" class="reference-delete tooltip" data-tooltip="Delete Reference">
                                                             <span class="tooltiptext">Delete Reference</span>
-                                                            <i class="fa-regular fa-trash"></i>
+                                                            <i class="fa-regular fa-trash-can"></i>
                                                         </div>
                                                         <div class="reference-dropdown">
                                                             <i class="fa-regular fa-angle-down"></i>
@@ -791,7 +794,7 @@
                                                 <div class="reference-header-right">
                                                     <div onclick="openPopup('referenceDeleteConfirmation', 'deleteReference', this)" id="deleteReference" class="reference-delete tooltip" data-tooltip="Delete Reference">
                                                         <span class="tooltiptext">Delete Reference</span>
-                                                        <i class="fa-regular fa-trash"></i>
+                                                        <i class="fa-regular fa-trash-can"></i>
                                                     </div>
                                                     <div class="reference-dropdown">
                                                         <i class="fa-regular fa-angle-down"></i>
@@ -878,7 +881,7 @@
                                                     <div class="upload-header-right">
                                                         <div onclick="openPopup('uploadDeleteConfirmation', 'deleteUpload', this)" id="deleteUpload" class="upload-delete tooltip" data-tooltip="Delete Upload">
                                                             <span class="tooltiptext">Delete Upload</span>
-                                                            <i class="fa-regular fa-trash"></i>
+                                                            <i class="fa-regular fa-trash-can"></i>
                                                         </div>
                                                         <div class="upload-dropdown">
                                                             <i class="fa-regular fa-angle-down"></i>
@@ -975,7 +978,7 @@
                                                 <div class="upload-header-right">
                                                     <div onclick="openPopup('uploadDeleteConfirmation', 'deleteUpload', this)" id="deleteUpload" class="upload-delete tooltip" data-tooltip="Delete Upload">
                                                         <span class="tooltiptext">Delete Upload</span>
-                                                        <i class="fa-regular fa-trash"></i>
+                                                        <i class="fa-regular fa-trash-can"></i>
                                                     </div>
                                                     <div class="upload-dropdown">
                                                         <i class="fa-regular fa-angle-down"></i>

@@ -10,7 +10,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
-from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType, Quiz, Question, QuestionOrder, MCQuestion, Answer, TFQuestion, FITBQuestion, FITBAnswer
+from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType, Quiz, Question, QuestionOrder, MCQuestion, Answer, TFQuestion, FITBQuestion, FITBAnswer, EssayQuestion, EssayPrompt, QuestionMedia, QuizReference
 from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse, EnrollmentKey, ActivityLog, Profile
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 import uuid as uuid_lib
@@ -497,6 +497,10 @@ def create_or_update_course(request):
     def update_user_progress(course):
         """ Update progress for all users enrolled in the course """
         enrolled_users = UserCourse.objects.filter(course=course).select_related('user')
+
+        if not enrolled_users.exists():
+            print(f"No enrolled users for course {course.title}, skipping progress update.")
+            return
         
         for user_course in enrolled_users:
             for module in course.modules.all():
@@ -546,7 +550,9 @@ def create_or_update_course(request):
             course.title = data.get('title', '')
             course.description = data.get('description', '')
             category_id = data.get('category_id')
-            if category_id:
+            if category_id in [None, '', 'null']:
+                course.category = None
+            else:
                 course.category = get_object_or_404(Category, id=category_id)
             course.type = data.get('type', 'bundle')
             course.terms_and_conditions = data.get('terms_and_conditions', 'false') == 'true'
@@ -1129,6 +1135,8 @@ def submit_enrollment_key(request):
     for course in courses:
         user_course, created = UserCourse.objects.get_or_create(user=user, course=course)
 
+        print('SUBMIT ENROLLMENT KEY')
+
         if created:
             # Assign first lesson
             first_lesson = Lesson.objects.filter(module__course=course).order_by('module__order', 'order').first()
@@ -1639,12 +1647,16 @@ def get_question_data(request):
 
         data = []
         for q in questions:
-            if hasattr(q, 'mcquestion'):
+            if hasattr(q, 'mcquestion') and q.mcquestion.allows_multiple:
+                q_type = 'MRQuestion'
+            elif hasattr(q, 'mcquestion'):
                 q_type = 'MCQuestion'
             elif hasattr(q, 'tfquestion'):
                 q_type = 'TFQuestion'
             elif hasattr(q, 'fitbquestion'):
                 q_type = 'FITBQuestion'
+            elif hasattr(q, 'essayquestion'):
+                q_type = 'EssayQuestion'
             else:
                 q_type = 'Question'
 
@@ -1673,8 +1685,10 @@ def create_question(request):
         # Map types to classes
         question_classes = {
             'multiple-choice': MCQuestion,
+            'multiple-response': MCQuestion,
             'true-false': TFQuestion,
-            'open-response': FITBQuestion,
+            'fill-in-the-blank': FITBQuestion,
+            'open-response': EssayQuestion,
         }
 
         QuestionClass = question_classes.get(q_type)
@@ -1692,11 +1706,23 @@ def create_question(request):
                 content="Enter question title here...",
                 answer_order='none'  # optional field in MCQuestion
             )
-        elif q_type == 'open-response':
+        elif q_type == 'multiple-response':
+            new_question = MCQuestion.objects.create(
+                content="Enter question title here...",
+                answer_order='none',
+                allows_multiple=True 
+            )
+        elif q_type == 'fill-in-the-blank':
             new_question = QuestionClass.objects.create(
                 content="Enter question title here...",
                 case_sensitive=False,
                 strip_whitespace=True
+            )
+        elif q_type == 'open-response':
+            new_question = EssayQuestion.objects.create(
+                content="Enter question title here...",
+                instructions="",
+                rubric=""
             )
         else:
             return JsonResponse({'success': False, 'error': 'Unsupported question type'})
@@ -1736,6 +1762,22 @@ def update_question_order(request):
         return JsonResponse({'success': False, 'error': str(e)})
     
 @require_POST
+def update_answer_order(request):
+    try:
+        data = json.loads(request.body)
+        ordered_ids = data.get('ordered_ids', [])
+        question_type = data.get('question_type')
+
+        Model = Answer if question_type in ['MCQuestion', 'MRQuestion'] else EssayPrompt
+
+        for index, answer_id in enumerate(ordered_ids):
+            Model.objects.filter(id=answer_id).update(order=index)
+
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
+@require_POST
 def delete_question(request):
     try:
         data = json.loads(request.body)
@@ -1761,51 +1803,84 @@ def get_answer_data(request):
         question_id = data.get('question_id')
         question = Question.objects.get(id=question_id)
 
+        q_type = 'Question'
+        answers = []
+        randomize = getattr(question, 'randomize_answer_order', False)
+        allows_multiple = False
+        case_sensitive = False
+        strip_whitespace = False
+        instructions = None
+        rubric = None
+
         if hasattr(question, 'mcquestion'):
-            q_type = 'MCQuestion'
+            mc = question.mcquestion
+            allows_multiple = getattr(mc, 'allows_multiple', False)
+            q_type = 'MRQuestion' if allows_multiple else 'MCQuestion'
             answers = [
                 {
                     'id': a.id,
                     'text': a.text,
                     'is_correct': a.is_correct
-                } for a in question.answers.all()
+                } for a in question.answers.all().order_by('order')
             ]
 
         elif hasattr(question, 'tfquestion'):
+            tf = question.tfquestion
             q_type = 'TFQuestion'
             answers = [
-                {
-                    'label': 'True',
-                    'value': True,
-                    'is_correct': question.tfquestion.correct is True
-                },
-                {
-                    'label': 'False',
-                    'value': False,
-                    'is_correct': question.tfquestion.correct is False
-                }
+                {'label': 'True', 'value': True, 'is_correct': tf.correct is True},
+                {'label': 'False', 'value': False, 'is_correct': tf.correct is False}
             ]
 
         elif hasattr(question, 'fitbquestion'):
+            fitb = question.fitbquestion
             q_type = 'FITBQuestion'
+            case_sensitive = getattr(fitb, 'case_sensitive', False)
+            strip_whitespace = getattr(fitb, 'strip_whitespace', False)
             answers = [
-                {
-                    'id': a.id,
-                    'text': a.content
-                } for a in question.fitbquestion.acceptable_answers.all()
+                {'id': a.id, 'text': a.content}
+                for a in fitb.acceptable_answers.all().order_by('order')
             ]
-        else:
-            q_type = 'Question'
-            answers = []
+
+        elif hasattr(question, 'essayquestion'):
+            essay = question.essayquestion
+            q_type = 'EssayQuestion'
+            instructions = essay.instructions
+            rubric = essay.rubric
+            answers = [
+                {'id': p.id, 'text': p.prompt_text, 'rubric': p.rubric}
+                for p in essay.prompts.all().order_by('order')
+            ]
 
         return JsonResponse({
             'success': True,
             'question': {
                 'id': question.id,
                 'content': question.content,
+                'category_id': question.category.id if question.category else None,
+                'category_name': question.category.name if question.category else '',
                 'explanation': question.explanation,
                 'type': q_type,
+                'randomize_answer_order': randomize,
+                'case_sensitive': case_sensitive,
+                'strip_whitespace': strip_whitespace,
+                'allows_multiple': allows_multiple,
+                'instructions': instructions,
+                'rubric': rubric,
                 'answers': answers,
+                'media_items': [
+                    {
+                        'id': m.id,
+                        'source_type': m.source_type,
+                        'title': m.title,
+                        'embed_code': m.embed_code,
+                        'input_type': m.input_type,
+                        'file_url': m.file.url if m.source_type == 'upload' and m.file else '',
+                        'file_name': m.file.name.split('/')[-1] if m.source_type == 'upload' and m.file else '',
+                        'url_from_library': m.url_from_library,
+                        'type_from_library': m.type_from_library or '',
+                    } for m in question.media_items.all()
+                ]
             }
         })
     except Exception as e:
@@ -1818,7 +1893,11 @@ def save_question_data(request):
         data = json.loads(request.body)
         question_id = data.get('question_id')
         q_type = data.get('type')
+        category_id = data.get('category')
         content = data.get('content')
+        randomize_answer_order = data.get('randomize_answer_order')
+        case_sensitive = bool(data.get('case_sensitive', False))
+        strip_whitespace = bool(data.get('strip_whitespace', False))
         explanation = data.get('explanation')
 
         if not question_id or not q_type:
@@ -1826,7 +1905,16 @@ def save_question_data(request):
 
         question = Question.objects.get(id=question_id)
         question.content = content
+        if category_id:
+            try:
+                question.category = Category.objects.get(id=category_id)
+            except Category.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Invalid category ID'})
+        else:
+            question.category = None
+
         question.explanation = explanation
+        question.randomize_answer_order = randomize_answer_order
         question.save()
 
         # Save answers
@@ -1842,12 +1930,14 @@ def save_question_data(request):
                     a = existing[int(answer_id)]
                     a.text = ans['text']
                     a.is_correct = ans['is_correct']
+                    a.order = ans.get('order', 0)
                     a.save()
                 else:
                     Answer.objects.create(
                         question=question,
                         text=ans['text'],
-                        is_correct=ans['is_correct']
+                        is_correct=ans['is_correct'],
+                        order=ans.get('order', 0)
                     )
 
             # Delete removed
@@ -1862,6 +1952,10 @@ def save_question_data(request):
 
         elif q_type == 'FITBQuestion':
             fitb = FITBQuestion.objects.get(id=question_id)
+            fitb.case_sensitive = case_sensitive
+            fitb.strip_whitespace = strip_whitespace
+            fitb.save()
+            
             existing = {a.id: a for a in fitb.acceptable_answers.all()}
             incoming_ids = set()
 
@@ -1883,7 +1977,258 @@ def save_question_data(request):
                 if old_id not in incoming_ids:
                     existing[old_id].delete()
 
+        elif q_type == 'EssayQuestion':
+            essay = EssayQuestion.objects.get(id=question_id)
+            essay.instructions = data.get('instructions', '')
+            essay.rubric = data.get('rubric', '')
+            essay.save()
+
+            existing = {p.id: p for p in essay.prompts.all()}
+            incoming_ids = set()
+
+            for prompt in data['answers']:
+                prompt_id = prompt.get('id')
+                incoming_ids.add(int(prompt_id)) if prompt_id else None
+
+                if prompt_id and int(prompt_id) in existing:
+                    p = existing[int(prompt_id)]
+                    p.prompt_text = prompt['text']
+                    p.rubric = prompt.get('rubric', '')
+                    p.order = prompt.get('order', 0)
+                    p.save()
+                else:
+                    EssayPrompt.objects.create(
+                        question=essay,
+                        prompt_text=prompt['text'],
+                        rubric=prompt.get('rubric', ''),
+                        order=prompt.get('order', 0)
+                    )
+
+            for old_id in existing:
+                if old_id not in incoming_ids:
+                    existing[old_id].delete()
+
+        media_items = data.get('media_items', [])
+        existing_media = {m.id: m for m in question.media_items.all()}
+        incoming_ids = set()
+
+        for item in media_items:
+            media_id = item.get('id')
+            source_type = item.get('source_type')
+            title = item.get('title', '')
+            embed_code = item.get('embed_code', '')
+            input_type = item.get('input_type', '')
+            url_from_library = item.get('url_from_library', '')
+            type_from_library = item.get('type_from_library', '')
+            
+            if source_type == 'upload' and not media_id:
+                continue
+            if source_type == 'library' and not url_from_library:
+                continue
+            if source_type == 'embed' and not embed_code:
+                continue
+
+            if media_id:
+                media = QuestionMedia.objects.filter(id=media_id).first()
+                if media:
+                    if not media.question_id:
+                        media.question = question
+                    media.title = title
+                    media.embed_code = embed_code
+                    media.input_type = input_type
+                    media.url_from_library = url_from_library
+                    media.type_from_library = type_from_library
+                    media.save()
+                    incoming_ids.add(media.id)
+            else:
+                media = QuestionMedia.objects.create(
+                    question=question,
+                    source_type=source_type,
+                    title=title,
+                    embed_code=embed_code,
+                    input_type=input_type,
+                    url_from_library=url_from_library,
+                    type_from_library=type_from_library
+                )
+                incoming_ids.add(media.id)
+
+        for old_id in existing_media:
+            if old_id not in incoming_ids:
+                existing_media[old_id].delete()
+
         return JsonResponse({'success': True})
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+    
+@require_POST
+def change_question_type(request):
+    try:
+        data = json.loads(request.body)
+        question_id = data.get('question_id')
+        new_type = data.get('new_type')
+
+        question = Question.objects.get(id=question_id)
+
+        if new_type not in ['MCQuestion', 'MRQuestion']:
+            return JsonResponse({'success': False, 'error': 'Unsupported question type'})
+
+        # Update the allows_multiple flag (used in frontend)
+        question.allows_multiple = (new_type == 'MRQuestion')
+        question.save()
+
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@require_POST
+def upload_question_media(request):
+    try:
+        file = request.FILES.get('file')
+        if not file:
+            return JsonResponse({'success': False, 'error': 'No file provided'})
+
+        media = QuestionMedia.objects.create(
+            file=file,
+            source_type='upload'
+        )
+
+        return JsonResponse({
+            'success': True,
+            'id': media.id,
+            'file_url': media.file.url,
+            'file_name': media.file.name.split('/')[-1],
+        })
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
+@require_POST
+def save_quiz_settings(request):
+    try:
+        data = json.loads(request.body)
+        uuid = data.get('uuid')
+        quiz = get_object_or_404(Quiz, uuid=uuid)
+
+        quiz.title = data.get('title', '')
+        quiz.description = data.get('description', '')
+        category_id = data.get('category_id')
+        quiz.success_text = data.get('success_text')
+        quiz.fail_text = data.get('fail_text')
+        quiz.quiz_material = data.get('quiz_material')
+        quiz.singular_quiz_rules = data.get('singular_quiz_rules')
+        quiz.ai_grade_essay = bool(data.get('ai_grade_essay'))
+        quiz.ai_grade_rubric = data.get('ai_grade_rubric')
+
+        if category_id:
+            try:
+                quiz.category = Category.objects.get(id=category_id)
+            except Category.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Invalid category ID'})
+        else:
+            quiz.category = None
+
+        quiz.save()
+
+        references = data.get('references', [])
+        existing_refs = {r.id: r for r in quiz.references.all()}
+        incoming_ids = set()
+
+        for ref_data in references:
+            ref_id = ref_data.get('id')
+            title = ref_data.get('title', '')
+            url = ref_data.get('url_from_library', '')
+            ref_type = ref_data.get('type_from_library', '')
+            source_type = ref_data.get('source_type', 'upload')
+
+            if ref_id:
+                ref = QuizReference.objects.filter(id=ref_id).first()
+                if ref:
+                    ref.title = title
+                    ref.url_from_library = url
+                    ref.type_from_library = ref_type
+                    ref.source_type = source_type
+                    ref.quiz = quiz
+                    ref.save()
+                    incoming_ids.add(ref.id)
+            else:
+                # Create new reference
+                new_ref = QuizReference.objects.create(
+                    quiz=quiz,
+                    title=title,
+                    url_from_library=url,
+                    type_from_library=ref_type,
+                    source_type=source_type
+                )
+                incoming_ids.add(new_ref.id)
+
+        # Delete removed references
+        for old_id in existing_refs:
+            if old_id not in incoming_ids:
+                existing_refs[old_id].delete()
+
+        return JsonResponse({'success': True, 'title': quiz.title})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@require_POST
+def upload_reference(request):
+    uploaded_file = request.FILES.get('file')
+    if not uploaded_file:
+        return JsonResponse({'success': False, 'error': 'No file uploaded'})
+
+    reference = QuizReference.objects.create(
+        file=uploaded_file,
+        title=uploaded_file.name,
+        source_type='upload'
+    )
+
+    mime_type = uploaded_file.content_type
+    if 'pdf' in mime_type:
+        type_label = 'pdf'
+    elif 'image' in mime_type:
+        type_label = 'image'
+    else:
+        type_label = 'document'
+
+    reference.type_from_library = type_label
+    reference.save()
+
+    return JsonResponse({
+        'success': True,
+        'id': reference.id,
+        'file_url': reference.file.url,
+        'file_name': reference.title,
+        'type': type_label,
+    })
+
+def get_quiz_references(request, uuid):
+    try:
+        quiz = Quiz.objects.get(uuid=uuid)
+        references = quiz.references.all()
+
+        data = []
+        for ref in references:
+            file_url = ref.get_file_url()
+            print(f"[DEBUG] Ref ID {ref.id} | Type: {ref.source_type} | File Field: {ref.file} | URL: {file_url}")
+
+            data.append({
+                'id': ref.id,
+                'title': ref.title,
+                'url_from_library': file_url,  # this will work for both upload and library
+                'type_from_library': ref.type_from_library,
+                'source_type': ref.source_type,
+            })
+
+
+        return JsonResponse({'success': True, 'references': data})
+
+    except Quiz.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Quiz not found'})
+    
+def get_file_url(self):
+    if self.source_type == 'upload' and self.file:
+        return self.file.url  # ← this must be a valid path from your storage
+    elif self.source_type == 'library':
+        return self.url_from_library
+    return ''

@@ -1,0 +1,24 @@
+<div id="embedMediaModal" class="popup-background">
+    <div class="popup-content max-width-1">
+        <div class="popup-header">
+            <h3>Embed Media</h3>
+            <div onclick="closePopup('embedMediaModal')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <div class="course-content-input">
+                <textarea class="standard-input" id="embedCodeInput" placeholder="Paste embed iframe or URL here..." type="text" name="embed"></textarea>
+                <span class="course-content-input-subtext"> </span>
+                <span id="embedCodeFeedback"></span>
+            </div>        
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button type="button" onclick="closePopup('embedMediaModal')" class="popup-btn close-popup-btn">Back</button>
+                <button id="embedSubmitBtn" onclick="closePopup('embedMediaModal'), submitEmbedMedia()" class="popup-btn"><i class="fa-regular fa-arrow-down-to-arc"></i> Insert</button>
+            </div>
+        </div>
+    </div>
+</div>

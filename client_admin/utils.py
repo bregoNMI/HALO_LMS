@@ -113,6 +113,8 @@ def enroll_user_with_key(user, key_str):
     # Enroll the user
     UserCourse.objects.create(user=user, course=course)
 
+    print('ENROLLMENT KEY')
+
     # Update the key usage
     enrollment_key.uses += 1
     if enrollment_key.uses >= enrollment_key.max_uses:

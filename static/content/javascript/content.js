@@ -273,7 +273,7 @@ function createNewModule() {
             <div class="module-header-right">
                 <div onclick="openPopup('moduleDeleteConfirmation', 'deleteModule', this)" id="deleteModule" class="module-delete tooltip" data-tooltip="Delete Module">
                     <span class="tooltiptext">Delete Module</span>
-                    <i class="fa-regular fa-trash"></i>
+                    <i class="fa-regular fa-trash-can"></i>
                 </div>
                 <div class="module-dropdown">
                     <i class="fa-regular fa-angle-down"></i>
@@ -330,7 +330,7 @@ function createNewReference() {
             <div class="reference-header-right">
                 <div onclick="openPopup('referenceDeleteConfirmation', 'deleteReference', this)" id="deleteReference" class="reference-delete tooltip" data-tooltip="Delete Reference">
                     <span class="tooltiptext">Delete Reference</span>
-                    <i class="fa-regular fa-trash"></i>
+                    <i class="fa-regular fa-trash-can"></i>
                 </div>
                 <div class="reference-dropdown">
                     <i class="fa-regular fa-angle-down"></i>
@@ -398,7 +398,7 @@ function createNewUpload(){
             <div class="upload-header-right">
                 <div onclick="openPopup('uploadDeleteConfirmation', 'deleteUpload', this)" id="deleteUpload" class="upload-delete tooltip" data-tooltip="Delete Upload">
                     <span class="tooltiptext">Delete Upload</span>
-                    <i class="fa-regular fa-trash"></i>
+                    <i class="fa-regular fa-trash-can"></i>
                 </div>
                 <div class="upload-dropdown">
                     <i class="fa-regular fa-angle-down"></i>
@@ -808,7 +808,7 @@ function createAndAppendLessonCard(index, title, description, fileURL, fileName,
             </div>
             <div class="lesson-delete tooltip" data-tooltip="Delete Lesson">
                 <span class="tooltiptext">Delete Lesson</span>
-                <i class="fa-regular fa-trash"></i>
+                <i class="fa-regular fa-trash-can"></i>
             </div>
         </div>
     `;
@@ -1245,13 +1245,16 @@ function generateCourseData(isSave) {
     const hours = document.getElementById('completion_hours').value || 0;
     const minutes = document.getElementById('completion_seconds').value || 0;
 
+    let rawCategory = document.getElementById('category')?.getAttribute('data-id');
+    const category = rawCategory && rawCategory !== 'null' ? parseInt(rawCategory) : null;
+
     // Initialize courseData
     const courseData = {
         id: document.getElementById('courseId') ? document.getElementById('courseId').value : null, // Check for the course ID,
         title: document.getElementById('title').value,
         description: getEditorContent('courseDescription'),
-        category_id: document.getElementById('category').getAttribute('data-id'), // Adjust as needed
-        type: 'online', // Adjust as needed
+        category_id: category,
+        type: 'online',
         status: document.getElementById('status').value,
         estimated_completion_time: `${hours}h ${minutes}m`,
         modules: [],
@@ -1266,8 +1269,9 @@ function generateCourseData(isSave) {
     if (courseData.id) {
         formData.append('id', courseData.id); 
     }
-    if (courseData.category_id) {
-        formData.append('category_id', courseData.category_id); 
+
+    if (courseData.category_id !== null) {
+        formData.append('category_id', courseData.category_id);
     }
     // Append basic course data to FormData
     
@@ -2158,7 +2162,6 @@ function initializeThumbnailPreview(){
 
 document.getElementById('createCategoryButton').addEventListener('click', function() {
     const parentCategory = document.getElementById('parentCategory').getAttribute('data-id');
-    console.log(parentCategory);
     const categoryName = document.getElementById('newCategoryName').value.trim();
     const categoryDescription = getEditorContent('categoryDescription');
     if (categoryName) {
@@ -2173,7 +2176,7 @@ document.getElementById('createCategoryButton').addEventListener('click', functi
         createCategoryButton.classList.add('disabled');
         createCategoryButton.setAttribute('disabled', true);
     } else {
-        alert('Please enter a category name.');
+        displayValidationMessage('Please enter a category name.', false);
     }
 });
 

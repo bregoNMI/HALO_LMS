@@ -375,7 +375,7 @@ def track_scorm_data(request):
              # Update UserCourse progress
             user_course, _ = UserCourse.objects.get_or_create(user=profile.user, course=lesson.module.course)
             user_course.update_progress()
-            print('HERE')
+            print('TRACK SCORM DATA')
  
             return JsonResponse({"status": "success"})
  

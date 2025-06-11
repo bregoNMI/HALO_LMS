@@ -399,40 +399,51 @@ class Question(models.Model):
     Shared properties placed here.
     """
 
-    category = models.ForeignKey(Category,
-                                 verbose_name=_("Category"),
-                                 blank=True,
-                                 null=True,
-                                 on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        'Category',
+        verbose_name=_("Category"),
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE
+    )
 
-    tags = models.CharField(max_length=128,
-                            blank=True,
-                            null=False)
+    tags = models.CharField(max_length=128, blank=True)
 
-    figure = models.ImageField(upload_to='uploads/%Y/%m/%d',
-                               blank=True,
-                               null=True,
-                               verbose_name=_("Figure"))
-
-    urlField = models.TextField(blank=True,
-                                null=True,
-                                verbose_name=_('IFrame for Exercises.'))
-
-    content = models.CharField(max_length=1000,
-                               blank=False,
-                               help_text=_("Enter the question text that "
-                                           "you want displayed"),
-                               verbose_name=_('Question'))
-
-    explanation = models.TextField(max_length=2000,
-                                   blank=True,
-                                   help_text=_("Explanation to be shown "
-                                               "after the question has "
-                                               "been answered."),
-                                   verbose_name=_('Explanation'))
+    urlField = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name=_('IFrame for Exercises.')
+    )
+    content = models.CharField(
+        max_length=1000,
+        help_text=_("Enter the question text that you want displayed"),
+        verbose_name=_('Question')
+    )
+    explanation = models.TextField(
+        max_length=2000,
+        blank=True,
+        help_text=_("Explanation to be shown after the question has been answered."),
+        verbose_name=_('Explanation')
+    )
+    randomize_answer_order = models.BooleanField(
+        default=False,
+        verbose_name=_("Randomize Answer Order"),
+        help_text=_("Display the answers in a random order when the question is shown.")
+    )
+    allows_multiple = models.BooleanField(default=False)
 
     def __str__(self):
         return self.content
+    
+class QuestionMedia(models.Model):
+    question = models.ForeignKey('Question', related_name='media_items', on_delete=models.CASCADE, null=True, blank=True)
+    file = models.FileField(upload_to='question_media/')
+    source_type = models.CharField(max_length=20, choices=[('upload', 'Upload'), ('library', 'Library'), ('embed', 'Embed')])
+    title = models.CharField(max_length=255, blank=True)
+    embed_code = models.TextField(blank=True, null=True)
+    input_type = models.TextField(blank=True, null=True)
+    url_from_library = models.URLField(max_length=500, blank=True)  # For storing a URL to the image from library
+    type_from_library = models.CharField(max_length=255, blank=True)
     
 # Define a Quiz model
 class Quiz(models.Model):
@@ -498,9 +509,9 @@ class Quiz(models.Model):
                     " stored. Necessary for marking."),
         verbose_name=_("Exam Paper"))
 
-    exam_material = models.TextField(
-        verbose_name=_("Exam Materials"),
-        blank=True, help_text=_("Specify any external resources the test-taker is allowed to use during the exam. Please separate each exam material by a comma."))
+    quiz_material = models.TextField(
+        verbose_name=_("Quiz Materials"),
+        blank=True, help_text=_("Specify any external resources the test-taker is allowed to use during the quiz. Please separate each quiz material by a comma."))
 
     ai_grade_rubric = models.TextField(
         verbose_name=_("AI Grading Rubric"),
@@ -520,19 +531,16 @@ class Quiz(models.Model):
 
     success_text = models.TextField(
         blank=True, help_text=_("Displayed if user passes."),
-        default="Your exam will be reviewed by an auditor from all the footage that was collected from your pre-exam environment and activities recorded during the exam."
-                " We will notify you as soon as your exam has been reviewed. This may take up to 2 business days.",
+        default="Congratulations! You've successfully passed the quiz.",
         verbose_name=_("Success Text"))
 
-    singularExamRules = models.TextField(
-        verbose_name=_("singularExamRules"),
-        blank=True, help_text=_("a set of rules for a specific exam."))
+    singular_quiz_rules = models.TextField(
+        verbose_name=_("singular_quiz_rules"),
+        blank=True, help_text=_("a set of rules for a specific quiz."))
 
     fail_text = models.TextField(
         verbose_name=_("Fail Text"),
-        default="You haven't passed this attempt for this exam. If this was your 1st attempt, you are free to move on to the next attempt."
-                " If this was your 2nd attempt, you will be enrolled in your 3rd attempt in 24 hours."
-                "If this was your 3rd and final attempt, please contact registration@northeastmaritime.com to pay your retake fee.",
+        default="You didn’t pass this time. Review the material and try again.",
         blank=True, help_text=_("Displayed if user fails."))
 
     draft = models.BooleanField(
@@ -543,20 +551,20 @@ class Quiz(models.Model):
                     " taken by users who can edit"
                     " quizzes."))
 
-    totalAttempts = models.SmallIntegerField(
+    total_attempts = models.SmallIntegerField(
         default=1,
         verbose_name=_("Total Number of Attempts"),
         help_text=_("Maximum number of attempts the user can attempt."))
 
-    attemptsTaken = models.SmallIntegerField(
+    attempts_taken = models.SmallIntegerField(
         default=1,
         verbose_name=_("Number of attempts taken"),
         help_text=_("Number of attempts the current user has taken."))
 
-    totalWarnings = models.IntegerField(default=25, blank=False, verbose_name=_("Number of warnings before exam shut down:"),
+    total_warnings = models.IntegerField(default=25, blank=False, verbose_name=_("Number of warnings before exam shut down:"),
                         help_text=_("Total number of warnings allowed for this quiz. Unlimited if 0."))
 
-    allowRestart = models.BooleanField(default=True, blank=False,
+    allow_restart = models.BooleanField(default=True, blank=False,
                                    verbose_name=_("Do you want the user to restart the exam once started?"))
 
     author = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
@@ -566,15 +574,41 @@ class Quiz(models.Model):
 
     def __str__(self):
         return self.title
+    
+class QuizReference(models.Model):
+    quiz = models.ForeignKey('Quiz', related_name='references', on_delete=models.CASCADE, null=True, blank=True)
+    file = models.FileField(upload_to='quiz_references/', blank=True, null=True)
+    source_type = models.CharField(
+        max_length=20,
+        choices=[('upload', 'Upload'), ('library', 'Library')],
+        default='upload'
+    )
+    title = models.CharField(max_length=255, blank=True)
+    url_from_library = models.URLField(max_length=500, blank=True)
+    type_from_library = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return self.title or f'Reference for {self.quiz}'
+
+    def get_file_url(self):
+        if self.source_type == 'upload' and self.file:
+            return self.file.url
+        elif self.source_type == 'library':
+            return self.url_from_library
+        return ''
 
 # Define an Answer model
 class Answer(models.Model):
     question = models.ForeignKey(Question, related_name='answers', on_delete=models.CASCADE)
     text = models.TextField()
     is_correct = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.text
+    
+    class Meta:
+        ordering = ['order']
 
 class QuestionOrder(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
@@ -708,15 +742,18 @@ class FITBAnswer(models.Model):
         max_length=255,
         verbose_name=_("Acceptable Answer")
     )
+    order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.content
+    
+    class Meta:
+        ordering = ['order']
 
 class FITBQuestion(Question):
     """
     Subtype for fill-in-the-blank questions with multiple acceptable answers.
     """
-
     case_sensitive = models.BooleanField(
         default=False,
         verbose_name=_("Case Sensitive"),
@@ -728,6 +765,122 @@ class FITBQuestion(Question):
         verbose_name=_("Strip Whitespace"),
         help_text=_("Trim leading/trailing whitespace before checking answer.")
     )
+
+class EssayQuestion(Question):
+    """
+    A subtype of Question for manually or AI-graded multipart essay questions.
+    """
+
+    instructions = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name=_("Instructions"),
+        help_text=_("General instructions for answering this essay question.")
+    )
+
+    rubric = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name=_("Rubric"),
+        help_text=_("Detailed grading rubric for instructors or AI.")
+    )
+
+    answer_type = models.CharField(
+        max_length=150,
+        blank=True,
+        null=True,
+        verbose_name=_("Answer Type"),
+        help_text=_("Optional classification or guidance for the expected answer.")
+    )
+
+    def get_prompts(self):
+        return self.prompts.all()
+
+    def get_prompts_with_ids(self):
+        return [
+            {
+                'id': str(prompt.id),
+                'prompt_text': prompt.prompt_text,
+                'rubric': prompt.rubric
+            }
+            for prompt in self.prompts.all()
+        ]
+
+    @property
+    def is_gradable(self):
+        # Essay questions are gradable if they have prompts and a rubric
+        return self.prompts.exists()
+
+    def __str__(self):
+        return f"Essay Question: {self.content}"
+
+    class Meta:
+        verbose_name = _("Essay Question (Manual/AI Graded)")
+        verbose_name_plural = _("Essay Questions (Manual/AI Graded)")
+
+class EssayPrompt(models.Model):
+    question = models.ForeignKey(
+        EssayQuestion, related_name="prompts",
+        on_delete=models.CASCADE,
+        verbose_name=_("Related Essay Question")
+    )
+
+    prompt_text = models.TextField(
+        verbose_name=_("Prompt Text"),
+        help_text=_("The question or prompt for the essay response.")
+    )
+
+    rubric = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name=_("Rubric"),
+        help_text=_("Optional grading guidance for this specific prompt.")
+    )
+
+    order = models.PositiveIntegerField(default=0)
+
+    @property
+    def is_gradable(self):
+        return True  # Always gradable by human/AI
+
+    def __str__(self):
+        return self.prompt_text
+
+    class Meta:
+        verbose_name = _("Essay Prompt")
+        verbose_name_plural = _("Essay Prompts")
+
+class EssayAnswer(models.Model):
+    prompt = models.ForeignKey(
+        EssayPrompt,
+        related_name="answers",
+        on_delete=models.CASCADE,
+        verbose_name=_("Prompt")
+    )
+
+    question_id = models.IntegerField(blank=True, null=True, verbose_name=_("Question ID"))
+
+    answer_text = models.TextField(
+        verbose_name=_("Answer Text"),
+        help_text=_("Student's essay response.")
+    )
+
+    submitted_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Submitted At"))
+    sitting_id = models.IntegerField(blank=True, null=True, verbose_name=_("Sitting ID"))
+
+    ai_feedback = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name=_("AI Feedback"),
+        help_text=_("AI-generated feedback or scoring.")
+    )
+
+    def __str__(self):
+        return f"Essay Response to Prompt ID {self.prompt.id}"
+
+    class Meta:
+        verbose_name = _("Essay Answer")
+        verbose_name_plural = _("Essay Answers")   
 
 class Classroom(models.Model):
     name = models.CharField(max_length=100)

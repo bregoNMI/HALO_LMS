@@ -199,7 +199,7 @@ function createphotoIdHTML(photoId) {
                     <span class="tooltiptext">Edit</span>
                 </div>
                 <div class="class-action-icon custom-list-option-delete delete-icon tooltip" data-id="${photoId.id}" data-tooltip="Delete">
-                    <i class="fa-regular fa-trash"></i>
+                    <i class="fa-regular fa-trash-can"></i>
                     <span class="tooltiptext">Delete</span>
                 </div>
             </div>

@@ -378,14 +378,14 @@
                                 {% if login_form.form_background_image and login_form.form_background_image != 'None' %}
                                     <div class="image-relative-container">
                                         <div id="formBackgroundPreviewDelete" onclick="deleteImage('formBackgroundImage', 'formBackgroundPreview', this)" style="display: flex;" class="table-filter-item-small thumbnail-delete">
-                                            <i class="fa-regular fa-trash"></i>                            
+                                            <i class="fa-regular fa-trash-can"></i>                            
                                         </div>
                                         <img id="formBackgroundPreview" src="{{ login_form.form_background_image }}" alt="Login form logo">
                                     </div> 
                                 {% else %}
                                     <div class="image-relative-container">
                                         <div id="formBackgroundPreviewDelete" onclick="deleteImage('formBackgroundImage', 'formBackgroundPreview', this)" style="display: none;" class="table-filter-item-small thumbnail-delete">
-                                            <i class="fa-regular fa-trash"></i>                                          
+                                            <i class="fa-regular fa-trash-can"></i>                                          
                                         </div>
                                         <img id="formBackgroundPreview" alt="Background Image for login form" hidden>
                                     </div>

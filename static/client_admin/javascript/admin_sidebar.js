@@ -152,8 +152,8 @@ function initializeToggleKeyboardNav(){
 
 function detectCharacterCounters() {
     const editors = document.querySelectorAll('.editor-container');
-    let MAX_LENGTH;
 
+    // Handle Quill editors
     editors.forEach((editorEl) => {
         const editorId = editorEl.id;
         if (!editorId) return;
@@ -169,12 +169,11 @@ function detectCharacterCounters() {
         const counterContainer = editorEl.parentElement.querySelector('.quill-character-counter');
         const currentCounter = counterContainer?.querySelector('.quill-current-counter');
         const maxCounter = counterContainer?.querySelector('.quill-max-counter');
-        console.log(editorEl, maxCounter);
 
         if (!currentCounter || !maxCounter) return;
-        MAX_LENGTH = maxCounter.innerText;
 
-        // Set initial counter
+        const MAX_LENGTH = parseInt(maxCounter.innerText, 10) || 5000;
+
         const updateCount = () => {
             const textLength = quillEditor.getText().trim().length;
             currentCounter.textContent = textLength;
@@ -183,22 +182,43 @@ function detectCharacterCounters() {
         updateCount();
 
         if (!editorEl.dataset.listenerAdded) {
-            // Enforce max character limit
-            quillEditor.on('text-change', function (delta, oldDelta, source) {
-                const currentLength = quillEditor.getLength(); // includes trailing newline
-                const trimmedLength = quillEditor.getText().trim().length;
-
-                // Prevent further input beyond max
-                if (trimmedLength > MAX_LENGTH) {
-                    quillEditor.deleteText(MAX_LENGTH, currentLength);
+            quillEditor.on('text-change', function () {
+                const textLength = quillEditor.getText().trim().length;
+                if (textLength > MAX_LENGTH) {
+                    quillEditor.deleteText(MAX_LENGTH, quillEditor.getLength());
                 }
-
                 updateCount();
             });
-
             editorEl.dataset.listenerAdded = 'true';
         }
     });
+
+    // Handle standard textareas like the main question input
+    const questionInput = document.getElementById('questionContent');
+    if (questionInput) {
+        // Use document.querySelector since structure is known
+        const counterContainer = document.querySelector('.question-editor-title .quill-character-counter');
+        const currentCounter = counterContainer?.querySelector('.quill-current-counter');
+        const maxCounter = counterContainer?.querySelector('.quill-max-counter');
+
+        if (currentCounter && maxCounter) {
+            const MAX_LENGTH = parseInt(maxCounter.innerText, 10) || 1000;
+
+            const updateCount = () => {
+                const textLength = questionInput.value.trim().length;
+                currentCounter.textContent = textLength;
+            };
+
+            questionInput.addEventListener('input', () => {
+                if (questionInput.value.length > MAX_LENGTH) {
+                    questionInput.value = questionInput.value.slice(0, MAX_LENGTH);
+                }
+                updateCount();
+            });
+
+            updateCount(); // initialize counter on load
+        }
+    }
 }
 
 function toggleAdminSidebar(){

@@ -309,16 +309,6 @@
     border: 1px solid #ececf1;
 }
 
-.edit-user-label{
-    font-size: 0.85rem;
-    margin-top: 0;
-    color: var(--text-color7);
-    /* color: var(--text-color2); */
-    margin-bottom: 0;
-    padding-bottom: 0.4rem;
-    font-weight: 600;
-}
-
 .edit-user-header{
     display: flex;
     flex-direction: row;
@@ -356,45 +346,6 @@
     gap: 0.5rem 3rem;
     margin-top: 0.8rem;
     flex-wrap: wrap;
-}
-
-.edit-user-input{
-    position: relative;
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-}.edit-user-input input.disabled, .edit-user-input .custom-select.disabled, .edit-user-input .flatpickr-input-field.disabled{
-    opacity: 0.8;
-}
-
-.edit-user-input label{
-    font-size: 0.85rem;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-bottom: 0.4rem;
-    color: var(--text-color2);
-    /* max-width: 142px; */
-    max-width: 200px;
-}
-
-.edit-user-input input{
-    padding: var(--pad-xxs) var(--pad-xs);
-    border: 1px solid #ececf1;
-    border-radius: 8px;
-    font-size: var(--btn-font);
-    color: var(--text-color8);
-    flex: 1;
-    text-overflow: ellipsis;
-}.edit-user-input input::placeholder{
-    color: var(--text-color3);
-}
-
-.edit-user-input input:hover {
-    background-color: var(--bg-color3);
-}
-
-.edit-user-input input:focus-visible {
-    outline-color: var(--primary-blue);
 }
 
 .edit-user-text{

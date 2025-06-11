@@ -20,7 +20,14 @@ urlpatterns = [
     path('get-quiz-data/', views.get_question_data, name='get_question_data'),
     path('create-question/', views.create_question, name='create_question'),
     path('update-question-order/', views.update_question_order, name='update_question_order'),
+    path('update-answer-order/', views.update_answer_order, name='update_answer_order'),
     path('delete-question/', views.delete_question, name='delete_question'),
     path('get-answer-data/', views.get_answer_data, name='get_answer_data'),
     path('save-question-data/', views.save_question_data, name='save_question_data'),
+    path('save-quiz-settings/', views.save_quiz_settings, name='save_quiz_settings'),
+    path('change-question-type/', views.change_question_type, name='change_question_type'),
+    path('upload-media/', views.upload_question_media, name='upload_question_media'),
+    path('upload-reference/', views.upload_reference, name='upload_reference'),
+    path('get-quiz-references/<uuid:uuid>/', views.get_quiz_references, name='get_quiz_references'),
+
 ]

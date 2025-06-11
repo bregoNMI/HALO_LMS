@@ -167,7 +167,30 @@ function selectFile(popupId, referenceId = null) {
             } else {
                 displayMessage('Please Select an Image for Header Logo', false);
             }
-        } else {         
+        }else if(popupId === 'quizQuestionMedia'){
+            // Quiz Question Media
+            displayMediaThumbnail(selectedFileURL, 'library', {
+                file_name: selectedFileTitle,
+                title: selectedFileTitle,
+                url_from_library: selectedFileURL,
+                type_from_library: selectedFileType
+            });
+            closePopup('fileLibrary');
+        }else if(popupId === 'quizReferences'){
+            if (isImage(selectedFileURL) || isPDF(selectedFileURL)) {
+                // Quiz References
+                displayReferenceItem(selectedFileURL, {
+                    id: null,  // Optional: set if needed
+                    name: selectedFileTitle,
+                    url_from_library: selectedFileURL,
+                    type_from_library: selectedFileType,
+                    source_type: 'library'
+                });
+                closePopup('fileLibrary');
+            }else{
+                displayMessage('Please Select an Image or PDF for Quiz Reference', false);
+            }
+        }else {         
             const fileURLInput = document.getElementById('fileURLInput');
             const lessonFileDisplay = document.getElementById('lessonFileDisplay');
             fileURLInput.value = selectedFileURL;
@@ -230,26 +253,14 @@ function openFileLibrary(popupId, referenceId = null) {
         lessonEditPopup.style.display = "none";
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("editLesson")');
     } else if (popupId === 'certificateSource') {
-        const checkbox = document.querySelector('.container .filter[data-type="pdf"]');
-        if (checkbox && !checkbox.checked) {
-            const container = checkbox.closest('.container');
-            if (container) {
-                container.click();
-                console.log('The container has been clicked because the checkbox was not checked');
-            }
-        }
+        checkPDFFilterCheckbox();
+
         closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("certificateSource")');
     } else if (popupId === 'thumbnail') {
-        const checkbox = document.querySelector('.container .filter[data-type="image"]');
-        if (checkbox && !checkbox.checked) {
-            const container = checkbox.closest('.container');
-            if (container) {
-                container.click();
-                console.log('The container has been clicked because the checkbox was not checked');
-            }
-        }
+        checkImageFilterCheckbox();
+
         closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("thumbnail")');
@@ -259,46 +270,26 @@ function openFileLibrary(popupId, referenceId = null) {
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
         document.getElementById('selectFileBtn').setAttribute('onclick', `selectFile("referenceSource", "${referenceId}")`);
     } else if (popupId === 'dashboardHeader') {
-        const checkbox = document.querySelector('.container .filter[data-type="image"]');
-        if (checkbox && !checkbox.checked) {
-            const container = checkbox.closest('.container');
-            if (container) {
-                container.click();
-            }
-        }
+        checkImageFilterCheckbox();
+
         closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("dashboardHeader")');
     }else if(popupId === 'loginLogo'){
-        const checkbox = document.querySelector('.container .filter[data-type="image"]');
-        if (checkbox && !checkbox.checked) {
-            const container = checkbox.closest('.container');
-            if (container) {
-                container.click();
-            }
-        }
+        checkImageFilterCheckbox();
+
         closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("loginLogo")');
     } else if(popupId === 'loginBackground'){
-        const checkbox = document.querySelector('.container .filter[data-type="image"]');
-        if (checkbox && !checkbox.checked) {
-            const container = checkbox.closest('.container');
-            if (container) {
-                container.click();
-            }
-        }
+        checkImageFilterCheckbox();
+
         closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("loginBackground")');
     }else if(popupId === 'formBackground'){
-        const checkbox = document.querySelector('.container .filter[data-type="image"]');
-        if (checkbox && !checkbox.checked) {
-            const container = checkbox.closest('.container');
-            if (container) {
-                container.click();
-            }
-        }
+        checkImageFilterCheckbox();
+
         closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("formBackground")');
@@ -308,6 +299,17 @@ function openFileLibrary(popupId, referenceId = null) {
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary"), openLibraryPopup("editHeaderPopup")');
         document.getElementById('selectFileBtn').setAttribute('onclick', `selectFile("header_logo", "${referenceId}")`);
         document.getElementById('editHeaderPopup').style.display = 'none';
+    }else if(popupId === 'quizQuestionMedia'){
+        closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
+        closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
+        document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("quizQuestionMedia")');
+    }else if(popupId === 'quizReferences'){
+        checkImageFilterCheckbox();
+        checkPDFFilterCheckbox();
+
+        closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
+        closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
+        document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile("quizReferences")');
     }else{
         closeFileLibraryBtn.setAttribute('onclick', 'closeFileLibrary()');
         closeFileLibrary.setAttribute('onclick', 'closeFileLibrary()');
@@ -324,6 +326,26 @@ function openFileLibrary(popupId, referenceId = null) {
     setTimeout(() => {
         popupContent2.classList.add('animate-popup-content');
     }, 100);
+}
+
+function checkPDFFilterCheckbox(){
+    const checkbox = document.querySelector('.container .filter[data-type="pdf"]');
+    if (checkbox && !checkbox.checked) {
+        const container = checkbox.closest('.container');
+        if (container) {
+            container.click();
+        }
+    }
+}
+
+function checkImageFilterCheckbox(){
+    const checkbox = document.querySelector('.container .filter[data-type="image"]');
+    if (checkbox && !checkbox.checked) {
+        const container = checkbox.closest('.container');
+        if (container) {
+            container.click();
+        }
+    }
 }
 
 function uncheckLibraryFilters(){

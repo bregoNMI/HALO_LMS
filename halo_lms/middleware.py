@@ -95,6 +95,8 @@ class TermsAcceptanceMiddleware(MiddlewareMixin):
                 # Check for enrollment
                 user_course, created = UserCourse.objects.get_or_create(user=request.user, course=course)
 
+                print('HALO LMS MIDDLEWARE')
+
                 if created:
                     # Enroll the user: assign first lesson and progress objects
 

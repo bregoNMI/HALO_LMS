@@ -10,35 +10,37 @@ function initializeTopRowNav(){
     const detailsTopRow = document.getElementById('mainNavBar');
     const stickyNav = document.getElementById('stickyNavBar');
 
-    // IntersectionObserver callback
-    const observerCallback = (entries) => {
-        entries.forEach(entry => {
-            if (!entry.isIntersecting) {
-                stickyNav.classList.add('visible');
-                stickyNav.classList.remove('visible-hidden');
-                if(stickyNav.nextElementSibling.classList.contains('learner-top-row')){
-                    stickyNav.style.top = '0' + 'px';
-                }else{
-                    stickyNav.style.top = '58.29' + 'px';
+    if(detailsTopRow && stickyNav){
+        // IntersectionObserver callback
+        const observerCallback = (entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) {
+                    stickyNav.classList.add('visible');
+                    stickyNav.classList.remove('visible-hidden');
+                    if(stickyNav.nextElementSibling.classList.contains('learner-top-row')){
+                        stickyNav.style.top = '0' + 'px';
+                    }else{
+                        stickyNav.style.top = '58.29' + 'px';
+                    }
+                    
+                } else {
+                    stickyNav.style.top = '-100px';
+                    setTimeout(() => {
+                        stickyNav.classList.remove('visible');
+                        stickyNav.classList.add('visible-hidden');
+                    }, 300);
                 }
-                
-            } else {
-                stickyNav.style.top = '-100px';
-                setTimeout(() => {
-                    stickyNav.classList.remove('visible');
-                    stickyNav.classList.add('visible-hidden');
-                }, 300);
-            }
+            });
+        };
+
+        // Create a new IntersectionObserver instance
+        const observer = new IntersectionObserver(observerCallback, {
+            threshold: [0]  // Trigger the callback when 0% of the element is visible
         });
-    };
 
-    // Create a new IntersectionObserver instance
-    const observer = new IntersectionObserver(observerCallback, {
-        threshold: [0]  // Trigger the callback when 0% of the element is visible
-    });
-
-    // Observe the target element
-    if(detailsTopRow){observer.observe(detailsTopRow);}
+        // Observe the target element
+        if(detailsTopRow){observer.observe(detailsTopRow);}
+    }
 }
 
 function syncNavBarWidth() {

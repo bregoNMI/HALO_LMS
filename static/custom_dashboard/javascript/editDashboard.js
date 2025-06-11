@@ -173,7 +173,7 @@ function appendResumeCoursesWidget(data){
             </div>
             <div onclick="deleteWidget('${ data.widget_id }'), openPopup('confirmWidgetDeletePopup');" class="delete-widget tooltip" data-id="${ data.widget_id }" data-tooltip="Delete Widget">
                 <span class="tooltiptext">Delete Widget</span>
-                <i class="fa-regular fa-trash"></i>
+                <i class="fa-regular fa-trash-can"></i>
             </div>
         </div>           
         `;
@@ -211,7 +211,7 @@ function appendMyCoursesWidget(data){
             </div>
             <div onclick="deleteWidget('${ data.widget_id }'), openPopup('confirmWidgetDeletePopup');" class="delete-widget tooltip" data-id="${ data.widget_id }" data-tooltip="Delete Widget">
                 <span class="tooltiptext">Delete Widget</span>
-                <i class="fa-regular fa-trash"></i>
+                <i class="fa-regular fa-trash-can"></i>
             </div>
         </div>           
         `;
@@ -249,7 +249,7 @@ function appendEnrollmentKeyWidget(data){
             </div>
             <div onclick="deleteWidget('${ data.widget_id }'), openPopup('confirmWidgetDeletePopup');" class="delete-widget tooltip" data-id="${ data.widget_id }" data-tooltip="Delete Widget">
                 <span class="tooltiptext">Delete Widget</span>
-                <i class="fa-regular fa-trash"></i>
+                <i class="fa-regular fa-trash-can"></i>
             </div>
         </div>           
         `;
@@ -287,7 +287,7 @@ function appendExternalLinkWidget(data){
             </div>
             <div onclick="deleteWidget('${ data.widget_id }'), openPopup('confirmWidgetDeletePopup');" class="delete-widget tooltip" data-id="${ data.widget_id }" data-tooltip="Delete Widget">
                 <span class="tooltiptext">Delete Widget</span>
-                <i class="fa-regular fa-trash"></i>
+                <i class="fa-regular fa-trash-can"></i>
             </div>
         </div>           
         `;
