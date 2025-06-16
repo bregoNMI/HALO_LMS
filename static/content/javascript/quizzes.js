@@ -112,7 +112,7 @@ async function getAnswerData(questionId, force = false) {
         } else {
             removeDisabledSaveBtns();
             console.error(result.error);
-            displayValidationMessage('Error loading question:', result.error, false);
+            displayValidationMessage(`Could not load question. It may have been deleted.`, false);
         }
     } catch (error) {
         clearTimeout(loadingTimeout);
@@ -282,7 +282,7 @@ function displayQuestionEditor(question) {
                             <div class="quill-max-counter">1000</div>
                         </div>
                     </div>
-                    <textarea class="scrollable-content" id="questionContent" max_length="1000" placeholder="Enter question title here...">${question.content}</textarea>
+                    <textarea class="scrollable-content" id="questionContent" max_length="1000" placeholder="Enter question content here...">${question.content}</textarea>
                 </div>
                 <div id="questionMediaContainer" class="question-media-gallery"></div>
             </div>
@@ -383,7 +383,7 @@ function renderAnswers(question) {
                 </div>
                 <div class="answers-container" id="answerList">
                     ${question.answers.map(ans => `
-                        <div class="answer-item" data-answer-id="${ans.id}">
+                        <div class="answer-item" data-answer-id="${ans.id != null ? ans.id : ''}">
                             <div class="answer-item-drag">
                                 <i class="fa-solid fa-grip-dots-vertical answer-drag-icon"></i>
                             </div>
@@ -448,7 +448,7 @@ function renderAnswers(question) {
                 </div>
                 <div class="answers-container fitb-answers" id="answerList">
                     ${question.answers.map(ans => `
-                        <div class="answer-item" data-answer-id="${ans.id}">
+                        <div class="answer-item" data-answer-id="${ans.id != null ? ans.id : ''}">
                             <input type="text" class="answer-text" value="${ans.text}" placeholder="Enter acceptable answer text...">                     
                             <button class="remove-answer-item tooltip" onclick="removeAnswer(this)" data-tooltip="Remove Answer">
                                 <i class="fa-light fa-trash-can"></i>
@@ -526,7 +526,7 @@ function renderAnswers(question) {
                 <div class="answers-container essay-prompts" id="answerList">
                     <div id="noPromptsMessage" class="no-prompts-message" style="display: ${question.answers.length === 0 ? 'block' : 'none'};">Learner will give an answer in their own words. Add a sub-prompt to allow the learner to give multiple targeted responses(Optional).</div>
                     ${question.answers.map((ans, index) => `
-                        <div class="answer-item" data-answer-id="${ans.id}">
+                        <div class="answer-item" data-answer-id="${ans.id != null ? ans.id : ''}">
                             <div class="answer-item-drag">
                                 <i class="fa-solid fa-grip-dots-vertical answer-drag-icon"></i>
                             </div>
@@ -702,10 +702,12 @@ async function saveQuestionDataAndAnswers(questionId, type) {
         category: category
     };
 
+    console.log(payload);
+
     if (type === 'MCQuestion' || type === 'FITBQuestion') {
         const answerElements = document.querySelectorAll('.answer-item');
         payload.answers = Array.from(answerElements).map((el, index) => ({
-            id: el.dataset.answerId || null,
+            id: el.dataset.answerId && el.dataset.answerId !== 'null' && el.dataset.answerId !== '' ? parseInt(el.dataset.answerId) : null,
             text: el.querySelector('.answer-text').value,
             is_correct: type === 'MCQuestion'
                 ? el.querySelector('.answer-correct').checked
@@ -720,7 +722,7 @@ async function saveQuestionDataAndAnswers(questionId, type) {
         payload.instructions = getEditorContent('questionInstructions');
         payload.rubric = getEditorContent('questionRubric');
         payload.answers = Array.from(answerElements).map((el, index) => ({
-            id: el.dataset.answerId || null,
+            id: el.dataset.answerId && el.dataset.answerId !== 'null' && el.dataset.answerId !== '' ? parseInt(el.dataset.answerId) : null,
             text: el.querySelector('.answer-text').value,
             rubric: el.querySelector('.answer-rubric')?.value || '',
             order: index
@@ -1317,27 +1319,47 @@ function syncRubricBack(popupId, answerId) {
 }
 
 function initializeTextareaResize() {
-    document.querySelectorAll('textarea').forEach(textarea => {
-        setTimeout(() => {
+    requestAnimationFrame(() => {
+        document.querySelectorAll('textarea').forEach(textarea => {
             autoResizeTextarea(textarea);
-        }, 50);
-        
-        textarea.addEventListener('input', () => autoResizeTextarea(textarea));
+
+            if (!textarea.dataset.listenerBound) {
+                textarea.addEventListener('input', () => autoResizeTextarea(textarea));
+                textarea.dataset.listenerBound = 'true';
+            }
+        });
     });
 }
 
 function autoResizeTextarea(textarea) {
+    if (!textarea.offsetParent) return; // Element is hidden or not rendered yet
+
     const mediaContainer = document.getElementById('questionMediaContainer');
     const hasMedia = mediaContainer && mediaContainer.querySelectorAll('.question-media-item').length > 0;
 
-    if (!hasMedia) {
-        textarea.style.height = 'auto';
-        textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
-    } else {
-        textarea.style.height = '100%';
+    if (hasMedia) {
+        if (textarea.style.height !== '100%') {
+            textarea.style.height = '100%';
+        }
+        return;
+    }
+
+    // Use a temporary clone to measure without affecting layout
+    const clone = textarea.cloneNode();
+    clone.style.visibility = 'hidden';
+    clone.style.position = 'absolute';
+    clone.style.height = 'auto';
+    clone.style.maxHeight = '200px';
+    clone.value = textarea.value;
+    textarea.parentNode.appendChild(clone);
+
+    const targetHeight = `${clone.scrollHeight}px`;
+    textarea.parentNode.removeChild(clone);
+
+    if (textarea.style.height !== targetHeight) {
+        textarea.style.height = targetHeight;
     }
 }
-
 
 function addMedia(type) {
     if (type === 'upload-media') {

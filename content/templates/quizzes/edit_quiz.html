@@ -21,7 +21,7 @@
         </div>
         <div class="quiz-builder-header-right">
             <button onclick="openQuizSettings()" class="action-button-border course-save-btns" style="padding: 5.5px 10px">
-                <i class="fa-regular fa-gear"></i>
+                <i class="fa-solid fa-gear"></i>
             </button>  
             <button onclick="saveQuiz('{{ quiz.uuid }}')" class="action-button-primary quiz-save-btns">
                 <i class="fa-regular fa-paper-plane"></i>
@@ -298,7 +298,7 @@
                                             <div class="edit-settings-column">
                                                 <div class="edit-settings-input">
                                                     <div class="text-gradient-wrapper">
-                                                        <label class="edit-settings-label text-gradient-ai" for="ai_grade_essay">Enable AI Essay Grading</label>
+                                                        <label class="edit-settings-label text-gradient-ai" for="ai_grade_essay">AI Open Response Grading</label>
                                                         <div class="ai-icon-wrapper">
                                                             <i class="fa-regular fa-sparkles"></i>
                                                         </div>
@@ -309,7 +309,7 @@
                                                         <div class="toggle-switch-handle"></div>
                                                         </div>
                                                     </label>
-                                                    <span class="settings-input-subtext"> If enabled, our AI Model will analyze your grading rubric provided below for every essay question. You’ll receive a recommended grade for each response after the exam, along with a detailed explanation of the grading rationale. </span>
+                                                    <span class="settings-input-subtext"> If enabled, our AI Model will analyze your grading rubric provided below for every open response question. You’ll receive a recommended grade for each response after the quiz, along with a detailed explanation of the grading rationale. </span>
                                                 </div>
                                                 <div class="edit-settings-input hidden-settings-input toggle-option-details show-toggle-option-details">
                                                     <div class="editor-container scrollable-content-inner" id="ai_grade_rubric"> {{ quiz.ai_grade_rubric|safe }}</div>

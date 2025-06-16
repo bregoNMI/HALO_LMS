@@ -29,5 +29,8 @@ urlpatterns = [
     path('upload-media/', views.upload_question_media, name='upload_question_media'),
     path('upload-reference/', views.upload_reference, name='upload_reference'),
     path('get-quiz-references/<uuid:uuid>/', views.get_quiz_references, name='get_quiz_references'),
-
+    path('get-subcategories/', views.get_subcategories, name='get_subcategories'),
+    path('<int:category_id>/question-count/', views.category_question_count, name='category_question_count'),
+    path('create-template/', views.create_template, name='create_template'),
+    path('update-template/<int:template_id>/', views.update_quiz_template, name='update_quiz_template'),
 ]

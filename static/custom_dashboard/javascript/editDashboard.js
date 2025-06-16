@@ -68,7 +68,7 @@ function initializeAddWidgets() {
                 widget_icon_background_color = '#d0e0ff';
             } 
             let widget_title_color = '#41454d'; 
-            let widget_subtext_color = '#6b6b6b';
+            let widget_subtext_color = '#798292';
 
             if (dashboardIdInput && type) {  // Updated to include type check
                 const dashboardId = dashboardIdInput.value;

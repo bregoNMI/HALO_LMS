@@ -613,10 +613,6 @@
     flex-wrap: wrap;
 }
 
-.discard-btn{
-    color: var(--text-color3);
-}
-
 .true-false-answers.answers-container{
     gap: 0.5rem;
 }.true-false-answers.answers-container .true-false-text{
@@ -769,23 +765,6 @@
 .question-embed-container .embed-media-item .table-filter-item-small:nth-child(2) {
     right: 2.5rem;
     top: 0.5rem;
-}
-
-.question-editor-label{
-    display: none;
-    padding: 0.22rem var(--pad-sm);
-    border-radius: 99px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-wrap: nowrap;
-    height: auto; 
-    cursor: pointer;
-    align-self: center;
-}.question-editor-label.pastel-gray {
-    border: 1px solid #e2e2e2;
-    background-color: #f2f2f2;
-    color: gray;
-    font-weight: 500;
 }
 
 .quiz-reference-item{

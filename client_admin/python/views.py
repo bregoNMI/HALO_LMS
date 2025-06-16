@@ -25,11 +25,11 @@ from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.utils.timezone import now
 from django.http import HttpResponseForbidden, HttpRequest
-from content.models import Lesson, Category
 from learner_dashboard.views import learner_dashboard
 from django.contrib import messages
 from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos, EnrollmentKey
 from course_player.models import LessonSession, SCORMTrackingData
+from content.models import Lesson, Category, Quiz, Question, QuizTemplate
 from client_admin.forms import OrganizationSettingsForm
 from .forms import UserRegistrationForm, ProfileForm, CSVUploadForm
 from django.contrib.auth import update_session_auth_hash, login
@@ -171,7 +171,7 @@ def admin_settings(request):
             settings.save()
             form.save()
 
-            messages.success(request, 'Settings updated successfully')
+            messages.success(request, 'Settings updated')
             return redirect('admin_settings')
 
         else:
@@ -328,7 +328,7 @@ def edit_user(request, user_id):
 
         profile.save()  # Save Profile model
 
-        messages.success(request, 'User information updated successfully')
+        messages.success(request, 'User information updated')
 
         # Determine where to redirect
         referer = request.META.get('HTTP_REFERER')
@@ -1296,13 +1296,84 @@ def delete_enrollment_keys(request):
             for key_id in key_ids:
                 key = EnrollmentKey.objects.filter(id=key_id)
                 if not key.exists():
-                    raise ValueError(f"No category found with ID {key_id}")
+                    raise ValueError(f"No enrollment key found with ID {key_id}")
                 key.delete()
-            messages.success(request, 'All selected enrollment keys deleted successfully.')
+            messages.success(request, 'All selected enrollment keys deleted.')
             return JsonResponse({
                 'status': 'success',
                 'redirect_url': '/admin/enrollment-keys/',
-                'message': 'All selected enrollment keys deleted successfully'
+                'message': 'All selected enrollment keys deleted'
+            })
+    except ValueError as e:
+        logger.error(f"Deletion error: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+    
+def delete_quizzes(request):
+    data = json.loads(request.body)
+    quiz_ids = data['ids']
+    try:
+        with transaction.atomic():
+            for quiz_id in quiz_ids:
+                quiz = Quiz.objects.filter(id=quiz_id)
+                if not quiz.exists():
+                    raise ValueError(f"No quiz found with ID {quiz_id}")
+                quiz.delete()
+            messages.success(request, 'All selected Quizzes deleted.')
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': '/admin/quizzes/',
+                'message': 'All selected quizzes deleted'
+            })
+    except ValueError as e:
+        logger.error(f"Deletion error: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+    
+# From Questions Table
+def delete_questions(request):
+    data = json.loads(request.body)
+    question_ids = data['ids']
+    try:
+        with transaction.atomic():
+            for question_id in question_ids:
+                question = Question.objects.filter(id=question_id)
+                if not question.exists():
+                    raise ValueError(f"No question found with ID {question_id}")
+                question.delete()
+            messages.success(request, 'All selected Questions deleted.')
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': '/admin/questions/',
+                'message': 'All selected questions deleted'
+            })
+    except ValueError as e:
+        logger.error(f"Deletion error: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+
+# From Quiz Templates Table 
+def delete_quiz_templates(request):
+    data = json.loads(request.body)
+    quiz_ids = data['ids']
+    try:
+        with transaction.atomic():
+            for quiz_id in quiz_ids:
+                quiz = QuizTemplate.objects.filter(id=quiz_id)
+                if not quiz.exists():
+                    raise ValueError(f"No quiz template found with ID {quiz_id}")
+                quiz.delete()
+            messages.success(request, 'All selected Quiz Templates deleted.')
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': '/admin/quiz-templates/',
+                'message': 'All selected quizzes templates deleted'
             })
     except ValueError as e:
         logger.error(f"Deletion error: {e}")

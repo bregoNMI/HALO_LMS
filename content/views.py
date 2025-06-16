@@ -10,7 +10,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
-from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType, Quiz, Question, QuestionOrder, MCQuestion, Answer, TFQuestion, FITBQuestion, FITBAnswer, EssayQuestion, EssayPrompt, QuestionMedia, QuizReference
+from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType, Quiz, Question, QuestionOrder, MCQuestion, Answer, TFQuestion, FITBQuestion, FITBAnswer, EssayQuestion, EssayPrompt, QuestionMedia, QuizReference, QuizTemplate, TemplateCategorySelection, TemplateQuestion
 from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse, EnrollmentKey, ActivityLog, Profile
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 import uuid as uuid_lib
@@ -48,7 +48,7 @@ def admin_courses(request):
             Q(title__icontains=query_string)|
             Q(type__icontains=query_string) |
             Q(status__icontains=query_string) |
-            Q(category__icontains=query_string)
+            Q(category__name__icontains=query_string)
         )
         active_filters['query'] = query_string  # Track the general search query
 
@@ -56,7 +56,11 @@ def admin_courses(request):
     for key, value in request.GET.items():
         if key.startswith('filter_') and value:
             field_name = key[len('filter_'):]  # Extract field name after 'filter_'
-            query &= Q(**{f"{field_name}__icontains": value})
+            if field_name == 'category':
+                query &= Q(category__name__icontains=value)
+            else:
+                query &= Q(**{f"{field_name}__icontains": value})
+
             active_filters[field_name] = value
 
     # Define a dictionary to map sort options to user-friendly text
@@ -641,9 +645,7 @@ def admin_quizzes(request):
     if query_string:
         query &= (
             Q(title__icontains=query_string)|
-            Q(type__icontains=query_string) |
-            Q(status__icontains=query_string) |
-            Q(category__icontains=query_string)
+            Q(category__name__icontains=query_string)
         )
         active_filters['query'] = query_string  # Track the general search query
 
@@ -651,17 +653,16 @@ def admin_quizzes(request):
     for key, value in request.GET.items():
         if key.startswith('filter_') and value:
             field_name = key[len('filter_'):]  # Extract field name after 'filter_'
-            query &= Q(**{f"{field_name}__icontains": value})
+            if field_name == 'category':
+                query &= Q(category__name__icontains=value)
+            else:
+                query &= Q(**{f"{field_name}__icontains": value})
             active_filters[field_name] = value
 
     # Define a dictionary to map sort options to user-friendly text
     sort_options = {
         'title_asc': 'Title (A-Z)',
         'title_desc': 'Title (Z-A)', 
-        'type_asc': 'Type (A-Z)',
-        'type_desc': 'Type (Z-A)',
-        'status_asc': 'Status (A-Z)',
-        'status_desc': 'Status (Z-A)',
         'category_asc': 'Category (A-Z)',
         'category_desc': 'Category (Z-A)',     
     }
@@ -671,14 +672,6 @@ def admin_quizzes(request):
         order_by_field = 'title'
     elif sort_by == 'title_desc':
         order_by_field = '-title'
-    elif sort_by == 'type_asc':
-        order_by_field = 'type'
-    elif sort_by == 'type_desc':
-        order_by_field = '-type'
-    elif sort_by == 'status_asc':
-        order_by_field = 'status'
-    elif sort_by == 'status_desc':
-        order_by_field = '-status'
     elif sort_by == 'category_asc':
         order_by_field = 'category'
     elif sort_by == 'category_desc':
@@ -812,6 +805,174 @@ def file_upload(request):
             'has_next': paginated_files.has_next(),
             'next_page': page + 1 if paginated_files.has_next() else None
         })
+    
+# Quiz Templates
+@login_required
+def admin_quiz_templates(request):
+    sort_by = request.GET.get('sort_by', 'title_desc')
+    order_by_field = 'title'  # Default sorting field
+    query_string = request.GET.get('query')
+
+    query = Q()
+    active_filters = {}
+
+    # Apply the general search query if provided
+    if query_string:
+        query &= (
+            Q(title__icontains=query_string)
+        )
+        active_filters['query'] = query_string  # Track the general search query
+
+    # Build the query dynamically based on the provided filter parameters
+    for key, value in request.GET.items():
+        if key.startswith('filter_') and value:
+            field_name = key[len('filter_'):]  # Extract field name after 'filter_'
+            if field_name == 'category':
+                query &= Q(category__name__icontains=value)
+            else:
+                query &= Q(**{f"{field_name}__icontains": value})
+            active_filters[field_name] = value
+
+    # Define a dictionary to map sort options to user-friendly text
+    sort_options = {
+        'title_asc': 'Title (A-Z)',
+        'title_desc': 'Title (Z-A)', 
+        'total_questions_asc': 'Total Questions (A-Z)',
+        'total_questions_desc': 'Total Questions (Z-A)',     
+    }
+
+    # Determine the order by field
+    if sort_by == 'title_asc':
+        order_by_field = 'title'
+    elif sort_by == 'title_desc':
+        order_by_field = '-title'
+    elif sort_by == 'total_questions_asc':
+        order_by_field = 'total_questions'
+    elif sort_by == 'total_questions_desc':
+        order_by_field = '-total_questions'
+
+    # Add the sort option to the active filters only if it is present in the request
+    if 'sort_by' in request.GET and sort_by:
+        active_filters['sort_by'] = sort_options.get(sort_by, 'Title (Z-A)')
+
+    # Apply the filtering and sorting to the users list
+    quiz_templates_list = QuizTemplate.objects.filter(query).order_by(order_by_field)
+
+    # Paginate the filtered users_list
+    paginator = Paginator(quiz_templates_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Render the results with the active filters
+    return render(request, 'quiz_templates/quiz_templates.html', {
+        'page_obj': page_obj,
+        'active_filters': active_filters,
+    })
+
+@login_required
+def add_quiz_templates(request):
+    category = Category.objects.all()
+
+    context = {
+        'category_list': category,
+    }
+
+    return render(request, 'quiz_templates/add_quiz_template.html', context)
+
+@login_required
+def edit_quiz_templates(request, quiz_template_id):
+    quiz_template = get_object_or_404(QuizTemplate, pk=quiz_template_id)
+
+    selections = quiz_template.category_selections.select_related(
+        'category', 'sub_category1', 'sub_category2', 'sub_category3'
+    )
+
+    selection_data = []
+    for sel in selections:
+        selection_data.append({
+            'mainCategoryId': sel.category_id,
+            'mainCategoryName': sel.category.name if sel.category else '',
+            'subCategory1Id': sel.sub_category1_id,
+            'subCategory1Name': sel.sub_category1.name if sel.sub_category1 else '',
+            'subCategory2Id': sel.sub_category2_id,
+            'subCategory2Name': sel.sub_category2.name if sel.sub_category2 else '',
+            'subCategory3Id': sel.sub_category3_id,
+            'subCategory3Name': sel.sub_category3.name if sel.sub_category3 else '',
+            'questionCount': sel.num_questions,
+        })
+
+    context = {
+        'quiz_template': quiz_template,
+        'template_selections': json.dumps(selection_data),
+        'description': quiz_template.description,
+    }
+
+    return render(request, 'quiz_templates/edit_quiz_template.html', context)
+    
+# Questions
+@login_required
+def admin_questions(request):
+    sort_by = request.GET.get('sort_by', 'content_desc')
+    order_by_field = 'content'  # Default sorting field
+    query_string = request.GET.get('query')
+
+    query = Q()
+    active_filters = {}
+
+    # Apply the general search query if provided
+    if query_string:
+        query &= (
+            Q(content__icontains=query_string)|
+            Q(category__name__icontains=query_string)
+        )
+        active_filters['query'] = query_string  # Track the general search query
+
+    # Build the query dynamically based on the provided filter parameters
+    for key, value in request.GET.items():
+        if key.startswith('filter_') and value:
+            field_name = key[len('filter_'):]  # Extract field name after 'filter_'
+            if field_name == 'category':
+                query &= Q(category__name__icontains=value)
+            else:
+                query &= Q(**{f"{field_name}__icontains": value})
+            active_filters[field_name] = value
+
+    # Define a dictionary to map sort options to user-friendly text
+    sort_options = {
+        'content_asc': 'Content (A-Z)',
+        'content_desc': 'Content (Z-A)', 
+        'category_asc': 'Category (A-Z)',
+        'category_desc': 'Category (Z-A)',     
+    }
+
+    # Determine the order by field
+    if sort_by == 'content_asc':
+        order_by_field = 'content'
+    elif sort_by == 'content_desc':
+        order_by_field = '-content'
+    elif sort_by == 'category_asc':
+        order_by_field = 'category'
+    elif sort_by == 'category_desc':
+        order_by_field = '-category'
+
+    # Add the sort option to the active filters only if it is present in the request
+    if 'sort_by' in request.GET and sort_by:
+        active_filters['sort_by'] = sort_options.get(sort_by, 'Content (Z-A)')
+
+    # Apply the filtering and sorting to the users list
+    questions_list = Question.objects.filter(query).order_by(order_by_field)
+
+    # Paginate the filtered users_list
+    paginator = Paginator(questions_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Render the results with the active filters
+    return render(request, 'questions/questions.html', {
+        'page_obj': page_obj,
+        'active_filters': active_filters,
+        'sort_by': sort_by,
+    })
     
 @login_required
 def submit_coursework(request, upload_id):
@@ -1698,29 +1859,29 @@ def create_question(request):
         # Create question with type-specific defaults
         if q_type == 'true-false':
             new_question = QuestionClass.objects.create(
-                content="Enter question title here...",
+                content="Enter question content here...",
                 correct=False  # Default answer
             )
         elif q_type == 'multiple-choice':
             new_question = QuestionClass.objects.create(
-                content="Enter question title here...",
+                content="Enter question content here...",
                 answer_order='none'  # optional field in MCQuestion
             )
         elif q_type == 'multiple-response':
             new_question = MCQuestion.objects.create(
-                content="Enter question title here...",
+                content="Enter question content here...",
                 answer_order='none',
                 allows_multiple=True 
             )
         elif q_type == 'fill-in-the-blank':
             new_question = QuestionClass.objects.create(
-                content="Enter question title here...",
+                content="Enter question content here...",
                 case_sensitive=False,
                 strip_whitespace=True
             )
         elif q_type == 'open-response':
             new_question = EssayQuestion.objects.create(
-                content="Enter question title here...",
+                content="Enter question content here...",
                 instructions="",
                 rubric=""
             )
@@ -2232,3 +2393,131 @@ def get_file_url(self):
     elif self.source_type == 'library':
         return self.url_from_library
     return ''
+
+def get_subcategories(request):
+    parent_id = request.GET.get('parent_id')
+    search = request.GET.get('search', '')
+    queryset = Category.objects.all()
+
+    if parent_id:
+        queryset = queryset.filter(parent_category_id=parent_id)
+    else:
+        queryset = queryset.filter(parent_category__isnull=True)
+
+    if search:
+        queryset = queryset.filter(name__icontains=search)
+
+    categories = queryset.order_by('name').values('id', 'name')
+    return JsonResponse({'categories': list(categories)})
+
+def category_question_count(request, category_id):
+    """
+    Returns the total number of questions for the given category ID.
+    """
+    category = get_object_or_404(Category, id=category_id)
+    
+    # If you're using a direct FK like question.category == category
+    question_count = Question.objects.filter(category=category).count()
+
+    # If using a tree/hierarchy, and want to include descendants:
+    # question_count = Question.objects.filter(category__in=category.get_descendants(include_self=True)).count()
+
+    return JsonResponse({
+        'category_id': category.id,
+        'question_count': question_count,
+    })
+
+def create_template(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            title = data.get('title')
+            description = data.get('description', '')
+            selections = data.get('selections', [])
+
+            if not title or not selections:
+                return JsonResponse({'success': False, 'error': 'Missing title or selections'})
+
+            template = QuizTemplate.objects.create(
+                title=title,
+                description=description,
+                created_by=request.user,
+                total_questions=sum(sel.get('questionCount', 0) for sel in selections)
+            )
+
+            for sel in selections:
+                category_sel = TemplateCategorySelection.objects.create(
+                    template=template,
+                    category_id=sel.get('mainCategoryId'),
+                    sub_category1_id=sel.get('subCategory1Id'),
+                    sub_category2_id=sel.get('subCategory2Id'),
+                    sub_category3_id=sel.get('subCategory3Id'),
+                    num_questions=sel.get('questionCount', 0)
+                )
+
+                # Fetch matching questions
+                matching_qs = get_matching_questions(category_sel)
+                for question in matching_qs:
+                    TemplateQuestion.objects.create(
+                        template=template,
+                        question=question,
+                        filter_source=category_sel
+                    )
+
+            messages.success(request, 'Quiz Template created!')
+
+            return JsonResponse({'success': True, 'template_id': template.id})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+        
+@login_required
+def update_quiz_template(request, template_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            template = get_object_or_404(QuizTemplate, id=template_id, created_by=request.user)
+
+            template.title = data.get('title', template.title)
+            template.description = data.get('description', '')
+            template.total_questions = sum(sel.get('questionCount', 0) for sel in data.get('selections', []))
+            template.save()
+
+            # Clear existing category selections
+            template.category_selections.all().delete()
+            TemplateQuestion.objects.filter(template=template).delete()
+
+            # Recreate selections
+            for sel in data['selections']:
+                selection = TemplateCategorySelection.objects.create(
+                    template=template,
+                    category_id=sel.get('mainCategoryId'),
+                    sub_category1_id=sel.get('subCategory1Id'),
+                    sub_category2_id=sel.get('subCategory2Id'),
+                    sub_category3_id=sel.get('subCategory3Id'),
+                    num_questions=sel.get('questionCount', 0)
+                )
+                matching = get_matching_questions(selection)
+                for q in matching:
+                    TemplateQuestion.objects.create(template=template, question=q, filter_source=selection)
+
+            messages.success(request, 'Quiz Template updated successfully.')
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+        
+def get_matching_questions(selection):
+    # Use the deepest non-null category to filter questions
+    category = (
+        selection.sub_category3 or
+        selection.sub_category2 or
+        selection.sub_category1 or
+        selection.category
+    )
+
+    if not category:
+        return Question.objects.none()  # nothing to match against
+
+    return Question.objects.filter(category=category).order_by('?')[:selection.num_questions]

@@ -515,6 +515,120 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Deleting Quizzes
+    document.querySelectorAll('#data-delete-quizzes').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('quizDeleteConfirmation');
+        });
+    });
+
+    const deleteQuizConfirmation = document.getElementById('deleteQuizConfirmation');
+    if(deleteQuizConfirmation){
+        deleteQuizConfirmation.addEventListener('click', () => {
+            console.log(selectedIds);
+            const url = '/admin/quizzes/delete-quizzes/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Deleting Questions
+    document.querySelectorAll('#data-delete-questions').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('questionDeleteConfirmation');
+        });
+    });
+
+    const deleteQuestionConfirmation = document.getElementById('deleteQuestionConfirmation');
+    if(deleteQuestionConfirmation){
+        deleteQuestionConfirmation.addEventListener('click', () => {
+            console.log(selectedIds);
+            const url = '/admin/questions/delete-questions/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Deleting Quiz Templates
+    document.querySelectorAll('#data-delete-quiz-templates').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('quizTemplateDeleteConfirmation');
+        });
+    });
+
+    const deleteQuizTemplateConfirmation = document.getElementById('deleteQuizTemplateConfirmation');
+    if(deleteQuizTemplateConfirmation){
+        deleteQuizTemplateConfirmation.addEventListener('click', () => {
+            console.log(selectedIds);
+            const url = '/admin/quiz-templates/delete-quiz-templates/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
     function getCsrfToken() {
         const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
         return cookieValue;

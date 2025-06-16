@@ -23,16 +23,16 @@
     <div class="admin-body">
         <div class="admin-top-row">
             <div class="admin-top-row-left">
-                <h2>Quizzes</h2>
+                <h2>Questions</h2>
             </div>
             <div class="admin-top-row-right">
                 <!-- <div class="action-button-secondary">
                     <span>Import</span>
                 </div> -->
-                <a href="/admin/quizzes/create/" class="action-button-primary">
+                <!-- <a href="/admin/quizzes/create/" class="action-button-primary">
                     <i class="fa-regular fa-plus"></i>
                     <span>Add Quiz</span>
-                </a>
+                </a> -->
             </div>
         </div>
         <div class="table-container">
@@ -46,7 +46,7 @@
                             {% endif %}
                         {% endfor %} 
                         <i class="fa-regular fa-magnifying-glass search-icon"></i>                  
-                        <input id="searchTable" name="query" value="{{ active_filters.query }}" type="text" placeholder="Search all quizzes">
+                        <input id="searchTable" name="query" value="{{ active_filters.query }}" type="text" placeholder="Search all questions">
                         <button style="display: none;" id="searchAllUsersBtn" class="search-all-users-btn" type="submit">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button> 
@@ -81,21 +81,21 @@
                         <div class="custom-select sort-options">
                             <div class="select-selected" style="display: none;">Sort By</div>
                             <div id="sortSelectItems" class="select-items scrollable-content">
-                                <div class="sort-item-wrapper" data-value="title_asc">
+                                <div class="sort-item-wrapper" data-value="content_asc">
                                     <div class="radio-button select-item">
                                         <input id="radio1" class="radio-button__input" type="radio">
                                         <label for="radio1" class="radio-button__label">
                                             <span class="radio-button__custom"></span>
-                                            <div>Title (A-Z)</div>
+                                            <div>Content (A-Z)</div>
                                         </label>
                                     </div>
                                 </div>
-                                <div class="sort-item-wrapper" data-value="title_desc">
+                                <div class="sort-item-wrapper" data-value="content_desc">
                                     <div class="radio-button select-item">
                                         <input id="radio2" class="radio-button__input" type="radio">
                                         <label for="radio2" class="radio-button__label">
                                             <span class="radio-button__custom"></span>
-                                            <div>Title (Z-A)</div>
+                                            <div>Content (Z-A)</div>
                                         </label>
                                     </div>
                                 </div>
@@ -165,16 +165,16 @@
                     <thead>      
                         <tr>
                             <th><label class="container"><input type="checkbox" class="table-select-all-option"><div class="checkmark"></div></label></th>
-                            <th>Quiz Title</th>
+                            <th>Question Content</th>
                             <th>Category</th>
                         </tr>
                     </thead>
                     <tbody>     
-                        {% for quiz in page_obj %}
-                            <tr data-id="{{ quiz.id }}" data-details="/admin/quizzes/{{ quiz.uuid }}/" class="table-select-option">
+                        {% for question in page_obj %}
+                            <tr data-id="{{ question.id }}" class="table-select-option">
                                 <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
-                                <td>{{ quiz.title }}</td>
-                                <td>{{ quiz.category }}</td>
+                                <td>{{ question.content }}</td>
+                                <td>{{ question.category }}</td>
                             </tr>
                         {% endfor %}        
                     </tbody>
@@ -182,7 +182,7 @@
             {% else %}
                 <div class="no-results-found">
                     <img src="{% static 'client_admin\Images\HALO LMS No Graphic Test-27.png' %}" alt="HALO Graphic">    
-                    <span>No Quizzes Found</span>          
+                    <span>No Questions Found</span>          
                 </div>
             {% endif %}
             <div class="pagination-row-wrapper">
@@ -215,8 +215,8 @@
             </div>
         </div>
     </div>
-    {% include 'optionsSidebar/quiz_options_sidebar.html' %}
-    {% include 'popups/quiz_filters_popup.html' %}
-    {% include 'popups/delete_quiz_popup.html' %}
+    {% include 'optionsSidebar/question_options_sidebar.html' %}
+    {% include 'popups/question_filters_popup.html' %}
+    {% include 'popups/delete_question_popup.html' %}
     <script src="{% static 'client_admin\javascript\admin.js' %}"></script>
 {% endblock content %}

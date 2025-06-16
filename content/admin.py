@@ -2,7 +2,9 @@ from django.contrib import admin
 from content.models import (
     Course, Module, Lesson, Category, File, Credential,
     EventDate, Media, Upload, Resources, UploadedFile,
-    Quiz, Question, QuestionOrder, Answer, MCQuestion, TFQuestion, FITBQuestion, FITBAnswer, EssayQuestion, EssayPrompt, QuestionMedia, QuizReference
+    Quiz, Question, QuestionOrder, Answer, MCQuestion, TFQuestion, FITBQuestion, 
+    FITBAnswer, EssayQuestion, EssayPrompt, QuestionMedia, QuizReference, QuizTemplate,
+    TemplateCategorySelection, TemplateQuestion
 )
 
 # Register basic models
@@ -26,6 +28,9 @@ admin.site.register(EssayQuestion)
 admin.site.register(EssayPrompt)
 admin.site.register(QuestionMedia)
 admin.site.register(QuizReference)
+admin.site.register(QuizTemplate)
+admin.site.register(TemplateCategorySelection)
+admin.site.register(TemplateQuestion)
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):

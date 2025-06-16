@@ -880,7 +880,45 @@ class EssayAnswer(models.Model):
 
     class Meta:
         verbose_name = _("Essay Answer")
-        verbose_name_plural = _("Essay Answers")   
+        verbose_name_plural = _("Essay Answers")  
+
+# Quiz Templates and Questions
+class QuizTemplate(models.Model):
+    title = models.CharField(max_length=255)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    total_questions = models.PositiveIntegerField(default=0)
+    last_edited = models.DateTimeField(auto_now=True)
+    description = models.TextField(blank=True, help_text="Optional notes or guidance for using this template.")
+
+    # Useful if templates are meant to be shared or reused
+    is_public = models.BooleanField(default=False, help_text="Allow other educators to view or copy this template.")
+
+    def __str__(self):
+        return self.title 
+    
+class TemplateCategorySelection(models.Model):
+    template = models.ForeignKey(QuizTemplate, on_delete=models.CASCADE, related_name='category_selections')
+
+    # Five category levels (based on your UI and `Category` model)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='template_category')
+    sub_category1 = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='template_sub_category1')
+    sub_category2 = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='template_sub_category2')
+    sub_category3 = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='template_sub_category3')
+
+    num_questions = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"{self.template.title}: {self.category}, {self.sub_category1}, {self.sub_category2}, {self.sub_category3}"
+
+class TemplateQuestion(models.Model):
+    template = models.ForeignKey(QuizTemplate, on_delete=models.CASCADE, related_name='questions')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+
+    # You can optionally store the category filter that added it
+    filter_source = models.ForeignKey(TemplateCategorySelection, null=True, blank=True, on_delete=models.SET_NULL)
+
 
 class Classroom(models.Model):
     name = models.CharField(max_length=100)

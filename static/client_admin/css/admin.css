@@ -173,7 +173,7 @@ html, body, button{
     justify-content: flex-end;
     cursor: pointer;
     align-items: center;
-    padding: var(--pad-xs) var(--pad-sm);
+    padding: var(--pad-xs) 0.7rem;
     border-radius: 8px;
     text-decoration: none;
     /* color: var(--text-color4); */

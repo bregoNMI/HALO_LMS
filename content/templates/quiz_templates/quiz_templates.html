@@ -23,15 +23,15 @@
     <div class="admin-body">
         <div class="admin-top-row">
             <div class="admin-top-row-left">
-                <h2>Quizzes</h2>
+                <h2>Quiz Templates</h2>
             </div>
             <div class="admin-top-row-right">
                 <!-- <div class="action-button-secondary">
                     <span>Import</span>
                 </div> -->
-                <a href="/admin/quizzes/create/" class="action-button-primary">
+                <a href="/admin/quiz-templates/add/" class="action-button-primary">
                     <i class="fa-regular fa-plus"></i>
-                    <span>Add Quiz</span>
+                    <span>Create Template</span>
                 </a>
             </div>
         </div>
@@ -46,7 +46,7 @@
                             {% endif %}
                         {% endfor %} 
                         <i class="fa-regular fa-magnifying-glass search-icon"></i>                  
-                        <input id="searchTable" name="query" value="{{ active_filters.query }}" type="text" placeholder="Search all quizzes">
+                        <input id="searchTable" name="query" value="{{ active_filters.query }}" type="text" placeholder="Search all quiz templates">
                         <button style="display: none;" id="searchAllUsersBtn" class="search-all-users-btn" type="submit">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button> 
@@ -78,7 +78,7 @@
                                 <input class="sort-hidden-filters" id="sortByHIddenFilter" type="hidden" name="{{ key }}" value="{{ value }}">
                             {% endif %}
                         {% endfor %}                     
-                        <div class="custom-select sort-options">
+                        <div class="custom-select sort-options min-width-2">
                             <div class="select-selected" style="display: none;">Sort By</div>
                             <div id="sortSelectItems" class="select-items scrollable-content">
                                 <div class="sort-item-wrapper" data-value="title_asc">
@@ -99,21 +99,21 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="sort-item-wrapper" data-value="category_asc">
+                                <div class="sort-item-wrapper" data-value="total_questions_asc">
                                     <div class="radio-button select-item">
                                         <input id="radio7" class="radio-button__input" type="radio">
                                         <label for="radio7" class="radio-button__label">
                                             <span class="radio-button__custom"></span>
-                                            <div>Category (A-Z)</div>
+                                            <div>Total Questions (A-Z)</div>
                                         </label>
                                     </div>
                                 </div>
-                                <div class="sort-item-wrapper" data-value="category_desc">
+                                <div class="sort-item-wrapper" data-value="total_questions_desc">
                                     <div class="radio-button select-item">
                                         <input id="radio8" class="radio-button__input" type="radio">
                                         <label for="radio8" class="radio-button__label">
                                             <span class="radio-button__custom"></span>
-                                            <div>Category (Z-A)</div>
+                                            <div>Total Questions (Z-A)</div>
                                         </label>
                                     </div>
                                 </div>
@@ -165,16 +165,16 @@
                     <thead>      
                         <tr>
                             <th><label class="container"><input type="checkbox" class="table-select-all-option"><div class="checkmark"></div></label></th>
-                            <th>Quiz Title</th>
-                            <th>Category</th>
+                            <th>Template Title</th>
+                            <th>Total Questions</th>
                         </tr>
                     </thead>
                     <tbody>     
-                        {% for quiz in page_obj %}
-                            <tr data-id="{{ quiz.id }}" data-details="/admin/quizzes/{{ quiz.uuid }}/" class="table-select-option">
+                        {% for quiz_template in page_obj %}
+                            <tr data-id="{{ quiz_template.id }}" data-details="/admin/quiz-templates/edit/{{ quiz_template.id }}/" class="table-select-option">
                                 <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
-                                <td>{{ quiz.title }}</td>
-                                <td>{{ quiz.category }}</td>
+                                <td>{{ quiz_template.title }}</td>
+                                <td>{{ quiz_template.total_questions }}</td>
                             </tr>
                         {% endfor %}        
                     </tbody>
@@ -182,7 +182,7 @@
             {% else %}
                 <div class="no-results-found">
                     <img src="{% static 'client_admin\Images\HALO LMS No Graphic Test-27.png' %}" alt="HALO Graphic">    
-                    <span>No Quizzes Found</span>          
+                    <span>No Quiz Templates Found</span>          
                 </div>
             {% endif %}
             <div class="pagination-row-wrapper">
@@ -215,8 +215,8 @@
             </div>
         </div>
     </div>
-    {% include 'optionsSidebar/quiz_options_sidebar.html' %}
-    {% include 'popups/quiz_filters_popup.html' %}
-    {% include 'popups/delete_quiz_popup.html' %}
+    {% include 'optionsSidebar/quiz_template_options_sidebar.html' %}
+    {% include 'popups/quiz_template_filters_popup.html' %}
+    {% include 'popups/delete_quiz_template_popup.html' %}
     <script src="{% static 'client_admin\javascript\admin.js' %}"></script>
 {% endblock content %}

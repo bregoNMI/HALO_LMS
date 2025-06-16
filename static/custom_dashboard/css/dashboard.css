@@ -129,7 +129,7 @@
 }.widget-bottom span{
     text-wrap: nowrap;
     font-size: 0.9rem;
-    color: #6b6b6b;
+    color: #798292;
     font-weight: 600;
 }
 
@@ -160,7 +160,7 @@
 }.resume-course .widget-icon i, .my-courses .widget-icon i{
     font-size: 1.6rem;
 }.resume-course .widget-inner-right span, .my-courses .widget-inner-right span{
-    color: #6b6b6b;
+    color: #798292;
     font-size: 0.9rem;
     display: flex;
     align-items: baseline;
