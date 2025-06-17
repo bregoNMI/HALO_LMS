@@ -60,7 +60,7 @@
         <div class="col-md-9">
             {% if lesson.content_type == 'SCORM2004' %}
                 <iframe id="scormContentIframe"
-                        src="{{ lesson_location|default:scorm_index_file_url }}"
+                        data-src="{{ lesson_location|default:scorm_index_file_url }}"
                         width="100%" height="1200px" frameborder="0" allowfullscreen></iframe>
             {% else %}
                 <iframe id="scormContentIframe"

@@ -8,6 +8,7 @@ from PIL import Image
 from io import BytesIO
 from django.conf import settings
 import requests
+from uuid import uuid4
 from django.utils import timezone
 from django.core.files.base import ContentFile
 from client_admin.utils import fill_certificate_form
@@ -254,6 +255,7 @@ class UserCourse(models.Model):
         if hasattr(self.course, 'get_event_date'):
             return self.course.get_event_date('due_date', self.enrollment_date)
         return None
+
 
     def get_status(self):
         expiration_date = self.course.get_event_date('expiration_date')
