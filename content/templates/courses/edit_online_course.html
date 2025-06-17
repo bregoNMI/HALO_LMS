@@ -117,6 +117,9 @@
                                                 <div class="categoryList scrollable-content-inner">
                                                     <div class="loadingIndicator" style="display:none;">Loading...</div>
                                                 </div>
+                                                <div class="dropdown-clear-input">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>                 
@@ -214,7 +217,7 @@
                                                 <div class="module-header-right">
                                                     <div onclick="openPopup('moduleDeleteConfirmation', 'deleteModule', this)" id="deleteModule" class="module-delete tooltip" data-tooltip="Delete Module">
                                                         <span class="tooltiptext">Delete Module</span>
-                                                        <i class="fa-regular fa-trash"></i>
+                                                        <i class="fa-regular fa-trash-can"></i>
                                                     </div>
                                                     <div class="module-dropdown">
                                                         <i class="fa-regular fa-angle-down"></i>
@@ -226,35 +229,49 @@
                                                 <div class="lesson-container">
                                                     {% if module.lessons.all %}
                                                         {% for lesson in module.lessons.all %}
-                                                            <div class="lesson-card" data-id="{{ lesson.id }}">
-                                                                {% if lesson.uploaded_file %}
-                                                                    <input class="lesson-file-name" type="hidden" value="{{ lesson.uploaded_file }}"> 
-                                                                {% else %}
-                                                                    <input class="lesson-file-name" type="hidden" value="Lesson {{ forloop.counter }}: {{ lesson.file.title }}">
-                                                                {% endif %}                                                        
-                                                                <input class="lesson-type" type="hidden" value="{{ lesson.content_type }}">
-                                                                {% if lesson.uploaded_file %}
-                                                                <input class="lesson-file" type="hidden" value="{{ lesson.uploaded_file.id }}"> 
-                                                                {% else %}
-                                                                    <input class="lesson-file" type="hidden" value="{{ lesson.file.file.url }}">
-                                                                {% endif %}
-                                                                <input class="lesson-description" type="hidden" value="{{ lesson.description|safe }}">
+                                                        <div class="lesson-card" data-id="{{ lesson.id }}">
+                                                            <!-- Common fields -->
+                                                            <input class="lesson-file-name" type="hidden" value="{% if lesson.uploaded_file %}{{ lesson.uploaded_file }}{% else %}Lesson {{ forloop.counter }}: {{ lesson.file.title }}{% endif %}">
+                                                            <input class="lesson-type" type="hidden" value="{{ lesson.content_type }}">
+                                                            <input class="lesson-file" type="hidden" value="{% if lesson.uploaded_file %}{{ lesson.uploaded_file.id }}{% else %}{{ lesson.file.file.url }}{% endif %}">
+                                                            <input class="lesson-description" type="hidden" value="{{ lesson.description|safe }}">
                                                         
-                                                                <div class="lesson-header-left">
-                                                                    <i class="fa-thin fa-grip-dots-vertical lesson-drag-icon"></i>
-                                                                    <span class="lesson-title">Lesson {{ forloop.counter }}: {{ lesson.title }}</span>
+                                                            {% if lesson.content_type == "quiz" %}
+                                                                <!-- Quiz source fields -->
+                                                                <input class="lesson-create-quiz-from" type="hidden" value="{{ lesson.create_quiz_from }}">
+                                                                <input class="lesson-quiz-template-id" type="hidden" value="{{ lesson.quiz_template_id }}">
+                                                                <input class="lesson-selected-quiz-template-name" type="hidden" value="{{ lesson.selected_quiz_template_name }}">
+                                                                <input class="lesson-quiz-id" type="hidden" value="{{ lesson.quiz_id }}">
+                                                                <input class="lesson-selected-quiz-name" type="hidden" value="{{ lesson.selected_quiz_name }}">
+                                                        
+                                                                {% if lesson.quiz_config %}
+                                                                    <!-- QuizConfig settings -->
+                                                                    <input class="lesson-quiz-type" type="hidden" value="{{ lesson.quiz_config.quiz_type }}">
+                                                                    <input class="lesson-quiz-passing-score" type="hidden" value="{{ lesson.quiz_config.passing_score }}">
+                                                                    <input class="lesson-quiz-require-passing" type="hidden" value="{{ lesson.quiz_config.require_passing|yesno:'true,false' }}">
+                                                                    <input class="lesson-quiz-duration" type="hidden" value="{{ lesson.quiz_config.quiz_duration }}">
+                                                                    <input class="lesson-quiz-attempts" type="hidden" value="{{ lesson.quiz_config.quiz_attempts }}">
+                                                                    <input class="lesson-quiz-maximum-warnings" type="hidden" value="{{ lesson.quiz_config.maximum_warnings }}">
+                                                                    <input class="lesson-quiz-randomize-order" type="hidden" value="{{ lesson.quiz_config.randomize_order|yesno:'true,false' }}">
+                                                                    <input class="lesson-quiz-reveal-answers" type="hidden" value="{{ lesson.quiz_config.reveal_answers|yesno:'true,false' }}">
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        
+                                                            <div class="lesson-header-left">
+                                                                <i class="fa-thin fa-grip-dots-vertical lesson-drag-icon"></i>
+                                                                <span class="lesson-title">Lesson {{ forloop.counter }}: {{ lesson.title }}</span>
+                                                            </div>
+                                                            <div class="lesson-header-right">
+                                                                <div class="lesson-edit tooltip" data-tooltip="Edit Lesson">
+                                                                    <span class="tooltiptext">Edit Lesson</span>
+                                                                    <i class="fa-regular fa-pencil"></i>
                                                                 </div>
-                                                                <div class="lesson-header-right">
-                                                                    <div class="lesson-edit tooltip" data-tooltip="Edit Lesson">
-                                                                        <span class="tooltiptext">Edit Lesson</span>
-                                                                        <i class="fa-regular fa-pencil"></i>
-                                                                    </div>
-                                                                    <div class="lesson-delete tooltip" data-tooltip="Delete Lesson">
-                                                                        <span class="tooltiptext">Delete Lesson</span>
-                                                                        <i class="fa-regular fa-trash"></i>
-                                                                    </div>
+                                                                <div class="lesson-delete tooltip" data-tooltip="Delete Lesson">
+                                                                    <span class="tooltiptext">Delete Lesson</span>
+                                                                    <i class="fa-regular fa-trash-can"></i>
                                                                 </div>
                                                             </div>
+                                                        </div>                                                        
                                                         {% endfor %}
                                                     {% else %}
                                                         <div class="no-lessons-container"><span>This Module currently has no lessons.</span></div>
@@ -695,12 +712,12 @@
                                     </div>
                                     {% if thumbnail_media.thumbnail_link or thumbnail_media.thumbnail_image.url %}
                                         <input id="thumbnailId" type="hidden" value="{{ thumbnail_media.id }}">
-                                        <div id="thumbnailDelete" onclick="openPopup('thumbnailDeleteConfirmation')" style="display: flex;" class="table-filter-item-small thumbnail-delete">
-                                            <i class="fa-regular fa-trash"></i>
+                                        <div id="thumbnailDelete" onclick="openPopup('thumbnailDeleteConfirmation')" style="display: flex; right: 0.5rem;" class="table-filter-item-small thumbnail-delete">
+                                            <i class="fa-regular fa-trash-can"></i>
                                         </div>
                                     {% else %}
-                                        <div id="thumbnailDelete" onclick="openPopup('thumbnailDeleteConfirmation')" style="display: none;" class="table-filter-item-small thumbnail-delete">
-                                            <i class="fa-regular fa-trash"></i>
+                                        <div id="thumbnailDelete" onclick="openPopup('thumbnailDeleteConfirmation')" style="display: none; right: 0.5rem;" class="table-filter-item-small thumbnail-delete">
+                                            <i class="fa-regular fa-trash-can"></i>
                                         </div>
                                     {% endif %}
                                 </div>
@@ -747,7 +764,7 @@
                                                     <div class="reference-header-right">
                                                         <div onclick="openPopup('referenceDeleteConfirmation', 'deleteReference', this)" id="deleteReference" class="reference-delete tooltip" data-tooltip="Delete Reference">
                                                             <span class="tooltiptext">Delete Reference</span>
-                                                            <i class="fa-regular fa-trash"></i>
+                                                            <i class="fa-regular fa-trash-can"></i>
                                                         </div>
                                                         <div class="reference-dropdown">
                                                             <i class="fa-regular fa-angle-down"></i>
@@ -791,7 +808,7 @@
                                                 <div class="reference-header-right">
                                                     <div onclick="openPopup('referenceDeleteConfirmation', 'deleteReference', this)" id="deleteReference" class="reference-delete tooltip" data-tooltip="Delete Reference">
                                                         <span class="tooltiptext">Delete Reference</span>
-                                                        <i class="fa-regular fa-trash"></i>
+                                                        <i class="fa-regular fa-trash-can"></i>
                                                     </div>
                                                     <div class="reference-dropdown">
                                                         <i class="fa-regular fa-angle-down"></i>
@@ -827,7 +844,7 @@
                                     {% endif %}
                                     <div style="display: none;" id="noReferencesCreated" class="no-lessons-container"><span>This Course currently has no references.</span></div>
                                 </div>
-                                <div id="addReference" class="main-add-btn">
+                                <div id="addReference" class="main-add-btn margin-top-4">
                                     <i class="fa-regular fa-plus"></i>
                                     <span> Add Reference </span>
                                 </div>
@@ -878,7 +895,7 @@
                                                     <div class="upload-header-right">
                                                         <div onclick="openPopup('uploadDeleteConfirmation', 'deleteUpload', this)" id="deleteUpload" class="upload-delete tooltip" data-tooltip="Delete Upload">
                                                             <span class="tooltiptext">Delete Upload</span>
-                                                            <i class="fa-regular fa-trash"></i>
+                                                            <i class="fa-regular fa-trash-can"></i>
                                                         </div>
                                                         <div class="upload-dropdown">
                                                             <i class="fa-regular fa-angle-down"></i>
@@ -975,7 +992,7 @@
                                                 <div class="upload-header-right">
                                                     <div onclick="openPopup('uploadDeleteConfirmation', 'deleteUpload', this)" id="deleteUpload" class="upload-delete tooltip" data-tooltip="Delete Upload">
                                                         <span class="tooltiptext">Delete Upload</span>
-                                                        <i class="fa-regular fa-trash"></i>
+                                                        <i class="fa-regular fa-trash-can"></i>
                                                     </div>
                                                     <div class="upload-dropdown">
                                                         <i class="fa-regular fa-angle-down"></i>
@@ -1039,7 +1056,7 @@
                                     {% endif %}
                                     <div style="display: none;" id="noUploadsCreated" class="no-lessons-container"><span>This Course currently has no uploads.</span></div>
                                 </div>
-                                <div id="addUpload" class="main-add-btn">
+                                <div id="addUpload" class="main-add-btn margin-top-4">
                                     <i class="fa-regular fa-plus"></i>
                                     <span> Add Upload </span>
                                 </div>
@@ -1056,6 +1073,8 @@
     {% include 'popups/create_new_lesson.html' %}
     {% include 'popups/create_scorm1.2_lesson.html' %}
     {% include 'popups/create_scorm2004_lesson.html' %}
+    {% include 'popups/create_quiz_lesson.html' %}
+    {% include 'popups/quiz_settings_popup.html' %}
     {% include 'popups/module_delete_confirmation.html' %}
     {% include 'popups/reference_delete_confirmation.html' %}
     {% include 'popups/lesson_delete_confirmation.html' %}

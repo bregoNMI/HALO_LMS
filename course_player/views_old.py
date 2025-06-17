@@ -290,6 +290,8 @@ def track_scorm_data(request):
                 defaults={"lesson_id": lesson.id}  # Set the lesson_id if the course is new
             )
 
+            print('VIEWS OLD')
+
             # If `UserCourse` already exists, update `lesson_id`
             if not created and user_course.lesson_id != lesson.id:
                 user_course.lesson_id = lesson.id

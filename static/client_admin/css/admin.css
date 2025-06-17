@@ -156,7 +156,7 @@ html, body, button{
 }.create-menu-section .collapsible-header{
     background-color: var(--primary-blue);
     color: white;
-    padding: var(--pad-xs) 0.9rem;
+    padding: var(--pad-xs) var(--pad-sm);
     border: none;
 }.create-menu-section .collapsible-header:hover{
     background-color: dodgerblue;
@@ -173,7 +173,7 @@ html, body, button{
     justify-content: flex-end;
     cursor: pointer;
     align-items: center;
-    padding: var(--pad-xs) var(--pad-sm);
+    padding: var(--pad-xs) 0.7rem;
     border-radius: 8px;
     text-decoration: none;
     /* color: var(--text-color4); */
@@ -188,7 +188,8 @@ html, body, button{
 
 /* Small Sidebar */
 .admin-sidebar-container.toggle-sidebar{
-    width: 44px;
+    /* width: 44px; */
+    width: 40px;
 }.admin-sidebar-container.toggle-sidebar .sidebar-body{
     
 }.admin-sidebar-container.toggle-sidebar .sidebar-body-item{
@@ -294,7 +295,7 @@ html, body, button{
     gap: 1rem;
     color: #858b8f;
     padding: var(--pad-xs) var(--pad-med);
-    margin-left: var(--margin-xxl);
+    margin-left: var(--margin-lg);
     margin-right: 1rem;
     border-left: 2px solid var(--bg-color2);
     /* border-radius: 0px 6px 6px 0; */
@@ -379,9 +380,11 @@ html, body, button{
 }
 
 .collapsible-header .icon-inner-header i{
+    display: flex;
     width: 1rem;
     font-size: 1.2rem;
     /* font-weight: 900; */
+    justify-content: center;
 }
 
 .collapsible-header i{
@@ -448,7 +451,8 @@ html, body, button{
 }
 
 .admin-top-row-left h2{
-    color: var(--text-color5);
+    /* color: var(--text-color5); */
+    color: var(--text-color2);
     margin: 0;
     font-size: 1.3rem;
 }
@@ -728,12 +732,14 @@ tr.selected-option th, tr.selected-option td{
 }
 
 .container {
-    display: block;
+    /* display: block; */
+    display: flex;
+    align-items: center;
     position: relative;
     cursor: pointer;
     font-size: 20px;
     user-select: none;
-    width: 1rem;
+    /* width: 1rem; */
 }
 
 .checkmark {
@@ -743,7 +749,8 @@ tr.selected-option th, tr.selected-option td{
     height: 0.8em;
     width: 0.8em;
     background-color: white;
-    border: 2px solid #ccc;
+    /* border: 2px solid #ccc; */
+    border: 2px solid #ddd;
     transition: all 0.3s;
     border-radius: 6px;
 }

@@ -18,6 +18,15 @@ document.addEventListener("DOMContentLoaded", function() {
     assignUploadHeaderListeners();
     testErrorFields();
     handleFileUploadErrorRemoval();
+    initializeSubtextListeners();
+    initializeRequiredQuizFields();
+    // Add event listeners to quiz fields
+    document.getElementById('quizlessonTitle').addEventListener('input', checkQuizLessonFields);
+    document.querySelectorAll('input[name="create_quiz_from"]').forEach(radio =>
+        radio.addEventListener('change', checkQuizLessonFields)
+    );
+    observeAttributeChange('selectedQuizTemplate', checkQuizLessonFields);
+    observeAttributeChange('selectedQuiz', checkQuizLessonFields);
 });
 
 function getEditorContent(editorId) {
@@ -273,7 +282,7 @@ function createNewModule() {
             <div class="module-header-right">
                 <div onclick="openPopup('moduleDeleteConfirmation', 'deleteModule', this)" id="deleteModule" class="module-delete tooltip" data-tooltip="Delete Module">
                     <span class="tooltiptext">Delete Module</span>
-                    <i class="fa-regular fa-trash"></i>
+                    <i class="fa-regular fa-trash-can"></i>
                 </div>
                 <div class="module-dropdown">
                     <i class="fa-regular fa-angle-down"></i>
@@ -330,7 +339,7 @@ function createNewReference() {
             <div class="reference-header-right">
                 <div onclick="openPopup('referenceDeleteConfirmation', 'deleteReference', this)" id="deleteReference" class="reference-delete tooltip" data-tooltip="Delete Reference">
                     <span class="tooltiptext">Delete Reference</span>
-                    <i class="fa-regular fa-trash"></i>
+                    <i class="fa-regular fa-trash-can"></i>
                 </div>
                 <div class="reference-dropdown">
                     <i class="fa-regular fa-angle-down"></i>
@@ -398,7 +407,7 @@ function createNewUpload(){
             <div class="upload-header-right">
                 <div onclick="openPopup('uploadDeleteConfirmation', 'deleteUpload', this)" id="deleteUpload" class="upload-delete tooltip" data-tooltip="Delete Upload">
                     <span class="tooltiptext">Delete Upload</span>
-                    <i class="fa-regular fa-trash"></i>
+                    <i class="fa-regular fa-trash-can"></i>
                 </div>
                 <div class="upload-dropdown">
                     <i class="fa-regular fa-angle-down"></i>
@@ -492,6 +501,7 @@ function openPopup(popupId, action = null, context = null) {
         const popupContent = currentPopup.querySelector('.popup-content');
         popupContent.classList.remove('animate-popup-content');
         currentPopup.style.display = "none";
+        resetQuizLessonState();
     }
 
     switch(action) {
@@ -534,6 +544,8 @@ function closePopup(popupId) {
     setTimeout(() => {
         currentPopup.style.display = "none";
     }, 200);
+    clearQuizLessonInputs();
+    console.log('close');
 }
 
 // Function to confirm the deletion of a module
@@ -597,6 +609,7 @@ async function createLesson(lessonType) {
     let fileInput; // This can be a file or a URL
     let fileName;
     let popupToClose;
+    let quizData = {};
 
     // Determine the title, description, and file input based on lesson type
     if (lessonType === 'file' && window.closestLessonContainer) {
@@ -618,6 +631,7 @@ async function createLesson(lessonType) {
         fileName = document.getElementById('SCORM2004fileNameDisplay').innerText;
         popupToClose = 'scorm2004Popup';
     }
+       
 
     if (window.closestLessonContainer) {
         const lessonCards = window.closestLessonContainer.querySelectorAll('.lesson-card');
@@ -630,7 +644,7 @@ async function createLesson(lessonType) {
             // Use the URL directly
             fileURL = fileInput;
             createAndAppendLessonCard(index, title, description, fileURL, fileName, lessonType);
-        } 
+        }
         // Case: fileInput is a File object
         else if (fileInput instanceof File) {
             const fileId = await uploadFile(fileInput); // Upload the file and get the ID
@@ -641,9 +655,9 @@ async function createLesson(lessonType) {
             }
         } 
         // Handle invalid file input
-        else {
+        else if (lessonType !== 'quiz') {
             console.error('No valid file input provided');
-        }
+        }        
     }
 
     closePopup(popupToClose);
@@ -661,6 +675,42 @@ async function createLesson(lessonType) {
             clearSCORM2004LessonInputs();
         }
     }, 300);
+}
+
+function createQuizLesson() {
+    const title = document.getElementById('quizlessonTitle').value;
+    const description = getEditorContent('quizlessonDescription');
+    const quizSource = document.querySelector('input[name="create_quiz_from"]:checked')?.value;
+    const selectedQuizTemplateId = document.getElementById('selectedQuizTemplate')?.getAttribute('data-id');
+    const selectedQuizTemplateName = document.getElementById('selectedQuizTemplate').value;
+    const selectedQuizId = document.getElementById('selectedQuiz')?.getAttribute('data-id');
+    const selectedQuizname = document.getElementById('selectedQuiz').value;
+    const quizType = document.querySelector('input[name="quiz_type"]:checked')?.value;
+
+    const quizData = {
+        create_quiz_from: quizSource,
+        quiz_template_id: quizSource === 'create_quiz_from1' ? selectedQuizTemplateId : null,
+        selectedQuizTemplateName: selectedQuizTemplateName,
+        quiz_id: quizSource === 'create_quiz_from2' ? selectedQuizId : null,
+        selectedQuizname: selectedQuizname,
+        quiz_type: quizType,
+        passing_score: document.getElementById('quiz_passing_score').value,
+        require_passing: document.getElementById('quiz_require_passing').checked,
+        quiz_duration: document.getElementById('quiz_duration').value,
+        quiz_attempts: document.getElementById('quiz_attempts').value,
+        maximum_warnings: document.getElementById('quiz_maximum_warnings').value,
+        randomize_order: document.getElementById('quiz_randomize_order').checked,
+        reveal_answers: document.getElementById('quiz_reveal_answers').checked
+    };
+
+    const lessonCards = window.closestLessonContainer.querySelectorAll('.lesson-card');
+    const index = lessonCards.length + 1;
+    createAndAppendLessonCard(index, title, description, '', '', 'quiz', quizData);
+
+    closePopup('quizSettingsPopup');
+    resetQuizLessonState();
+    clearQuizLessonInputs();
+    console.log(quizData);
 }
 
 // Function to upload a file and return the file ID
@@ -783,20 +833,113 @@ function clearSCORM2004LessonInputs(){
     // Resetting Create BTN
     createFileLessonBtn.classList.add('disabled');
     createFileLessonBtn.setAttribute('disabled', true);
-    console.log(createFileLessonBtn);
+}
+function clearQuizLessonInputs() {
+    const quizLessonFirstBtn = document.getElementById('quizLessonFirstBtn');
+
+    // Title and description
+    const titleInput = document.getElementById('quizlessonTitle');
+    if (titleInput) titleInput.value = '';
+    const editor = document.querySelector('#quizlessonDescription .ql-editor');
+    if (editor) editor.innerHTML = '<p><br></p>';
+
+    // Reset quiz source selection
+    const quizTemplateInput = document.getElementById('selectedQuizTemplate');
+    if (quizTemplateInput) {
+        quizTemplateInput.value = '';
+        quizTemplateInput.removeAttribute('data-id');
+    }
+    const quizInput = document.getElementById('selectedQuiz');
+    if (quizInput) {
+        quizInput.value = '';
+        quizInput.removeAttribute('data-id');
+    }
+    document.querySelectorAll('input[name="create_quiz_from"]').forEach(r => r.checked = false);
+    const defaultCreateFrom = document.querySelector('input[name="create_quiz_from"][value="create_quiz_from1"]');
+    if (defaultCreateFrom) defaultCreateFrom.checked = true;
+
+    // Reset quiz type radio
+    document.querySelectorAll('input[name="quiz_type"]').forEach(r => r.checked = false);
+    const defaultQuizType = document.querySelector('input[name="quiz_type"][value="standard_quiz"]');
+    if (defaultQuizType) defaultQuizType.checked = true;
+
+    const passingScoreInput = document.getElementById('quiz_passing_score');
+    if (passingScoreInput) passingScoreInput.value = '70';
+    
+    const requirePassingInput = document.getElementById('quiz_require_passing');
+    if (requirePassingInput) requirePassingInput.checked = false;
+    
+    const durationInput = document.getElementById('quiz_duration');
+    if (durationInput) durationInput.value = '120';
+    
+    const warningsInput = document.getElementById('quiz_maximum_warnings');
+    if (warningsInput) warningsInput.value = '10';
+    
+    const randomizeInput = document.getElementById('quiz_randomize_order');
+    if (randomizeInput) randomizeInput.checked = false;
+    
+    const revealInput = document.getElementById('quiz_reveal_answers');
+    if (revealInput) revealInput.checked = false;    
+
+    // Reset quiz attempts custom dropdown
+    const attemptsInput = document.getElementById('quiz_attempts');
+    if (attemptsInput) attemptsInput.value = 'Unlimited';
+
+    // Reset Create/Next button state
+    if (quizLessonFirstBtn) {
+        quizLessonFirstBtn.classList.add('disabled');
+        quizLessonFirstBtn.setAttribute('disabled', true);
+    }
+
+    // Reset quiz settings button to default mode (creation)
+    const createBtn = document.getElementById('createQuizLessonBtn');
+    if (createBtn) {
+        createBtn.removeAttribute('data-editing');
+        createBtn.setAttribute('onclick', 'createQuizLesson()');
+        createBtn.innerText = 'Create Lesson';
+    }
+
+    // Optional: Reset quiz popup title
+    const mainTitle = document.getElementById('quizPopupMainTitle');
+    if (mainTitle) mainTitle.innerText = 'Create New Lesson';
+
+    console.log('Quiz lesson inputs cleared to default.');
 }
 
 let tempLessonId = 1;
-function createAndAppendLessonCard(index, title, description, fileURL, fileName, lessonType) {
+function createAndAppendLessonCard(index, title, description, fileURL, fileName, lessonType, quizData = {}) {
     const newLesson = document.createElement('div');
     newLesson.className = 'lesson-card';
-    newLesson.setAttribute('data-temp-id', tempLessonId)
-    newLesson.innerHTML = `
+    newLesson.setAttribute('data-temp-id', tempLessonId);
+
+    let hiddenInputs = `
         <input class="lesson-file-name" type="hidden" value="${fileName}">
         <input class="lesson-type" type="hidden" value="${lessonType}">
         <input class="lesson-file" type="hidden" value="${fileURL}">
         <input class="lesson-description" type="hidden" value='${description}'>
+    `;
 
+    // Separate quiz fields
+    if (lessonType === 'quiz') {
+        hiddenInputs += `
+            <input class="lesson-create-quiz-from" type="hidden" value="${quizData.create_quiz_from || ''}">
+            <input class="lesson-quiz-template-id" type="hidden" value="${quizData.quiz_template_id || ''}">
+            <input class="lesson-selected-quiz-template-name" type="hidden" value="${quizData.selectedQuizTemplateName || ''}">
+            <input class="lesson-quiz-id" type="hidden" value="${quizData.quiz_id || ''}">
+            <input class="lesson-selected-quiz-name" type="hidden" value="${quizData.selectedQuizname || ''}">
+            <input class="lesson-quiz-type" type="hidden" value="${quizData.quiz_type || ''}">
+            <input class="lesson-quiz-passing-score" type="hidden" value="${quizData.passing_score}">
+            <input class="lesson-quiz-require-passing" type="hidden" value="${quizData.require_passing}">
+            <input class="lesson-quiz-duration" type="hidden" value="${quizData.quiz_duration}">
+            <input class="lesson-quiz-attempts" type="hidden" value="${quizData.quiz_attempts}">
+            <input class="lesson-quiz-maximum-warnings" type="hidden" value="${quizData.maximum_warnings}">
+            <input class="lesson-quiz-randomize-order" type="hidden" value="${quizData.randomize_order}">
+            <input class="lesson-quiz-reveal-answers" type="hidden" value="${quizData.reveal_answers}">
+        `;
+    }       
+
+    newLesson.innerHTML = `
+        ${hiddenInputs}
         <div class="lesson-header-left">
             <i class="fa-thin fa-grip-dots-vertical lesson-drag-icon"></i>
             <span class="lesson-title"> Lesson ${index}: ${title}</span>
@@ -808,7 +951,7 @@ function createAndAppendLessonCard(index, title, description, fileURL, fileName,
             </div>
             <div class="lesson-delete tooltip" data-tooltip="Delete Lesson">
                 <span class="tooltiptext">Delete Lesson</span>
-                <i class="fa-regular fa-trash"></i>
+                <i class="fa-regular fa-trash-can"></i>
             </div>
         </div>
     `;
@@ -816,6 +959,44 @@ function createAndAppendLessonCard(index, title, description, fileURL, fileName,
     window.closestLessonContainer.appendChild(newLesson);
     updateLessonNumbers(window.closestLessonContainer);
     tempLessonId++;
+}
+
+function updateQuizLesson() {
+    const title = document.getElementById('quizlessonTitle').value;
+    const description = getEditorContent('quizlessonDescription');
+    const quizType = document.querySelector('input[name="quiz_type"]:checked')?.value;
+
+    const quizData = {
+        quiz_type: quizType,
+        create_quiz_from: document.querySelector('input[name="create_quiz_from"]:checked')?.value,
+        quiz_template_id: document.getElementById('selectedQuizTemplate')?.getAttribute('data-id'),
+        selectedQuizTemplateName: document.getElementById('selectedQuizTemplate').value,
+        quiz_id: document.getElementById('selectedQuiz')?.getAttribute('data-id'),
+        selectedQuizname: document.getElementById('selectedQuiz').value,
+        passing_score: document.getElementById('quiz_passing_score').value,
+        require_passing: document.getElementById('quiz_require_passing').checked,
+        quiz_duration: document.getElementById('quiz_duration').value,
+        quiz_attempts: document.getElementById('quiz_attempts').value,
+        maximum_warnings: document.getElementById('quiz_maximum_warnings').value,
+        randomize_order: document.getElementById('quiz_randomize_order').checked,
+        reveal_answers: document.getElementById('quiz_reveal_answers').checked
+    };
+
+    updateLessonCard(window.lessonToEdit, title, description, '', '', quizData);
+
+    closePopup('quizSettingsPopup');
+    resetQuizLessonState();
+}
+
+function resetQuizLessonState() {
+    const btn = document.getElementById('createQuizLessonBtn');
+    btn.setAttribute('data-editing', 'false');
+    btn.setAttribute('onclick', 'createQuizLesson()');
+    btn.innerText = 'Create Lesson';
+    document.getElementById('quizLessonBackBtn').setAttribute('onclick', 'closeCreateLessonPopup("quizPopup")');
+    document.getElementById('quizLessonBackIcon').setAttribute('onclick', 'closeCreateLessonPopup("quizPopup")');
+    document.getElementById('quizPopupMainTitle').innerText = 'Create New Lesson';
+    window.lessonToEdit = null;
 }
 
 function selectLessonType(){
@@ -1052,8 +1233,68 @@ function assignEditHandlers() {
                 document.getElementById('editLessonType').innerText = 'SCORM 2004'; 
                 document.getElementById('editLessonType').classList.add('pastel-blue');
                 assign2004FIleInputListeners(); 
-            }     
-
+            } else if (lessonType === 'quiz') {
+                openPopup('quizPopup', 'selectType', this);
+            
+                const btn = document.getElementById('createQuizLessonBtn');
+                btn.setAttribute('data-editing', 'true');
+                btn.setAttribute('onclick', 'updateQuizLesson()');
+                btn.innerText = 'Save Lesson';
+            
+                document.getElementById('quizLessonBackBtn').setAttribute('onclick', 'closePopup("quizPopup")');
+                document.getElementById('quizLessonBackIcon').setAttribute('onclick', 'closePopup("quizPopup")');
+                document.getElementById('quizPopupMainTitle').innerText = 'Edit Lesson';
+                window.lessonToEdit = lessonCard;
+            
+                // Fill title and description
+                document.getElementById('quizlessonTitle').value = title;
+                document.querySelector('#quizlessonDescription .ql-editor').innerHTML = description;
+            
+                // Pull quiz settings from hidden inputs
+                const quizType = lessonCard.querySelector('.lesson-quiz-type')?.value;
+                const createFrom = lessonCard.querySelector('.lesson-create-quiz-from')?.value;
+                const passingScore = lessonCard.querySelector('.lesson-quiz-passing-score')?.value;
+                const requirePassing = lessonCard.querySelector('.lesson-quiz-require-passing')?.value === 'true';
+                const duration = lessonCard.querySelector('.lesson-quiz-duration')?.value;
+                const attempts = lessonCard.querySelector('.lesson-quiz-attempts')?.value;
+                const warnings = lessonCard.querySelector('.lesson-quiz-maximum-warnings')?.value;
+                const randomize = lessonCard.querySelector('.lesson-quiz-randomize-order')?.value === 'true';
+                const reveal = lessonCard.querySelector('.lesson-quiz-reveal-answers')?.value === 'true';
+            
+                // Recheck radios
+                const quizTypeRadio = document.querySelector(`input[name="quiz_type"][value="${quizType}"]`);
+                if (quizTypeRadio) quizTypeRadio.checked = true;
+            
+                const createFromRadio = document.querySelector(`input[name="create_quiz_from"][value="${createFrom}"]`);
+                if (createFromRadio) createFromRadio.checked = true;
+            
+                // Fill inputs
+                document.getElementById('quiz_passing_score').value = passingScore;
+                document.getElementById('quiz_require_passing').checked = requirePassing;
+                document.getElementById('quiz_duration').value = duration;
+                document.getElementById('quiz_attempts').value = attempts;
+                document.getElementById('quiz_maximum_warnings').value = warnings;
+                document.getElementById('quiz_randomize_order').checked = randomize;
+                document.getElementById('quiz_reveal_answers').checked = reveal;
+            
+                // Restore Quiz Template name + ID
+                const selectedTemplateName = lessonCard.querySelector('.lesson-selected-quiz-template-name')?.value || '';
+                const selectedTemplateId = lessonCard.querySelector('.lesson-quiz-template-id')?.value || '';
+                const templateInput = document.getElementById('selectedQuizTemplate');
+                templateInput.value = selectedTemplateName;
+                templateInput.setAttribute('data-id', selectedTemplateId);
+            
+                // Restore Quiz name + ID
+                const selectedQuizName = lessonCard.querySelector('.lesson-selected-quiz-name')?.value || '';
+                const selectedQuizId = lessonCard.querySelector('.lesson-quiz-id')?.value || '';
+                const quizInput = document.getElementById('selectedQuiz');
+                quizInput.value = selectedQuizName;
+                quizInput.setAttribute('data-id', selectedQuizId);
+                initializeSubtextListeners();
+            
+                return;
+            }            
+                            
             // Display the file name if you have a display element
             console.log(lessonCard, document.getElementById('editLessonFileDisplay'));
             if (fileURL !== 'undefined' && fileURL !== '') {
@@ -1084,16 +1325,56 @@ document.getElementById('editLessonBtn').addEventListener('click', function () {
     closePopup('editLesson');
 });
 
-function updateLessonCard(lessonCard, newTitle, newDescription, fileName, newFileURL) {
-    // Update the title in the lesson card
+
+function updateQuizLessonCard(){
+    const newTitle = document.getElementById('QuizLessonTitle').value;
+    const newDescription = document.querySelector('#QuizLessonDescription .ql-editor').innerHTML;
+    const quizType = document.querySelector('input[name="quiz_type"]:checked')?.value;
+
+    const quizData = {
+        quiz_type: quizType,
+        passing_score: document.getElementById('quiz_passing_score').value,
+        require_passing: document.getElementById('quiz_require_passing').checked,
+        quiz_duration: document.getElementById('quiz_duration').value,
+        quiz_attempts: document.getElementById('quiz_attempts').value,
+        maximum_warnings: document.getElementById('quiz_maximum_warnings').value,
+        randomize_order: document.getElementById('quiz_randomize_order').checked,
+        reveal_answers: document.getElementById('quiz_reveal_answers').checked
+    };
+
+    updateLessonCard(window.lessonToEdit, newTitle, newDescription, '', '', quizData);
+
+    closePopup('quizSettingsPopup');
+}
+
+function updateLessonCard(lessonCard, newTitle, newDescription, fileName, newFileURL, quizData = {}) {
     const lessonTitleElement = lessonCard.querySelector('.lesson-title');
-    const lessonIndex = lessonTitleElement.textContent.split(': ')[0]; // Keep "Lesson X:"
+    const lessonIndex = lessonTitleElement.textContent.split(': ')[0];
     lessonTitleElement.textContent = `${lessonIndex}: ${newTitle}`;
 
-    // Update the hidden inputs for description and file URL
-    lessonCard.querySelector('.lesson-file-name').value = fileName;
     lessonCard.querySelector('.lesson-description').value = newDescription;
-    lessonCard.querySelector('.lesson-file').value = newFileURL;
+
+    const lessonType = lessonCard.querySelector('.lesson-type')?.value;
+    if (lessonType === 'file' || lessonType === 'SCORM1.2' || lessonType === 'SCORM2004') {
+        if (fileName) lessonCard.querySelector('.lesson-file-name').value = fileName;
+        if (newFileURL) lessonCard.querySelector('.lesson-file').value = newFileURL;
+    }
+
+    if (lessonType === 'quiz') {
+        lessonCard.querySelector('.lesson-create-quiz-from').value = quizData.create_quiz_from || '';
+        lessonCard.querySelector('.lesson-quiz-template-id').value = quizData.quiz_template_id || '';
+        lessonCard.querySelector('.lesson-selected-quiz-template-name').value = quizData.selectedQuizTemplateName || '';
+        lessonCard.querySelector('.lesson-quiz-id').value = quizData.quiz_id || '';
+        lessonCard.querySelector('.lesson-selected-quiz-name').value = quizData.selectedQuizname || '';
+        lessonCard.querySelector('.lesson-quiz-type').value = quizData.quiz_type || '';
+        lessonCard.querySelector('.lesson-quiz-passing-score').value = quizData.passing_score || '';
+        lessonCard.querySelector('.lesson-quiz-require-passing').value = quizData.require_passing;
+        lessonCard.querySelector('.lesson-quiz-duration').value = quizData.quiz_duration || '';
+        lessonCard.querySelector('.lesson-quiz-attempts').value = quizData.quiz_attempts || '';
+        lessonCard.querySelector('.lesson-quiz-maximum-warnings').value = quizData.maximum_warnings || '';
+        lessonCard.querySelector('.lesson-quiz-randomize-order').value = quizData.randomize_order;
+        lessonCard.querySelector('.lesson-quiz-reveal-answers').value = quizData.reveal_answers;
+    }
 }
 
 document.getElementById('confirmDeleteButton').addEventListener('click', function () {
@@ -1192,7 +1473,50 @@ document.getElementById('SCORM2004lessonTitle').addEventListener('keyup', check2
 // Add event listener to the file input field (detects file selection)
 document.getElementById('SCORM2004fileInput').addEventListener('change', check2004FileFields);
 
+function checkQuizLessonFields() {
+    const lessonTitle = document.getElementById('quizlessonTitle');
+    const quizLessonFirstBtn = document.getElementById('quizLessonFirstBtn');
 
+    const selectedCreateQuizFrom = document.querySelector('input[name="create_quiz_from"]:checked')?.value;
+
+    const selectedQuizTemplate = document.getElementById('selectedQuizTemplate');
+    const selectedQuiz = document.getElementById('selectedQuiz');
+
+    const titleFilled = lessonTitle?.value.trim().length > 0;
+    const quizTemplateValid = isValidDataId(selectedQuizTemplate);
+    const quizValid = isValidDataId(selectedQuiz);
+
+    let allowProceed = false;
+
+    if (selectedCreateQuizFrom === 'create_quiz_from1') {
+        allowProceed = titleFilled && quizTemplateValid;
+    } else if (selectedCreateQuizFrom === 'create_quiz_from2') {
+        allowProceed = titleFilled && quizValid;
+    }
+
+    if (allowProceed) {
+        quizLessonFirstBtn.classList.remove('disabled');
+        quizLessonFirstBtn.removeAttribute('disabled');
+    } else {
+        quizLessonFirstBtn.classList.add('disabled');
+        quizLessonFirstBtn.setAttribute('disabled', true);
+    }
+}
+
+function observeAttributeChange(targetId, callback) {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    const observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'data-id') {
+                callback();
+            }
+        }
+    });
+
+    observer.observe(target, { attributes: true });
+}
 
 document.getElementById('SCORM1.2lessonTitle').addEventListener('keyup', function() {
     const createFileLessonBtn = document.getElementById('create12LessonBtn');
@@ -1245,13 +1569,16 @@ function generateCourseData(isSave) {
     const hours = document.getElementById('completion_hours').value || 0;
     const minutes = document.getElementById('completion_seconds').value || 0;
 
+    let rawCategory = document.getElementById('category')?.getAttribute('data-id');
+    const category = rawCategory && rawCategory !== 'null' ? parseInt(rawCategory) : null;
+
     // Initialize courseData
     const courseData = {
         id: document.getElementById('courseId') ? document.getElementById('courseId').value : null, // Check for the course ID,
         title: document.getElementById('title').value,
         description: getEditorContent('courseDescription'),
-        category_id: document.getElementById('category').getAttribute('data-id'), // Adjust as needed
-        type: 'online', // Adjust as needed
+        category_id: category,
+        type: 'online',
         status: document.getElementById('status').value,
         estimated_completion_time: `${hours}h ${minutes}m`,
         modules: [],
@@ -1266,8 +1593,9 @@ function generateCourseData(isSave) {
     if (courseData.id) {
         formData.append('id', courseData.id); 
     }
-    if (courseData.category_id) {
-        formData.append('category_id', courseData.category_id); 
+
+    if (courseData.category_id !== null) {
+        formData.append('category_id', courseData.category_id);
     }
     // Append basic course data to FormData
     
@@ -1513,12 +1841,30 @@ function generateCourseData(isSave) {
 
             // Check if it's a file type
             if (lessonType === 'file') {
-                // Case 1: It's a file type with a URL
-                lessonData['file_url'] = lessonFileInput.value; // Use the file URL
-                lessonData['file_name'] = lessonFileName; // Include the file name
+                lessonData['file_url'] = lessonCard.querySelector('.lesson-file')?.value || '';
+                lessonData['file_name'] = lessonCard.querySelector('.lesson-file-name')?.value || '';
             } else if (lessonType.startsWith('SCORM')) {
-                lessonData['file_id'] = lessonFileInput.value;
+                lessonData['file_id'] = lessonCard.querySelector('.lesson-file')?.value || '';
+            } else if (lessonType === 'quiz') {
+                lessonData['create_quiz_from'] = lessonCard.querySelector('.lesson-create-quiz-from')?.value || '';
+                const rawTemplateId = lessonCard.querySelector('.lesson-quiz-template-id')?.value;
+                lessonData['quiz_template_id'] = rawTemplateId && rawTemplateId.trim() !== '' ? parseInt(rawTemplateId, 10) : null;
+                lessonData['selected_quiz_template_name'] = lessonCard.querySelector('.lesson-selected-quiz-template-name')?.value || '';
+                const rawQuizId = lessonCard.querySelector('.lesson-quiz-id')?.value;
+                lessonData['quiz_id'] = rawQuizId && rawQuizId.trim() !== '' ? parseInt(rawQuizId, 10) : null;
+                lessonData['selected_quiz_name'] = lessonCard.querySelector('.lesson-selected-quiz-name')?.value || '';
+            
+                // QuizConfig values
+                lessonData['quiz_type'] = lessonCard.querySelector('.lesson-quiz-type')?.value || '';
+                lessonData['passing_score'] = lessonCard.querySelector('.lesson-quiz-passing-score')?.value || '';
+                lessonData['require_passing'] = lessonCard.querySelector('.lesson-quiz-require-passing')?.value === 'true';
+                lessonData['quiz_duration'] = lessonCard.querySelector('.lesson-quiz-duration')?.value || '';
+                lessonData['quiz_attempts'] = lessonCard.querySelector('.lesson-quiz-attempts')?.value || '';
+                lessonData['maximum_warnings'] = lessonCard.querySelector('.lesson-quiz-maximum-warnings')?.value || '';
+                lessonData['randomize_order'] = lessonCard.querySelector('.lesson-quiz-randomize-order')?.value === 'true';
+                lessonData['reveal_answers'] = lessonCard.querySelector('.lesson-quiz-reveal-answers')?.value === 'true';
             }
+                        
 
             // Add lessonData to moduleData
             moduleData.lessons.push(lessonData);
@@ -2158,7 +2504,6 @@ function initializeThumbnailPreview(){
 
 document.getElementById('createCategoryButton').addEventListener('click', function() {
     const parentCategory = document.getElementById('parentCategory').getAttribute('data-id');
-    console.log(parentCategory);
     const categoryName = document.getElementById('newCategoryName').value.trim();
     const categoryDescription = getEditorContent('categoryDescription');
     if (categoryName) {
@@ -2173,7 +2518,7 @@ document.getElementById('createCategoryButton').addEventListener('click', functi
         createCategoryButton.classList.add('disabled');
         createCategoryButton.setAttribute('disabled', true);
     } else {
-        alert('Please enter a category name.');
+        displayValidationMessage('Please enter a category name.', false);
     }
 });
 
@@ -2205,5 +2550,196 @@ const deleteObject = async (type, id) => {
     }
 };
 
-// Example usage
-// deleteObject('Module', 161);
+function initializeSubtextListeners() {
+    const subtexts = {
+        create_quiz_from1: "Select a Quiz Template to attach to this lesson.",
+        create_quiz_from2: "Select an existing Quiz to attach to this lesson.",
+        standard_quiz: "Standard Quizzes will be taken directly within the course.",
+        monitored_quiz: "AI Monitored Quizzes will require webcam and mic access. Quizzes will be taken using our monitored examination environment."
+    };
+
+    const quizTypeSubtext = document.querySelector(
+        'input[name="quiz_type"]'
+    ).closest(".course-content-input").querySelector(".course-content-input-subtext");
+
+    // Toggle visible container based on selected radio
+    function toggleQuizFromDetails(value) {
+        const container = document.getElementById('quizFromOptions');
+        if (!container) return;
+    
+        container.querySelectorAll(".toggle-option-details").forEach((el) => {
+            const target = el.getAttribute("data-target");
+            if (target === value) {
+                el.classList.add("show-toggle-option-details");
+            } else {
+                el.classList.remove("show-toggle-option-details");
+            }
+        });
+    }    
+
+    // Initial state setup
+    const currentQuizFrom = document.querySelector('input[name="create_quiz_from"]:checked');
+    if (currentQuizFrom) {
+        toggleQuizFromDetails(currentQuizFrom.value);
+    }
+
+    // Add listeners for 'Create Quiz From'
+    document.querySelectorAll('input[name="create_quiz_from"]').forEach((input) => {
+        input.addEventListener("change", () => {
+            toggleQuizFromDetails(input.value);
+        });
+    });
+
+    // Add listeners for 'Quiz Type'
+    document.querySelectorAll('input[name="quiz_type"]').forEach((input) => {
+        input.addEventListener("change", () => {
+            quizTypeSubtext.textContent = subtexts[input.value];
+        });
+    });
+}
+
+function nextPopupSlide(slideId, currentSlideId){
+    if(slideId == 'quiz'){
+        let checkedValue = null;
+        document.querySelectorAll('input[name="quiz_type"]').forEach(radio => {
+            if (radio.checked) {
+                checkedValue = radio.value;
+            }
+        });
+        const quizSettingsSubtext = document.getElementById('quizSettingsSubtext');
+        if(checkedValue == 'monitored_quiz'){
+            quizSettingsSubtext.innerText = 'AI Monitored Quiz';
+        }else if(checkedValue == 'standard_quiz'){
+            quizSettingsSubtext.innerText = 'Standard Quiz';
+        }
+        openQuizSettingsSlide(checkedValue);
+    }
+
+    const currentPopup = document.getElementById(currentSlideId);
+    const popupContent = currentPopup.querySelector('.popup-content');
+    popupContent.classList.remove('animate-popup-content');
+    currentPopup.style.display = "none";
+
+    
+}
+
+function previousPopupSlide(slideId, previousSlideId){
+    const currentPopup = document.getElementById(slideId);
+    const popupContent = currentPopup.querySelector('.popup-content');
+    popupContent.classList.remove('animate-popup-content');
+    currentPopup.style.display = "none";
+
+    openPopup(previousSlideId);
+}
+
+function openQuizSettingsSlide(checkedValue){
+    openPopup('quizSettingsPopup');
+    const standardQuizSettings = document.getElementById('standardQuizSettings');
+    const monitoredQuizSettings = document.getElementById('monitoredQuizSettings');
+    if(checkedValue == 'monitored_quiz'){
+        standardQuizSettings.style.display = 'none';
+        monitoredQuizSettings.style.display = 'flex';
+        monitoredQuizSettings.style.flexDirection = 'column';
+    }else if(checkedValue == 'standard_quiz'){
+        monitoredQuizSettings.style.display = 'none';
+        standardQuizSettings.style.display = 'flex';
+        standardQuizSettings.style.flexDirection = 'column';
+    }
+    validateQuizSettingsForm();
+}
+
+function initializeRequiredQuizFields(){
+    const fieldsToWatch = [
+        'quiz_passing_score',
+        'quiz_duration',
+        'quiz_maximum_warnings',
+        'quizlessonTitle'
+    ];
+
+    fieldsToWatch.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', validateQuizSettingsForm);
+            el.addEventListener('change', validateQuizSettingsForm); // extra safety
+        }
+    });
+
+    // If quiz type changes, re-validate
+    document.querySelectorAll('input[name="quiz_type"]').forEach(radio =>
+        radio.addEventListener('change', () => {
+            validateQuizSettingsForm();
+        })
+    );
+
+    // If using a custom dropdown for attempts, track that as well
+    document.querySelectorAll('.select-item[data-name="quiz_attempts"]').forEach(item =>
+        item.addEventListener('click', () => {
+            const attemptsInput = document.getElementById('quiz_attempts');
+            if (attemptsInput) {
+                attemptsInput.value = item.dataset.value;
+                validateQuizSettingsForm();
+            }
+        })
+    );
+}
+
+function validateQuizSettingsForm() {
+    const createBtn = document.getElementById('createQuizLessonBtn');
+    const lessonTitle = document.getElementById('quizlessonTitle').value.trim();
+    const quizType = document.querySelector('input[name="quiz_type"]:checked')?.value;
+    const createQuizFrom = document.querySelector('input[name="create_quiz_from"]:checked')?.value;
+
+    const passingScore = document.getElementById('quiz_passing_score')?.value;
+
+    const selectedTemplate = document.getElementById('selectedQuizTemplate');
+    const selectedQuiz = document.getElementById('selectedQuiz');
+
+    console.log("🏁 Starting validation...");
+    console.log("Title:", lessonTitle);
+    console.log("Quiz Type:", quizType);
+    console.log("Create From:", createQuizFrom);
+    console.log("Passing Score:", passingScore);
+    console.log("Selected Template ID:", selectedTemplate?.getAttribute('data-id'));
+    console.log("Selected Quiz ID:", selectedQuiz?.getAttribute('data-id'));
+
+    let isValid = lessonTitle.length > 0 && passingScore !== '';
+
+    if (quizType === 'monitored_quiz') {
+        const duration = document.getElementById('quiz_duration')?.value;
+        const warnings = document.getElementById('quiz_maximum_warnings')?.value;
+        const attempts = document.getElementById('quiz_attempts')?.value;
+
+        console.log("Monitored Quiz Fields -> Duration:", duration, "Warnings:", warnings, "Attempts:", attempts);
+
+        isValid = isValid &&
+            duration !== '' && parseInt(duration) >= 0 &&
+            warnings !== '' && parseInt(warnings) >= 0 &&
+            attempts !== '';
+    }
+
+    if (createQuizFrom === 'create_quiz_from1') {
+        const validTemplate = isValidDataId(selectedTemplate);
+        console.log("📘 Template valid?", validTemplate);
+        isValid = isValid && validTemplate;
+    } else if (createQuizFrom === 'create_quiz_from2') {
+        const validQuiz = isValidDataId(selectedQuiz);
+        console.log("📙 Quiz valid?", validQuiz);
+        isValid = isValid && validQuiz;
+    }
+
+    console.log("✅ Final validation result:", isValid);
+
+    if (isValid) {
+        createBtn.classList.remove('disabled');
+        createBtn.removeAttribute('disabled');
+    } else {
+        createBtn.classList.add('disabled');
+        createBtn.setAttribute('disabled', true);
+    }
+}
+
+function isValidDataId(element) {
+    if (!element) return false;
+    const dataId = element.getAttribute('data-id');
+    return dataId && dataId.trim() !== '' && dataId.trim().toLowerCase() !== 'none' && dataId.trim().toLowerCase() !== 'null';
+}

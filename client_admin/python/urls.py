@@ -32,6 +32,22 @@ urlpatterns = [
     path('courses/online/edit/<int:course_id>/', content_views.edit_online_courses, name='edit_online_courses'),
     path('courses/delete-courses/', views.delete_courses, name='delete_courses'),
 
+    # Quizzes
+    path('quizzes/', content_views.admin_quizzes, name='admin_quizzes'),
+    path('quizzes/create/', content_views.create_or_edit_quiz, name='create_quiz'),
+    path('quizzes/<uuid:uuid>/', content_views.create_or_edit_quiz, name='edit_quiz'),
+    path('quizzes/delete-quizzes/', views.delete_quizzes, name='delete_quizzes'),
+
+    # Questions
+    path('questions/', content_views.admin_questions, name='admin_questions'),
+    path('questions/delete-questions/', views.delete_questions, name='delete_questions'),
+
+    # Quiz Templates
+    path('quiz-templates/', content_views.admin_quiz_templates, name='admin_quiz_templates'),
+    path('quiz-templates/add/', content_views.add_quiz_templates, name='add_quiz_templates'),
+    path('quiz-templates/edit/<int:quiz_template_id>/', content_views.edit_quiz_templates, name='edit_quiz_templates'),
+    path('quiz-templates/delete-quiz-templates/', views.delete_quiz_templates, name='delete_quiz_templates'),
+
     # Categories
     path('categories/', content_views.admin_categories, name='admin_categories'),
     path('categories/add/', content_views.add_categories, name='add_categories'),

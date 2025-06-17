@@ -15,7 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeRadioCheckboxes(radio) {
     if (radio.checked) {
-        // Show the target element
+        const container = radio.closest('.course-content-input');
+        
+        // Show current target
         if (radio.dataset.target) {
             const targetElement = document.getElementById(radio.dataset.target);
             if (targetElement) {
@@ -23,25 +25,24 @@ function initializeRadioCheckboxes(radio) {
             }
         }
 
-        // Hide other target elements
-        document.querySelectorAll('.radio-option').forEach(other => {
+        // Hide other targets
+        container.querySelectorAll('.radio-option').forEach(other => {
             if (other !== radio && other.dataset.target) {
                 const otherTarget = document.getElementById(other.dataset.target);
-                if (otherTarget && otherTarget.id != 'courseCompletedDetails') {
-                    console.log(otherTarget);
+                if (otherTarget) {
                     otherTarget.classList.remove('show-toggle-option-details');
                 }
             }
         });
 
-        // Trigger course or lesson logic
+        // Handle course/lesson logic
         if (radio.value === 'completed' && radio.name === 'course_status') {
             setCourseCompletedTime();
         } else if (radio.value === 'completed' && radio.name === 'lesson_status') {
             setLessonCompletedTime();
         }
     }
-} 
+}
 
 function setCourseCompletedTime() {
     const completedDateInput = document.getElementById('completed_date');

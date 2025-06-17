@@ -58,8 +58,8 @@ function initializeAddWidgets() {
                 widget_title = 'Enrollment Key';
                 widget_subtext = 'Have an Enrollment Key?';
                 widget_icon = 'fa-light fa-key';
-                widget_icon_color = '#e03a59';
-                widget_icon_background_color = '#ffc9d2';
+                widget_icon_color = '#059f48';
+                widget_icon_background_color = '#b3ecb3';
             }else if(type === 'externalLink'){
                 widget_title = 'External Link';
                 widget_subtext = 'Link to an external source';
@@ -68,7 +68,7 @@ function initializeAddWidgets() {
                 widget_icon_background_color = '#d0e0ff';
             } 
             let widget_title_color = '#41454d'; 
-            let widget_subtext_color = '#6b6b6b';
+            let widget_subtext_color = '#798292';
 
             if (dashboardIdInput && type) {  // Updated to include type check
                 const dashboardId = dashboardIdInput.value;
@@ -173,7 +173,7 @@ function appendResumeCoursesWidget(data){
             </div>
             <div onclick="deleteWidget('${ data.widget_id }'), openPopup('confirmWidgetDeletePopup');" class="delete-widget tooltip" data-id="${ data.widget_id }" data-tooltip="Delete Widget">
                 <span class="tooltiptext">Delete Widget</span>
-                <i class="fa-regular fa-trash"></i>
+                <i class="fa-regular fa-trash-can"></i>
             </div>
         </div>           
         `;
@@ -211,7 +211,7 @@ function appendMyCoursesWidget(data){
             </div>
             <div onclick="deleteWidget('${ data.widget_id }'), openPopup('confirmWidgetDeletePopup');" class="delete-widget tooltip" data-id="${ data.widget_id }" data-tooltip="Delete Widget">
                 <span class="tooltiptext">Delete Widget</span>
-                <i class="fa-regular fa-trash"></i>
+                <i class="fa-regular fa-trash-can"></i>
             </div>
         </div>           
         `;
@@ -232,7 +232,7 @@ function appendEnrollmentKeyWidget(data){
                 <i class="fa-light fa-grip-dots-vertical"></i>
             </div>
             <div class="widget-inner-wrapper">
-                <div class="widget-icon pastel-pink">
+                <div class="widget-icon pastel-green">
                     <i class="fa-light fa-key"></i>
                 </div>
                 <div class="widget-inner-right">
@@ -249,7 +249,7 @@ function appendEnrollmentKeyWidget(data){
             </div>
             <div onclick="deleteWidget('${ data.widget_id }'), openPopup('confirmWidgetDeletePopup');" class="delete-widget tooltip" data-id="${ data.widget_id }" data-tooltip="Delete Widget">
                 <span class="tooltiptext">Delete Widget</span>
-                <i class="fa-regular fa-trash"></i>
+                <i class="fa-regular fa-trash-can"></i>
             </div>
         </div>           
         `;
@@ -287,7 +287,7 @@ function appendExternalLinkWidget(data){
             </div>
             <div onclick="deleteWidget('${ data.widget_id }'), openPopup('confirmWidgetDeletePopup');" class="delete-widget tooltip" data-id="${ data.widget_id }" data-tooltip="Delete Widget">
                 <span class="tooltiptext">Delete Widget</span>
-                <i class="fa-regular fa-trash"></i>
+                <i class="fa-regular fa-trash-can"></i>
             </div>
         </div>           
         `;

@@ -1,0 +1,104 @@
+<div id="quizPopup" class="popup-background">
+    <div class="popup-content max-width-5">
+        <div class="popup-header">
+            <div class="popup-header-column">
+                <h3 id="quizPopupMainTitle">Create New Lesson</h3>
+                <!-- <span class="popup-header-subtext">AI Monitored Quiz</span> -->
+            </div>
+            <span class="selected-lesson-type pastel-green">Quiz</span>
+            <button id="quizLessonBackIcon" onclick="closeCreateLessonPopup('quizPopup')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="popup-body">
+            <!-- Add your form or content for creating a lesson here -->
+            <div class="course-content-input">
+                <label class="edit-user-label" for="quizlessonTitle">Lesson Title<span class="required-asterisk">*</span></label>
+                <input type="text" id="quizlessonTitle" name="quizlessonTitle" placeholder="Lesson Title" maxlength="200">
+            </div>
+            <div class="course-content-input padding-top-2 padding-bottom-1">
+                <label class="edit-user-label" for="quizlessonDescription">Lesson Description</label>
+                <div class="editor-container" id="quizlessonDescription"></div>
+                <div class="quill-character-counter">
+                    <div class="quill-current-counter">0</div>
+                    <span>/</span>
+                    <div class="quill-max-counter">2000</div>
+                </div>
+            </div>
+            <div class="course-content-input">
+                <label class="edit-user-label">Create Quiz From<span class="required-asterisk">*</span></label>
+                <div class="content-input-options-row">
+                    <label class="custom-radio">
+                        <input type="radio" name="create_quiz_from" value="create_quiz_from1" checked>
+                        <span class="custom-radio-button"></span>
+                        Quiz Template
+                    </label>
+                    <label class="custom-radio">
+                        <input type="radio" name="create_quiz_from" value="create_quiz_from2">
+                        <span class="custom-radio-button"></span>
+                        Quiz
+                    </label>
+                </div>
+                <div id="quizFromOptions">
+                    <div class="toggle-option-details show-toggle-option-details margin-top-5" data-target="create_quiz_from1">
+                        <span class="course-content-input-subtext"> Select a Quiz Template to attach to this lesson.</span> 
+                        <div id="selectedQuizTemplates">
+                            <div class="right-column-file-wrapper">
+                                <div id="quizTemplateDropdown" class="quiz-template-dropdown course-content-input">
+                                    <input type="text" id="selectedQuizTemplate" name="selectedQuizTemplate" class="quizTemplateSearch" placeholder="Search quiz templates..." autocomplete="off">
+                                    <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                                    <div class="quizTemplateList scrollable-content-inner">
+                                        <div class="loadingIndicator" style="display:none;">Loading...</div>
+                                    </div>
+                                    <div class="dropdown-clear-input">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="toggle-option-details margin-top-5" data-target="create_quiz_from2">
+                        <span class="course-content-input-subtext"> Select an existing Quiz to attach to this lesson.</span> 
+                        <div id="selectedQuizzes">
+                            <div class="right-column-file-wrapper">
+                                <div id="quizDropdown" class="quiz-dropdown course-content-input">
+                                    <input type="text" id="selectedQuiz" name="selectedQuiz" class="quizSearch" placeholder="Search quizzes..." autocomplete="off">
+                                    <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                                    <div class="quizList scrollable-content-inner">
+                                        <div class="loadingIndicator" style="display:none;">Loading...</div>
+                                    </div>
+                                    <div class="dropdown-clear-input">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                     
+                    </div>
+                </div>                
+            </div>
+            <div class="course-content-input padding-top-2">
+                <label class="edit-user-label">Quiz Type</label>
+                <div class="content-input-options-row">
+                    <label class="custom-radio">
+                        <input type="radio" name="quiz_type" value="standard_quiz" checked>
+                        <span class="custom-radio-button"></span>
+                        Standard Quiz
+                    </label>
+                    <label class="custom-radio">
+                        <input type="radio" name="quiz_type" value="monitored_quiz">
+                        <span class="custom-radio-button"></span>
+                        AI Monitored Quiz
+                    </label>
+                </div>
+                <span class="course-content-input-subtext"> Standard Quizzes will be taken directly within the course.</span>  
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button id="quizLessonBackBtn" type="button" onclick="closeCreateLessonPopup('quizPopup')" class="popup-btn close-popup-btn">Back</button>
+                <button id="quizLessonFirstBtn" onclick="nextPopupSlide('quiz', 'quizPopup')" class="popup-btn disabled" disabled>Next Step</button>   
+            </div>
+        </div>
+    </div>
+</div>

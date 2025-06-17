@@ -23,7 +23,7 @@ class Widget(models.Model):
     widget_title = models.CharField(max_length=255, blank=True, null=True)
     widget_title_color = models.CharField(max_length=7, default='#41454d')
     widget_subtext = models.CharField(max_length=255, blank=True, null=True)
-    widget_subtext_color = models.CharField(max_length=7, default='#6b6b6b')
+    widget_subtext_color = models.CharField(max_length=7, default='#798292')
     widget_icon = models.CharField(max_length=100, blank=True, null=True)
     widget_icon_color = models.CharField(max_length=7, blank=True, null=True)
     widget_icon_background_color = models.CharField(max_length=7, blank=True, null=True)

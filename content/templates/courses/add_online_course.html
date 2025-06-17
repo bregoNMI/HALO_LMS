@@ -113,6 +113,9 @@
                                                 <div class="categoryList scrollable-content-inner">
                                                     <div class="loadingIndicator" style="display:none;">Loading...</div>
                                                 </div>
+                                                <div class="dropdown-clear-input">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>                 
@@ -561,8 +564,8 @@
                                             <img alt="Course Thumbnail" id="ThumbnailImagePreview">
                                         </div>
                                     </div>
-                                    <div style="display: none;" id="thumbnailDelete" class="table-filter-item-small thumbnail-delete">
-                                        <i class="fa-regular fa-trash"></i>
+                                    <div style="display: none; right: 0.5rem;" id="thumbnailDelete" class="table-filter-item-small thumbnail-delete">
+                                        <i class="fa-regular fa-trash-can"></i>
                                     </div>
                                 </div>
                             </div>       
@@ -602,7 +605,7 @@
                                             <div class="reference-header-right">
                                                 <div onclick="openPopup('referenceDeleteConfirmation', 'deleteReference', this)" id="deleteReference" class="reference-delete tooltip" data-tooltip="Delete Reference">
                                                     <span class="tooltiptext">Delete Reference</span>
-                                                    <i class="fa-regular fa-trash"></i>
+                                                    <i class="fa-regular fa-trash-can"></i>
                                                 </div>
                                                 <div class="reference-dropdown">
                                                     <i class="fa-regular fa-angle-down"></i>
@@ -632,7 +635,7 @@
                                     </div>
                                     <div style="display: none;" id="noReferencesCreated" class="no-lessons-container"><span>This Course currently has no references.</span></div>
                                 </div>
-                                <div id="addReference" class="main-add-btn">
+                                <div id="addReference" class=" margin-top-4">
                                     <i class="fa-regular fa-plus"></i>
                                     <span> Add Reference </span>
                                 </div>
@@ -677,7 +680,7 @@
                                             <div class="upload-header-right">
                                                 <div onclick="openPopup('uploadDeleteConfirmation', 'deleteUpload', this)" id="deleteUpload" class="upload-delete tooltip" data-tooltip="Delete Upload">
                                                     <span class="tooltiptext">Delete Upload</span>
-                                                    <i class="fa-regular fa-trash"></i>
+                                                    <i class="fa-regular fa-trash-can"></i>
                                                 </div>
                                                 <div class="upload-dropdown">
                                                     <i class="fa-regular fa-angle-down"></i>
@@ -740,7 +743,7 @@
                                     </div>
                                     <div style="display: none;" id="noUploadsCreated" class="no-lessons-container"><span>This Course currently has no uploads.</span></div>
                                 </div>
-                                <div id="addUpload" class="main-add-btn">
+                                <div id="addUpload" class="main-add-btn margin-top-4">
                                     <i class="fa-regular fa-plus"></i>
                                     <span> Add Upload </span>
                                 </div>
@@ -757,6 +760,8 @@
     {% include 'popups/create_new_lesson.html' %}
     {% include 'popups/create_scorm1.2_lesson.html' %}
     {% include 'popups/create_scorm2004_lesson.html' %}
+    {% include 'popups/create_quiz_lesson.html' %}
+    {% include 'popups/quiz_settings_popup.html' %}
     {% include 'popups/module_delete_confirmation.html' %}
     {% include 'popups/reference_delete_confirmation.html' %}
     {% include 'popups/lesson_delete_confirmation.html' %}

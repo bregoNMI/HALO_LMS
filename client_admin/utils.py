@@ -11,6 +11,7 @@ def display_user_time(user, utc_datetime):
     return timezone.localtime(utc_datetime, user_tz)
 
 def fill_certificate_form(template_stream, data):
+    print('data:', data)
     """
     Fills form fields in a PDF template loaded from a BytesIO stream.
 
@@ -50,22 +51,31 @@ def fill_certificate_form(template_stream, data):
 
                     # Detect field name
                     field_name = field.get("/T")
+                    existing_flags = field.get("/Ff", 0)
+
                     if field_name == "CertificateId":
-                        # Add margin via leading space or smaller font size
-                        field.update({
-                            NameObject("/Ff"): NumberObject(1),
-                            NameObject("/DA"): TextStringObject("/Helv 11 Tf 0 g")  # You can also try "/Helv 10 Tf 0 g"
-                        })
-                        # Optionally pad the actual field value itself:
+                        # Pad value if present
                         if "CertificateId" in data:
                             data["CertificateId"] = "   " + data["CertificateId"]  # Add 3 spaces
-                    else:
-                        # Normal appearance for other fields
+
+                        # Apply appearance override specifically for CertificateId
                         field.update({
-                            NameObject("/Ff"): NumberObject(1),
-                            NameObject("/DA"): TextStringObject("/Helv 12 Tf 0 g")
+                            NameObject("/Ff"): NumberObject(existing_flags | 1),  # Set ReadOnly bit, preserve others
+                            NameObject("/DA"): TextStringObject("/Helv 11 Tf 0 g")  # Only override for this field
                         })
 
+                    else:
+                        # Apply appearance only if /DA is missing (preserve designer's choice)
+                        if "/DA" not in field:
+                            field.update({
+                                NameObject("/Ff"): NumberObject(existing_flags | 1),  # Set ReadOnly bit, preserve others
+                                NameObject("/DA"): TextStringObject("/Helv 12 Tf 0 g")
+                            })
+                        else:
+                            # Just preserve flags
+                            field.update({
+                                NameObject("/Ff"): NumberObject(existing_flags | 1)
+                            })
     else:
         print("No AcroForm dictionary found in the PDF.")
 
@@ -111,6 +121,8 @@ def enroll_user_with_key(user, key_str):
 
     # Enroll the user
     UserCourse.objects.create(user=user, course=course)
+
+    print('ENROLLMENT KEY')
 
     # Update the key usage
     enrollment_key.uses += 1
