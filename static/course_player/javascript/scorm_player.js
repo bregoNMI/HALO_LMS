@@ -530,7 +530,61 @@ function markLessonAsCompletedInSCORM() {
     } else {
         console.warn("❌ SCORM API not available in iframe.");
     }
-}    
+}   
+
+function observeAndLockTooltip() {
+    const iframe = document.getElementById("scormContentIframe");
+    if (!iframe || !iframe.contentWindow || !iframe.contentWindow.document) return;
+
+    const iframeDoc = iframe.contentWindow.document;
+    const observer = new iframe.contentWindow.MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                const tooltip = iframeDoc.querySelector('.lesson-progress__tooltip_inner');
+                if (tooltip && tooltip.textContent.trim() === "Unstarted") {
+                    tooltip.textContent = "Completed";
+                }
+            }
+        }
+    });
+
+    observer.observe(iframeDoc.body, {
+        childList: true,
+        subtree: true
+    });
+
+    console.log("👀 MutationObserver for tooltips activated.");
+}
+
+function patchGlobalTooltipText() {
+    const tooltipSelector = '.lesson-progress__tooltip_inner';
+
+    const fixTooltip = () => {
+        const tooltips = document.querySelectorAll(tooltipSelector);
+        tooltips.forEach(el => {
+            if (el.textContent.trim().toLowerCase() === "unstarted") {
+                el.textContent = "Completed";
+                console.log("✅ Tooltip text manually corrected.");
+            }
+        });
+    };
+
+    // Immediate fix
+    fixTooltip();
+
+    // Observer for dynamic updates
+    const portal = document.getElementById("portal");
+    if (!portal) return;
+
+    const observer = new MutationObserver(() => fixTooltip());
+    observer.observe(portal, {
+        childList: true,
+        subtree: true
+    });
+
+    // Optionally stop observing after some time
+    setTimeout(() => observer.disconnect(), 10000);
+}
 
 function updateProgressCircles() {
     if (!isScormLesson()) return;
@@ -595,6 +649,7 @@ function updateProgressCircles() {
         if (progressPercentage === 100) {
             console.log('progressPercentage', progressPercentage);
             svg.setAttribute("aria-label", "Completed");
+            svg.setAttribute("data-completion-status", "completed");
             svg.classList.add("progress-circle--done");
             circle.classList.add("progress-circle__runner--done", "progress-circle__runner--passed");
             circle.classList.remove("progress-circle__runner--unstarted");
@@ -616,10 +671,42 @@ function updateProgressCircles() {
 
         console.log(`🔄 Circle ${mini_lesson_index} updated to ${progressPercentage}%`);
     });
-    
 
     console.log("🎯 Progress circles inside iframe updated.");
-}        
+
+    // 🛠 Tooltip label patch for hover feedback
+    const tooltipLabels = iframeDocument.querySelectorAll(".lesson-progress__tooltip_inner");
+    tooltipLabels.forEach(el => {
+        if (el.textContent.trim().toLowerCase() === "unstarted") {
+            el.textContent = "Completed";
+        }
+    });
+    // 🧪 Ensure tooltip always says "Completed" using MutationObserver
+    const observerConfig = { childList: true, subtree: true };
+    const observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === "childList") {
+                mutation.addedNodes.forEach(node => {
+                    if (
+                        node.nodeType === Node.TEXT_NODE &&
+                        node.textContent.trim().toLowerCase() === "unstarted"
+                    ) {
+                        node.textContent = "Completed";
+                        console.log("🛠 Tooltip override enforced via MutationObserver.");
+                    }
+                });
+            }
+        }
+    });
+
+    // Attach observer to each tooltip container
+    tooltipLabels.forEach(label => observer.observe(label, observerConfig));
+
+    //patchGlobalTooltipText();
+    // Optional: if SCORM's own tooltip system rewrites the DOM later,
+    // you may need to use MutationObserver or repeat this check after a small delay
+    setTimeout(updateProgressCircles, 1500);
+}
 
 // Ensure the SCORM iframe is fully loaded before running
 //waitForSCORMIframe(updateProgressCircles);  
@@ -832,6 +919,8 @@ function trackMiniLessonProgress() {
     if (window.API_1484_11?.Commit) {
         window.API_1484_11.Commit();
     }
+
+    updateSidebarProgress();
 }
 
 //function updateProgress(currentPage) {
@@ -998,7 +1087,7 @@ function saveLessonProgress() {
         score: null,
     });
 }    
-
+/*
 function updateSidebarProgress() {
     if (!isScormLesson()) return;
     console.log("Updating sidebar progress on page load...");
@@ -1049,6 +1138,76 @@ function updateSidebarProgress() {
     // Start the retry mechanism
     setTimeout(tryUpdateProgress, 500);
 }
+*/
+function updateSidebarProgress() {
+    if (!isScormLesson()) return;
+    console.log("📊 Updating sidebar progress based on mini-lesson completion...");
+
+    let attemptCount = 0;
+
+    function calculateMiniLessonProgress() {
+        const iframe = document.getElementById("scormContentIframe");
+        if (!iframe || !iframe.contentWindow || !iframe.contentWindow.document) return 0;
+
+        const iframeDocument = iframe.contentWindow.document;
+        const allMiniLessons = iframeDocument.querySelectorAll("svg.progress-circle--sidebar");
+        const total = allMiniLessons.length;
+
+        if (total === 0) return 0;
+
+        let completedCount = 0;
+
+        allMiniLessons.forEach(el => {
+            const label = el.getAttribute("aria-label") || "";
+            if (label.trim().toLowerCase() === "completed") {
+                completedCount++;
+            }
+        });
+
+        const percent = Math.round((completedCount / total) * 100);
+        console.log(`✅ Mini-lesson completion: ${completedCount}/${total} = ${percent}%`);
+        return percent;
+    }
+
+    function tryUpdateProgress() {
+        const progressPercentage = calculateMiniLessonProgress();
+
+        const iframe = document.getElementById("scormContentIframe");
+        if (iframe && iframe.contentWindow) {
+            try {
+                const iframeDocument = iframe.contentWindow.document;
+
+                const progressTextElement = iframeDocument.querySelector(".nav-sidebar-header__progress-text");
+                const progressBarElement = iframeDocument.querySelector(".nav-sidebar-header__progress-runner");
+
+                if (progressTextElement) {
+                    progressTextElement.textContent = `${progressPercentage}% COMPLETE`;
+                    console.log(`📝 Updated sidebar text to ${progressPercentage}%`);
+                }
+
+                if (progressBarElement) {
+                    progressBarElement.style.width = `${progressPercentage}%`;
+                    progressBarElement.style.transition = "width 0.5s ease-in-out";
+                    console.log(`📈 Updated progress bar width to ${progressPercentage}%`);
+                } else if (attemptCount < 10) {
+                    attemptCount++;
+                    console.warn(`⏳ Progress bar missing, retrying (${attemptCount})...`);
+                    setTimeout(tryUpdateProgress, 500);
+                } else {
+                    console.error("❌ Progress bar update failed after retries.");
+                }
+
+            } catch (error) {
+                console.error("🚨 Error updating sidebar progress:", error);
+            }
+        } else {
+            console.warn("🕐 Iframe not ready, retrying...");
+            setTimeout(tryUpdateProgress, 500);
+        }
+    }
+
+    setTimeout(tryUpdateProgress, 500);
+}
 
 // Run this function when the SCORM iframe loads
 /*
@@ -1073,7 +1232,7 @@ function getMiniLessonProgress(scoIndex) {
     if (window.API_1484_11) {
         let progress = window.API_1484_11.GetValue(`cmi.objectives.${scoIndex}.progress_measure`);
         let completionStatus = window.API_1484_11.GetValue(`cmi.objectives.${scoIndex}.completion_status`);
-        
+        console.log("check here")
         console.log(`📊 Mini-Lesson ${scoIndex}: Progress = ${progress}, Status = ${completionStatus}`);
         
         return {
@@ -1284,6 +1443,65 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 */
+function waitForPortalAndObserveTooltip() {
+    const maxRetries = 20;
+    let attempt = 0;
+
+    function tryAttach() {
+        const portal = document.getElementById("portal");
+        if (portal) {
+            console.log("✅ #portal found, attaching tooltip observer");
+            attachTooltipObserver(portal); // 👈 start real logic
+        } else if (attempt < maxRetries) {
+            attempt++;
+            console.warn(`⚠️ #portal not found. Retrying... (${attempt})`);
+            setTimeout(tryAttach, 500); // Retry every 500ms
+        } else {
+            console.error("❌ Failed to find #portal after multiple attempts.");
+        }
+    }
+
+    tryAttach();
+}
+
+function attachTooltipObserver(portal) {
+    const saved = Array.isArray(window.miniLessonProgress) ? window.miniLessonProgress : [];
+
+    const correctTooltipText = () => {
+        const tooltip = portal.querySelector('.lesson-progress__tooltip_inner');
+        if (!tooltip) return;
+
+        const hovered = document.querySelector('svg.progress-circle--sidebar:hover');
+        if (!hovered) return;
+
+        const index = hovered.getAttribute("data-lesson-index");
+        if (index == null) return;
+
+        const match = saved.find(p => p.mini_lesson_index == index && p.progress === "Completed");
+        if (match && tooltip.textContent.trim().toLowerCase() === "unstarted") {
+            tooltip.textContent = "Completed";
+            console.log(`✅ Tooltip for mini_lesson ${index} corrected to "Completed"`);
+        }
+    };
+
+    const observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            for (const node of mutation.addedNodes) {
+                if (
+                    node.nodeType === Node.ELEMENT_NODE &&
+                    node.classList.contains("lesson-progress__tooltip_inner")
+                ) {
+                    setTimeout(correctTooltipText, 10);
+                }
+            }
+        }
+    });
+
+    observer.observe(portal, { childList: true, subtree: true });
+    console.log("🔒 Tooltip observer now monitoring #portal");
+}
+
+
 function waitForSCORMSuspendData(callback, retries = 20) {
     try {
         const suspendRaw = window.API_1484_11?.GetValue("cmi.suspend_data");
@@ -1442,6 +1660,9 @@ document.addEventListener("DOMContentLoaded", function () {
             rebuildMiniLessonProgressFromSCORM(rawSuspend);
             annotateSidebarCircles();
             updateProgressCircles();
+            updateSidebarProgress();
+            enforceTooltipOverrides();
+            waitForPortalAndObserveTooltip();
             observeSCORMChanges(iframe);
 
             setTimeout(() => {
@@ -1466,8 +1687,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // --- Periodic tracking
     console.log("⏱ Adding periodic progress tracking intervals");
     setInterval(saveLessonProgress, 5000);
-    setInterval(trackProgress, 30000);
-    setInterval(trackMiniLessonProgress, 30000);
+    setInterval(trackProgress, 5000);
+    setInterval(trackMiniLessonProgress, 1000);
 
     // --- Unload tracking
     function getProgressFromIframe() {
