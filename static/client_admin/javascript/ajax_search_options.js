@@ -10,6 +10,9 @@ function initializeUserDropdown(containerId, selectedUserIds = []) {
     let isLoading = false;
     let hasMoreUsers = true;
 
+    // Normalize selectedUserIds to strings for consistent comparison
+    const normalizedSelectedIds = selectedUserIds.map(id => String(id));
+
     // Function to fetch users from the backend
     function fetchUsers(searchTerm = '', resetList = false) {
         if (isLoading || !hasMoreUsers) return;
@@ -24,10 +27,10 @@ function initializeUserDropdown(containerId, selectedUserIds = []) {
         })
             .then(response => response.json())
             .then(data => {
-                if (resetList || selectedUserIds) {
+                if (resetList) {
                     userList.innerHTML = '';
                     page = 1;
-                }
+                }             
     
                 // Append users to the dropdown list
                 data.users.forEach(user => {
@@ -54,7 +57,7 @@ function initializeUserDropdown(containerId, selectedUserIds = []) {
     
                     const checkbox = checkboxWrapper.querySelector('.user-checkbox');
                     // Pre-select users who are already approvers (based on selectedUserIds)
-                    if (selectedUserIds.includes(user.id)) {
+                    if (normalizedSelectedIds.includes(String(user.id))) {
                         userItem.classList.add('selected');
                         checkbox.checked = true;
                         appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
@@ -737,13 +740,18 @@ function initializeTimeZoneDropdown(containerId) {
 document.addEventListener('DOMContentLoaded', function () {
     initializeQuill();
 
+    const selectedUserIds = JSON.parse(localStorage.getItem('selectedUserIds') || '[]');
+    const selectedCourseIds = JSON.parse(localStorage.getItem('selectedCourseIds') || '[]');
+    console.log('selectedUserIds:', selectedUserIds);
+    console.log('selectedCourseIds:', selectedCourseIds);
 
     // Initialize dropdown for all containers on the page
     document.querySelectorAll('.user-dropdown').forEach(dropdown => {
-        initializeUserDropdown(dropdown.id);
+        initializeUserDropdown(dropdown.id, selectedUserIds);
+        console.log("Initializing user dropdown:", dropdown.id, selectedUserIds);
     });
     document.querySelectorAll('.course-dropdown').forEach(dropdown => {
-        initializeCourseDropdown(dropdown.id);
+        initializeCourseDropdown(dropdown.id, selectedCourseIds);
     }); 
     document.querySelectorAll('.timezone-dropdown').forEach(dropdown => {
         initializeTimeZoneDropdown(dropdown.id);
@@ -751,40 +759,16 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.singular-course-dropdown').forEach(dropdown => {
         initializeSingularCourseDropdown(dropdown.id);
     });
+    document.querySelectorAll('.quiz-dropdown').forEach(dropdown => {
+        initializeQuizDropdown(dropdown.id);
+    });
+    document.querySelectorAll('.quiz-template-dropdown').forEach(dropdown => {
+        initializeQuizTemplateDropdown(dropdown.id);
+    });
     // Initialize dropdown for all category containers on the page
     document.querySelectorAll('.category-dropdown').forEach(dropdown => {
         initializeCategoryDropdown(dropdown.id);
     });
-
-    // Retrieve the selected IDs from localStorage
-    const selectedIds = JSON.parse(localStorage.getItem('selectedUserIds') || '[]');
-    const selectedCourseIds = JSON.parse(localStorage.getItem('selectedCourseIds') || '[]'); 
-
-    if (selectedIds.length > 0) {
-        console.log('Selected user IDs:', selectedIds);
-        selectedIds.forEach(id => {
-            const userCheckbox = document.querySelector(`input.user-checkbox[value="${id}"]`);
-            if (userCheckbox) {
-                userCheckbox.checked = true;
-                userCheckbox.closest('.dropdown-item').classList.add('selected'); // Add 'selected' class for styling
-            }
-        });
-    } else {
-        console.log('No users selected');
-    }
-    // Getting Course IDs from Local Storage
-    if (selectedCourseIds.length > 0) {
-        console.log('Selected course IDs:', selectedCourseIds);
-        selectedCourseIds.forEach(id => {
-            const courseCheckbox = document.querySelector(`input.course-checkbox[value="${id}"]`);
-            if (courseCheckbox) {
-                courseCheckbox.checked = true;
-                courseCheckbox.closest('.dropdown-item').classList.add('selected'); // Add 'selected' class for styling
-            }
-        });
-    } else {
-        console.log('No courses selected');
-    }
 });
 
 function sendEnrollmentRequest() {
@@ -1334,6 +1318,285 @@ function editEnrollmentKey(id, name, keyName, courseIds, active, maxUses, isCrea
         console.error('Unexpected error:', error);
         displayValidationMessage('Something went wrong. Please try again.', false);
     });
+}
+
+function initializeQuizDropdown(containerId) {
+    const container = document.getElementById(containerId);
+    const clearBtn = container.querySelector('.dropdown-clear-input');
+    const searchInput = container.querySelector('.quizSearch');
+    const dropdownList = container.querySelector('.quizList');
+    const loading = container.querySelector('.loadingIndicator');
+    let page = 1, isLoading = false, hasMore = true;
+
+    function fetchQuizzes(searchTerm = '', reset = false) {
+        if (isLoading || !hasMore) return;
+        isLoading = true;
+        loading.style.display = 'block';
+
+        fetch(`/requests/get-quizzes/?page=${page}&search=${encodeURIComponent(searchTerm)}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (reset) {
+                dropdownList.innerHTML = '';
+                page = 1;
+            }
+
+            if (data.quizzes.length === 0) {
+                dropdownList.innerHTML = '<div class="no-results">No quizzes found</div>';
+                hasMore = false;
+                loading.style.display = 'none';
+                return;
+            }
+
+            data.quizzes.forEach(quiz => {
+                const item = document.createElement('div');
+                item.classList.add('dropdown-item');
+                item.innerHTML = `<div class="dropdown-item-inner"><h5>${quiz.title}</h5></div>`;
+                item.dataset.quizId = quiz.id;
+            
+                const checkboxWrap = document.createElement('div');
+                checkboxWrap.innerHTML = `
+                    <label class="container">
+                        <input value="${quiz.id}" class="quiz-checkbox" type="checkbox">
+                        <div class="checkmark"></div>
+                    </label>
+                `;
+                const checkbox = checkboxWrap.querySelector('.quiz-checkbox');
+                item.prepend(checkboxWrap);
+                dropdownList.appendChild(item);
+            
+                const selectedId = searchInput.getAttribute('data-id');
+                const isSelected = selectedId && String(quiz.id) === selectedId;
+            
+                if (isSelected) {
+                    checkbox.checked = true;
+                    item.classList.add('selected');
+                }
+            
+                item.addEventListener('click', function () {
+                    const checkboxes = dropdownList.querySelectorAll('.quiz-checkbox');
+                    checkboxes.forEach(cb => {
+                        if (cb !== checkbox) {
+                            cb.checked = false;
+                            cb.closest('.dropdown-item').classList.remove('selected');
+                        }
+                    });
+            
+                    if (!checkbox.checked) {
+                        searchInput.value = quiz.title;
+                        searchInput.setAttribute('data-id', quiz.id);
+                        checkbox.checked = true;
+                        item.classList.add('selected');
+                    } else {
+                        searchInput.value = '';
+                        searchInput.removeAttribute('data-id');
+                        checkbox.checked = false;
+                        item.classList.remove('selected');
+                    }
+                });
+            
+                checkbox.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    item.click();
+                });
+            });            
+
+            hasMore = data.has_more;
+            isLoading = false;
+            loading.style.display = 'none';
+            page += 1;
+        })
+        .catch(err => {
+            console.error('Error fetching quizzes:', err);
+            isLoading = false;
+            loading.style.display = 'none';
+        });
+    }
+
+    dropdownList.addEventListener('scroll', function () {
+        if (dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight) {
+            fetchQuizzes(searchInput.value);
+        }
+    });
+
+    searchInput.addEventListener('input', () => {
+        page = 1;
+        hasMore = true;
+        fetchQuizzes(searchInput.value, true);
+    });
+
+    searchInput.addEventListener('focus', () => {
+        searchInput.style.borderRadius = '8px 8px 0 0';
+        dropdownList.style.display = 'block';
+        searchInput.style.border = '2px solid #c7c7db';
+        page = 1;
+        hasMore = true;
+        fetchQuizzes(searchInput.value, true);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+            dropdownList.style.display = 'none';
+            searchInput.style.borderRadius = '8px';
+            searchInput.style.border = '1px solid #ececf1';
+        }
+    });
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchInput.removeAttribute('data-id');
+            const selected = dropdownList.querySelector('.dropdown-item.selected');
+            if (selected) {
+                selected.classList.remove('selected');
+                selected.querySelector('.quiz-checkbox').checked = false;
+            }
+        });
+    }
+
+    fetchQuizzes();
+}
+
+function initializeQuizTemplateDropdown(containerId) {
+    const container = document.getElementById(containerId);
+    const clearBtn = container.querySelector('.dropdown-clear-input');
+    const searchInput = container.querySelector('.quizTemplateSearch');
+    const dropdownList = container.querySelector('.quizTemplateList');
+    const loading = container.querySelector('.loadingIndicator');
+    let page = 1, isLoading = false, hasMore = true;
+
+    function fetchTemplates(searchTerm = '', reset = false) {
+        if (isLoading || !hasMore) return;
+        isLoading = true;
+        loading.style.display = 'block';
+
+        fetch(`/requests/get-quiz-templates/?page=${page}&search=${encodeURIComponent(searchTerm)}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (reset) {
+                dropdownList.innerHTML = '';
+                page = 1;
+            }
+
+            if (data.templates.length === 0) {
+                dropdownList.innerHTML = '<div class="no-results">No quiz templates found</div>';
+                hasMore = false;
+                loading.style.display = 'none';
+                return;
+            }
+
+            data.templates.forEach(template => {
+                const item = document.createElement('div');
+                item.classList.add('dropdown-item');
+                item.innerHTML = `<div class="dropdown-item-inner"><h5>${template.title}</h5></div>`;
+                item.dataset.templateId = template.id;
+            
+                const checkboxWrap = document.createElement('div');
+                checkboxWrap.innerHTML = `
+                    <label class="container">
+                        <input value="${template.id}" class="template-checkbox" type="checkbox">
+                        <div class="checkmark"></div>
+                    </label>
+                `;
+                const checkbox = checkboxWrap.querySelector('.template-checkbox');
+                item.prepend(checkboxWrap);
+                dropdownList.appendChild(item);
+            
+                // 🧠 Check for previously selected ID
+                const selectedId = searchInput.getAttribute('data-id');
+                const isSelected = selectedId && String(template.id) === selectedId;
+            
+                if (isSelected) {
+                    checkbox.checked = true;
+                    item.classList.add('selected');
+                }
+            
+                item.addEventListener('click', function () {
+                    const checkboxes = dropdownList.querySelectorAll('.template-checkbox');
+                    checkboxes.forEach(cb => {
+                        if (cb !== checkbox) {
+                            cb.checked = false;
+                            cb.closest('.dropdown-item').classList.remove('selected');
+                        }
+                    });
+            
+                    if (!checkbox.checked) {
+                        searchInput.value = template.title;
+                        searchInput.setAttribute('data-id', template.id);
+                        checkbox.checked = true;
+                        item.classList.add('selected');
+                    } else {
+                        searchInput.value = '';
+                        searchInput.removeAttribute('data-id');
+                        checkbox.checked = false;
+                        item.classList.remove('selected');
+                    }
+                });
+            
+                checkbox.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    item.click();
+                });
+            });            
+
+            hasMore = data.has_more;
+            isLoading = false;
+            loading.style.display = 'none';
+            page += 1;
+        })
+        .catch(err => {
+            console.error('Error fetching quiz templates:', err);
+            isLoading = false;
+            loading.style.display = 'none';
+        });
+    }
+
+    dropdownList.addEventListener('scroll', function () {
+        if (dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight) {
+            fetchTemplates(searchInput.value);
+        }
+    });
+
+    searchInput.addEventListener('input', () => {
+        page = 1;
+        hasMore = true;
+        fetchTemplates(searchInput.value, true);
+    });
+
+    searchInput.addEventListener('focus', () => {
+        searchInput.style.borderRadius = '8px 8px 0 0';
+        dropdownList.style.display = 'block';
+        searchInput.style.border = '2px solid #c7c7db';
+        page = 1;
+        hasMore = true;
+        fetchTemplates(searchInput.value, true);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+            dropdownList.style.display = 'none';
+            searchInput.style.borderRadius = '8px';
+            searchInput.style.border = '1px solid #ececf1';
+        }
+    });
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchInput.removeAttribute('data-id');
+            const selected = dropdownList.querySelector('.dropdown-item.selected');
+            if (selected) {
+                selected.classList.remove('selected');
+                selected.querySelector('.template-checkbox').checked = false;
+            }
+        });
+    }
+
+    fetchTemplates();
 }
 
 // Helper function to get CSRF token from cookies

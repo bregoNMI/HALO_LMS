@@ -564,7 +564,7 @@
                                             <img alt="Course Thumbnail" id="ThumbnailImagePreview">
                                         </div>
                                     </div>
-                                    <div style="display: none;" id="thumbnailDelete" class="table-filter-item-small thumbnail-delete">
+                                    <div style="display: none; right: 0.5rem;" id="thumbnailDelete" class="table-filter-item-small thumbnail-delete">
                                         <i class="fa-regular fa-trash-can"></i>
                                     </div>
                                 </div>
@@ -635,7 +635,7 @@
                                     </div>
                                     <div style="display: none;" id="noReferencesCreated" class="no-lessons-container"><span>This Course currently has no references.</span></div>
                                 </div>
-                                <div id="addReference" class="main-add-btn">
+                                <div id="addReference" class=" margin-top-4">
                                     <i class="fa-regular fa-plus"></i>
                                     <span> Add Reference </span>
                                 </div>
@@ -743,7 +743,7 @@
                                     </div>
                                     <div style="display: none;" id="noUploadsCreated" class="no-lessons-container"><span>This Course currently has no uploads.</span></div>
                                 </div>
-                                <div id="addUpload" class="main-add-btn">
+                                <div id="addUpload" class="main-add-btn margin-top-4">
                                     <i class="fa-regular fa-plus"></i>
                                     <span> Add Upload </span>
                                 </div>
@@ -760,6 +760,8 @@
     {% include 'popups/create_new_lesson.html' %}
     {% include 'popups/create_scorm1.2_lesson.html' %}
     {% include 'popups/create_scorm2004_lesson.html' %}
+    {% include 'popups/create_quiz_lesson.html' %}
+    {% include 'popups/quiz_settings_popup.html' %}
     {% include 'popups/module_delete_confirmation.html' %}
     {% include 'popups/reference_delete_confirmation.html' %}
     {% include 'popups/lesson_delete_confirmation.html' %}

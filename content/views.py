@@ -10,7 +10,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
-from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType, Quiz, Question, QuestionOrder, MCQuestion, Answer, TFQuestion, FITBQuestion, FITBAnswer, EssayQuestion, EssayPrompt, QuestionMedia, QuizReference, QuizTemplate, TemplateCategorySelection, TemplateQuestion
+from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType, Quiz, Question, QuestionOrder, MCQuestion, Answer, TFQuestion, FITBQuestion, FITBAnswer, EssayQuestion, EssayPrompt, QuestionMedia, QuizReference, QuizTemplate, TemplateCategorySelection, TemplateQuestion, QuizConfig
 from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse, EnrollmentKey, ActivityLog, Profile
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 import uuid as uuid_lib
@@ -289,6 +289,32 @@ def create_or_update_course(request):
 
                 module_response[-1]['lessons'].append(lesson_response)
                 print(f"Lesson '{lesson.title}' saved with ID: {lesson.id}")
+
+                if lesson.content_type == 'quiz':
+                    lesson.create_quiz_from = lesson_data.get('create_quiz_from')
+                    lesson.quiz_template_id = lesson_data.get('quiz_template_id')
+                    lesson.selected_quiz_template_name = lesson_data.get('selected_quiz_template_name')
+                    lesson.quiz_id = lesson_data.get('quiz_id')
+                    lesson.selected_quiz_name = lesson_data.get('selected_quiz_name')
+                    lesson.save()
+
+                    # Save QuizConfig
+                    quiz_config_data = {
+                        'quiz_type': lesson_data.get('quiz_type'),
+                        'passing_score': int(lesson_data.get('passing_score') or 0),
+                        'require_passing': bool(lesson_data.get('require_passing', False)),
+                        'quiz_duration': int(lesson_data.get('quiz_duration') or 0),
+                        'quiz_attempts': lesson_data.get('quiz_attempts') or 'Unlimited',
+                        'maximum_warnings': int(lesson_data.get('maximum_warnings') or 0),
+                        'randomize_order': bool(lesson_data.get('randomize_order', False)),
+                        'reveal_answers': bool(lesson_data.get('reveal_answers', False)),
+                    }
+
+                    # Update or create QuizConfig instance
+                    QuizConfig.objects.update_or_create(
+                        lesson=lesson,
+                        defaults=quiz_config_data
+                    )
 
                 # Handle file attachment for the lesson (either file_id or file_url)
                 file_id = lesson_data.get('file_id', None)
@@ -1090,6 +1116,39 @@ def get_categories(request):
         })
     else:
         return JsonResponse({'error': 'This view only accepts AJAX requests.'}, status=400)
+    
+def get_quizzes(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        page = int(request.GET.get('page', 1))
+        per_page = 10
+        offset = (page - 1) * per_page
+
+        search_query = request.GET.get('search', '')
+        quizzes = Quiz.objects.filter(title__icontains=search_query)[offset:offset + per_page]
+
+        quiz_data = [{'id': quiz.id, 'title': quiz.title} for quiz in quizzes]
+        return JsonResponse({
+            'quizzes': quiz_data,
+            'has_more': Quiz.objects.filter(title__icontains=search_query).count() > offset + per_page
+        })
+    return JsonResponse({'error': 'This view only accepts AJAX requests.'}, status=400)
+
+
+def get_quiz_templates(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        page = int(request.GET.get('page', 1))
+        per_page = 10
+        offset = (page - 1) * per_page
+        search_query = request.GET.get('search', '')
+
+        templates = QuizTemplate.objects.filter(title__icontains=search_query)[offset:offset + per_page]
+        template_data = [{'id': t.id, 'title': t.title} for t in templates]
+
+        return JsonResponse({
+            'templates': template_data,
+            'has_more': QuizTemplate.objects.filter(title__icontains=search_query).count() > offset + per_page
+        })
+    return JsonResponse({'error': 'This view only accepts AJAX requests.'}, status=400)
     
 @require_POST
 def create_category(request):

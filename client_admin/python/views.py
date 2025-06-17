@@ -659,17 +659,16 @@ def user_transcript(request, user_id):
 def user_history(request, user_id):
     user = get_object_or_404(Profile, pk=user_id)
 
-    # Fetch messages sent by the logged-in user to the specified user
     sent_messages = Message.objects.filter(sender=request.user, recipients=user.user)
 
-    # Fetch activity log entries related to the user
-    activity_logs = ActivityLog.objects.filter(action_target=user.user)
-    print('activity_logs', activity_logs)
+    activity_logs = ActivityLog.objects.filter(
+        action_target=user.user.username  # Adjust as needed
+    ).order_by('-timestamp')  # Most recent first
 
     context = {
         'profile': user,
-        'sent_messages': sent_messages,  # Pass the messages to the template
-        'activity_logs': activity_logs,  # Pass the activity logs to the template
+        'sent_messages': sent_messages,
+        'activity_logs': activity_logs,
     }
     return render(request, 'users/user_history.html', context)
 

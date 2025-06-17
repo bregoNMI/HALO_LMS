@@ -378,19 +378,45 @@ class Lesson(models.Model):
     uploaded_file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE, null=True, blank=True)
     scorm_id = models.CharField(max_length=255, null=True, blank=True)
 
+    CREATE_FROM_CHOICES = [
+        ('create_quiz_from1', 'Quiz Template'),
+        ('create_quiz_from2', 'Quiz'),
+    ]
+    create_quiz_from = models.CharField(
+        max_length=50, choices=CREATE_FROM_CHOICES, null=True, blank=True
+    )
+    quiz_template_id = models.PositiveIntegerField(null=True, blank=True)
+    selected_quiz_template_name = models.CharField(max_length=255, null=True, blank=True)  # ✅ NEW
+    quiz_id = models.PositiveIntegerField(null=True, blank=True)
+    selected_quiz_name = models.CharField(max_length=255, null=True, blank=True)  # ✅ NEW
+
     class Meta:
         ordering = ['order']
 
     def save(self, *args, **kwargs):
-        # Automatically link an uploaded file if content_type is 'scorm' and no file is already linked
         if self.content_type.lower() == 'scorm' and not self.uploaded_file:
             uploaded_files = UploadedFile.objects.all()
             if uploaded_files.exists():
-                self.uploaded_file = uploaded_files.first()  # Assign the first available uploaded file
+                self.uploaded_file = uploaded_files.first()
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
+    
+class QuizConfig(models.Model):
+    lesson = models.OneToOneField('Lesson', on_delete=models.CASCADE, related_name='quiz_config')
+    
+    quiz_type = models.CharField(max_length=50, null=True, blank=True)
+    passing_score = models.PositiveIntegerField(null=True, blank=True)
+    require_passing = models.BooleanField(default=False)
+    quiz_duration = models.PositiveIntegerField(null=True, blank=True)
+    quiz_attempts = models.CharField(max_length=20, default='Unlimited', null=True, blank=True)
+    maximum_warnings = models.PositiveIntegerField(null=True, blank=True)
+    randomize_order = models.BooleanField(default=False)
+    reveal_answers = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"QuizConfig for {self.lesson.title}"
     
 # Define a Question model
 class Question(models.Model):

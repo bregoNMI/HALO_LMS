@@ -401,6 +401,7 @@
     border-radius: 6px;
     width: 25px;
     height: 25px;
+    cursor: pointer;
 }
 
 .set-main-dashboard i{
