@@ -228,6 +228,8 @@ def launch_scorm_file(request, lesson_id):
 
         entry_key = file_key.replace("\\", "/").lstrip("/")
         proxy_url = generate_presigned_url(entry_key)
+    elif lesson.content_type == 'quiz':
+        print(lesson.content_type)
     else:
         return render(request, 'error.html', {'message': 'No valid file found for this lesson.'})
 

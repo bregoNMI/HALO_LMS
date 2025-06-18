@@ -38,21 +38,6 @@
     </style>
 </head>
 <body>
-    <script>
-        const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
-    
-        function launchLessonById(lessonId) {
-            window.location.href = launchScormUrlTemplate + lessonId + "/";
-        }
-    
-        function launchNextLesson(nextLessonId) {
-            launchLessonById(nextLessonId);
-        }
-    
-        function launchPrevLesson(prevLessonId) {
-            launchLessonById(prevLessonId);
-        }
-    </script>
     
 <div class="container-fluid">
     <div class="row">
@@ -67,55 +52,9 @@
                         src="{{ scorm_index_file_url }}"
                         width="100%" height="1200px" frameborder="0" allowfullscreen></iframe>
             {% endif %}
-        </div>
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const iframe = document.getElementById("scormContentIframe");
-                const intendedUrl = "{{ lesson_location|escapejs }}";
-            
-                // ✅ Force iframe to exact saved lesson location on load
-                if ("{{ lesson.content_type }}" === "SCORM2004" && iframe && intendedUrl && iframe.src !== intendedUrl) {
-                    console.log("⏩ Forcing SCORM iframe to saved lesson location:", intendedUrl);
-                    iframe.src = intendedUrl;
-                }
+        </div>  
 
-            });
-        </script>    
-
-        <!-- Sidebar area -->
-        <div class="col-md-3 bg-light p-3">
-            {% if prev_lesson %}
-            <button id="prevLessonBtn" class="btn btn-secondary w-100 mb-3" onclick="launchPrevLesson({{ prev_lesson.id }})">
-                Previous Lesson
-            </button>
-            {% endif %}
-
-            {% if next_lesson %}
-            <button id="nextLessonBtn" class="btn btn-primary w-100 mb-3" onclick="launchNextLesson({{ next_lesson.id }})">
-                Next Lesson
-            </button>
-            {% else %}
-            <button id="finishCourseBtn" class="btn btn-success w-100 mb-3" onclick="window.location.href='{% url 'learner_dashboard' %}'" style="display: none;">
-                Finish Course
-            </button>
-            {% endif %}
-
-            <div class="sidebar-header">Course Progress</div>
-            <div class="progress mb-2">
-                <div class="progress-bar" id="courseProgressBar" style="width: 0%;"></div>
-            </div>
-            <span id="courseProgressText">{{ user_course.progress|default:0 }}%</span>
-
-            {{ lesson_progress_data|json_script:"lessonData" }}
-
-            <div id="lessonList" class="mt-3">
-                {% for lesson in all_lessons %}
-                <div class="lesson-item py-2" data-lesson-id="{{ lesson.id }}" onclick="launchLessonById({{ lesson.id }})">
-                    {{ lesson.title }}
-                </div>                
-                {% endfor %}
-            </div>
-        </div>
+        {% include 'course_sidebar.html' %}
     </div>
 </div>
 <script>
@@ -153,10 +92,30 @@
         } catch (e) {
             console.warn("Failed to update sidebar lesson progress:", e);
         }
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
+
+        const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
+    
+        function launchLessonById(lessonId) {
+            window.location.href = launchScormUrlTemplate + lessonId + "/";
+        }
+    
+        function launchNextLesson(nextLessonId) {
+            launchLessonById(nextLessonId);
+        }
+    
+        function launchPrevLesson(prevLessonId) {
+            launchLessonById(prevLessonId);
+        }
+
+        const iframe = document.getElementById("scormContentIframe");
+        const intendedUrl = "{{ lesson_location|escapejs }}";
+    
+        // ✅ Force iframe to exact saved lesson location on load
+        if ("{{ lesson.content_type }}" === "SCORM2004" && iframe && intendedUrl && iframe.src !== intendedUrl) {
+            console.log("⏩ Forcing SCORM iframe to saved lesson location:", intendedUrl);
+            iframe.src = intendedUrl;
+        }
+
         // ✅ Highlight current lesson
         const currentLessonId = parseInt(window.lessonId, 10);
         document.querySelectorAll('.lesson-item').forEach(item => {
