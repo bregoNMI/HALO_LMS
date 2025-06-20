@@ -1,48 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>SCORM Player</title>
-    {% load static %}
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        .lesson-item {
-            cursor: pointer;
-            border-bottom: 1px solid #ddd;
-        }
-        .lesson-item.lesson-completed {
-            background-color: #d4edda;
-            font-weight: bold;
-        }
-        .sidebar-header {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-        .lesson-progress {
-            float: right;
-            font-size: 0.85em;
-            color: #28a745;
-        }
-        .progress-circle__runner--passed {
-            fill: #162c53; /* or whatever your "complete" color is */
-        }
-
-        .lesson-item.active-lesson {
-            background-color: #cce5ff;
-            font-weight: bold;
-            border-left: 4px solid #007bff;
-            padding-left: 8px;
-        }
-
-
-    </style>
-</head>
-<body>
-    
-<div class="container-fluid">
-    <div class="row">
+{% extends 'course_viewer/course_base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+    {% include 'messageContainer/message_container.html' %} 
+    <div class="course-body align-center">
         <!-- SCORM iframe area -->
-        <div class="col-md-9">
+        <div class="course-player-container">
             {% if lesson.content_type == 'SCORM2004' %}
                 <iframe id="scormContentIframe"
                         data-src="{{ lesson_location|default:scorm_index_file_url }}"
@@ -53,97 +16,99 @@
                         width="100%" height="1200px" frameborder="0" allowfullscreen></iframe>
             {% endif %}
         </div>  
-
-        {% include 'course_sidebar.html' %}
     </div>
-</div>
-<script>
-    // window.progressDataString = '{{ lesson_progress_data|default:"[]"|escapejs }}';
-    window.lessonId = {{ lesson.id|default:"0" }};
-    window.userId = {{ profile_id|default:"0" }};
-    window.courseLocked = {{ course_locked|yesno:"true,false" }};
-    window.miniLessonProgress = {{ mini_lesson_progress|default:"[]"|safe }};
-    window.lessonContentType = "{{ lesson.content_type }}";
-    window.lessonLocation = "{{ lesson.lesson_location }}";
-    window.savedProgress = {{ saved_progress|default:0 }};
-    window.lessonSessionId = "{{ request.session.current_lesson_session_id }}";
-
-    document.addEventListener("DOMContentLoaded", function () {
-        try {
-            const rawData = document.getElementById('lessonData').textContent;
-            const parsedData = JSON.parse(rawData);
-            window.lessonData = parsedData;
-
-            document.querySelectorAll('.lesson-item').forEach(item => {
-                const id = parseInt(item.dataset.lessonId);
-                const lesson = parsedData.find(l => l.id === id);
-
-                if (lesson?.completed) {
-                    item.classList.add("lesson-completed");
-                }
-
-                if (lesson?.progress != null) {
-                    const progressText = document.createElement('span');
-                    progressText.className = 'lesson-progress';
-                    progressText.textContent = `${lesson.progress}%`;
-                    item.appendChild(progressText);
-                }
-            });
-        } catch (e) {
-            console.warn("Failed to update sidebar lesson progress:", e);
-        }
-
-        const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
     
-        function launchLessonById(lessonId) {
-            window.location.href = launchScormUrlTemplate + lessonId + "/";
-        }
-    
-        function launchNextLesson(nextLessonId) {
-            launchLessonById(nextLessonId);
-        }
-    
-        function launchPrevLesson(prevLessonId) {
-            launchLessonById(prevLessonId);
-        }
+    <script>
+        console.log("🧪 From Django: {{ scorm_index_file_url }}");
+        // window.progressDataString = '{{ lesson_progress_data|default:"[]"|escapejs }}';
+        window.lessonId = {{ lesson.id|default:"0" }};
+        window.userId = {{ profile_id|default:"0" }};
+        window.courseLocked = {{ course_locked|yesno:"true,false" }};
+        window.miniLessonProgress = {{ mini_lesson_progress|default:"[]"|safe }};
+        window.lessonContentType = "{{ lesson.content_type }}";
+        window.lessonLocation = "{{ lesson.lesson_location }}";
+        window.savedProgress = {{ saved_progress|default:0 }};
+        window.lessonSessionId = "{{ request.session.current_lesson_session_id }}";
 
-        const iframe = document.getElementById("scormContentIframe");
-        const intendedUrl = "{{ lesson_location|escapejs }}";
-    
-        // ✅ Force iframe to exact saved lesson location on load
-        if ("{{ lesson.content_type }}" === "SCORM2004" && iframe && intendedUrl && iframe.src !== intendedUrl) {
-            console.log("⏩ Forcing SCORM iframe to saved lesson location:", intendedUrl);
-            iframe.src = intendedUrl;
-        }
+        document.addEventListener("DOMContentLoaded", function () {
+            try {
+                const rawData = document.getElementById('lessonData').textContent;
+                const parsedData = JSON.parse(rawData);
+                window.lessonData = parsedData;
 
-        // ✅ Highlight current lesson
-        const currentLessonId = parseInt(window.lessonId, 10);
-        document.querySelectorAll('.lesson-item').forEach(item => {
-            item.classList.remove('active-lesson');
-        });
-        const activeLesson = document.querySelector(`.lesson-item[data-lesson-id="${currentLessonId}"]`);
-        if (activeLesson) {
-            activeLesson.classList.add('active-lesson');
-        }
+                document.querySelectorAll('.lesson-item').forEach(item => {
+                    const id = parseInt(item.dataset.lessonId);
+                    const lesson = parsedData.find(l => l.id === id);
 
-        // ✅ Set course progress bar
-        const courseProgressBar = document.getElementById("courseProgressBar");
-        const courseProgressText = document.getElementById("courseProgressText");
-        if (courseProgressBar && courseProgressText) {
-            const percentMatch = courseProgressText.textContent.match(/(\d+)%/);
-            if (percentMatch) {
-                const progress = parseInt(percentMatch[1], 10);
-                courseProgressBar.style.width = `${progress}%`;
+                    if (lesson?.completed) {
+                        item.classList.add("lesson-completed");
+                    }
+
+                    if (lesson?.progress != null) {
+                        const progressText = document.createElement('span');
+                        progressText.className = 'lesson-progress';
+                        progressText.textContent = `${lesson.progress}%`;
+                        item.appendChild(progressText);
+                    }
+                });
+            } catch (e) {
+                console.warn("Failed to update sidebar lesson progress:", e);
             }
-        }
 
-        // ✅ Show "Finish Course" button
-        const finishBtn = document.getElementById("finishCourseBtn");
-        if (finishBtn) {
-            finishBtn.style.display = "block";
-        }
-    });
-</script>   
-<script src="{% static 'course_player/javascript/scorm_player.js' %}?v=2"></script>
-</body>
-</html>
+            const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
+            console.log(launchScormUrlTemplate);
+        
+            function launchLessonById(lessonId) {
+                console.log('launchScormUrlTemplate:', launchScormUrlTemplate, lessonId);
+                // window.location.href = launchScormUrlTemplate + lessonId + "/";
+            }
+        
+            function launchNextLesson(nextLessonId) {
+                launchLessonById(nextLessonId);
+            }
+        
+            function launchPrevLesson(prevLessonId) {
+                launchLessonById(prevLessonId);
+            }
+
+            const iframe = document.getElementById("scormContentIframe");
+            const fallbackScormUrl = "{{ scorm_index_file_url|escapejs }}";
+            const intendedUrl = "{{ lesson_location|escapejs }}" || fallbackScormUrl;
+        
+            // ✅ Force iframe to exact saved lesson location on load
+            if ("{{ lesson.content_type }}" === "SCORM2004" && iframe) {
+                const urlToLoad = intendedUrl !== "about:blank" ? intendedUrl : fallbackScormUrl;
+                console.log("⏩ Forcing SCORM iframe to load:", urlToLoad);
+                iframe.src = urlToLoad;
+            }
+
+            // ✅ Highlight current lesson
+            const currentLessonId = parseInt(window.lessonId, 10);
+            document.querySelectorAll('.lesson-item').forEach(item => {
+                item.classList.remove('active-lesson');
+            });
+            const activeLesson = document.querySelector(`.lesson-item[data-lesson-id="${currentLessonId}"]`);
+            if (activeLesson) {
+                activeLesson.classList.add('active-lesson');
+            }
+
+            // ✅ Set course progress bar
+            const courseProgressBar = document.getElementById("courseProgressBar");
+            const courseProgressText = document.getElementById("courseProgressText");
+            if (courseProgressBar && courseProgressText) {
+                const percentMatch = courseProgressText.textContent.match(/(\d+)%/);
+                if (percentMatch) {
+                    const progress = parseInt(percentMatch[1], 10);
+                    courseProgressBar.style.width = `${progress}%`;
+                }
+            }
+
+            // ✅ Show "Finish Course" button
+            const finishBtn = document.getElementById("finishCourseBtn");
+            if (finishBtn) {
+                finishBtn.style.display = "block";
+            }
+        });
+    </script>   
+    <script src="{% static 'course_player/javascript/scorm_player.js' %}?v=2"></script>
+{% endblock content %}

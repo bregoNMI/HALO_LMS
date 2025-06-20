@@ -1583,7 +1583,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (iframe) {
         iframe.addEventListener("load", function () {
             const iframeUrl = iframe.contentWindow?.location?.href || iframe.src;
-            console.log("📄 Loaded content:", iframeUrl);
+            console.log("📄 Loaded content:", iframeUrl, 'iframe.src:', iframe.src);
             if (iframeUrl.endsWith(".pdf")) {
                 console.log("✅ PDF detected — marking as complete");
                 markPdfLessonComplete();
@@ -1593,18 +1593,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // --- Fetch suspend_data from backend before loading SCORM content
     fetch(`/course_player/get-scorm-progress/${window.lessonId}/`)
-        .then(res => res.json())
-        .then(data => {
-            if (data && data.suspend_data) {
-                console.log("🎒 Restoring suspend_data from backend:", data.suspend_data);
-                window.API_1484_11.dataStore["cmi.suspend_data"] = data.suspend_data;
-                rebuildMiniLessonProgressFromSCORM(data.suspend_data);
-                iframe.src = iframe.dataset.src;
+    .then(res => res.json())
+    .then(data => {
+        if (data && data.suspend_data) {
+            console.log("🎒 Restoring suspend_data from backend:", data.suspend_data);
+            window.API_1484_11.dataStore["cmi.suspend_data"] = data.suspend_data;
+            rebuildMiniLessonProgressFromSCORM(data.suspend_data);
+
+            const dataSrc = iframe?.dataset?.src;
+            console.log("🧪 iframe.dataset.src before setting src:", dataSrc);
+            console.log("🧪 iframe current src before setting:", iframe?.src);
+
+            if (dataSrc && dataSrc !== "about:blank") {
+                iframe.src = dataSrc;
+                console.log("✅ iframe.src set from dataset.src:", dataSrc);
+            } else {
+                console.warn("⚠️ iframe.dataset.src was about:blank — skipping src assignment");
             }
-        })
-        .catch(err => {
-            console.warn("⚠️ Failed to fetch suspend_data from server:", err);
-        });
+        }
+    })
+    .catch(err => {
+        console.warn("⚠️ Failed to fetch suspend_data from server:", err);
+    });
 
     // --- Resume to saved location ---
     if (window.savedLocation) {

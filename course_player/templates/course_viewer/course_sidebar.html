@@ -1,0 +1,61 @@
+<!-- Sidebar area -->
+<div class="course-sidebar-container">
+    <div class="course-sidebar-header">
+        <div class="course-sidebar-header-top">
+            <h4>Course Progress</h4>
+            <span id="courseProgressText">{{ user_course.progress|default:0 }}%</span>
+        </div>
+        <div class="course-sidebar-header-bottom">
+            <div class="course-item-progress-bar-container">
+                <div id="courseProgressBar" class="course-item-progress-bar" style="width: 0%;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="course-sidebar-body">
+        {{ lesson_progress_data|json_script:"lessonData" }}
+
+        <div id="lessonList">
+            {% for module in modules_with_lessons %}
+                <div class="module-section-container">
+                    <div class="module-title">
+                        <span>{{ module.title }}</span>
+                    </div>
+                    <div class="lesson-section-container">
+                        {% for lesson in module.lessons.all %}
+                            <div class="lesson-item" data-lesson-id="{{ lesson.id }}" onclick="launchLessonById({{ lesson.id }})">
+                                <div class="lesson-item-left">
+                                    <div class="lesson-item-number">
+                                        <span>{{ forloop.counter }}</span>
+                                    </div>
+                                    <div class="lesson-item-text">
+                                        <span>{{ lesson.title }}</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-item-right"></div>
+                                
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+    <div class="course-sidebar-footer">
+        {% if prev_lesson %}
+            <button type="button" id="prevLessonBtn" class="action-button-primary" onclick="launchPrevLesson({{ prev_lesson.id }})">
+                Previous Lesson
+            </button>
+        {% endif %}
+
+        {% if next_lesson %}
+            <button type="button" id="nextLessonBtn" class="action-button-primary" onclick="launchNextLesson({{ next_lesson.id }})">
+                Next Lesson
+            </button>
+        {% else %}
+            <button type="button" id="finishCourseBtn" class="action-button-primary" onclick="window.location.href='{% url 'learner_dashboard' %}'" style="display: none;">
+                Finish Course
+            </button>
+        {% endif %}
+    </div>  
+</div>
