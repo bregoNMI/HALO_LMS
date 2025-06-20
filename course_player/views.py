@@ -235,9 +235,9 @@ def launch_scorm_file(request, lesson_id):
     print("▶ Proxy URL:", proxy_url)
 
     saved_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=lesson).first()
-    lesson_location = ""
+    lesson_location = proxy_url
     if lesson.content_type == "SCORM2004" and saved_progress:
-        lesson_location = saved_progress.lesson_location or ""
+        lesson_location = saved_progress.lesson_location or proxy_url
     scroll_position = saved_progress.scroll_position if saved_progress else 0
 
     module_lessons = Lesson.objects.filter(module=lesson.module).order_by("order")

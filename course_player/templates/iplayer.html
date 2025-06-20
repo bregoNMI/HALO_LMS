@@ -119,6 +119,7 @@
     </div>
 </div>
 <script>
+    console.log("🧪 From Django: {{ scorm_index_file_url }}");
     // window.progressDataString = '{{ lesson_progress_data|default:"[]"|escapejs }}';
     window.lessonId = {{ lesson.id|default:"0" }};
     window.userId = {{ profile_id|default:"0" }};
@@ -153,10 +154,32 @@
         } catch (e) {
             console.warn("Failed to update sidebar lesson progress:", e);
         }
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
+
+        const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
+    
+        function launchLessonById(lessonId) {
+            window.location.href = launchScormUrlTemplate + lessonId + "/";
+        }
+    
+        function launchNextLesson(nextLessonId) {
+            launchLessonById(nextLessonId);
+        }
+    
+        function launchPrevLesson(prevLessonId) {
+            launchLessonById(prevLessonId);
+        }
+
+        const iframe = document.getElementById("scormContentIframe");
+        const fallbackScormUrl = "{{ scorm_index_file_url|escapejs }}";
+        const intendedUrl = "{{ lesson_location|escapejs }}" || fallbackScormUrl;
+    
+        // ✅ Force iframe to exact saved lesson location on load
+        if ("{{ lesson.content_type }}" === "SCORM2004" && iframe) {
+            const urlToLoad = intendedUrl !== "about:blank" ? intendedUrl : fallbackScormUrl;
+            console.log("⏩ Forcing SCORM iframe to load:", urlToLoad);
+            iframe.src = urlToLoad;
+        }
+
         // ✅ Highlight current lesson
         const currentLessonId = parseInt(window.lessonId, 10);
         document.querySelectorAll('.lesson-item').forEach(item => {

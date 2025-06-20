@@ -1443,63 +1443,53 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 */
-function waitForPortalAndObserveTooltip() {
-    const maxRetries = 20;
-    let attempt = 0;
+function waitForPortalTooltipFix() {
+    let retries = 0;
 
-    function tryAttach() {
+    function tryAttachObserver() {
         const portal = document.getElementById("portal");
-        if (portal) {
-            console.log("✅ #portal found, attaching tooltip observer");
-            attachTooltipObserver(portal); // 👈 start real logic
-        } else if (attempt < maxRetries) {
-            attempt++;
-            console.warn(`⚠️ #portal not found. Retrying... (${attempt})`);
-            setTimeout(tryAttach, 500); // Retry every 500ms
-        } else {
-            console.error("❌ Failed to find #portal after multiple attempts.");
+        if (!portal) {
+            if (retries < 20) {
+                retries++;
+                console.warn(`⏳ Waiting for #portal to appear (attempt ${retries})...`);
+                setTimeout(tryAttachObserver, 500);
+            } else {
+                console.error("❌ #portal not found after retries.");
+            }
+            return;
         }
+
+        console.log("✅ #portal found — setting up tooltip observer");
+
+        const observer = new MutationObserver(() => {
+            const tooltip = portal.querySelector(".lesson-progress__tooltip_inner");
+            if (!tooltip) return;
+
+            const hovered = document.querySelector("svg.progress-circle--sidebar:hover");
+            if (!hovered) return;
+
+            const idx = parseInt(hovered.getAttribute("data-lesson-index"), 10);
+            if (isNaN(idx)) return;
+
+            const found = (window.miniLessonProgress || []).find(
+                (entry) => entry.mini_lesson_index === idx && entry.progress === "Completed"
+            );
+
+            if (found && tooltip.textContent.trim().toLowerCase() === "unstarted") {
+                tooltip.textContent = "Completed";
+                console.log(`🔁 Tooltip override: mini-lesson ${idx} → Completed`);
+            }
+        });
+
+        observer.observe(portal, {
+            childList: true,
+            subtree: true
+        });
     }
 
-    tryAttach();
+    tryAttachObserver();
 }
 
-function attachTooltipObserver(portal) {
-    const saved = Array.isArray(window.miniLessonProgress) ? window.miniLessonProgress : [];
-
-    const correctTooltipText = () => {
-        const tooltip = portal.querySelector('.lesson-progress__tooltip_inner');
-        if (!tooltip) return;
-
-        const hovered = document.querySelector('svg.progress-circle--sidebar:hover');
-        if (!hovered) return;
-
-        const index = hovered.getAttribute("data-lesson-index");
-        if (index == null) return;
-
-        const match = saved.find(p => p.mini_lesson_index == index && p.progress === "Completed");
-        if (match && tooltip.textContent.trim().toLowerCase() === "unstarted") {
-            tooltip.textContent = "Completed";
-            console.log(`✅ Tooltip for mini_lesson ${index} corrected to "Completed"`);
-        }
-    };
-
-    const observer = new MutationObserver((mutationsList) => {
-        for (const mutation of mutationsList) {
-            for (const node of mutation.addedNodes) {
-                if (
-                    node.nodeType === Node.ELEMENT_NODE &&
-                    node.classList.contains("lesson-progress__tooltip_inner")
-                ) {
-                    setTimeout(correctTooltipText, 10);
-                }
-            }
-        }
-    });
-
-    observer.observe(portal, { childList: true, subtree: true });
-    console.log("🔒 Tooltip observer now monitoring #portal");
-}
 
 
 function waitForSCORMSuspendData(callback, retries = 20) {
@@ -1599,26 +1589,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log("🎒 Restoring suspend_data from backend:", data.suspend_data);
                 window.API_1484_11.dataStore["cmi.suspend_data"] = data.suspend_data;
                 rebuildMiniLessonProgressFromSCORM(data.suspend_data);
-                iframe.src = iframe.dataset.src;
+
+                const dataSrc = iframe?.dataset?.src;
+                console.log("🧪 iframe.dataset.src before setting src:", dataSrc);
+                console.log("🧪 iframe current src before setting:", iframe?.src);
+
+                if (dataSrc && dataSrc !== "about:blank") {
+                    iframe.src = dataSrc;
+                    console.log("✅ iframe.src set from dataset.src:", dataSrc);
+                } else {
+                    console.warn("⚠️ iframe.dataset.src was about:blank — skipping src assignment");
+                }
             }
         })
         .catch(err => {
             console.warn("⚠️ Failed to fetch suspend_data from server:", err);
         });
-
-    // --- Resume to saved location ---
-    if (window.savedLocation) {
-        console.log(`📌 Resuming at saved location: ${window.savedLocation}`);
-        iframe.addEventListener("load", function () {
-            setTimeout(() => {
-                try {
-                    iframe.contentWindow.scrollTo(0, window.savedScrollPosition);
-                } catch (error) {
-                    console.error("❌ Scroll restore error:", error);
-                }
-            }, 2000);
-        });
-    }
 
     // --- Iframe load logic ---
     iframe.addEventListener("load", function () {
@@ -1662,7 +1648,7 @@ document.addEventListener("DOMContentLoaded", function () {
             updateProgressCircles();
             updateSidebarProgress();
             enforceTooltipOverrides();
-            waitForPortalAndObserveTooltip();
+            waitForPortalTooltipFix();
             observeSCORMChanges(iframe);
 
             setTimeout(() => {

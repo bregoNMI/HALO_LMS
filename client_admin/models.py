@@ -56,7 +56,6 @@ class ProfileManager(models.Manager):
 
         return new_profile
     
-# Combined Applicant and Profile
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     username = models.CharField(('Username'), max_length=30, blank=True)
@@ -90,15 +89,15 @@ class Profile(models.Model):
         choices=[(tz, tz) for tz in all_timezones],
         default='UTC'
     )
-
+ 
     terms_accepted = models.BooleanField(default=False)
     terms_accepted_on = models.DateTimeField(null=True, blank=True)
     accepted_terms_version = models.CharField(max_length=10, blank=True, null=True)
     completed_on_login_course = models.BooleanField(default=False)
-
-
+ 
+ 
     objects = ProfileManager()
-
+ 
     def __str__(self):
         return f'{self.user.username} Profile'
     
