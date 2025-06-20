@@ -1573,7 +1573,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (iframe) {
         iframe.addEventListener("load", function () {
             const iframeUrl = iframe.contentWindow?.location?.href || iframe.src;
-            console.log("📄 Loaded content:", iframeUrl);
+            console.log("📄 Loaded content:", iframeUrl, 'iframe.src:', iframe.src);
             if (iframeUrl.endsWith(".pdf")) {
                 console.log("✅ PDF detected — marking as complete");
                 markPdfLessonComplete();
