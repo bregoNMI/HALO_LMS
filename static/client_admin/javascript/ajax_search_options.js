@@ -1,7 +1,6 @@
 function initializeUserDropdown(containerId, selectedUserIds = []) {
     const container = document.getElementById(containerId);
     const userSearchInput = container.querySelector('.userSearch');
-    console.log(container);
     const userList = container.querySelector('.userList');
     const loadingIndicator = container.querySelector('.loadingIndicator');
     const selectedUsersList = container.querySelector('.selectedUsers');
@@ -748,7 +747,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize dropdown for all containers on the page
     document.querySelectorAll('.user-dropdown').forEach(dropdown => {
         initializeUserDropdown(dropdown.id, selectedUserIds);
-        console.log("Initializing user dropdown:", dropdown.id, selectedUserIds);
     });
     document.querySelectorAll('.course-dropdown').forEach(dropdown => {
         initializeCourseDropdown(dropdown.id, selectedCourseIds);
@@ -768,6 +766,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize dropdown for all category containers on the page
     document.querySelectorAll('.category-dropdown').forEach(dropdown => {
         initializeCategoryDropdown(dropdown.id);
+    });
+    // Initialize dropdown for all course assignments
+    document.querySelectorAll('.assignment-dropdown').forEach(dropdown => {
+        initializeAssignmentDropdown(dropdown.id);
     });
 });
 
@@ -1597,6 +1599,236 @@ function initializeQuizTemplateDropdown(containerId) {
     }
 
     fetchTemplates();
+}
+
+function initializeAssignmentDropdown(dropdownId) {
+    const container = document.getElementById(dropdownId);
+    const searchInput = container.querySelector('.assignmentSearch');
+    const assignmentList = container.querySelector('.assignmentList');
+    const selectedList = container.querySelector('.selectedAssignments');
+    const loadingIndicator = container.querySelector('.loadingIndicator');
+
+    // Scan upload cards
+    function getAvailableAssignments() {
+        const cards = document.querySelectorAll('.upload-card');
+        const assignments = [];
+        cards.forEach(card => {
+            // Use temp-id if id is not available
+            const id = card.getAttribute('data-id') || card.getAttribute('data-temp-id');
+            const titleInput = card.querySelector('.upload-title');
+            const title = titleInput?.value?.trim() || 'New Assignment';
+    
+            if (id) {
+                assignments.push({ id, title });
+            } else {
+                console.warn('⚠ Upload card has neither data-id nor data-temp-id:', card);
+            }
+        });
+        return assignments;
+    }    
+
+    // Render assignment options in dropdown
+    function renderAssignments(filter = '') {
+        assignmentList.innerHTML = '';
+        loadingIndicator.style.display = 'none';
+
+        const all = getAvailableAssignments();
+        const filtered = all.filter(a => a.title.toLowerCase().includes(filter.toLowerCase()));
+
+        if (filtered.length === 0) {
+            assignmentList.innerHTML = '<div class="no-results">No assignments found</div>';
+            return;
+        }
+
+        filtered.forEach(assignment => {
+            const item = document.createElement('div');
+            item.classList.add('dropdown-item');
+            item.dataset.assignmentId = assignment.id;
+            item.innerHTML = `
+                <label class="container">
+                    <input type="checkbox" class="assignment-checkbox" value="${assignment.id}">
+                    <div class="checkmark"></div>
+                </label>
+                <div class="dropdown-item-inner">
+                    <h5>${assignment.title}</h5>
+                    <!-- <span>Assignment ID: ${assignment.id}</span> -->
+                </div>
+            `;
+
+            // Mark selected state
+            if (selectedList.querySelector(`[data-assignment-id="${assignment.id}"]`)) {
+                item.classList.add('selected');
+                item.querySelector('.assignment-checkbox').checked = true;
+            }
+
+            item.addEventListener('click', () => {
+                const checkbox = item.querySelector('.assignment-checkbox');
+                if (checkbox.checked) {
+                    removeSelectedAssignment(assignment.id, assignmentList);
+                    item.classList.remove('selected');
+                    checkbox.checked = false;
+                } else {
+                    appendSelectedAssignment(assignment.id, assignment.title, selectedList);
+                    item.classList.add('selected');
+                    checkbox.checked = true;
+                }
+            });
+
+            // Make checkbox click trigger parent event
+            item.querySelector('.assignment-checkbox').addEventListener('click', (e) => {
+                e.stopPropagation();
+                item.click();
+            });
+
+            assignmentList.appendChild(item);
+        });
+    }
+
+    // Search filtering
+    searchInput.addEventListener('input', () => {
+        renderAssignments(searchInput.value);
+    });
+
+    searchInput.addEventListener('focus', () => {
+        assignmentList.style.display = 'block';
+        searchInput.style.borderRadius = '8px 8px 0 0';
+        searchInput.style.border = '2px solid #c7c7db';
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+            assignmentList.style.display = 'none';
+            searchInput.style.borderRadius = '8px';
+            searchInput.style.border = '1px solid #ececf1';
+        }
+    });
+
+    // Initial render
+    renderAssignments();
+}
+
+function appendSelectedAssignment(id, title, selectedList) {
+    if (selectedList.querySelector(`[data-assignment-id="${id}"]`)) return;
+
+    const selected = document.createElement('div');
+    selected.classList.add('selected-assignment');
+    selected.dataset.assignmentId = id;
+    selected.innerHTML = `
+        <span class="selected-assignment-details">${title}</span>
+        <div class="remove-assignment">
+            <div class="upload-delete tooltip" data-tooltip="Remove Assignment">
+                <span class="tooltiptext">Remove Assignment</span>
+                <i class="fa-regular fa-trash-can"></i>
+            </div>
+        </div>
+    `;
+    selected.querySelector('.remove-assignment').addEventListener('click', () => {
+        removeSelectedAssignment(id, selectedList, document);
+    });
+    selectedList.appendChild(selected);
+
+    // ✅ Also update the dropdown list checkbox and selection class
+    const dropdownItem = document.querySelector(`.assignmentList .dropdown-item[data-assignment-id="${id}"]`);
+    if (dropdownItem) {
+        dropdownItem.classList.add('selected');
+        const checkbox = dropdownItem.querySelector('.assignment-checkbox');
+        if (checkbox) checkbox.checked = true;
+    }
+}
+
+function removeSelectedAssignment(id, selectedList, assignmentListContainer) {
+    const selected = selectedList.querySelector(`[data-assignment-id="${id}"]`);
+    if (selected) selected.remove();
+
+    const dropdownItem = assignmentListContainer.querySelector(`[data-assignment-id="${id}"]`);
+    if (dropdownItem) {
+        dropdownItem.classList.remove('selected');
+        dropdownItem.querySelector('.assignment-checkbox').checked = false;
+    }
+}
+
+function updateAssignmentDropdown(dropdownId) {
+    const container = document.getElementById(dropdownId);
+    const assignmentList = container.querySelector('.assignmentList');
+    const selectedList = container.querySelector('.selectedAssignments');
+
+    // Collect current selections to preserve them
+    const selectedIds = Array.from(
+        selectedList.querySelectorAll('.selected-assignment[data-assignment-id]')
+    ).map(el => el.dataset.assignmentId);
+
+    // Clear and re-render assignment list
+    assignmentList.innerHTML = '';
+
+    const uploadCards = document.querySelectorAll('.upload-card');
+    uploadCards.forEach(card => {
+        const assignmentId = card.getAttribute('data-id') || card.getAttribute('data-temp-id');
+        const titleInput = card.querySelector('.upload-title');
+        const assignmentTitle = titleInput?.value?.trim() || 'New Assignment';
+
+        const item = document.createElement('div');
+        item.classList.add('dropdown-item');
+        item.dataset.assignmentId = assignmentId;
+
+        // Create checkbox wrapper
+        const checkboxWrapper = document.createElement('div');
+        checkboxWrapper.innerHTML = `
+            <label class="container">
+                <input type="checkbox" class="assignment-checkbox" value="${assignmentId}">
+                <div class="checkmark"></div>
+            </label>
+        `;
+
+        item.innerHTML += `
+            <div class="dropdown-item-inner">
+                <h5>${assignmentTitle}</h5>
+                <!-- <span>Assignment ID: ${assignmentId}</span> -->
+            </div>
+        `;
+        item.prepend(checkboxWrapper);
+
+        // Pre-select if already selected
+        if (selectedIds.includes(assignmentId)) {
+            item.classList.add('selected');
+            item.querySelector('.assignment-checkbox').checked = true;
+        }
+
+        // Click behavior
+        item.addEventListener('click', () => {
+            const checkbox = item.querySelector('.assignment-checkbox');
+            if (checkbox.checked) {
+                removeSelectedAssignment(assignmentId, selectedList, assignmentList);
+            } else {
+                appendSelectedAssignment(assignmentId, assignmentTitle, selectedList);
+                checkbox.checked = true;
+                item.classList.add('selected');
+            }
+        });
+
+        item.querySelector('.assignment-checkbox').addEventListener('click', e => {
+            e.stopPropagation();
+            item.click();
+        });
+
+        assignmentList.appendChild(item);
+    });
+}
+
+function clearSelectedAssignments(dropdownId) {
+    const container = document.getElementById(dropdownId);
+    const selectedList = container.querySelector('.selectedAssignments');
+    const assignmentList = container.querySelector('.assignmentList');
+
+    // Remove all selected assignment tags
+    selectedList.innerHTML = '';
+
+    // Uncheck all checkboxes and remove 'selected' classes
+    const dropdownItems = assignmentList.querySelectorAll('.dropdown-item');
+    dropdownItems.forEach(item => {
+        item.classList.remove('selected');
+        const checkbox = item.querySelector('.assignment-checkbox');
+        if (checkbox) checkbox.checked = false;
+    });
 }
 
 // Helper function to get CSRF token from cookies

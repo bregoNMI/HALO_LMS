@@ -248,7 +248,7 @@ def create_or_update_course(request):
             if existing_event.type not in incoming_event_types:
                 existing_event.delete()
 
-    def handle_modules_and_lessons(course, modules):
+    def handle_modules_and_lessons(course, modules, temp_to_upload_map):
         module_response = []
 
         for module_data in modules:
@@ -278,14 +278,39 @@ def create_or_update_course(request):
                 lesson.content_type = lesson_data.get('content_type', '')
 
                 print(f"Saving Lesson: {lesson.title}, Module ID: {module.id}")  # Debug statement
+                assignment_toggle = lesson_data.get('assignment_toggle', False)
+                lesson.assignment_toggle = assignment_toggle
                 lesson.save()
 
                 lesson_response = {
                     'id': lesson.id,
-                    'temp_id': lesson_data.get('temp_id'),
                     'title': lesson.title,
                     'description': lesson.description,
                 }
+                if 'temp_id' in lesson_data:
+                    lesson_response['temp_id'] = lesson_data['temp_id']
+
+                # If toggle is enabled, link assignments (both real and temp IDs)
+                if assignment_toggle:
+                    assignment_ids = []
+                    for assignment in lesson_data.get('assignments', []):
+                        upload_id = assignment.get('id')
+                        temp_id = assignment.get('temp_id')
+                        upload = None
+
+                        if upload_id:
+                            upload = Upload.objects.filter(id=upload_id, course=course).first()
+                        elif temp_id and temp_id in temp_to_upload_map:
+                            upload = temp_to_upload_map[temp_id]
+
+                        if upload:
+                            assignment_ids.append(upload.id)
+                        else:
+                            print(f"Assignment could not be matched (id: {upload_id}, temp_id: {temp_id})")
+
+                    lesson.assignments.set(assignment_ids)
+                    lesson_response['assignment_toggle'] = True
+                    lesson_response['assignments'] = [{'id': id} for id in assignment_ids]
 
                 module_response[-1]['lessons'].append(lesson_response)
                 print(f"Lesson '{lesson.title}' saved with ID: {lesson.id}")
@@ -296,7 +321,6 @@ def create_or_update_course(request):
                     lesson.selected_quiz_template_name = lesson_data.get('selected_quiz_template_name')
                     lesson.quiz_id = lesson_data.get('quiz_id')
                     lesson.selected_quiz_name = lesson_data.get('selected_quiz_name')
-                    lesson.save()
 
                     # Save QuizConfig
                     quiz_config_data = {
@@ -319,13 +343,11 @@ def create_or_update_course(request):
                 # Handle file attachment for the lesson (either file_id or file_url)
                 file_id = lesson_data.get('file_id', None)
                 if file_id:
-                    file_id = lesson_data.get('file_id')
                     file_instance = get_object_or_404(UploadedFile, id=file_id)
                     lesson.uploaded_file = file_instance
                     print('file_instance', file_instance, ':' 'lesson.uploaded_file', lesson.uploaded_file)
                     uploaded_file_name = str(lesson.uploaded_file)
                     lesson.scorm_id = uploaded_file_name.replace(".zip", "/scormcontent/index.html")
-                    lesson.save()
                     print(f"File '{file_instance.title}' associated with lesson ID: {lesson.id}")
                 elif 'file_url' in lesson_data:
                     file_url = lesson_data.get('file_url')
@@ -349,6 +371,7 @@ def create_or_update_course(request):
                     except File.DoesNotExist:
                         print(f"Error occurred when searching for file with URL '{file_url}' for lesson ID: {lesson.id}")
 
+                lesson.save()
 
         return module_response
 
@@ -453,75 +476,63 @@ def create_or_update_course(request):
 
     def handle_uploads(course, uploads_data):
         upload_response = []
+        temp_to_upload_map = {}
 
         for upload_data in uploads_data:
-            upload_id = upload_data.get('id', None)
+            upload_id = upload_data.get('id')
+            temp_id = upload_data.get('temp_id')
             approval_type = upload_data.get('approval_type', '')
             approvers_ids = upload_data.get('selected_approvers', [])
             title = upload_data.get('title', '')
 
             print(f"Processing upload - Title: {title}, Approval Type: {approval_type}, Approvers: {approvers_ids}")
 
-            if title:
-                try:
-                    if upload_id:
-                        upload = Upload.objects.filter(id=upload_id, course=course).first()
+            if not title:
+                print("No title provided for upload, skipping this upload.")
+                continue
 
-                        if upload:
-                            # Update existing upload
-                            upload.approval_type = approval_type
-                            upload.title = title
-                            if approvers_ids:
-                                approvers = User.objects.filter(id__in=approvers_ids)
-                                upload.approvers.set(approvers)
-                            upload.save()
-                            print(f"Upload updated: {upload}")
-                        else:
-                            # Create new upload
-                            upload = Upload.objects.create(
-                                course=course,
-                                approval_type=approval_type,
-                                title=title,
-                            )
-                            if approvers_ids:
-                                approvers = User.objects.filter(id__in=approvers_ids)
-                                upload.approvers.set(approvers)
-                            upload.save()
-                            print(f"Upload created: {upload}")
-                        
-                        # Append to upload_response
-                        upload_response.append({
-                            'id': upload.id,
-                            'temp_id': upload_data.get('temp_id'),
-                            'title': upload.title,
-                        })
+            try:
+                if upload_id:
+                    upload = Upload.objects.filter(id=upload_id, course=course).first()
 
-                    else:
-                        # Create new upload if no ID
-                        upload = Upload.objects.create(
-                            course=course,
-                            approval_type=approval_type,
-                            title=title,
-                        )
+                    if upload:
+                        # Update existing upload
+                        upload.approval_type = approval_type
+                        upload.title = title
                         if approvers_ids:
                             approvers = User.objects.filter(id__in=approvers_ids)
                             upload.approvers.set(approvers)
                         upload.save()
-                        
-                        # Append to upload_response
-                        upload_response.append({
-                            'id': upload.id,
-                            'temp_id': upload_data.get('temp_id'),
-                            'title': upload.title,
-                        })
-                        print(f"Upload created: {upload}")
+                        print(f"Upload updated: {upload}")
+                    else:
+                        # ID provided but doesn't exist — fallback to create
+                        upload = Upload.objects.create(course=course, approval_type=approval_type, title=title)
+                        if approvers_ids:
+                            approvers = User.objects.filter(id__in=approvers_ids)
+                            upload.approvers.set(approvers)
+                        print(f"Upload created (fallback): {upload}")
+                else:
+                    # Create new upload if no ID
+                    upload = Upload.objects.create(course=course, approval_type=approval_type, title=title)
+                    if approvers_ids:
+                        approvers = User.objects.filter(id__in=approvers_ids)
+                        upload.approvers.set(approvers)
+                    print(f"Upload created: {upload}")
 
-                except Exception as e:
-                    print(f"Error creating or updating upload: {e}")
-            else:
-                print("No title provided for upload, skipping this upload.")
+                upload.save()
+                upload_response.append({
+                    'id': upload.id,
+                    'temp_id': temp_id,
+                    'title': upload.title,
+                })
 
-        return upload_response
+                if temp_id:
+                    temp_to_upload_map[temp_id] = upload
+
+            except Exception as e:
+                print(f"Error creating or updating upload: {e}")
+
+        return upload_response, temp_to_upload_map
 
 
     def update_user_progress(course):
@@ -608,10 +619,15 @@ def create_or_update_course(request):
             event_dates = json.loads(data.get('event_dates', '[]'))
             handle_event_dates(course, event_dates)
 
+            # Handle uploads
+            uploads = json.loads(data.get('uploads', '[]'))
+            print(f"Uploads received: {uploads}")
+            upload_response, temp_to_upload_map = handle_uploads(course, uploads)
+
             # Handle modules and lessons
             modules = json.loads(data.get('modules', '[]'))
             print(f"Modules received: {modules}")  # Check what modules are being received
-            module_response = handle_modules_and_lessons(course, modules)
+            module_response = handle_modules_and_lessons(course, modules, temp_to_upload_map)
 
             # Handle media
             media_data = json.loads(data.get('media', '[]'))
@@ -621,11 +637,6 @@ def create_or_update_course(request):
             resources = json.loads(data.get('resources', '[]'))
             print(f"Resources received: {resources}")
             reference_response = handle_resources(course, resources)
-
-            # Handle uploads
-            uploads = json.loads(data.get('uploads', '[]'))
-            print(f"Uploads received: {uploads}")
-            upload_response = handle_uploads(course, uploads)
 
             # Update user progress for all enrolled users
             update_user_progress(course)
@@ -2429,22 +2440,28 @@ def get_quiz_references(request, uuid):
 
         data = []
         for ref in references:
-            file_url = ref.get_file_url()
-            print(f"[DEBUG] Ref ID {ref.id} | Type: {ref.source_type} | File Field: {ref.file} | URL: {file_url}")
+            try:
+                file_url = ref.get_file_url()
+                print(f"[DEBUG] Ref ID {ref.id} | Type: {ref.source_type} | File Field: {ref.file} | URL: {file_url}")
 
-            data.append({
-                'id': ref.id,
-                'title': ref.title,
-                'url_from_library': file_url,  # this will work for both upload and library
-                'type_from_library': ref.type_from_library,
-                'source_type': ref.source_type,
-            })
-
+                data.append({
+                    'id': ref.id,
+                    'title': ref.title,
+                    'url_from_library': file_url,
+                    'type_from_library': ref.type_from_library,
+                    'source_type': ref.source_type,
+                })
+            except Exception as e:
+                print(f"[ERROR] Failed to load reference ID {ref.id}: {e}")
 
         return JsonResponse({'success': True, 'references': data})
 
     except Quiz.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Quiz not found'})
+    
+    except Exception as e:
+        print(f"[ERROR] Unexpected error in get_quiz_references: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
     
 def get_file_url(self):
     if self.source_type == 'upload' and self.file:

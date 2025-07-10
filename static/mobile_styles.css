@@ -25,6 +25,8 @@
         padding: 0.8rem 2rem;
     }.widget-inner-wrapper {
         flex-direction: column;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 
     /* Learner Pages */

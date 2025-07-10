@@ -214,7 +214,7 @@ function inputLessonData(title, lessonId, type, lessonType){
     }else if(type == 'edit'){
         confirmEditLessonActivity.setAttribute('data-lesson-id', lessonId);
         fetchLessonData(lessonId);
-        if(lessonType == 'SCORM2004'){lessonTypeTitle = 'SCORM 2004'}else if(lessonType == 'SCORM1.2'){lessonTypeTitle = 'SCORM 1.2'}else if(lessonType == 'file'){lessonTypeTitle = 'File'}
+        if(lessonType == 'SCORM2004'){lessonTypeTitle = 'SCORM 2004'}else if(lessonType == 'SCORM1.2'){lessonTypeTitle = 'SCORM 1.2'}else if(lessonType == 'file'){lessonTypeTitle = 'File'}else if(lessonType == 'quiz'){lessonTypeTitle = 'Quiz'}
         editLessonType.innerText = lessonTypeTitle;
         document.getElementById('editLessonTitle').innerText = title;
     }

@@ -1251,7 +1251,7 @@ function openPromptRubricPopup(triggerElement) {
                         <i class="fa-solid fa-xmark"></i>
                     </div>
                 </div>
-                <div class="popup-body">
+                <div class="popup-body scrollable-content">
                     <div class="course-content-input">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <label class="edit-user-label">Rubric</label>

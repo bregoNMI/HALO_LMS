@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="{% static 'mobile_styles.css' %}">
     <link rel="stylesheet" href="{% static 'course_player\javascript\css\course_player.css' %}">
     <script src="{% static 'course_player/javascript/course_player_functions.js' %}?v=2"></script>
+    <link rel="stylesheet" href="{% static 'learner_dashboard\css\learner.css' %}">
 </head>
 <body class="course-body-container">
     {% include 'course_viewer/course_header.html' %}
@@ -34,6 +35,7 @@
         {% block content %}{% endblock %}
         {% include 'course_viewer/course_sidebar.html' %}
     </div>   
+    {% include 'course_viewer/course_footer.html' %}
 </body>
 </html>
 <script>

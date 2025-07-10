@@ -1,5 +1,5 @@
 <div id="editLesson" class="popup-background">
-    <div class="popup-content max-width-6">
+    <div class="popup-content max-width-5">
         <div class="popup-header">
             <h3>Edit Lesson</h3>
             <span id="editLessonType" class="selected-lesson-type">File</span>
@@ -7,7 +7,7 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div class="popup-body">
+        <div class="popup-body scrollable-content">
             <div class="course-content-input">
                 <label class="edit-user-label" for="editLessonTitle">Lesson Title<span class="required-asterisk">*</span></label>
                 <input type="text" id="editLessonTitle" name="editLessonTitle" placeholder="Lesson Title" maxlength="200">
@@ -45,6 +45,33 @@
             <div class="file-upload-finished">
                 <i class="fa-regular fa-circle-check fa-bounce"></i>
                 <span>File uploaded successfully</span>
+            </div>
+            <!-- Assignments Toggle -->
+            <div class="course-content-input padding-top-1">
+                <label class="edit-user-label" for="editLessonAssignmentsToggle">Attach Assignments</label>
+                <label class="toggle-switch">
+                    <input class="toggle-option" type="checkbox" id="editLessonAssignmentsToggle" name="editLessonAssignmentsToggle">
+                    <div class="toggle-switch-background">
+                      <div class="toggle-switch-handle"></div>
+                    </div>
+                </label>
+                <span class="course-content-input-subtext"> Select from the list of existing course assignments to be completed with this lesson. </span>
+            </div>
+            <!-- Lesson Assignments -->
+            <div class="toggle-option-details margin-top-5 margin-bottom-5">
+                <div id="selectedAssignments">
+                    <div class="right-column-file-wrapper">
+                        <div id="assignmentDropdown4" class="assignment-dropdown course-content-input">
+                            <input type="text" class="assignmentSearch" placeholder="Search assignments...">
+                            <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                            <div class="assignmentList scrollable-content-inner">
+                                <div class="loadingIndicator" style="display:none;">Loading...</div>
+                            </div>
+                            
+                            <div class="selectedAssignments"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="popup-footer">

@@ -12,14 +12,25 @@ from pytz import all_timezones
 class SCORMTrackingData(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
-    cmi_data = models.JSONField(null=True, blank=True)  # Store raw SCORM interaction data in JSON format
+    cmi_data = models.JSONField(null=True, blank=True)
     score = models.FloatField(null=True, blank=True)
     lesson_location = models.TextField(blank=True, null=True)
     scroll_position = models.IntegerField(default=0)
-    completion_status = models.CharField(max_length=50, choices=[('completed', 'Completed'), ('incomplete', 'Incomplete'), ('failed', 'Failed'), ('passed', 'Passed')])
+    completion_status = models.CharField(
+        max_length=50,
+        choices=[
+            ('completed', 'Completed'),
+            ('incomplete', 'Incomplete'),
+            ('failed', 'Failed'),
+            ('passed', 'Passed'),
+        ]
+    )
     session_time = models.CharField(max_length=32, default="PT0H0M0S")
-    progress = models.FloatField(null=True, blank=True)  # Percentage
+    progress = models.FloatField(null=True, blank=True)
     last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'lesson')  # Ensure one tracking entry per user+lesson
 
     def __str__(self):
         return f"Tracking Data for User {self.user} - Lesson {self.lesson}"

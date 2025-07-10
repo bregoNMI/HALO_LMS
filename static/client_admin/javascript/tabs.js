@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (cardBody) {
                 cardBody.classList.toggle('hidden'); // 'hidden' class should be styled with display: none;
             }
+            const cardHeader = header.closest('.details-info-card').querySelector('.collapsable-header');
+            if(cardHeader){
+                cardHeader.classList.toggle('active');
+            }
         });
     });
     // Hiding / Showing Lesson Card
@@ -60,6 +64,7 @@ function initializeTabs(popup) {
                         content.classList.remove('active');  // Hide other tab contents
                     }
                 });
+                openCourseDetails();
             });
         });
     }

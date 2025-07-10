@@ -96,8 +96,8 @@ input[type="text"], input[type="number"]{
 .module-card{
     background-color: #eceff4;
     border-radius: 6px;
-    /* outline: 1px solid #e5e7eb; */
-    outline: 1px solid #e9eaed;
+    outline: 1px solid #ecedf0;
+    /* outline: 1px solid #e9eaed; */
 }
 
 .module-card-body{
@@ -106,7 +106,8 @@ input[type="text"], input[type="number"]{
     gap: 2rem;
     flex-direction: column;
     border-radius: 0 0 6px 6px;
-    background-color: #fcfcfc;
+    /* background-color: #fcfcfc; */
+    background-color: white;
     transition: all 0.3s ease-in-out;
 }
 
@@ -154,7 +155,7 @@ input[type="text"], input[type="number"]{
 }
 
 .module-delete i{
-    font-size: 1.05rem !important;
+    font-size: 1rem !important;
     color: var(--text-color4) !important;
 }
 
@@ -204,7 +205,7 @@ input[type="text"], input[type="number"]{
 
 .sortable-chosen {
     opacity: 1 !important;
-    outline: 1px solid var(--primary-blue);
+    /* outline: 1px solid var(--primary-blue); */
 }
 
 .sortable-drag {
@@ -224,22 +225,38 @@ input[type="text"], input[type="number"]{
     display: flex;
     flex-direction: column;
     flex: 1;
-    gap: 1rem;
+    /* gap: 1rem; */
+    background-color: #fcfcfc;
+    border: 1px solid #e3e3e3;
+    border-radius: 8px;
 }
+.lesson-container .lesson-card:first-child{
+    border-radius: 8px 8px 0 0;
+    border-top: none;
+}.lesson-container .lesson-card:first-child .lesson-delete{
+    border-radius: 0px 8px 0 0;
+}.lesson-container .lesson-card:last-child .lesson-delete{
+    border-radius: 0px 0 8px 0;
+}.lesson-container .lesson-card:last-child{
+    border-radius: 0 0 8px 8px;
+}
+
 .lesson-card{
     display: flex;
     gap: 0.5rem;
     align-items: center;
     justify-content: space-between;
     background-color: white;
-    border-radius: 8px;
-    padding: var(--pad-xxs) var(--pad-sm);
-    outline: 1px solid #e5e7eb;
+    border-top: 1px solid #e3e3e3;
+    /* border-radius: 8px; */
+    /* padding: var(--pad-xxs) var(--pad-sm); */
+    /* outline: 1px solid #e5e7eb; */
 }
 
 .lesson-header-left{
     display: flex;
     gap: 0.4rem;
+    padding-left: 0.8rem;
 }
 
 .lesson-header-right{
@@ -252,17 +269,23 @@ input[type="text"], input[type="number"]{
     text-decoration: none;
     justify-content: center;
     padding: var(--pad-xxs);
-    border-radius: 8px;
+    /* border-radius: 8px; */
     transition: all 0.3s ease-in-out;
-    height: 1rem;
-    width: 1rem;
+    /* height: 1rem;
+    width: 1rem; */
     cursor: pointer;
     /* color: #41454d; */
-    color: #81858c;
+    /* color: #81858c; */
+    color: #6b6b6b;
+    font-size: 1.1rem;
+    padding: 0.8rem;
+    height: unset;
+    width: unset;
 }
 
 .lesson-edit:hover {
-    background-color: #f2f2f2;
+    /* background-color: #f2f2f2; */
+    background-color: #ececf1;
 }
 
 .lesson-delete:hover {
@@ -376,6 +399,7 @@ input[type="text"], input[type="number"]{
 }
 
 .popup-content-header{
+    position: relative;
     font-size: 0.89rem;
     margin-top: 0;
     color: var(--text-color7);
@@ -534,7 +558,7 @@ input[type="text"], input[type="number"]{
 .reference-card{
     background-color: #eceff4;
     border-radius: 6px;
-    outline: 1px solid #e5e7eb;
+    outline: 1px solid #ecedf0;
 }
 
 .reference-card-body{
@@ -594,8 +618,8 @@ input[type="text"], input[type="number"]{
     border-radius: 8px;
     transition: all 0.3s ease-in-out;
     color: var(--text-color5);
-    height: 1rem;
-    width: 1rem;
+    height: 0.8rem;
+    width: 0.8rem;
     cursor: pointer;
 }
 
@@ -627,7 +651,7 @@ input[type="text"], input[type="number"]{
 }
 
 .reference-delete i {
-    font-size: 1.05rem !important;
+    font-size: 1rem !important;
     color: var(--text-color4) !important;
 }
 
@@ -660,7 +684,8 @@ input[type="text"], input[type="number"]{
 .upload-card{
     background-color: #eceff4;
     border-radius: 6px;
-    outline: 1px solid #e5e7eb;
+    /* outline: 1px solid #e5e7eb; */
+    outline: 1px solid #ecedf0;
 }
 
 .upload-card-body{
@@ -720,9 +745,12 @@ input[type="text"], input[type="number"]{
     border-radius: 8px;
     transition: all 0.3s ease-in-out;
     color: var(--text-color5);
+    height: 0.8rem;
+    width: 0.8rem;
+    cursor: pointer;
+}.remove-user .upload-delete{
     height: 0.7rem;
     width: 0.7rem;
-    cursor: pointer;
 }
 
 .upload-delete:hover{
@@ -753,7 +781,7 @@ input[type="text"], input[type="number"]{
 }
 
 .upload-delete i {
-    font-size: 0.95rem !important;
+    font-size: 1rem !important;
     color: var(--text-color4) !important;
 }
 

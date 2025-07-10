@@ -389,6 +389,8 @@ class Lesson(models.Model):
     selected_quiz_template_name = models.CharField(max_length=255, null=True, blank=True)  # ✅ NEW
     quiz_id = models.PositiveIntegerField(null=True, blank=True)
     selected_quiz_name = models.CharField(max_length=255, null=True, blank=True)  # ✅ NEW
+    assignment_toggle = models.BooleanField(default=False)
+    assignments = models.ManyToManyField('Upload', related_name='lessons', blank=True)
 
     class Meta:
         ordering = ['order']

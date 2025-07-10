@@ -257,14 +257,29 @@
                                                 {% for resource in user_course.course.resources.all %}
                                                     {% if resource.type == 'reference' %}
                                                         <a href="{{ resource.url }}" target="_blank" class="reference-item">
-                                                            <div class="reference-icon pastel-blue">
-                                                                <i class="fa-regular fa-paperclip"></i>
+                                                            <div class="reference-item-left">
+                                                                <div class="reference-icon pastel-blue">
+                                                                    {% if resource.file_type == 'pdf' %}
+                                                                        <i class="fa-light fa-file-pdf"></i>
+                                                                    {% elif resource.file_type == 'audio' %}
+                                                                        <i class="fa-light fa-volume"></i>
+                                                                    {% elif resource.file_type == 'image' %}
+                                                                        <i class="fa-light fa-image"></i>
+                                                                    {% elif resource.file_type == 'video' %}
+                                                                        <i class="fa-light fa-film"></i>
+                                                                    {% elif resource.file_type == 'document' %}
+                                                                        <i class="fa-light fa-file-doc"></i>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="reference-text">
+                                                                    <h4>{{ resource.title }}</h4>
+                                                                    <!-- <span>{{ resource.file_type }}</span> -->
+                                                                </div>
                                                             </div>
-                                                            <div class="reference-text">
-                                                                <h4>{{ resource.title }}</h4>
-                                                                <span>{{ resource.file_type }}</span>
-                                                            </div>
-                                                        </a>                                                    
+                                                            <div class="reference-item-right">
+                                                                <i class="fa-regular fa-arrow-up-right-from-square"></i>
+                                                            </div>                             
+                                                        </a>                                                   
                                                     {% endif %}
                                                 {% endfor %}
                                             </div>

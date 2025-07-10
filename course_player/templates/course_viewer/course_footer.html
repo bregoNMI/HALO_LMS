@@ -1,0 +1,183 @@
+<div class="course-footer-container">
+    <div class="course-footer-container-left">
+        <div id="courseFooterTabs" class="tabs-container">
+            <div class="course-footer-top-container">
+                <div class="tabs">
+                    <button class="tab active" data-target="tab1">Overview</button>
+                    <button class="tab" data-target="tab2">Lessons</button>
+                    {% if user_course.course.resources.exists and user_course.course.referencesEnabled %}
+                        <button class="tab" data-target="tab3">Reference Materials</button>
+                    {% endif %}
+                    <div class="tab-indicator"></div>
+                </div>
+                <div class="course-footer-container-right">
+                    <button style="margin-right: 1rem;" id="toggleFooterBtn" onclick="openCourseDetails()" style="padding: 7px var(--pad-med);" class="action-button-border">
+                        <i class="fa-light fa-arrows-from-dotted-line"></i>
+                        <span>Expand</span>
+                    </button> 
+                    <div class="footer-buttons-container">
+                        {% if prev_lesson %}
+                            <button type="button" id="prevLessonBtn" class="course-button-primary" onclick="launchPrevLesson({{ prev_lesson.id }})">
+                                <i class="fa-light fa-caret-left"></i>
+                                Previous Lesson
+                            </button>
+                        {% endif %}
+            
+                        {% if next_lesson %}
+                            <button type="button" id="nextLessonBtn" class="course-button-primary" onclick="launchNextLesson({{ next_lesson.id }})">
+                                Next Lesson
+                                <i class="fa-light fa-caret-right"></i>
+                            </button>
+                        {% else %}
+                            <button type="button" id="finishCourseBtn" class="course-button-primary" onclick="window.location.href='{% url 'learner_dashboard' %}'" style="display: none;">
+                                Finish Course
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+        
+            <div class="tab-content-container">
+                <div class="tab-content active scrollable-content-inner" id="tab1">
+                    {% if user_course.course.description != '<p><br></p>' and user_course.course.description %}
+                        <div class="tab-content-description">
+                            <div class="description-wrapper">
+                                <div class="description-content">
+                                    {{ user_course.course.description|safe }}
+                                </div>
+                                <div class="fade-overlay"></div>
+                            </div>
+                            <div class="read-more-toggle" onclick="toggleDescription(event)">Read More</div>
+                        </div>
+                    {% endif %}
+                    {% if user_course.get_start_date or user_course.get_due_date or user_course.get_expiration_date %}
+                        <div class="tab-content-event-dates">
+                            {% if user_course.get_start_date %}
+                                <div class="tab-content-event-dates-item">
+                                    <div class="tab-content-event-dates-item-top">
+                                        <i class="fa-regular fa-calendar-star"></i>
+                                        <span>Start Date</span>
+                                    </div>
+                                    <span class="event-dates-subtext"> {{ user_course.get_start_date }} </span>
+                                </div>
+                            {% endif %}
+                            {% if user_course.get_due_date %}
+                                <div class="tab-content-event-dates-item">
+                                    <div class="tab-content-event-dates-item-top">
+                                        <i class="fa-regular fa-calendar-exclamation"></i>
+                                        <span>Due Date</span>
+                                    </div>
+                                    <span class="event-dates-subtext"> {{ user_course.get_due_date }} </span>
+                                </div>
+                            {% endif %}
+                            {% if user_course.get_expiration_date %}
+                                <div class="tab-content-event-dates-item">
+                                    <div class="tab-content-event-dates-item-top">
+                                        <i class="fa-regular fa-calendar-clock"></i>
+                                        <span>Expiration Date</span>
+                                    </div>
+                                    <span class="event-dates-subtext"> {{ user_course.get_expiration_date }} </span>
+                                </div>                                         
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="tab-content scrollable-content-inner" id="tab2">
+                    <div id="lessonList">
+                        <!-- {% for module in modules_with_lessons %}
+                            <div class="module-section-container">
+                                <div class="module-title">
+                                    <span>{{ module.title }}</span>
+                                </div>
+                                <div class="lesson-section-container">
+                                    {% for lesson in module.lessons.all %}
+                                        <button class="lesson-item" data-lesson-id="{{ lesson.id }}" onclick="launchLessonById({{ lesson.id }})">
+                                            <div class="lesson-item-left">
+                                                <div class="lesson-item-number">
+                                                    <span>{{ forloop.counter }}</span>
+                                                </div>
+                                                <div class="lesson-item-text">
+                                                    <span>{{ lesson.title }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="lesson-item-right"></div>
+                                            
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %} -->
+                        {% for module in modules_with_lessons %}
+                            <div class="details-info-card">
+                                <div class="module-card-header collapsable-header">
+                                    <div class="card-header-left">
+                                        <div class="module-title" title="{{ module.title }}">
+                                            <span>{{ forloop.counter }}. {{ module.title }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="lesson-completion-counter" data-module-id="{{ module.id }}">
+                                        <span>0/0</span>
+                                    </div>
+                                    <div class="card-header-right active">
+                                        <i class="fa-regular fa-angle-down"></i>
+                                    </div>
+                                </div>
+                                <div class="info-card-body hidden">                         
+                                    <div class="module-lessons-section">
+                                        {% for lesson in module.lessons.all %}
+                                            <button class="lesson-item" data-lesson-id="{{ lesson.id }}" onclick="launchLessonById({{ lesson.id }})">
+                                                <div class="lesson-item-left">
+                                                    <div class="lesson-item-number">
+                                                        <span>{{ forloop.counter }}</span>
+                                                    </div>
+                                                    <div class="lesson-item-text" title="{{ lesson.title }}">
+                                                        <span>{{ lesson.title }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="lesson-item-right"></div>
+                                                
+                                            </button>
+                                        {% endfor %}
+                                    </div>                 
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="tab-content scrollable-content-inner" id="tab3">
+                    <div class="course-resources-container">
+                        {% for resource in user_course.course.resources.all %}
+                            {% if resource.type == 'reference' %}
+                                <a href="{{ resource.url }}" target="_blank" class="reference-item">
+                                    <div class="reference-item-left">
+                                        <div class="reference-icon pastel-blue">
+                                            {% if resource.file_type == 'pdf' %}
+                                                <i class="fa-light fa-file-pdf"></i>
+                                            {% elif resource.file_type == 'audio' %}
+                                                <i class="fa-light fa-volume"></i>
+                                            {% elif resource.file_type == 'image' %}
+                                                <i class="fa-light fa-image"></i>
+                                            {% elif resource.file_type == 'video' %}
+                                                <i class="fa-light fa-film"></i>
+                                            {% elif resource.file_type == 'document' %}
+                                                <i class="fa-light fa-file-doc"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="reference-text">
+                                            <h4>{{ resource.title }}</h4>
+                                            <!-- <span>{{ resource.file_type }}</span> -->
+                                        </div>
+                                    </div>
+                                    <div class="reference-item-right">
+                                        <i class="fa-regular fa-arrow-up-right-from-square"></i>
+                                    </div>                             
+                                </a>                                                    
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

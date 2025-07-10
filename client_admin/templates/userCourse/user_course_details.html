@@ -254,6 +254,8 @@
                                                                             SCORM 1.2
                                                                         {% elif lesson_progress.lesson.content_type == 'file' %}
                                                                             File
+                                                                        {% elif lesson_progress.lesson.content_type == 'quiz' %}
+                                                                            Quiz
                                                                         {% endif%}
                                                                     </span>
                                                                     <span class="selected-lesson-title">{{ lesson_progress.lesson.title }}</span>

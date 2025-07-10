@@ -135,16 +135,23 @@
 
 .widget-inner-wrapper{
     display: flex;
-    flex-wrap: wrap;
+    /* flex-wrap: wrap; */
     flex-direction: row;
     gap: 1rem;
     align-items: center;
-    justify-content: center;
+    /* justify-content: center; */
 }
 
 .widget-inner-right h3{
-    text-wrap: nowrap;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.2em;
+    max-height: 2.4em;
+    /* text-wrap: nowrap; */
+    text-align: left;
     color: var(--text-color7);
     font-size: 1.05rem;
 }
