@@ -1,3 +1,13 @@
+/* Styles for course player */
+@media (max-width: 1085px) {
+    .footer-button-lesson-text{
+        display: none;
+    }
+    .course-footer-container .tab {
+        font-size: 15px;
+    }
+}
+
 /* Styles for Mobile Devices*/
 @media (max-width: 600px) {
     /* Learner Dashboard */

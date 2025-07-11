@@ -349,6 +349,9 @@ class Upload(models.Model):
     approval_type = models.CharField(max_length=30, choices=APPROVAL_CHOICES, default=None, null=True, blank=True)
     approvers = models.ManyToManyField(User, blank=True)  # Users who approve the upload, relevant when 'other' is selected
     title = models.CharField(max_length=255, default='title')
+    url = models.URLField(max_length=500, blank=True)
+    file_type = models.CharField(max_length=200, blank=True, null=True)
+    file_title = models.CharField(max_length=200, blank=True, null=True)
     description = models.TextField(blank=True, max_length=2000)
 
     def __str__(self):

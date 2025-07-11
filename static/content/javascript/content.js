@@ -415,7 +415,30 @@ function createNewUpload(){
             </div>
         </div>
         <div class="upload-card-body">
-
+            <div class="right-column-file-wrapper">
+                <h5 class="right-column-option-header">Assignment Source</h5>
+                <div onclick="openFileLibrary('assignmentSource', '', '${newUploadId}')" class="custom-file-upload-container">
+                    <div class="custom-file-upload">
+                        <input type="file" id="assignmentSource-${newUploadId}" name="assignmentSource" style="display: none;" readonly="">
+                        <i class="fa-regular fa-folder-open"></i> Choose File
+                    </div>
+                    <div class="custom-file-title">
+                        <span id="assignmentSourceDisplay-${newUploadId}" class="file-name-display">No file selected</span>
+                    </div>
+                    <input type="hidden" id="assignmentURLInput-${newUploadId}" name="assignmentURL">
+                    <input type="hidden" id="assignmentTypeInput-${newUploadId}" name="assignmentType">
+                </div>
+                <span class="course-content-input-subtext"> Provide a file that Learners can access with this assignment. </span>
+            </div>
+            <div class="upload-card-content">
+                <label class="edit-user-label" for="assignmentDescription-${newUploadId}">Assignment Instructions</label>
+                <div class="editor-container" id="assignmentDescription-${newUploadId}"></div>
+                <div class="quill-character-counter">
+                    <div class="quill-current-counter">0</div>
+                    <span>/</span>
+                    <div class="quill-max-counter">2000</div>
+                </div>
+            </div>
             <div class="course-content-input">
                 <label class="edit-user-label">Assignment Approval</label>
                 <div class="content-input-options-row">
@@ -443,19 +466,19 @@ function createNewUpload(){
             </div>
             <!-- None Approval -->
             <div id="uploadApprovalNone${newUploadId}" class="toggle-option-details show-toggle-option-details">
-                <span class="course-content-input-subtext"> No approval is required for the course upload. </span>
+                <span class="course-content-input-subtext"> No approval is required for the course assignment. </span>
             </div>
             <!-- Instructor Approval -->
             <div id="uploadApprovalInstructor${newUploadId}" class="toggle-option-details">
-                <span class="course-content-input-subtext"> An Instructor must approve the course upload. </span>
+                <span class="course-content-input-subtext"> An Instructor must approve the course assignment. </span>
             </div>
             <!-- Admin Approval -->
             <div id="uploadApprovalAdmin${newUploadId}" class="toggle-option-details">
-                <span class="course-content-input-subtext"> An Admin must approve the course upload. </span>
+                <span class="course-content-input-subtext"> An Admin must approve the course assignment. </span>
             </div>
             <!-- Other Approval -->
             <div id="uploadApprovalOther${newUploadId}" class="toggle-option-details">
-                <span class="course-content-input-subtext"> Please select the User(s) who will approve the course upload. </span>
+                <span class="course-content-input-subtext"> Please select the User(s) who will approve the course assignment. </span>
                 <div class="right-column-file-wrapper">
                     <div id="userDropdownupload_approval${newUploadId}" class="user-dropdown course-content-input">
                         <input type="text" class="userSearch" placeholder="Search users...">
@@ -475,6 +498,8 @@ function createNewUpload(){
     assignUploadHeaderListeners();
     testUploadCount();
     initializeRadioOptions();
+    initializeClearImageFields();
+    initializeQuill(`#assignmentDescription-${newUploadId}`);
     // Initialize dropdown for all containers on the page
     document.querySelectorAll('.user-dropdown').forEach(dropdown => {
         initializeUserDropdown(dropdown.id);
@@ -1822,20 +1847,34 @@ function generateCourseData(isSave) {
             const tempId = uploadCard.getAttribute('data-temp-id') || null;
 
             console.log('uploadId', uploadId, 'tempId', tempId);
-
+            let assignmentURLInput;
+            let assignmentTypeInput;
+            let fileTitle;
 
             let approvalType;
             if(uploadId && !tempId){
                 approvalType = uploadCard.querySelector(`input[name="upload_approval${uploadId}"]:checked`).value;
+                assignmentURLInput = uploadCard.querySelector(`#assignmentURLInput-${uploadId}`);
+                assignmentTypeInput = uploadCard.querySelector(`#assignmentTypeInput-${uploadId}`);
+                fileTitle = uploadCard.querySelector(`#assignmentSourceDisplay-${uploadId}`);
             }else{
                 approvalType = uploadCard.querySelector(`input[name="upload_approval${tempId}"]:checked`).value;
+                assignmentURLInput = uploadCard.querySelector(`#assignmentURLInput-${tempId}`);
+                assignmentTypeInput = uploadCard.querySelector(`#assignmentTypeInput-${tempId}`);
+                fileTitle = uploadCard.querySelector(`#assignmentSourceDisplay-${tempId}`);
             }
+
+            console.log('assignmentURLInput:', assignmentURLInput, 'uploadId:', uploadId, 'tempId:', tempId);
             
             const uploadData = {
                 id: uploadId,
                 temp_id: tempId,
                 type: 'upload',
                 title: uploadCard.querySelector('.upload-title').value.trim(),
+                description: getEditorContent(`assignmentDescription-${uploadId || tempId}`),
+                source: assignmentURLInput?.value || '',
+                file_type: assignmentTypeInput?.value || '',
+                file_title: fileTitle?.innerText || '',
                 approval_type: approvalType,
             };
 
@@ -2482,63 +2521,41 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function initializeToggleOptions(){
-    // Get all toggle-option checkboxes
+function initializeToggleOptions() {
     const toggleOptions = document.querySelectorAll('.toggle-option');
-    
-    // Add change event listener to each checkbox
-    toggleOptions.forEach(function(toggleOption) {
-        toggleOption.addEventListener('change', function() {
-            // Find the closest .course-content-input container
-            const courseContentInput = toggleOption.closest('.course-content-input');
-            
-            if (courseContentInput) {
-                // Find the next .toggle-option-details sibling
-                const toggleOptionDetails = courseContentInput.nextElementSibling;
-                
-                if (toggleOptionDetails && toggleOptionDetails.classList.contains('toggle-option-details')) {
-                    // Add or remove the 'show' class based on checkbox state
-                    if (toggleOption.checked) {
-                        toggleOptionDetails.classList.add('show-toggle-option-details');
-                    } else {
-                        toggleOptionDetails.classList.remove('show-toggle-option-details');
-                    }
-                }
 
-                // Hiding and showing Edit Instructions Button for Course Uploads
-                if(toggleOption.id === 'courseUploads'){
-                    if(toggleOption.checked){
-                        document.getElementById('editUploadInstructionBtn').style.display = 'flex';
-                    }else{
-                        document.getElementById('editUploadInstructionBtn').style.display = 'none';
-                    }
+    toggleOptions.forEach(function (toggleOption) {
+        const courseContentInput = toggleOption.closest('.course-content-input');
+        const toggleOptionDetails = courseContentInput?.nextElementSibling;
+
+        // === INITIALIZE BASED ON CURRENT STATE ===
+        if (toggleOptionDetails?.classList.contains('toggle-option-details')) {
+            toggleOptionDetails.classList.toggle('show-toggle-option-details', toggleOption.checked);
+        }
+
+        if (toggleOption.id === 'courseUploads') {
+            const editBtn = document.getElementById('editUploadInstructionBtn');
+            if (editBtn) {
+                editBtn.style.display = toggleOption.checked ? 'flex' : 'none';
+            }
+        }
+
+        // === ON CHANGE EVENT ===
+        toggleOption.addEventListener('change', function () {
+            if (toggleOptionDetails?.classList.contains('toggle-option-details')) {
+                toggleOptionDetails.classList.toggle('show-toggle-option-details', toggleOption.checked);
+            }
+
+            if (toggleOption.id === 'courseUploads') {
+                const editBtn = document.getElementById('editUploadInstructionBtn');
+                if (editBtn) {
+                    editBtn.style.display = toggleOption.checked ? 'flex' : 'none';
                 }
             }
         });
-        // Find the closest .course-content-input container
-        const courseContentInput = toggleOption.closest('.course-content-input');
-            
-        if (courseContentInput) {
-            // Find the next .toggle-option-details sibling
-            const toggleOptionDetails = courseContentInput.nextElementSibling;
-            
-            if (toggleOptionDetails && toggleOptionDetails.classList.contains('toggle-option-details')) {
-                // Add or remove the 'show' class based on checkbox state
-                if (toggleOption.checked) {
-                    toggleOptionDetails.classList.add('show-toggle-option-details');
-                } else {
-                    toggleOptionDetails.classList.remove('show-toggle-option-details');
-                }
-            }
-            // Hiding and showing Edit Instructions Button for Course Uploads
-            if(toggleOption.id === 'courseUploads' && toggleOption.checked){
-                document.getElementById('editUploadInstructionBtn').style.display = 'flex';
-            }else{
-                document.getElementById('editUploadInstructionBtn').style.display = 'none';
-            }
-        }
     });
 }
+
 
 function initializeRadioOptions() {
     // Get all radio buttons with the class radio-option

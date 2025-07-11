@@ -630,12 +630,17 @@
                                             <div class="reference-card-content">
                                                 <label class="edit-user-label" for="referenceDescription-1">Reference Description</label>
                                                 <div class="editor-container" id="referenceDescription-1"></div>
+                                                <div class="quill-character-counter">
+                                                    <div class="quill-current-counter">0</div>
+                                                    <span>/</span>
+                                                    <div class="quill-max-counter">2000</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div style="display: none;" id="noReferencesCreated" class="no-lessons-container"><span>This Course currently has no references.</span></div>
                                 </div>
-                                <div id="addReference" class=" margin-top-4">
+                                <div id="addReference" class="main-add-btn margin-top-4">
                                     <i class="fa-regular fa-plus"></i>
                                     <span> Add Reference </span>
                                 </div>
@@ -688,7 +693,30 @@
                                             </div>
                                         </div>
                                         <div class="upload-card-body">
-                
+                                            <div class="right-column-file-wrapper">
+                                                <h5 class="right-column-option-header">Assignment Source</h5>
+                                                <div onclick="openFileLibrary('assignmentSource', '', '1')" for="assignmentSource" class="custom-file-upload-container">
+                                                    <div class="custom-file-upload">
+                                                        <input type="file" id="assignmentSource" name="assignmentSource" style="display: none;" readonly="">
+                                                        <i class="fa-regular fa-folder-open"></i> Choose File
+                                                    </div>
+                                                    <div class="custom-file-title">
+                                                        <span id="assignmentSourceDisplay-1" class="file-name-display">No file selected</span>
+                                                    </div>
+                                                    <input type="hidden" id="assignmentURLInput-1" name="assignmentURL">
+                                                    <input type="hidden" id="assignmentTypeInput-1" name="assignmentType">
+                                                </div>
+                                                <span class="course-content-input-subtext"> Provide a file that Learners can access with this assignment. </span>
+                                            </div>
+                                            <div class="upload-card-content">
+                                                <label class="edit-user-label" for="assignmentDescription-1">Assignment Instructions</label>
+                                                <div class="editor-container" id="assignmentDescription-1"></div>
+                                                <div class="quill-character-counter">
+                                                    <div class="quill-current-counter">0</div>
+                                                    <span>/</span>
+                                                    <div class="quill-max-counter">2000</div>
+                                                </div>
+                                            </div>
                                             <div class="course-content-input">
                                                 <label class="edit-user-label">Assignment Approval</label>
                                                 <div class="content-input-options-row">
@@ -741,7 +769,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div style="display: none;" id="noUploadsCreated" class="no-lessons-container"><span>This Course currently has no uploads.</span></div>
+                                    <div style="display: none;" id="noUploadsCreated" class="no-lessons-container"><span>This Course currently has no assignments.</span></div>
                                 </div>
                                 <div id="addUpload" class="main-add-btn margin-top-4">
                                     <i class="fa-regular fa-plus"></i>

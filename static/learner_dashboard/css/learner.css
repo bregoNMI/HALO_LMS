@@ -775,6 +775,9 @@ html, body, button{
     color: #555961;
     font-weight: bold;
 }
+/* .tab.active i{
+    font-weight: 400;
+} */
 
 .tab:hover {
     color: #555961;

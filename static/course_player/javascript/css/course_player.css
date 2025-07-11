@@ -104,6 +104,7 @@ circle.progress-circle__runner {
 .course-footer-container-right{
     display: flex;
     padding: var(--pad-xs) var(--pad-lg);
+    padding-left: 0;
     /* border-bottom: 1px solid #ececf1; */
 }.footer-buttons-container{
     position: relative;
@@ -129,7 +130,10 @@ circle.progress-circle__runner {
 .course-footer-container .tabs{
     border-bottom: none;
 }.course-footer-container .tab {
+    display: flex;
     padding: 16.4px 10px;
+    gap: 0.3rem;
+    align-items: baseline;
 }.course-footer-container .tab-content-container{
     display: none;
 }.course-footer-container .tab-indicator {
@@ -144,6 +148,7 @@ circle.progress-circle__runner {
     border-radius: 99px;
 }.course-footer-container .tab-content{
     flex: 1;
+    max-height: calc(80dvh - 83.19px);
 }.course-footer-container #lessonList{
     border-radius: 8px;
     /* border: 1px solid #ececf1; */
@@ -158,6 +163,8 @@ circle.progress-circle__runner {
 
 .course-footer-container .module-card-header.collapsable-header{
     background-color: #fcfcfc;
+}.course-footer-container .card-header-right{
+    border: 1px solid #dbdbdf;
 }
 
 .course-footer-top-container{
@@ -165,6 +172,10 @@ circle.progress-circle__runner {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #ececf1;
+}
+
+.footer-button-lesson-text{
+    margin-left: -0.2rem;
 }
 
 .course-sidebar-container {
@@ -184,6 +195,7 @@ circle.progress-circle__runner {
     margin: 0.7rem;
     margin-left: 0;
     margin-right: 0.7rem;
+    overflow: hidden;
 }.course-sidebar-container.toggle-sidebar{
     margin-right: -21.5rem;
 }.course-sidebar-header{
@@ -520,4 +532,89 @@ circle.progress-circle__runner {
     height: 100%;
     box-sizing: border-box;
     background-color: white;
+}
+
+
+/* Styling the Overview Tab*/
+.course-footer-container .row-course-item:first-child{
+    margin-top: 0;
+}
+
+.course-footer-container .row-course-item .course-item-bottom{
+    justify-content: flex-end;
+}
+
+.course-footer-container .tab-content-description{
+    margin-top: 1rem;
+}
+
+.course-footer-container .tab-content-event-dates{
+    margin-top: 3rem;
+}
+
+.course-type-icon i {
+    border-radius: 6px;
+}
+
+.bottom-row-data-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bottom-row-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0 1rem;
+}.bottom-row-item h4 {
+    /* color: var(--text-color6); */
+    font-weight: 500;
+    color: #555961;
+    font-size: 0.9rem;
+}.bottom-row-item span {
+    font-size: 0.9rem;
+    color: #41454d;
+    /* color: #191c1f; */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 600;
+}.bottom-row-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 65%;
+    width: 3px;
+    background-color: var(--bg-color2);
+    border-radius: 16px;
+    clip-path: inset(0% 0% 0% 0% round 0 0 4px 4px);
+}
+
+/* Progress Circle */
+circle-progress::part(base) {
+    width: 35px; 
+    height: auto;
+}
+
+circle-progress::part(circle) {
+    /* stroke: var(--bg-color2); */
+    stroke: #f2f2f2;
+	stroke-width: 15px;  
+}
+
+circle-progress::part(value) {
+    stroke-width: 15px;
+    stroke: #4caf50;
+    
+}
+
+circle-progress::part(text) {
+    /* fill: #586370;; 
+    font-family: var(--roboto-font);
+    font-size: 1.2rem;
+    font-weight: 500; */
+    display: none;
 }

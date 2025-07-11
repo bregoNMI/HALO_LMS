@@ -55,7 +55,7 @@ function isPDF(url) {
 }
 
 // Selecting a file to be updated into a lesson
-function selectFile(popupId, referenceId = null) {
+function selectFile(popupId, referenceId = null, assignmentId = null) {
     const selectedOption = document.querySelector('.table-select-option input[type="radio"]:checked');
     
     if (selectedOption) {
@@ -154,6 +154,14 @@ function selectFile(popupId, referenceId = null) {
             referenceTypeInput.value = selectedFileType;
             referenceSourceDisplay.innerText = selectedFileTitle;
             closePopup('fileLibrary');
+        } else if(popupId === 'assignmentSource' && assignmentId !== null){
+            const assignmentURLInput = document.querySelector(`#assignmentURLInput-${assignmentId}`);
+            const assignmentTypeInput = document.querySelector(`#assignmentTypeInput-${assignmentId}`);
+            const assignmentSourceDisplay = document.querySelector(`#assignmentSourceDisplay-${assignmentId}`);
+            assignmentURLInput.value = selectedFileURL;
+            assignmentTypeInput.value = selectedFileType;
+            assignmentSourceDisplay.innerText = selectedFileTitle;
+            closePopup('fileLibrary');
         }else if(popupId === 'header_logo'){
             // Header Image
             const header_logo = document.getElementById('header_logo');
@@ -237,7 +245,7 @@ function closeFileUpload(){
     }, 100);
 }
 
-function openFileLibrary(popupId, referenceId = null) {
+function openFileLibrary(popupId, referenceId = null, assignmentId = null) {
     const closeFileLibraryBtn = document.getElementById('closeFileLibraryBtn');
     const closeFileLibrary = document.getElementById('closeFileLibrary');
 
@@ -269,6 +277,11 @@ function openFileLibrary(popupId, referenceId = null) {
         closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
         closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
         document.getElementById('selectFileBtn').setAttribute('onclick', `selectFile("referenceSource", "${referenceId}")`);
+    } else if(popupId === 'assignmentSource' && assignmentId !== null){
+        uncheckLibraryFilters();
+        closeFileLibraryBtn.setAttribute('onclick', 'closePopup("fileLibrary")');
+        closeFileLibrary.setAttribute('onclick', 'closePopup("fileLibrary")');
+        document.getElementById('selectFileBtn').setAttribute('onclick', `selectFile("assignmentSource", "", "${assignmentId}")`);
     } else if (popupId === 'dashboardHeader') {
         checkImageFilterCheckbox();
 

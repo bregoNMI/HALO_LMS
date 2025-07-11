@@ -479,11 +479,15 @@ def create_or_update_course(request):
         temp_to_upload_map = {}
 
         for upload_data in uploads_data:
+            resource_url = upload_data.get('source', '')
+            file_type = upload_data.get('file_type', '')
+            file_title = upload_data.get('file_title', '')
             upload_id = upload_data.get('id')
             temp_id = upload_data.get('temp_id')
             approval_type = upload_data.get('approval_type', '')
             approvers_ids = upload_data.get('selected_approvers', [])
             title = upload_data.get('title', '')
+            description = upload_data.get('description', '')
 
             print(f"Processing upload - Title: {title}, Approval Type: {approval_type}, Approvers: {approvers_ids}")
 
@@ -496,24 +500,40 @@ def create_or_update_course(request):
                     upload = Upload.objects.filter(id=upload_id, course=course).first()
 
                     if upload:
-                        # Update existing upload
                         upload.approval_type = approval_type
                         upload.title = title
+                        upload.description = description
+                        upload.url = resource_url
+                        upload.file_type = file_type
+                        upload.file_title = file_title
                         if approvers_ids:
                             approvers = User.objects.filter(id__in=approvers_ids)
                             upload.approvers.set(approvers)
                         upload.save()
                         print(f"Upload updated: {upload}")
                     else:
-                        # ID provided but doesn't exist — fallback to create
-                        upload = Upload.objects.create(course=course, approval_type=approval_type, title=title)
+                        upload = Upload.objects.create(
+                            course=course,
+                            approval_type=approval_type,
+                            title=title,
+                            description=description,
+                            url=resource_url,
+                            file_type=file_type,
+                            file_title=file_title,
+                        )
                         if approvers_ids:
                             approvers = User.objects.filter(id__in=approvers_ids)
                             upload.approvers.set(approvers)
                         print(f"Upload created (fallback): {upload}")
                 else:
-                    # Create new upload if no ID
-                    upload = Upload.objects.create(course=course, approval_type=approval_type, title=title)
+                    upload = Upload.objects.create(
+                        course=course,
+                        approval_type=approval_type,
+                        title=title,
+                        url=resource_url,
+                        file_type=file_type,
+                        file_title=file_title,
+                    )
                     if approvers_ids:
                         approvers = User.objects.filter(id__in=approvers_ids)
                         upload.approvers.set(approvers)

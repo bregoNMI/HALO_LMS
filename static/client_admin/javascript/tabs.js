@@ -64,7 +64,9 @@ function initializeTabs(popup) {
                         content.classList.remove('active');  // Hide other tab contents
                     }
                 });
-                openCourseDetails();
+                if(document.getElementById('toggleFooterBtn')){
+                    openCourseDetails();
+                }
             });
         });
     }

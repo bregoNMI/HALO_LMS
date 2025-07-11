@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById('toggleCourseSidebar').addEventListener('click', () => {
         toggleCourseSidebar();
-    })
+    })  
 });
 
 function toggleCourseSidebar(){

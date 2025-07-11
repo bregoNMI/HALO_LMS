@@ -873,10 +873,17 @@
                             </div>
                         </div>
                         <div class="info-card-body right-column-card-body">
-                            <div id="editUploadInstructionBtn" style="position: absolute; right: 0.8rem; display: none; margin-top: 0; z-index: 1;" onclick="openPopup('editUploadInstructions')" class="label-action-item">
-                                <i class="fa-solid fa-pen"></i>
-                                <span>Edit Instructions</span>
-                            </div>
+                            {% if course.uploadsEnabled %}
+                                <div id="editUploadInstructionBtn" style="position: absolute; right: 0.8rem; display: flex; margin-top: 0; z-index: 1;" onclick="openPopup('editUploadInstructions')" class="label-action-item">
+                                    <i class="fa-solid fa-pen"></i>
+                                    <span>Edit Instructions</span>
+                                </div>
+                            {% else %}
+                                <div id="editUploadInstructionBtn" style="position: absolute; right: 0.8rem; display: none; margin-top: 0; z-index: 1;" onclick="openPopup('editUploadInstructions')" class="label-action-item">
+                                    <i class="fa-solid fa-pen"></i>
+                                    <span>Edit Instructions</span>
+                                </div>
+                            {% endif %}
                             <div class="course-content-input">
                                 <label class="edit-user-label" for="courseUploads">Course Assignments</label>
                                 <label class="toggle-switch">
@@ -913,7 +920,30 @@
                                                     </div>
                                                 </div>
                                                 <div class="upload-card-body">
-                        
+                                                    <div class="right-column-file-wrapper">
+                                                        <h5 class="right-column-option-header">Assignment Source</h5>
+                                                        <div onclick="openFileLibrary('assignmentSource', '', '{{ upload.id }}')" for="assignmentSource" class="custom-file-upload-container">
+                                                            <div class="custom-file-upload">
+                                                                <input type="file" id="assignmentSource" name="assignmentSource" style="display: none;" readonly="">
+                                                                <i class="fa-regular fa-folder-open"></i> Choose File
+                                                            </div>
+                                                            <div class="custom-file-title">
+                                                                <span id="assignmentSourceDisplay-{{ upload.id }}" class="file-name-display">{{ upload.file_title }}</span>
+                                                            </div>
+                                                            <input type="hidden" id="assignmentURLInput-{{ upload.id }}" name="assignmentURL" value="{{ upload.url }}">
+                                                            <input type="hidden" id="assignmentTypeInput-{{ upload.id }}" name="assignmentType" value="{{ upload.file_type }}">
+                                                        </div>
+                                                        <span class="course-content-input-subtext"> Provide a file that Learners can access with this assignment. </span>
+                                                    </div>
+                                                    <div class="upload-card-content">
+                                                        <label class="edit-user-label" for="assignmentDescription-{{ upload.id }}">Assignment Instructions</label>
+                                                        <div class="editor-container" id="assignmentDescription-{{ upload.id }}"> {{ upload.description|safe }}</div>
+                                                        <div class="quill-character-counter">
+                                                            <div class="quill-current-counter">0</div>
+                                                            <span>/</span>
+                                                            <div class="quill-max-counter">2000</div>
+                                                        </div>
+                                                    </div>
                                                     <div class="course-content-input">
                                                         <label class="edit-user-label">Assignment Approval</label>
                                                         <div class="content-input-options-row">
@@ -1010,7 +1040,30 @@
                                                 </div>
                                             </div>
                                             <div class="upload-card-body">
-                    
+                                                <div class="right-column-file-wrapper">
+                                                    <h5 class="right-column-option-header">Assignment Source</h5>
+                                                    <div onclick="openFileLibrary('assignmentSource', '', '1')" for="assignmentSource" class="custom-file-upload-container">
+                                                        <div class="custom-file-upload">
+                                                            <input type="file" id="assignmentSource" name="assignmentSource" style="display: none;" readonly="">
+                                                            <i class="fa-regular fa-folder-open"></i> Choose File
+                                                        </div>
+                                                        <div class="custom-file-title">
+                                                            <span id="assignmentSourceDisplay-1" class="file-name-display">No file selected</span>
+                                                        </div>
+                                                        <input type="hidden" id="assignmentURLInput-1" name="assignmentURL">
+                                                        <input type="hidden" id="assignmentTypeInput-1" name="assignmentType">
+                                                    </div>
+                                                    <span class="course-content-input-subtext"> Provide a file that Learners can access with this assignment. </span>
+                                                </div>
+                                                <div class="upload-card-content">
+                                                    <label class="edit-user-label" for="assignmentDescription-1">Assignment Instructions</label>
+                                                    <div class="editor-container" id="assignmentDescription-1"></div>
+                                                    <div class="quill-character-counter">
+                                                        <div class="quill-current-counter">0</div>
+                                                        <span>/</span>
+                                                        <div class="quill-max-counter">2000</div>
+                                                    </div>
+                                                </div>
                                                 <div class="course-content-input">
                                                     <label class="edit-user-label">Assignment Approval</label>
                                                     <div class="content-input-options-row">
@@ -1038,19 +1091,19 @@
                                                 </div>
                                                 <!-- None Approval -->
                                                 <div id="uploadApprovalNone" class="toggle-option-details show-toggle-option-details">
-                                                    <span class="course-content-input-subtext"> No approval is required for the course upload. </span>
+                                                    <span class="course-content-input-subtext"> No approval is required for the course assignment. </span>
                                                 </div>
                                                 <!-- Instructor Approval -->
                                                 <div id="uploadApprovalInstructor" class="toggle-option-details">
-                                                    <span class="course-content-input-subtext"> An Instructor must approve the course upload. </span>
+                                                    <span class="course-content-input-subtext"> An Instructor must approve the course assignment. </span>
                                                 </div>
                                                 <!-- Admin Approval -->
                                                 <div id="uploadApprovalAdmin" class="toggle-option-details">
-                                                    <span class="course-content-input-subtext"> An Admin must approve the course upload. </span>
+                                                    <span class="course-content-input-subtext"> An Admin must approve the course assignment. </span>
                                                 </div>
                                                 <!-- Other Approval -->
                                                 <div id="uploadApprovalOther" class="toggle-option-details">
-                                                    <span class="course-content-input-subtext"> Please select the User(s) who will approve the course upload. </span>
+                                                    <span class="course-content-input-subtext"> Please select the User(s) who will approve the course assignment. </span>
                                                     <div class="right-column-file-wrapper">
                                                         <div id="userDropdown1" class="user-dropdown course-content-input">
                                                             <input type="text" class="userSearch" placeholder="Search users...">
@@ -1064,7 +1117,7 @@
                                             </div>
                                         </div>
                                     {% endif %}
-                                    <div style="display: none;" id="noUploadsCreated" class="no-lessons-container"><span>This Course currently has no uploads.</span></div>
+                                    <div style="display: none;" id="noUploadsCreated" class="no-lessons-container"><span>This Course currently has no assignments.</span></div>
                                 </div>
                                 <div id="addUpload" class="main-add-btn margin-top-4">
                                     <i class="fa-regular fa-plus"></i>

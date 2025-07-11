@@ -3,10 +3,13 @@
         <div id="courseFooterTabs" class="tabs-container">
             <div class="course-footer-top-container">
                 <div class="tabs">
-                    <button class="tab active" data-target="tab1">Overview</button>
-                    <button class="tab" data-target="tab2">Lessons</button>
+                    <button class="tab active" data-target="tab1"><i class="fa-light fa-globe"></i>Overview</button>
+                    <button class="tab" data-target="tab2"><i class="fa-light fa-photo-film"></i>Lessons</button>
                     {% if user_course.course.resources.exists and user_course.course.referencesEnabled %}
-                        <button class="tab" data-target="tab3">Reference Materials</button>
+                        <button class="tab" data-target="tab3"><i class="fa-light fa-link"></i> Reference Materials</button>
+                    {% endif %}
+                    {% if user_course.course.uploads.exists and user_course.course.uploadsEnabled %}
+                        <button class="tab" data-target="tab4"><i class="fa-light fa-flag"></i>Assignments</button>
                     {% endif %}
                     <div class="tab-indicator"></div>
                 </div>
@@ -19,13 +22,13 @@
                         {% if prev_lesson %}
                             <button type="button" id="prevLessonBtn" class="course-button-primary" onclick="launchPrevLesson({{ prev_lesson.id }})">
                                 <i class="fa-light fa-caret-left"></i>
-                                Previous Lesson
+                                Previous <span class="footer-button-lesson-text">Lesson</span>
                             </button>
                         {% endif %}
             
                         {% if next_lesson %}
                             <button type="button" id="nextLessonBtn" class="course-button-primary" onclick="launchNextLesson({{ next_lesson.id }})">
-                                Next Lesson
+                                Next <span class="footer-button-lesson-text">Lesson</span>
                                 <i class="fa-light fa-caret-right"></i>
                             </button>
                         {% else %}
@@ -40,15 +43,82 @@
         
             <div class="tab-content-container">
                 <div class="tab-content active scrollable-content-inner" id="tab1">
+                    <div class="row-course-item">
+                        <div class="course-item-top">                         
+                            {% if user_course.course.thumbnail.thumbnail_link %}
+                                <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_link }});" class="course-item-thumbnail"></div>
+                            {% elif user_course.course.thumbnail.thumbnail_image %}
+                                <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_image.url }});" class="course-item-thumbnail"></div>
+                            {% else %}
+                                {% if settings.default_course_thumbnail %}
+                                    <div style="background-image: url({{ settings.default_course_thumbnail_image.url }});" class="course-item-thumbnail"></div>
+                                {% else %}
+                                    <div class="course-item-thumbnail">
+                                        <div class="thumbnail-placeholder">
+                                            <i class="fa-light fa-book-open-cover"></i>
+                                        </div>
+                                    </div> 
+                                {% endif %}                                  
+                            {% endif %}
+                        </div>
+                        
+                        <div class="course-item-inner">
+                            <div class="course-item-body">
+                                <div class="course-item-type-wrapper">
+                                    {% if user_course.course.type == 'online' %}
+                                        <div class="course-item-footer-item">
+                                            <div class="course-type-icon online-course">
+                                                <i class="fa-solid fa-signal-bars"></i>         
+                                            </div>    
+                                            <span> Online Course </span>     
+                                        </div>
+                                    {% else %}
+                                        <div class="course-item-footer-item">
+                                            <div class="course-type-icon inperson-course">
+                                                <i class="fa-solid fa-chalkboard-user"></i>         
+                                            </div>    
+                                            <span> In-Person Course </span>     
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <h4 class="course-item-title limit-text-wrap">{{ user_course.course.title }}</h4>
+                                <!-- <div class="course-item-progress-container">
+                                    <div class="course-item-progress-bar-container">
+                                        <div class="course-item-progress-bar" style="width: {{ user_course.progress }}%;"></div>
+                                    </div>
+                                    <span>{{ user_course.progress }}%</span>
+                                </div> -->
+                                
+                            </div>
+                            <div class="course-item-footer">
+                                <div class="course-item-footer-item">
+                                    <i class="fa-regular fa-photo-film"></i>
+                                    {% if user_course.course.get_lesson_count > 1 %}
+                                        <span>{{ user_course.course.get_lesson_count }} Lessons</span> 
+                                    {% else %}
+                                        <span>{{ user_course.course.get_lesson_count }} Lesson</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="course-item-bottom">
+                            <div class="bottom-row-item">
+                                <h4>Progress</h4>
+                                <div class="bottom-row-data-item">
+                                    <circle-progress id="courseProgress" text-format="percent" max="100" value="{{ user_course.progress }}"></circle-progress>
+                                    <span>{{ user_course.progress }}%</span>
+                                </div>
+                            </div>
+                        </div>         
+                    </div>
                     {% if user_course.course.description != '<p><br></p>' and user_course.course.description %}
                         <div class="tab-content-description">
                             <div class="description-wrapper">
                                 <div class="description-content">
                                     {{ user_course.course.description|safe }}
                                 </div>
-                                <div class="fade-overlay"></div>
                             </div>
-                            <div class="read-more-toggle" onclick="toggleDescription(event)">Read More</div>
                         </div>
                     {% endif %}
                     {% if user_course.get_start_date or user_course.get_due_date or user_course.get_expiration_date %}
@@ -85,29 +155,6 @@
                 </div>
                 <div class="tab-content scrollable-content-inner" id="tab2">
                     <div id="lessonList">
-                        <!-- {% for module in modules_with_lessons %}
-                            <div class="module-section-container">
-                                <div class="module-title">
-                                    <span>{{ module.title }}</span>
-                                </div>
-                                <div class="lesson-section-container">
-                                    {% for lesson in module.lessons.all %}
-                                        <button class="lesson-item" data-lesson-id="{{ lesson.id }}" onclick="launchLessonById({{ lesson.id }})">
-                                            <div class="lesson-item-left">
-                                                <div class="lesson-item-number">
-                                                    <span>{{ forloop.counter }}</span>
-                                                </div>
-                                                <div class="lesson-item-text">
-                                                    <span>{{ lesson.title }}</span>
-                                                </div>
-                                            </div>
-                                            <div class="lesson-item-right"></div>
-                                            
-                                        </button>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endfor %} -->
                         {% for module in modules_with_lessons %}
                             <div class="details-info-card">
                                 <div class="module-card-header collapsable-header">
@@ -181,3 +228,14 @@
         </div>
     </div>
 </div>
+<script>
+    let course_progress = parseInt('{{ user_course.progress }}', 10);
+    let stored_progress = parseInt('{{ user_course.stored_progress }}', 10);
+
+    /* Progress Bar Styling */
+    const courseProgress = document.getElementById('courseProgress');
+    if (courseProgress) {
+        /* course_progress comes from the HTML */
+        courseProgress.setAttribute('value', course_progress);
+    } 
+</script>

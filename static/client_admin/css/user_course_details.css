@@ -168,7 +168,7 @@ circle-progress::part(circle) {
 
 circle-progress::part(value) {
     stroke-width: 15px;
-    stroke: #059f48;
+    stroke: #4caf50;
     
 }
 
