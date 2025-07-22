@@ -600,6 +600,7 @@ def launch_scorm_file(request, lesson_id):
     elif lesson.content_type == 'quiz':
         quiz_config = getattr(lesson, 'quiz_config', None)
         quiz_id = lesson.quiz_id
+        print('quiz_id:', quiz_id)
 
         if not quiz_id:
             return render(request, 'error.html', {'message': 'No quiz ID found for this lesson.'})
