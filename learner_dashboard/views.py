@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from custom_templates.models import Dashboard, Widget, Header, Footer
-from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, GeneratedCertificate, Profile, User, Message, OrganizationSettings
+from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, GeneratedCertificate, Profile, User, Message, OrganizationSettings, UserAssignmentProgress, Lesson
+from content.models import Upload
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import update_session_auth_hash, logout
 from django.contrib import messages
@@ -26,6 +27,7 @@ from halo_lms.settings import COGNITO_USER_POOL_ID
 from course_player.models import LessonSession, SCORMTrackingData
 import re
 from datetime import timedelta
+from collections import defaultdict
 
 def custom_logout_view(request):
     logout(request)
@@ -68,11 +70,90 @@ def learner_dashboard(request):
 def learner_courses(request):
     user = request.user
 
-    user_courses = UserCourse.objects.filter(user=user).select_related('course').prefetch_related('module_progresses__module__lessons')
+    user_courses = UserCourse.objects.filter(user=user)\
+        .select_related('course')\
+        .prefetch_related('module_progresses__module__lessons')
+
+    all_courses = [uc.course for uc in user_courses]
+    all_lesson_ids = set()
+    for uc in user_courses:
+        for module_progress in uc.module_progresses.all():
+            for lesson in module_progress.module.lessons.all():
+                all_lesson_ids.add(lesson.id)
+
+    # Fetch assignment progress for this user
+    progress_qs = UserAssignmentProgress.objects.filter(user=user)
+    completed_assignment_ids = set(
+        progress_qs.filter(status__in=['submitted', 'approved'])
+        .values_list('assignment_id', flat=True)
+    )
+
+    # Build assignment status map
+    assignment_status_map = {}
+    for progress in progress_qs:
+        key = f"{progress.assignment_id}-{progress.lesson_id}" if progress.lesson_id else str(progress.assignment_id)
+        assignment_status_map[key] = {
+            "status": progress.status,
+            "locked": False
+        }
+
+    ordered_lesson_assignment_pairs = []
+    lesson_assignment_map = defaultdict(list)
+
+    for course in all_courses:
+        ordered_lessons = Lesson.objects.filter(
+            module__course=course
+        ).select_related('module').order_by('module__order', 'order')
+
+        user_course = UserCourse.objects.filter(user=user, course=course).first()
+        previous_lesson_completed = True
+
+        for lesson in ordered_lessons:
+            is_completed = UserLessonProgress.objects.filter(
+                user_module_progress__user_course=user_course,
+                lesson=lesson,
+                completed=True
+            ).exists()
+
+            locked = not previous_lesson_completed
+            previous_lesson_completed = is_completed
+
+            for assignment in lesson.assignments.all():
+                key = f"{assignment.id}-{lesson.id}"
+                status = assignment_status_map.get(key, {}).get('status', 'pending')
+
+                pair_data = {
+                    'lesson': lesson,
+                    'assignment': assignment,
+                    'locked': locked,
+                    'status': status,
+                    'key': key,
+                }
+
+                ordered_lesson_assignment_pairs.append(pair_data)
+                lesson_assignment_map[lesson.id].append(pair_data)
+
+    # ✅ Fetch full-course assignments
+    full_course_assignments = Upload.objects.filter(
+        course__in=all_courses,
+        lessons__isnull=True
+    ).distinct()
+
+    # ✅ Annotate status for full-course assignments
+    for assignment in full_course_assignments:
+        key = str(assignment.id)
+        assignment.status = assignment_status_map.get(key, {}).get('status', 'pending')
+        assignment.locked = assignment_status_map.get(key, {}).get('locked', False)
 
     context = {
-        'user_courses': user_courses
+        'user_courses': user_courses,
+        'full_course_assignments': full_course_assignments,
+        'ordered_lesson_assignment_pairs': ordered_lesson_assignment_pairs,
+        'lesson_assignment_map': lesson_assignment_map,
+        'assignment_status_map': assignment_status_map,
+        'completed_assignment_ids': completed_assignment_ids,
     }
+
     return render(request, 'learner_pages/learner_courses.html', context)
 
 @login_required

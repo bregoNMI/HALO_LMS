@@ -416,7 +416,7 @@ function createNewUpload(){
         </div>
         <div class="upload-card-body">
             <div class="right-column-file-wrapper">
-                <h5 class="right-column-option-header">Assignment Source</h5>
+                <h5 class="right-column-option-header">Assignment Reference</h5>
                 <div onclick="openFileLibrary('assignmentSource', '', '${newUploadId}')" class="custom-file-upload-container">
                     <div class="custom-file-upload">
                         <input type="file" id="assignmentSource-${newUploadId}" name="assignmentSource" style="display: none;" readonly="">

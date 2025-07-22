@@ -11,14 +11,15 @@ from cryptography.hazmat.backends import default_backend
 import rsa
 import re
 from django.utils.encoding import iri_to_uri
+from client_admin.utils import get_formatted_datetime
 from urllib.parse import quote, unquote, unquote_plus
-from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress
+from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, UserAssignmentProgress
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.conf import settings
 from botocore.exceptions import ClientError
-from content.models import Course, Module, Lesson, UploadedFile
+from content.models import Course, Module, Lesson, UploadedFile, Upload
 from authentication.python.views import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, get_secret
 from django.views.decorators.csrf import csrf_exempt
 import boto3 
@@ -29,6 +30,7 @@ from rsa import PrivateKey
 from botocore.exceptions import NoCredentialsError
 from course_player.models import LessonProgress, LessonSession, SCORMTrackingData
 from halo_lms.settings import AWS_S3_REGION_NAME, AWS_STORAGE_BUCKET_NAME
+from collections import defaultdict
 
 secret_name = "COGNITO_SECRET"
 secrets = get_secret(secret_name)
@@ -219,42 +221,54 @@ def launch_scorm_file(request, lesson_id):
         module__course=course
     ).select_related('module').order_by('module__order', 'order')
 
-    # Convert to list and locate current lesson
     all_lessons = list(all_lessons)
     current_index = all_lessons.index(lesson) if lesson in all_lessons else -1
-
     next_lesson = all_lessons[current_index + 1] if current_index + 1 < len(all_lessons) else None
     prev_lesson = all_lessons[current_index - 1] if current_index > 0 else None
     is_last_lesson = next_lesson is None
 
+    # Assignments
+    full_course_assignments = Upload.objects.filter(course=course, lessons__isnull=True)
+    lesson_assignments = Upload.objects.filter(course=course, lessons__isnull=False).prefetch_related('lessons').distinct()
+
     # Lock logic
     course_locked = course.locked
     if course_locked and prev_lesson:
-        prev_lesson_progress = SCORMTrackingData.objects.filter(
-            user=request.user,
+        prev_completed = UserLessonProgress.objects.filter(
+            user_module_progress__user_course=user_course,
             lesson=prev_lesson,
-            completion_status="completed"
+            completed=True
         ).exists()
-        if not prev_lesson_progress:
-            print('previous lesson not completed')
+        if not prev_completed:
             return render(request, 'error.html', {'message': 'You must complete the previous lesson before proceeding.'})
 
-    # Mini lesson progress
+
     mini_lesson_progress = list(LessonProgress.objects.filter(
         user=request.user,
         lesson=lesson
     ).values("mini_lesson_index", "progress"))
 
-    # Progress for all lessons across all modules
+    # Progress tracking
     lesson_progress_data = []
-    previous_lesson_completed = not course_locked
+    previous_lesson_completed = True
 
     for module in modules_with_lessons:
         for module_lesson in module.lessons.all().order_by("order"):
-            progress_entry = SCORMTrackingData.objects.filter(user=request.user, lesson=module_lesson).first()
-            is_completed = progress_entry.completion_status == "completed" if progress_entry else False
+            # Get SCORM data for progress % and location
+            scorm_entry = SCORMTrackingData.objects.filter(user=request.user, lesson=module_lesson).first()
+            progress_value = scorm_entry.progress if scorm_entry else 0
+
+            # Get actual completion status from UserLessonProgress
+            lesson_progress = UserLessonProgress.objects.filter(
+                user_module_progress__user_course=user_course,
+                lesson=module_lesson
+            ).first()
+
+            is_completed = lesson_progress.completed if lesson_progress else False
             locked_status = course_locked and not previous_lesson_completed
-            progress_value = progress_entry.progress if progress_entry else 0
+
+            # Debug logging (optional)
+            print(f"🧪 Lesson {module_lesson.id} — SCORM progress: {progress_value}, Completed?: {is_completed}")
 
             lesson_progress_data.append({
                 "id": module_lesson.id,
@@ -268,6 +282,58 @@ def launch_scorm_file(request, lesson_id):
 
             previous_lesson_completed = is_completed
 
+    lesson_locked_map = {l['id']: l['locked'] for l in lesson_progress_data}
+
+    progress_qs = UserAssignmentProgress.objects.filter(user=request.user)
+
+    completed_assignment_ids = set(
+        UserAssignmentProgress.objects.filter(
+            user=request.user,
+            status__in=['submitted', 'approved']
+        ).values_list('assignment_id', flat=True)
+    )
+
+    assignment_status_map = {}
+
+    for assignment in full_course_assignments:
+        key = str(assignment.id)
+        assignment.status = assignment_status_map.get(key, {}).get('status', 'pending')
+
+    for progress in progress_qs:
+        key = f"{progress.assignment_id}-{progress.lesson_id}" if progress.lesson_id else str(progress.assignment_id)
+        assignment_status_map[key] = {
+            "status": progress.status,
+            "locked": False  # Set this separately below
+        }
+
+    for assignment in lesson_assignments:
+        for attached_lesson in assignment.lessons.all():
+            key = f"{assignment.id}-{attached_lesson.id}"
+
+            lesson_locked = lesson_locked_map.get(attached_lesson.id, False)
+
+            if key in assignment_status_map:
+                assignment_status_map[key]["locked"] = lesson_locked
+            else:
+                assignment_status_map[key] = {
+                    "status": "pending",
+                    "locked": lesson_locked
+                }
+
+    # Build ordered lesson-assignment pairs
+    ordered_lessons = Lesson.objects.filter(module__course=course).select_related('module').order_by('module__order', 'order')
+    ordered_lesson_assignment_pairs = []
+    for lsn in ordered_lessons:
+        for assign in lsn.assignments.all():
+            key = f"{assign.id}-{lsn.id}"
+            ordered_lesson_assignment_pairs.append({
+                'lesson': lsn,
+                'assignment': assign,
+                'locked': assignment_status_map.get(key, {}).get('locked', False),
+                'status': assignment_status_map.get(key, {}).get('status', 'pending'),
+                'key': key,
+            })
+
     # Start session
     session = LessonSession.objects.create(
         user=request.user,
@@ -278,14 +344,16 @@ def launch_scorm_file(request, lesson_id):
     )
     request.session['current_lesson_session_id'] = session.session_id
 
-    # SCORM file entry
+    # SCORM Entry Point
     entry_key = None
     proxy_url = None
-
-    # Saved state
     saved_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=lesson).first()
     lesson_location = saved_progress.lesson_location if saved_progress else ""
     scroll_position = saved_progress.scroll_position if saved_progress else 0
+
+    lesson_assignment_map = defaultdict(list)
+    for pair in ordered_lesson_assignment_pairs:
+        lesson_assignment_map[pair["lesson"].id].append(pair)
 
     if lesson.content_type == 'SCORM2004':
         if lesson.uploaded_file and lesson.uploaded_file.scorm_entry_point:
@@ -303,9 +371,7 @@ def launch_scorm_file(request, lesson_id):
 
     elif lesson.content_type == 'quiz':
         quiz_config = getattr(lesson, 'quiz_config', None)
-        print(quiz_config)
         if not quiz_config:
-            print('No quiz configuration found for this lesson.')
             return render(request, 'error.html', {'message': 'No quiz configuration found for this lesson.'})
 
         quiz_type = quiz_config.quiz_type or 'standard_quiz'
@@ -321,16 +387,17 @@ def launch_scorm_file(request, lesson_id):
             'profile_id': profile.id,
             'lesson_progress_data': json.dumps(lesson_progress_data),
             'mini_lesson_progress': json.dumps(mini_lesson_progress),
-            'user_course': user_course,
             'course_locked': course_locked,
             'next_lesson': next_lesson,
             'prev_lesson': prev_lesson,
             'is_last_lesson': is_last_lesson,
             'modules_with_lessons': modules_with_lessons,
+            'full_course_assignments': full_course_assignments,
+            'ordered_lesson_assignment_pairs': ordered_lesson_assignment_pairs,
+            'assignment_status_map': assignment_status_map,
+            'lesson_assignment_map': lesson_assignment_map,
+            'completed_assignment_ids': completed_assignment_ids
         })
-
-    else:
-        return render(request, 'error.html', {'message': 'No valid file found for this lesson.'})
 
     return render(request, 'iplayer.html', {
         'lesson': lesson,
@@ -348,6 +415,11 @@ def launch_scorm_file(request, lesson_id):
         'prev_lesson': prev_lesson,
         'is_last_lesson': is_last_lesson,
         'modules_with_lessons': modules_with_lessons,
+        'full_course_assignments': full_course_assignments,
+        'ordered_lesson_assignment_pairs': ordered_lesson_assignment_pairs,
+        'assignment_status_map': assignment_status_map,
+        'lesson_assignment_map': lesson_assignment_map,
+        'completed_assignment_ids': completed_assignment_ids
     })
 
 def get_s3_file_metadata(bucket_name, key):
@@ -403,93 +475,209 @@ def available_lessons(request):
 
 @csrf_exempt
 def track_scorm_data(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            print("🧪 Incoming tracking payload:", data)
-            profile_id = data.get("user_id")
-            lesson_id = data.get("lesson_id")
-            progress = data.get("progress", 0)
-            completion_status = data.get("completion_status", "incomplete").lower()
-            session_time = data.get("session_time", "PT0H0M0S")
-            score = data.get("score")
-            lesson_location = data.get("lesson_location", "")
-            scroll_position = data.get("scroll_position", 0)
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
 
-            if not profile_id or not lesson_id:
-                return JsonResponse({"error": "Missing required fields"}, status=400)
+    try:
+        data = json.loads(request.body)
+        print("🧪 Incoming tracking payload:", data)
 
-            if lesson_location.lower().endswith(".pdf") and "X-Amz-Signature" in lesson_location:
-                lesson_location = ""
+        profile_id = data.get("user_id")
+        lesson_id = data.get("lesson_id")
+        progress = float(data.get("progress", 0))
+        completion_status = data.get("completion_status", "incomplete").lower()
+        session_time = data.get("session_time", "PT0H0M0S")
+        score = data.get("score")
+        lesson_location = data.get("lesson_location", "")
+        scroll_position = data.get("scroll_position", 0)
 
-            profile = get_object_or_404(Profile, pk=profile_id)
-            lesson = get_object_or_404(Lesson, pk=lesson_id)
-            user = profile.user
+        if not profile_id or not lesson_id:
+            print("❌ Missing profile_id or lesson_id")
+            return JsonResponse({"error": "Missing required fields"}, status=400)
 
-            user_course, _ = UserCourse.objects.get_or_create(user=user, course=lesson.module.course)
+        if lesson_location.lower().endswith(".pdf") and "X-Amz-Signature" in lesson_location:
+            print("🔒 Stripping signed PDF URL from lesson_location")
+            lesson_location = ""
 
-            # If complete, also set UserLessonProgress
-            if completion_status == "complete":
-                try:
-                    module_progress, _ = UserModuleProgress.objects.get_or_create(
-                        user_course=user_course,
-                        module=lesson.module,
-                        defaults={"order": lesson.module.order}
-                    )
+        profile = get_object_or_404(Profile, pk=profile_id)
+        lesson = get_object_or_404(Lesson, pk=lesson_id)
+        user = profile.user
+        user_course, _ = UserCourse.objects.get_or_create(user=user, course=lesson.module.course)
 
-                    lesson_progress, created = UserLessonProgress.objects.get_or_create(
-                        user_module_progress=module_progress,
+        lesson_marked_complete = False
+
+        # ✅ Check assignment gating
+        if completion_status == "complete":
+            lesson_assignments = lesson.assignments.all()
+            allowed_statuses = ['completed', 'submitted', 'approved']
+            missing_or_invalid = set()
+
+            if lesson_assignments.exists():
+                print('lesson_assignments:', lesson_assignments)
+                valid_progress_ids = set(UserAssignmentProgress.objects.filter(
+                    user=user,
+                    lesson=lesson,
+                    assignment__in=lesson_assignments,
+                    status__in=allowed_statuses
+                ).values_list('assignment_id', flat=True))
+                print('valid_progress_ids:', valid_progress_ids)
+
+                expected_ids = set(lesson_assignments.values_list('id', flat=True))
+                missing_or_invalid = expected_ids - valid_progress_ids
+
+                if missing_or_invalid:
+                    print(f"🛑 Incomplete assignments: {missing_or_invalid}")
+                    SCORMTrackingData.objects.update_or_create(
+                        user=user,
                         lesson=lesson,
                         defaults={
-                            "order": lesson.order,
-                            "completed": True,
-                            "completed_on_date": timezone.now().date(),
-                            "completed_on_time": timezone.now().time(),
-                            "attempts": 1,
-                        },
+                            "progress": 0.0,
+                            "completion_status": "incomplete",
+                            "session_time": session_time,
+                            "scroll_position": scroll_position,
+                            "lesson_location": lesson_location,
+                            "score": score,
+                            "cmi_data": data.get("cmi_data", "{}"),
+                        }
+                    )
+                    return JsonResponse({
+                        "status": "incomplete",
+                        "message": "Progress saved, but lesson not marked as complete.",
+                        "lesson_completed": False,
+                        "course_progress": user_course.progress
+                    })
+
+            # ✅ No blockers — mark lesson complete
+            try:
+                module_progress, _ = UserModuleProgress.objects.get_or_create(
+                    user_course=user_course,
+                    module=lesson.module,
+                    defaults={"order": lesson.module.order}
+                )
+
+                lesson_progress_qs = UserLessonProgress.objects.filter(
+                    user_module_progress=module_progress,
+                    lesson=lesson,
+                )
+
+                if lesson_progress_qs.exists():
+                    lesson_progress = lesson_progress_qs.first()
+                else:
+                    lesson_progress = UserLessonProgress.objects.create(
+                        user_module_progress=module_progress,
+                        lesson=lesson,
+                        order=lesson.order,
+                        completed=True,
+                        completed_on_date=timezone.now().date(),
+                        completed_on_time=timezone.now().time(),
+                        attempts=1,
                     )
 
-                    if not created and not lesson_progress.completed:
-                        lesson_progress.completed = True
-                        lesson_progress.completed_on_date = timezone.now().date()
-                        lesson_progress.completed_on_time = timezone.now().time()
-                        lesson_progress.attempts += 1
-                        lesson_progress.save()
+                if not lesson_progress.completed:
+                    lesson_progress.completed = True
+                    lesson_progress.completed_on_date = timezone.now().date()
+                    lesson_progress.completed_on_time = timezone.now().time()
+                    lesson_progress.attempts += 1
+                    lesson_progress.save()
 
-                except Exception as e:
-                    print(f"⚠️ Failed to update UserLessonProgress: {e}")
+                lesson_marked_complete = True
+                print(f"✅ Lesson marked complete: {lesson_progress.id}")
 
-            existing_tracking = SCORMTrackingData.objects.filter(user=user, lesson=lesson).first()
-            if existing_tracking and existing_tracking.completion_status == "completed":
-                print("⛔️ SCORMTrackingData already completed — skipping update.")
-                return JsonResponse({"status": "already_completed"})
+            except Exception as e:
+                print(f"⚠️ Error marking lesson complete: {e}")
 
-            # Save SCORM tracking data (force complete if needed)
-            SCORMTrackingData.objects.update_or_create(
-                user=user,
-                lesson=lesson,
-                defaults={
-                    "progress": float(progress),
-                    "completion_status": "completed" if completion_status == "complete" else completion_status,
+        # ✅ Ensure SCORMTrackingData is correct (prevent regressions)
+        existing_tracking, created = SCORMTrackingData.objects.get_or_create(
+            user=user,
+            lesson=lesson,
+            defaults={
+                "progress": 1.0 if lesson_marked_complete else progress,
+                "completion_status": "completed" if lesson_marked_complete else completion_status,
+                "session_time": session_time,
+                "scroll_position": scroll_position,
+                "lesson_location": lesson_location,
+                "score": score,
+                "cmi_data": data.get("cmi_data", "{}"),
+            }
+        )
+
+        if not created:
+            updated = False
+            fields_to_update = {}
+
+            if lesson_marked_complete:
+                if existing_tracking.progress < 1.0:
+                    fields_to_update["progress"] = 1.0
+                    updated = True
+                if existing_tracking.completion_status != "completed":
+                    fields_to_update["completion_status"] = "completed"
+                    updated = True
+            else: 
+                if completion_status == "incomplete" and existing_tracking.progress == 0:
+                    fields_to_update["progress"] = 0.0
+                    updated = True
+
+                    try:
+                        module_progress = UserModuleProgress.objects.get(
+                            user_course=user_course,
+                            module=lesson.module
+                        )
+
+                        lesson_progress = UserLessonProgress.objects.filter(
+                            user_module_progress=module_progress,
+                            lesson=lesson,
+                        ).first()
+
+                        if lesson_progress and lesson_progress.completed:
+                            lesson_progress.completed = False
+                            lesson_progress.completed_on_date = None
+                            lesson_progress.completed_on_time = None
+                            lesson_progress.save()
+                            print(f"🔄 Lesson progress reset: {lesson_progress.id}")
+
+                    except UserModuleProgress.DoesNotExist:
+                        print("⚠️ Module progress not found — skipping lesson progress reset")
+
+                elif progress > existing_tracking.progress:
+                    fields_to_update["progress"] = progress
+                    updated = True
+
+                if completion_status != existing_tracking.completion_status:
+                    fields_to_update["completion_status"] = completion_status
+                    updated = True
+
+            if updated:
+                fields_to_update.update({
                     "session_time": session_time,
                     "scroll_position": scroll_position,
                     "lesson_location": lesson_location,
                     "score": score,
                     "cmi_data": data.get("cmi_data", "{}"),
-                },
-            )
+                })
+                for field, value in fields_to_update.items():
+                    setattr(existing_tracking, field, value)
+                existing_tracking.save()
+                print("🔁 SCORMTrackingData updated")
+            else:
+                print("⏩ SCORMTrackingData unchanged")
 
-            # ✅ Update course progress
-            user_course.update_progress()
-            print("✅ SCORM data + lesson progress recorded")
+        # 📈 Update course-level progress
+        user_course.update_progress()
 
-            return JsonResponse({"status": "success"})
+        return JsonResponse({
+            "status": "success" if lesson_marked_complete else "incomplete",
+            "lesson_completed": lesson_marked_complete,
+            "message": (
+                "Lesson marked as complete ✅"
+                if lesson_marked_complete else
+                "Tracking saved, but lesson not marked complete ❌"
+            ),
+            "course_progress": user_course.progress
+        })
 
-        except Exception as e:
-            print(f"🚨 Error in track_scorm_data: {e}")
-            return JsonResponse({"error": str(e)}, status=500)
-
-    return JsonResponse({"error": "Invalid request method"}, status=405)
+    except Exception as e:
+        print(f"🚨 Error in track_scorm_data: {e}")
+        return JsonResponse({"error": str(e)}, status=500)
 
 @csrf_exempt
 def track_mini_lesson_progress(request):
@@ -744,3 +932,77 @@ def generate_signed_cloudfront_url(cloudfront_url, key_pair_id, private_key, exp
     except Exception as e:
         print("Error constructing signed URL:", e)
         return None
+    
+@login_required
+def get_assignment_detail(request, assignment_id):
+    lesson_id = request.GET.get('lesson_id')  # pull from query params
+    assignment = get_object_or_404(Upload, id=assignment_id)
+
+    # Fetch progress tied to *both* the assignment and the lesson (if given)
+    progress = None
+    if lesson_id:
+        progress = UserAssignmentProgress.objects.filter(
+            user=request.user,
+            assignment=assignment,
+            lesson_id=lesson_id
+        ).first()
+    else:
+        # fallback: full-course assignments (not lesson-bound)
+        progress = UserAssignmentProgress.objects.filter(
+            user=request.user,
+            assignment=assignment,
+            lesson__isnull=True
+        ).first()
+
+    return JsonResponse({
+        "id": assignment.id,
+        "title": assignment.title,
+        "description": assignment.description,
+        "file_type": assignment.file_type,
+        "file_title": assignment.file_title,
+        "url": assignment.url,
+        "status": progress.status if progress and progress.status else "",
+        "review_notes": progress.review_notes if progress and progress.review_notes else "",
+        "formatted_reviewed_at": get_formatted_datetime(progress.reviewed_at) if progress and progress.reviewed_at else "",
+        "completed": progress.status in ['submitted', 'approved', 'rejected'] if progress else False,
+        "completed_at": progress.completed_at.isoformat() if progress and progress.completed_at else None,
+        "formatted_completed_at": get_formatted_datetime(progress.completed_at) if progress and progress.completed_at else "",
+        "lesson": progress.lesson.title if progress and progress.lesson else None,
+        "lesson_id": progress.lesson.id if progress and progress.lesson else None,
+    })
+
+@login_required
+def submit_assignment(request):
+    assignment_id = request.POST.get('assignment_id')
+    lesson_id = request.POST.get('lesson_id')
+    uploaded_file = request.FILES.get('file')
+
+    assignment = get_object_or_404(Upload, id=assignment_id)
+    lesson = Lesson.objects.filter(id=lesson_id).first() if lesson_id else None
+
+    # Determine the status based on approval_type
+    if assignment.approval_type is None or assignment.approval_type == 'None':
+        status = 'approved'
+    else:
+        status = 'submitted'
+
+    # Save or update progress
+    progress, created = UserAssignmentProgress.objects.update_or_create(
+        user=request.user,
+        assignment=assignment,
+        lesson=lesson,  # 🔐 ensure lesson-specific tracking
+        defaults={
+            'lesson': lesson,
+            'file': uploaded_file,
+            'status': status,
+            'completed_at': timezone.now(),
+        }
+    )
+
+    return JsonResponse({
+        "status": "ok",
+        "filename": uploaded_file.name,
+        "submitted": True,
+        "created": created,
+        "final_status": status,
+    })

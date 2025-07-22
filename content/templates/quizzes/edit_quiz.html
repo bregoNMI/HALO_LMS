@@ -23,10 +23,14 @@
             <button onclick="openQuizSettings()" class="action-button-border course-save-btns" style="padding: 5.5px 10px">
                 <i class="fa-solid fa-gear"></i>
             </button>  
-            <button onclick="saveQuiz('{{ quiz.uuid }}')" class="action-button-primary quiz-save-btns">
+            <!-- <button onclick="saveQuiz('{{ quiz.uuid }}')" class="action-button-primary quiz-save-btns">
                 <i class="fa-regular fa-paper-plane"></i>
                 <span>Publish</span>
-            </button>         
+            </button>          -->
+            <a href="/admin/quizzes/" class="action-button-primary quiz-save-btns">
+                <i class="fa-regular fa-paper-plane"></i>
+                <span>Publish</span>
+            </a>
         </div>
     </div>
 </div>

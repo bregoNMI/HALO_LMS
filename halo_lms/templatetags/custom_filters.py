@@ -79,3 +79,7 @@ def format_session_time(value):
         result += f"{hours}h "
     result += f"{minutes}m {seconds}s"
     return result.strip()
+
+@register.filter
+def get_assignment_status(assignment_status_map, key):
+    return assignment_status_map.get(key)

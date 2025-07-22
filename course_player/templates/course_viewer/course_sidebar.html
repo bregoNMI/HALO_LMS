@@ -68,8 +68,41 @@
                                         </div>
                                     </div>
                                     <div class="lesson-item-right"></div>
-                                    
                                 </button>
+
+                                {% with lesson_assignment_map|get_item:lesson.id as assignments %}
+                                    {% if assignments %}
+                                        <div class="lesson-assignments-list hidden">
+                                            {% for pair in assignments %}
+                                                <button onclick="openAssignment({{ pair.assignment.id }}, {{ pair.lesson.id }})" class="assignment-item {% if pair.locked %}disabled locked{% endif %} {{ pair.status }}" {% if pair.locked %}disabled{% endif %} data-assignment-id="{{ pair.assignment.id }}" {% if pair.lesson.id %}data-lesson-id="{{ pair.lesson.id }}"{% endif %}>
+                                                    <div title="{{ pair.assignment.title }}" class="assignment-item-left">
+                                                        <i class="fa-regular fa-flag"></i>
+                                                        <span>{{ pair.assignment.title }}</span>
+                                                    </div>
+                                                    <div class="assignment-item-right">
+                                                        {% if pair.locked %}
+                                                            <div class="assignment-locked-icon">
+                                                                <i class="fa-solid fa-lock"></i>
+                                                            </div>
+                                                        {% elif pair.status == 'approved' %}
+                                                            <div class="assignment-complete-icon">
+                                                                <i class="fa-regular fa-circle-check"></i>
+                                                            </div>
+                                                        {% elif pair.status == 'submitted' %}
+                                                            <div class="assignment-submitted-icon">
+                                                                <i class="fa-regular fa-clock"></i>
+                                                            </div>
+                                                        {% elif pair.status == 'rejected' %}
+                                                            <div class="assignment-rejected-icon">
+                                                                <i class="fa-regular fa-circle-xmark"></i>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </button>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
                             {% endfor %}
                         </div>                 
                     </div>
@@ -174,26 +207,7 @@
                 }
             });
 
-            document.querySelectorAll('.details-info-card').forEach(moduleCard => {
-                const lessonButtons = moduleCard.querySelectorAll('.lesson-item');
-                const counterEl = moduleCard.querySelector('.lesson-completion-counter span');
-
-                let total = 0;
-                let completed = 0;
-
-                lessonButtons.forEach(button => {
-                    const id = parseInt(button.dataset.lessonId);
-                    const lesson = window.lessonData.find(l => l.id === id);
-                    if (!lesson) return;
-
-                    total++;
-                    if (lesson.completed) completed++;
-                });
-
-                if (counterEl) {
-                    counterEl.textContent = `${completed}/${total}`;
-                }
-            });
+            updateLessonCompletionCounter();
 
         } catch (e) {
             console.warn("❌ Failed to update sidebar lesson progress:", e);
@@ -237,6 +251,11 @@
             if (cardHeader) {
                 cardHeader.classList.toggle('active');
             }
+
+            const nextEl = activeLesson.nextElementSibling;
+            if (nextEl && nextEl.classList.contains('lesson-assignments-list')) {
+                nextEl.classList.remove('hidden');
+            }
         });
 
         // ✅ Set course progress bar
@@ -256,4 +275,27 @@
         //     finishBtn.style.display = "block";
         // }
     });
+
+    function updateLessonCompletionCounter(){
+        document.querySelectorAll('.details-info-card').forEach(moduleCard => {
+            const lessonButtons = moduleCard.querySelectorAll('.lesson-item');
+            const counterEl = moduleCard.querySelector('.lesson-completion-counter span');
+
+            let total = 0;
+            let completed = 0;
+
+            lessonButtons.forEach(button => {
+                const id = parseInt(button.dataset.lessonId);
+                const lesson = window.lessonData.find(l => l.id === id);
+                if (!lesson) return;
+
+                total++;
+                if (lesson.completed) completed++;
+            });
+
+            if (counterEl) {
+                counterEl.textContent = `${completed}/${total}`;
+            }
+        });
+    }
 </script>

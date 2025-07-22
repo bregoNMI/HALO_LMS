@@ -695,7 +695,7 @@
                                 </div>
                                 <div class="thumbnail-inner-thumbnail">
                                     <div class="dropzone" id="dropzone">
-                                        <i class="fa-regular fa-panorama"></i>
+                                        <i class="fa-light fa-panorama"></i>
                                         <p>Drag & drop an image here, or click to select one</p>
                                         {% if thumbnail_media.thumbnail_link %}
                                             <input type="file" id="thumbnailFileInput" accept="image/*" style="display: none;" value="{{ thumbnail_media.thumbnail_link }}">
@@ -921,14 +921,18 @@
                                                 </div>
                                                 <div class="upload-card-body">
                                                     <div class="right-column-file-wrapper">
-                                                        <h5 class="right-column-option-header">Assignment Source</h5>
+                                                        <h5 class="right-column-option-header">Assignment Reference</h5>
                                                         <div onclick="openFileLibrary('assignmentSource', '', '{{ upload.id }}')" for="assignmentSource" class="custom-file-upload-container">
                                                             <div class="custom-file-upload">
                                                                 <input type="file" id="assignmentSource" name="assignmentSource" style="display: none;" readonly="">
                                                                 <i class="fa-regular fa-folder-open"></i> Choose File
                                                             </div>
                                                             <div class="custom-file-title">
-                                                                <span id="assignmentSourceDisplay-{{ upload.id }}" class="file-name-display">{{ upload.file_title }}</span>
+                                                                {% if upload.file_title and upload.file_title != 'None' %}
+                                                                    <span id="assignmentSourceDisplay-{{ upload.id }}" class="file-name-display">{{ upload.file_title }}</span>
+                                                                {% else %}
+                                                                    <span class="file-name-display">No file selected</span>
+                                                                {% endif %}
                                                             </div>
                                                             <input type="hidden" id="assignmentURLInput-{{ upload.id }}" name="assignmentURL" value="{{ upload.url }}">
                                                             <input type="hidden" id="assignmentTypeInput-{{ upload.id }}" name="assignmentType" value="{{ upload.file_type }}">
@@ -1041,7 +1045,7 @@
                                             </div>
                                             <div class="upload-card-body">
                                                 <div class="right-column-file-wrapper">
-                                                    <h5 class="right-column-option-header">Assignment Source</h5>
+                                                    <h5 class="right-column-option-header">Assignment Reference</h5>
                                                     <div onclick="openFileLibrary('assignmentSource', '', '1')" for="assignmentSource" class="custom-file-upload-container">
                                                         <div class="custom-file-upload">
                                                             <input type="file" id="assignmentSource" name="assignmentSource" style="display: none;" readonly="">

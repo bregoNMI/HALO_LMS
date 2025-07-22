@@ -167,7 +167,13 @@
                                         <div class="bottom-row-item">
                                             <h4 class="no-progress-header">Completed On</h4>
                                             <div class="bottom-row-data-item no-progress-item">
-                                                <span>{{ user_course.completed_on_date }}</span>
+                                                {% if not user_course.completed_on_date and user_course.progress > 0 %}
+                                                    <span>In Progress</span>
+                                                {% elif user_course.progress == 0 %}
+                                                    <span>Not Started</span>
+                                                {% else %}
+                                                    <span>{{ user_course.completed_on_date }}</span>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>

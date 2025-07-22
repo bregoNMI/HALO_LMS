@@ -5,6 +5,7 @@ from reportlab.pdfgen import canvas
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import NameObject, NumberObject, TextStringObject
 from io import BytesIO
+from django.utils.timezone import localtime
 
 def display_user_time(user, utc_datetime):
     user_tz = pytz.timezone(user.profile.timezone)
@@ -122,8 +123,6 @@ def enroll_user_with_key(user, key_str):
     # Enroll the user
     UserCourse.objects.create(user=user, course=course)
 
-    print('ENROLLMENT KEY')
-
     # Update the key usage
     enrollment_key.uses += 1
     if enrollment_key.uses >= enrollment_key.max_uses:
@@ -131,3 +130,21 @@ def enroll_user_with_key(user, key_str):
     enrollment_key.save()
 
     return True, f"Successfully enrolled in {course.title}."
+
+def get_formatted_datetime(dt, date_format=None):
+    if not dt:
+        return ""
+    from .models import OrganizationSettings
+    settings = OrganizationSettings.get_instance()
+    fmt = get_strftime_format(date_format or settings.date_format)
+    return localtime(dt).strftime(fmt)
+
+def get_strftime_format(date_format):
+    mapping = {
+        "MM/DD/YYYY": "%m/%d/%Y",
+        "DD/MM/YYYY": "%d/%m/%Y",
+        "YYYY-MM-DD": "%Y-%m-%d",
+        "Month DD, YYYY": "%B %d, %Y",
+        # Add others as needed
+    }
+    return mapping.get(date_format, "%m/%d/%Y")

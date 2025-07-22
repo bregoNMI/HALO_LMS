@@ -1,15 +1,28 @@
+{% load custom_filters %}
 <div class="course-footer-container">
     <div class="course-footer-container-left">
         <div id="courseFooterTabs" class="tabs-container">
             <div class="course-footer-top-container">
                 <div class="tabs">
-                    <button class="tab active" data-target="tab1"><i class="fa-light fa-globe"></i>Overview</button>
-                    <button class="tab" data-target="tab2"><i class="fa-light fa-photo-film"></i>Lessons</button>
+                    <button class="tab active" data-target="tab1">
+                        <i class="fa-light fa-globe"></i>
+                        <span>Overview</span>
+                    </button>
+                    <button class="tab" data-target="tab2">
+                        <i class="fa-light fa-photo-film"></i>
+                        <span>Lessons</span>
+                    </button>
                     {% if user_course.course.resources.exists and user_course.course.referencesEnabled %}
-                        <button class="tab" data-target="tab3"><i class="fa-light fa-link"></i> Reference Materials</button>
+                        <button class="tab" data-target="tab3">
+                            <i class="fa-light fa-link"></i>
+                            <span>Reference Materials</span>
+                        </button>
                     {% endif %}
                     {% if user_course.course.uploads.exists and user_course.course.uploadsEnabled %}
-                        <button class="tab" data-target="tab4"><i class="fa-light fa-flag"></i>Assignments</button>
+                        <button class="tab" data-target="tab4">
+                            <i class="fa-light fa-flag"></i>
+                            <span>Assignments</span>
+                        </button>
                     {% endif %}
                     <div class="tab-indicator"></div>
                 </div>
@@ -20,15 +33,15 @@
                     </button> 
                     <div class="footer-buttons-container">
                         {% if prev_lesson %}
-                            <button type="button" id="prevLessonBtn" class="course-button-primary" onclick="launchPrevLesson({{ prev_lesson.id }})">
+                            <button type="button" id="prevLessonBtn" class="course-button-primary" onclick="launchPrevLesson({{ prev_lesson.id }})" title="Previous Lesson">
                                 <i class="fa-light fa-caret-left"></i>
-                                Previous <span class="footer-button-lesson-text">Lesson</span>
+                                <span>Previous</span> <span class="footer-button-lesson-text">Lesson</span>
                             </button>
                         {% endif %}
             
                         {% if next_lesson %}
-                            <button type="button" id="nextLessonBtn" class="course-button-primary" onclick="launchNextLesson({{ next_lesson.id }})">
-                                Next <span class="footer-button-lesson-text">Lesson</span>
+                            <button type="button" id="nextLessonBtn" class="course-button-primary" onclick="launchNextLesson({{ next_lesson.id }})" title="Next Lesson">
+                                <span>Next</span> <span class="footer-button-lesson-text">Lesson</span>
                                 <i class="fa-light fa-caret-right"></i>
                             </button>
                         {% else %}
@@ -183,8 +196,41 @@
                                                     </div>
                                                 </div>
                                                 <div class="lesson-item-right"></div>
-                                                
                                             </button>
+
+                                            {% with lesson_assignment_map|get_item:lesson.id as assignments %}
+                                                {% if assignments %}
+                                                    <div class="lesson-assignments-list hidden">
+                                                        {% for pair in assignments %}
+                                                            <button onclick="openAssignment({{ pair.assignment.id }}, {{ pair.lesson.id }})" class="assignment-item {% if pair.locked %}disabled locked{% endif %} {{ pair.status }}" {% if pair.locked %}disabled{% endif %} data-assignment-id="{{ pair.assignment.id }}" {% if pair.lesson.id %}data-lesson-id="{{ pair.lesson.id }}"{% endif %}>
+                                                                <div title="{{ pair.assignment.title }}" class="assignment-item-left">
+                                                                    <i class="fa-regular fa-flag"></i>
+                                                                    <span>{{ pair.assignment.title }}</span>
+                                                                </div>
+                                                                <div class="assignment-item-right">
+                                                                    {% if pair.locked %}
+                                                                        <div class="assignment-locked-icon">
+                                                                            <i class="fa-solid fa-lock"></i>
+                                                                        </div>
+                                                                    {% elif pair.status == 'approved' %}
+                                                                        <div class="assignment-complete-icon">
+                                                                            <i class="fa-regular fa-circle-check"></i>
+                                                                        </div>
+                                                                    {% elif pair.status == 'submitted' %}
+                                                                        <div class="assignment-submitted-icon">
+                                                                            <i class="fa-regular fa-clock"></i>
+                                                                        </div>
+                                                                    {% elif pair.status == 'rejected' %}
+                                                                        <div class="assignment-rejected-icon">
+                                                                            <i class="fa-regular fa-circle-xmark"></i>
+                                                                        </div>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </button>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            {% endwith %}
                                         {% endfor %}
                                     </div>                 
                                 </div>
@@ -213,6 +259,9 @@
                                         </div>
                                         <div class="reference-text">
                                             <h4>{{ resource.title }}</h4>
+                                            {% if resource.description != '<p><br></p>' %}
+                                                <span class="popup-header-subtext">{{ resource.description|safe }}</span>
+                                            {% endif %}
                                             <!-- <span>{{ resource.file_type }}</span> -->
                                         </div>
                                     </div>
@@ -222,6 +271,92 @@
                                 </a>                                                    
                             {% endif %}
                         {% endfor %}
+                    </div>
+                </div>
+                <div class="tab-content scrollable-content-inner" id="tab4">
+                    <div class="course-assignments-container">
+                        {% if full_course_assignments %}
+                            <div class="assignments-container">
+                                <div class="assignments-top-row">
+                                    <div class="assignments-top-row-left">
+                                        <h3>Full-Course Assignments</h3>
+                                        <span class="popup-header-subtext">Assignments that can be completed at any time</span>
+                                    </div>
+                                    <div class="assignments-top-row-right">
+                                        <span>{{ full_course_assignments|length }}</span>
+                                    </div>
+                                </div>
+                                <div class="assignments-body">
+                                    {% for assignment in full_course_assignments %}
+                                        <button onclick="openAssignment({{ assignment.id }})"
+                                                class="assignment-item {{ assignment.status }}"
+                                                data-assignment-id="{{ assignment.id }}">
+                                            <div class="assignment-item-left">
+                                                <i class="fa-regular fa-flag"></i>
+                                                <span>{{ assignment.title }}</span>
+                                            </div>
+                                            <div class="assignment-item-right">
+                                                {% if assignment.status == 'approved' %}
+                                                    <div class="assignment-complete-icon">
+                                                        <i class="fa-solid fa-circle-check"></i>
+                                                    </div>
+                                                {% elif assignment.status == 'submitted' %}
+                                                    <div class="assignment-submitted-icon">
+                                                        <i class="fa-regular fa-clock"></i>
+                                                    </div>
+                                                {% elif assignment.status == 'rejected' %}
+                                                    <div class="assignment-rejected-icon">
+                                                        <i class="fa-regular fa-circle-xmark"></i>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if ordered_lesson_assignment_pairs %}
+                            <div class="assignments-container">
+                                <div class="assignments-top-row">
+                                    <div class="assignments-top-row-left">
+                                        <h3>Lesson-Specific Assignments</h3>
+                                        <span class="popup-header-subtext">These assignments are tied to lessons</span>
+                                    </div>
+                                    <div class="assignments-top-row-right">
+                                        <span>{{ ordered_lesson_assignment_pairs|length }}</span>
+                                    </div>
+                                </div>
+                                <div class="assignments-body">
+                                    {% for pair in ordered_lesson_assignment_pairs %}
+                                        <button onclick="openAssignment({{ pair.assignment.id }}, {{ pair.lesson.id }})" class="assignment-item {% if pair.locked %}disabled locked{% endif %} {{ pair.status }}" {% if pair.locked %}disabled{% endif %} data-assignment-id="{{ pair.assignment.id }}" {% if pair.lesson.id %}data-lesson-id="{{ pair.lesson.id }}"{% endif %}>
+                                            <div class="assignment-item-left">
+                                                <i class="fa-regular fa-flag"></i>
+                                                <span>{{ pair.assignment.title }} ({{ pair.lesson.title }})</span>
+                                            </div>
+                                            <div class="assignment-item-right">
+                                                {% if pair.locked %}
+                                                    <div class="assignment-locked-icon">
+                                                        <i class="fa-solid fa-lock"></i>
+                                                    </div>
+                                                {% elif pair.status == 'approved' %}
+                                                    <div class="assignment-complete-icon">
+                                                        <i class="fa-solid fa-circle-check"></i>
+                                                    </div>
+                                                {% elif pair.status == 'submitted' %}
+                                                    <div class="assignment-submitted-icon">
+                                                        <i class="fa-regular fa-clock"></i>
+                                                    </div>
+                                                {% elif pair.status == 'rejected' %}
+                                                    <div class="assignment-rejected-icon">
+                                                        <i class="fa-regular fa-circle-xmark"></i>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

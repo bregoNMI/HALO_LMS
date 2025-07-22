@@ -66,7 +66,7 @@ window.API_1484_11 = window.API_1484_11 || {
 };
 
 function isScormLesson() {
-    return window.lessonContentType === 'SCORM2004';
+    return window.lessonContentType === 'SCORM2004' || window.lessonContentType === 'SCORM1.2';
 }
 
 function getSessionTime() {
@@ -204,7 +204,23 @@ function trackProgress() {
     try {
         // console.log("Attempting to track progress...");
         const iframe = document.getElementById("scormContentIframe");
-        
+
+        // --- For static content (PDFs, images, etc) ---
+        if (iframe && !isScormLesson()) {
+            const iframeUrl = iframe.src || '';
+            const staticTypes = [".pdf", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".mp4", ".mov"];
+            const isStaticFile = staticTypes.some(ext => iframeUrl.toLowerCase().includes(ext));
+
+            if (isStaticFile) {
+                iframe.classList.add('course-player-pdf');  // optional styling
+                console.log("✅ Static content detected — marking as complete");
+                markStaticLessonComplete(iframeUrl);
+                return;
+            }
+            return;
+        }
+
+        // --- SCORM-only logic below ---
         if (!iframe || !iframe.contentWindow) {
             console.error("SCORM iframe not found.");
             return;
@@ -226,7 +242,7 @@ function trackProgress() {
             window.API_1484_11.SetValue("cmi.scroll_position", scrollPosition.toString());
 
             // console.log(`Progress: ${progressMeasure}, Location: ${lessonLocation}, Scroll: ${scrollPosition}`);
-
+            console.log('trackProgress');
             sendTrackingData({
                 lesson_id: window.lessonId,
                 user_id: window.userId,
@@ -260,17 +276,28 @@ window.addEventListener("message", function(event) {
     }
 });
 
+let lastTrackingPayload = null;
+let lessonMarkedComplete = false;
 function sendTrackingData(trackingData) {
+    if (lessonMarkedComplete && trackingData.completion_status !== "complete") {
+        console.warn("🚫 Skipping post-completion tracking payload:", trackingData);
+        return;
+    }
+
+    // Deduplication logic
+    const payloadKey = JSON.stringify(trackingData);
+    if (lastTrackingPayload === payloadKey) {
+        console.warn("🛑 Duplicate trackingData detected — skipping second send.");
+        return;
+    }
+    lastTrackingPayload = payloadKey;
     trackingData.session_id = window.lessonSessionId;
 
     if (trackingData.completion_status === "complete" || trackingData.final === true) {
-        trackingData.session_time = getNewSessionTime();  // ✅ only here
+        trackingData.session_time = getNewSessionTime();
     } else {
         delete trackingData.session_time;
     }
-
-    // console.log("🧪 Tracking data before sending:", trackingData);
-
 
     fetch('/course_player/track-scorm-data/', {
         method: 'POST',
@@ -282,9 +309,21 @@ function sendTrackingData(trackingData) {
     })
     .then(response => response.json())
     .then(data => {
-        waitForValidMiniLessonProgress(0, (progress) => {
-            updateSidebarItems({ ...trackingData, progress });
-        });
+        console.log("📬 Backend responded with:", data);
+
+        if (data.lesson_completed && data.status === 'success') {
+            lessonMarkedComplete = true; // ✅ Block future sends
+            waitForValidMiniLessonProgress(0, (progress) => {
+                updateSidebarItems({ ...trackingData, progress, completion_status: 'complete' });
+            });
+            console.log(data.message);
+        } else {
+            waitForValidMiniLessonProgress(0, (progress) => {
+                updateSidebarItems({ ...trackingData, progress, completion_status: 'incomplete' });
+            });
+            console.log("⏳ Lesson NOT marked complete by backend (likely due to pending assignments)", data.message);
+        }
+        updatecourseProgressBar(data);
     })
     .catch(error => console.error("🚨 Error tracking SCORM data:", error));
 }
@@ -303,15 +342,25 @@ function updateSidebarItems(trackingData) {
         const lessonRight = currentLesson.querySelector('.lesson-item-right');
         const lessonProgress = currentLesson.querySelector('.lesson-progress');
 
+        // Always reset icons
+        currentLesson.classList.remove('lesson-completed');
+        if (lessonRight) lessonRight.innerHTML = '';
+
         if (trackingData.completion_status === 'complete') {
             currentLesson.classList.add('lesson-completed');
-
             if (lessonRight) {
                 lessonRight.innerHTML = `<div class="lesson-complete-icon"><i class="fa-solid fa-circle-check"></i></div>`;
             }
-
             if (lessonProgress) {
                 lessonProgress.style.display = 'none';
+            }
+        } else {
+            if (lessonProgress) {
+                lessonProgress.style.display = 'flex';
+                lessonProgress.innerText = `${trackingData.progress}%`;
+            }
+            if (lessonRight) {
+                lessonRight.innerHTML = `<span class="lesson-progress">${trackingData.progress}%</span>`;
             }
         }
     });
@@ -341,13 +390,53 @@ function updateSidebarItems(trackingData) {
     }
 }
 
+function updatecourseProgressBar(data){
+    console.log('trackingData.course_progress:', data.course_progress);
+    const courseProgressBar = document.getElementById("courseProgressBar");
+    const courseProgress = document.getElementById('courseProgress');
+    const courseProgressText = document.getElementById("courseProgressText");
+    if (courseProgressBar && courseProgressText) {
+        courseProgressText.innerText = `${data.course_progress}%`;
+        courseProgressBar.style.width = `${data.course_progress}%`;
+        courseProgress.setAttribute("value", data.course_progress);
+        courseProgress.nextElementSibling.innerText = `${data.course_progress}%`;
+    }
+    updateLessonCompletionCounterSCORM();
+}
+
+function updateLessonCompletionCounterSCORM() {
+    document.querySelectorAll('.details-info-card').forEach(moduleCard => {
+        const lessonButtons = moduleCard.querySelectorAll('.lesson-item');
+        const counterEl = moduleCard.querySelector('.lesson-completion-counter span');
+
+        let total = 0;
+        let completed = 0;
+
+        lessonButtons.forEach(button => {
+            // Skip assignment buttons or non-lesson elements
+            if (!button.classList.contains('lesson-item')) return;
+
+            total++;
+
+            // Check for .lesson-completed class
+            if (button.classList.contains('lesson-completed')) {
+                completed++;
+            }
+        });
+
+        if (counterEl) {
+            counterEl.textContent = `${completed}/${total}`;
+        }
+    });
+}
+
 function sendMiniLessonProgress(lessonProgressArray) {
     if (!lessonProgressArray || lessonProgressArray.length === 0) {
         console.warn("⚠️ No progress to send — skipping.");
         return;
     }
 
-    console.log("📡 Sending mini-lesson progress to server...", lessonProgressArray);
+    // console.log("📡 Sending mini-lesson progress to server...", lessonProgressArray);
 
     fetch('/course_player/track-mini-lesson-progress/', {
         method: 'POST',
@@ -432,26 +521,27 @@ function restoreScrollPosition() {
     }
 }
 
-function markPdfLessonComplete() {
+function markStaticLessonComplete(lessonUrl = "") {
     const lessonId = window.lessonId;
     const userId = window.userId;
 
     const trackingData = {
         lesson_id: lessonId,
         user_id: userId,
-        progress: 1,  // 100%
-        lesson_location: window.location.href,
+        progress: 1,
+        lesson_location: lessonUrl || window.location.href,
         scroll_position: 0,
         completion_status: "complete",
         session_time: getSessionTime(),
         score: null,
         cmi_data: JSON.stringify({
             progress_measure: 1,
-            lesson_location: window.location.href,
+            lesson_location: lessonUrl || window.location.href,
             scroll_position: 0
         })
     };
 
+    console.log('markStaticLessonComplete');
     sendTrackingData(trackingData);
 }
 
@@ -1192,6 +1282,12 @@ function saveLessonProgress() {
     }
 
     const iframe = document.getElementById("scormContentIframe");
+
+    // --- For static content (PDFs, images, etc) ---
+    if (iframe && !isScormLesson()) {
+        return;
+    }
+
     let scrollPosition = 0;
     let lessonLocation = getLessonLocation();  // ✅ now safely returns iframe.src for PDFs
 
@@ -1211,15 +1307,17 @@ function saveLessonProgress() {
     lessonScrollPositions[lessonId] = { scrollPosition, lessonLocation };
     localStorage.setItem("lessonScrollPositions", JSON.stringify(lessonScrollPositions));
 
-    console.log(`✅ Progress Saved for Lesson ${lessonId}:`, lessonScrollPositions[lessonId]);
+    const progress = isScormLesson() ? getProgressFromIframe() : 1;
+    const isComplete = progress >= 1.0;
 
+    console.log('saveLessonProgress');
     sendTrackingData({
         lesson_id: lessonId,
         user_id: window.userId,
         progress: isScormLesson() ? getProgressFromIframe() : 1,
         lesson_location: lessonLocation,
         scroll_position: scrollPosition,
-        completion_status: isScormLesson() ? "incomplete" : "complete",
+        completion_status: isComplete ? "complete" : "incomplete",
         session_time: getSessionTime(),
         score: null,
     });
@@ -1295,13 +1393,19 @@ function calculateMiniLessonProgress() {
     });
 
     const percent = Math.round((completedCount / total) * 100);
-    console.log(`✅ Mini-lesson completion: ${completedCount}/${total} = ${percent}%`);
+    // console.log(`✅ Mini-lesson completion: ${completedCount}/${total} = ${percent}%`);
     return percent;
 }
 
 function waitForValidMiniLessonProgress(attempts = 0, callback = null) {
     const maxAttempts = 50;
     const delay = 1000;
+
+    if (!isScormLesson()) {
+        console.log("📄 Non-SCORM lesson detected — skipping mini-lesson progress injection.");
+        if (typeof callback === "function") callback(0);
+        return;
+    }
 
     const progress = calculateMiniLessonProgress();
     const iframe = document.getElementById("scormContentIframe");
@@ -1334,7 +1438,7 @@ function waitForValidMiniLessonProgress(attempts = 0, callback = null) {
         }
 
     } else if (attempts < maxAttempts) {
-        console.log(`⏳ Progress still 0%, retrying... (${attempts + 1})`);
+        // console.log(`⏳ Progress still 0%, retrying... (${attempts + 1})`);
         setTimeout(() => waitForValidMiniLessonProgress(attempts + 1, callback), delay);
     } else {
         console.warn(`⚠️ Max retries hit (${maxAttempts}), applying fallback 0% progress.`);
@@ -1452,18 +1556,6 @@ document.addEventListener("DOMContentLoaded", function () {
     //     });
     // }
 
-    // --- Detect PDF content ---
-    if (iframe) {
-        iframe.addEventListener("load", function () {
-            const iframeUrl = iframe.contentWindow?.location?.href || iframe.src;
-            console.log("📄 Loaded content:", iframeUrl, 'iframe.src:', iframe.src);
-            if (iframeUrl.endsWith(".pdf")) {
-                console.log("✅ PDF detected — marking as complete");
-                markPdfLessonComplete();
-            }
-        });
-    }
-
     // --- Fetch suspend_data from backend before loading SCORM content
     fetch(`/course_player/get-scorm-progress/${window.lessonId}/`)
     .then(res => res.json())
@@ -1554,6 +1646,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 trackMiniLessonProgress();
                 markLessonAsCompletedInSCORM();
             }, 1000);
+            // --- Periodic tracking
+            // console.log("⏱ Adding periodic progress tracking intervals");
+            setInterval(saveLessonProgress, 5000);
+            setInterval(trackProgress, 5000);
         });
 
         try {
@@ -1568,11 +1664,12 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("✅ SCORM iframe fully loaded and ready.");
     });
 
-    // --- Periodic tracking
-    // console.log("⏱ Adding periodic progress tracking intervals");
-    setInterval(saveLessonProgress, 5000);
-    setInterval(trackProgress, 5000);
-    setInterval(trackMiniLessonProgress, 1000);
+    setInterval(() => {
+        if(!isScormLesson()){
+            saveLessonProgress();
+            trackProgress();
+        }
+    }, 5000);
 
     // --- Unload tracking
     function getProgressFromIframe() {
