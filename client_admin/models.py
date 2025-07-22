@@ -420,15 +420,16 @@ class UserAssignmentProgress(models.Model):
         ('rejected', 'Rejected'),
     ]
 
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     assignment = models.ForeignKey(Upload, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, null=True, blank=True, on_delete=models.SET_NULL)
     file = models.FileField(upload_to='user_assignments/', null=True, blank=True)
-    student_notes = models.TextField(blank=True)
+    student_notes = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     completed_at = models.DateTimeField(null=True, blank=True)
     reviewed_by = models.ForeignKey(User, null=True, blank=True, related_name='reviews', on_delete=models.SET_NULL)
-    review_notes = models.TextField(blank=True)
+    review_notes = models.TextField(blank=True, null=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:

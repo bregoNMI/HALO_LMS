@@ -67,6 +67,7 @@ async function openAssignment(assignmentId, lessonId = null) {
     setTimeout(() => {
         scormContentIframe.style.visibility = 'hidden';
     }, 450);
+    const courseId = document.getElementById('courseId').value;
 
     let url = `/course_player/assignments/${assignmentId}/detail/`;
     if (lessonId) {
@@ -161,6 +162,7 @@ async function openAssignment(assignmentId, lessonId = null) {
                 </div>
                 <form id="assignment-upload-form" enctype="multipart/form-data">
                     <input type="hidden" name="assignment_id" value="${assignmentId}">
+                    <input type="hidden" name="course_id" value="${courseId}">
                     ${lessonId ? `<input type="hidden" name="lesson_id" value="${lessonId}">` : ''}
                     <div class="dropzone" id="assignmentDropzone">
                         <i id="dropzoneIcon" class="fa-light fa-cloud-arrow-up"></i>
@@ -169,9 +171,9 @@ async function openAssignment(assignmentId, lessonId = null) {
                     </div>
                     <div class="assignment-upload-file" id="fileDisplayContainer"></div>
                     <div class="assignment-upload-header margin-top-10">
-                        <label for="studentNotes">Notes</label>
+                        <label for="student_notes">Notes</label>
                     </div>
-                    <textarea id="studentNotes" class="scrollable-content" placeholder="Enter additional notes here..."></textarea>
+                    <textarea id="student_notes" class="scrollable-content" placeholder="Enter additional notes here..."></textarea>
                     <button id="assignmentUploadBtn" class="disabled course-button-primary upload-btns" type="submit" disabled>
                         <i class="fa-light fa-paper-plane"></i>
                         <span>Submit Assignment</span>
@@ -343,6 +345,8 @@ async function openAssignment(assignmentId, lessonId = null) {
         setDisabledUploadBtns();
 
         const formData = new FormData(form);
+        formData.append("student_notes", document.getElementById("student_notes").value);
+
         const uploadRes = await fetch('/course_player/assignments/submit/', {
             method: 'POST',
             headers: {

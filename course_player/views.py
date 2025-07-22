@@ -974,10 +974,13 @@ def get_assignment_detail(request, assignment_id):
 @login_required
 def submit_assignment(request):
     assignment_id = request.POST.get('assignment_id')
+    course_id = request.POST.get('course_id')
     lesson_id = request.POST.get('lesson_id')
+    student_notes = request.POST.get('student_notes')
     uploaded_file = request.FILES.get('file')
 
     assignment = get_object_or_404(Upload, id=assignment_id)
+    course = get_object_or_404(Course, id=course_id)
     lesson = Lesson.objects.filter(id=lesson_id).first() if lesson_id else None
 
     # Determine the status based on approval_type
@@ -992,8 +995,10 @@ def submit_assignment(request):
         assignment=assignment,
         lesson=lesson,  # 🔐 ensure lesson-specific tracking
         defaults={
+            'course': course,
             'lesson': lesson,
             'file': uploaded_file,
+            'student_notes': student_notes,
             'status': status,
             'completed_at': timezone.now(),
         }
