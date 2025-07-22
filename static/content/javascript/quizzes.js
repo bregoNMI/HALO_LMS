@@ -757,36 +757,61 @@ function collectMediaItems() {
 
     mediaElements.forEach(el => {
         const sourceType = el.dataset.sourceType;
+        const baseMediaPath = "https://halolmstestbucket.s3.amazonaws.com/media/default/";
 
-        // Handle embed separately
+        let selectedFileURL = el.dataset.url || '';  // or however you're getting the file
+
+        // Debug before fix
+        console.log("Original selectedFileURL:", selectedFileURL);
+
+        // ✅ Fix the path
+        const cleanedFileURL = selectedFileURL.replace("/tenant/", "/default/media/");
+
+        // Debug after fix
+        console.log("✔️ Cleaned File URL:", cleanedFileURL);
+
+        // Optionally extract just the file name/path if needed
+        const fileNameOnly = cleanedFileURL.split("/default/media/")[1] || '';
+
+        console.log("📁 File name to save:", fileNameOnly);
+
+
         if (sourceType === 'embed') {
             const embedWrapper = el.querySelector('.embed-media-wrapper');
-            media.push({
+            const embedItem = {
                 id: el.dataset.mediaId || null,
                 source_type: 'embed',
                 title: el.dataset.title || '',
-                embed_code: decodeURIComponent(embedWrapper?.dataset.rawCode || ''),  // ORIGINAL input
-                input_type: embedWrapper?.dataset.inputType || 'url',  // NEW field
+                embed_code: decodeURIComponent(embedWrapper?.dataset.rawCode || ''),
+                input_type: embedWrapper?.dataset.inputType || 'url',
                 file_name: '',
                 url_from_library: '',
                 type_from_library: ''
-            });
-        }else {
-            // Handle upload and library
-            media.push({
+            };
+            console.log("📎 Collected embed media:", embedItem);
+            media.push(embedItem);
+        } else {
+            const fileName = el.dataset.fileName || '';
+            const fullUrl = baseMediaPath + fileName;
+            const fileItem = {
                 id: el.dataset.mediaId || null,
                 source_type: sourceType,
                 title: el.dataset.title || '',
                 embed_code: '',
-                file_name: el.dataset.fileName || '',
+                file_name: fileNameOnly,
+                full_url: cleanedFileURL,
                 url_from_library: el.dataset.urlFromLibrary || '',
                 type_from_library: el.dataset.typeFromLibrary || ''
-            });
+            };
+            console.log("📁 Collected file media:", fileItem);
+            media.push(fileItem);
         }
     });
 
+    console.log("📦 All collected media items:", media);
     return media;
 }
+
 
 async function createQuestion(type) {
     const quizUUID = document.getElementById('quizUUID').value;

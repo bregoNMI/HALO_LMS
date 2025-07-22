@@ -3,5 +3,296 @@
 {% load custom_filters %}
 {% block content %}
     {% include 'messageContainer/message_container.html' %} 
-    <div class="course-body align-center"></div>
+    <h3>Questions</h3>
+    <ol class="quiz-question-list">
+    {% for question in questions %}
+        <li class="quiz-question" data-question-index="{{ forloop.counter0 }}" data-has-media="{{ question.has_media|yesno:'true,false' }}" style="{% if not forloop.first %}display:none;{% endif %}">
+        <p><strong>{{ question.content }}</strong></p>
+        <p><em>Type: {{ question.question_type }}</em></p>
+        {% if question.has_media %}
+            <div class="question-media">
+                {% for media in question.media_items_list %}
+                    {% with media.file.url|replace:"/tenant/,/media/default/" as corrected_url %}
+                        {% if media.embed_code %}
+                            <div class="media-embed">
+                                {{ media.embed_code|safe }}
+                            </div>
+                        {% elif media.file %}
+                            <div class="media-file">
+                                {% with corrected_url|lower as url %}
+                                    {% if ".jpg" in url or ".jpeg" in url or ".png" in url %}
+                                        <div class="media-image-wrapper">
+                                            <img src="{{ corrected_url }}"
+                                                alt="{{ media.title }}"
+                                                class="toggle-expand-image"
+                                                style="max-width: 300px; cursor: zoom-in;">
+                                        </div>
+                                    {% elif ".mp4" in url %}
+                                        <video controls width="600">
+                                            <source src="{{ corrected_url }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    {% elif ".pdf" in url %}
+                                        <iframe src="{{ corrected_url }}"
+                                            class="toggle-expand-pdf"
+                                            allowfullscreen
+                                            style="width: 100%; height: 300px; border: 1px solid #ccc; cursor: zoom-in;"></iframe>
+                                    {% elif ".mp3" in url %}
+                                        <audio controls>
+                                            <source src="{{ corrected_url }}" type="audio/mpeg">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                    {% else %}
+                                        <p><strong>Unsupported format:</strong> <a href="{{ corrected_url }}" target="_blank">{{ corrected_url }}</a></p>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                        {% elif media.url_from_library %}
+                            <div class="media-url">
+                                <iframe src="{{ media.url_from_library }}" width="100%" height="600px" style="border:none;"></iframe>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if reveal_answers and question.correct_answers %}
+        <p>
+            <strong>Correct Answer{% if question.correct_answers|length > 1 %}s{% endif %}:</strong>
+            {{ question.correct_answers|join:", " }}
+        </p>
+        {% endif %}
+
+
+        {% if question.question_type == "EssayQuestion" %}
+        <textarea
+            name="question_{{ question.id }}"
+            data-question-id="{{ question.id }}"
+            data-question-type="{{ question.question_type }}"
+            class="essay-response"
+            rows="5"
+            cols="60"
+            placeholder="Type your answer here..."></textarea>
+        <br>
+        <button class="submit-essay-btn"
+                data-question-id="{{ question.id }}"
+                data-question-type="{{ question.question_type }}">
+            Submit Answer
+        </button>
+
+        {% elif question.question_type == "FITBQuestion" %}
+        <input
+            type="text"
+            name="question_{{ question.id }}"
+            class="fitb-response"
+            data-question-id="{{ question.id }}"
+            data-question-type="{{ question.question_type }}"
+            placeholder="Type your answer here...">
+        <br>
+        <button class="submit-fitb-btn"
+                data-question-id="{{ question.id }}"
+                data-question-type="{{ question.question_type }}">
+            Submit Answer
+        </button>
+
+        {% elif question.answer_list %}
+        <ul class="quiz-answers">
+            {% for answer in question.answer_list %}
+            <li>
+                <label>
+                <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}">
+                {{ answer.text }}
+                </label>
+            </li>
+            {% endfor %}
+        </ul>
+        <button class="submit-question-btn"
+                data-question-id="{{ question.id }}"
+                data-question-type="{{ question.question_type }}">
+            Submit Answer
+        </button>
+
+        {% else %}
+        <p><em>No answer options available for this question.</em></p>
+        {% endif %}
+        </li>
+    {% endfor %}
+    </ol>
+    <!-- ✅ Add a button -->
+    <div class="question-navigation">
+        <button id="nextQuestionBtn" class="next-button">Next Question</button>
+    </div>
+
+    <!-- ✅ Bottom Tab Bar -->
+    <div id="quiz-tab-bar">
+        <button class="quiz-tab" data-tab="instructions">Instructions</button>
+        <button class="quiz-tab" data-tab="media">Media</button>
+        <button class="quiz-tab" data-tab="rubric">Rubric</button>
+    </div>
+
+    <div id="quiz-tab-content">
+        <div id="instructions" class="tab-pane" style="display: none;">
+            {{ quiz_config.instructions|safe }}
+        </div>
+        <div id="media" class="tab-pane" style="display: none;">
+            {% for question in questions %}
+                {% if question.has_media %}
+                    <div><strong>Q{{ forloop.counter }}:</strong>
+                    {% for media in question.media_items_list %}
+                        <div style="margin-bottom: 8px;">
+                        {{ media.title }}<br>
+                        <a href="{{ media.file.url }}" target="_blank">Open</a>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div id="rubric" class="tab-pane" style="display: none;">
+            {{ quiz_config.rubric|safe }}
+        </div>
+    </div>
+
+    <script>
+        console.log("🧪 From Django: {{ scorm_index_file_url }}");
+        // window.progressDataString = '{{ lesson_progress_data|default:"[]"|escapejs }}';
+        window.lessonId = {{ lesson.id|default:"0" }};
+        window.revealAnswers = {{ reveal_answers|yesno:"true,false" }};
+        window.userId = {{ profile_id|default:"0" }};
+        window.courseLocked = {{ course_locked|yesno:"true,false" }};
+        window.miniLessonProgress = {{ mini_lesson_progress|default:"[]"|safe }};
+        window.lessonContentType = "{{ lesson.content_type }}";
+        window.lessonLocation = "{{ lesson.lesson_location }}";
+        window.savedProgress = {{ saved_progress|default:0 }};
+        window.lessonSessionId = "{{ request.session.current_lesson_session_id }}";
+        window.submitQuestionUrl = "{% url 'submit_question' %}";
+
+        const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
+        console.log(launchScormUrlTemplate);
+
+        function launchLessonById(lessonId) {
+            console.log('launchScormUrlTemplate:', launchScormUrlTemplate, lessonId);
+            window.location.href = launchScormUrlTemplate + lessonId + "/";
+        }
+    
+        function launchNextLesson(nextLessonId) {
+            launchLessonById(nextLessonId);
+        }
+    
+        function launchPrevLesson(prevLessonId) {
+            launchLessonById(prevLessonId);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            try {
+                const rawData = document.getElementById('lessonData').textContent;
+                const parsedData = JSON.parse(rawData);
+                window.lessonData = parsedData;
+
+                document.querySelectorAll('.lesson-item').forEach(item => {
+                    const id = parseInt(item.dataset.lessonId);
+                    const lesson = parsedData.find(l => l.id === id);
+
+                    if (lesson?.completed) {
+                        item.classList.add("lesson-completed");
+                    }
+
+                    if (lesson?.progress != null) {
+                        const progressText = document.createElement('span');
+                        progressText.className = 'lesson-progress';
+                        progressText.textContent = `${lesson.progress}%`;
+                        item.appendChild(progressText);
+                    }
+                });
+            } catch (e) {
+                console.warn("Failed to update sidebar lesson progress:", e);
+            }             
+
+            const iframe = document.getElementById("scormContentIframe");
+            const fallbackScormUrl = "{{ scorm_index_file_url|escapejs }}";
+            const intendedUrl = "{{ lesson_location|escapejs }}" || fallbackScormUrl;
+        
+            // ✅ Force iframe to exact saved lesson location on load
+            if ("{{ lesson.content_type }}" === "SCORM2004" && iframe) {
+                const urlToLoad = intendedUrl !== "about:blank" ? intendedUrl : fallbackScormUrl;
+                console.log("⏩ Forcing SCORM iframe to load:", urlToLoad);
+                iframe.src = urlToLoad;
+            }
+
+            // ✅ Highlight current lesson
+            const currentLessonId = parseInt(window.lessonId, 10);
+            document.querySelectorAll('.lesson-item').forEach(item => {
+                item.classList.remove('active-lesson');
+            });
+            const activeLesson = document.querySelector(`.lesson-item[data-lesson-id="${currentLessonId}"]`);
+            if (activeLesson) {
+                activeLesson.classList.add('active-lesson');
+            }
+
+            // ✅ Set course progress bar
+            const courseProgressBar = document.getElementById("courseProgressBar");
+            const courseProgressText = document.getElementById("courseProgressText");
+            if (courseProgressBar && courseProgressText) {
+                const percentMatch = courseProgressText.textContent.match(/(\d+)%/);
+                if (percentMatch) {
+                    const progress = parseInt(percentMatch[1], 10);
+                    courseProgressBar.style.width = `${progress}%`;
+                }
+            }
+
+            // ✅ Show "Finish Course" button
+            const finishBtn = document.getElementById("finishCourseBtn");
+            if (finishBtn) {
+                finishBtn.style.display = "block";
+            }
+
+            const expandableImages = document.querySelectorAll('.toggle-expand-image');
+
+            expandableImages.forEach(img => {
+                img.addEventListener('click', function () {
+                    const isExpanded = img.classList.toggle('expanded');
+                    if (isExpanded) {
+                        img.style.maxWidth = "90%";
+                        img.style.cursor = "zoom-out";
+                    } else {
+                        img.style.maxWidth = "300px";
+                        img.style.cursor = "zoom-in";
+                    }
+                });
+            });
+
+            // PDF expansion
+            const expandablePDFs = document.querySelectorAll('.toggle-expand-pdf');
+            expandablePDFs.forEach(iframe => {
+                iframe.addEventListener('click', function () {
+                    const isExpanded = iframe.classList.toggle('expanded');
+                    if (isExpanded) {
+                        iframe.style.height = "800px";
+                        iframe.style.cursor = "zoom-out";
+                    } else {
+                        iframe.style.height = "300px";
+                        iframe.style.cursor = "zoom-in";
+                    }
+                });
+            });
+
+            const tabButtons = document.querySelectorAll(".quiz-tab");
+            const tabPanes = document.querySelectorAll(".tab-pane");
+
+            tabButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const tabId = this.dataset.tab;
+
+                    // Hide all panes
+                    tabPanes.forEach(p => p.style.display = "none");
+
+                    // Show selected
+                    document.getElementById(tabId).style.display = "block";
+                });
+            });
+
+        });
+    </script>
+    <script src="{% static 'course_player/javascript/quiz_player.js' %}?v=2"></script>
 {% endblock content %}

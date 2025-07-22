@@ -2457,13 +2457,13 @@ def get_quiz_references(request, uuid):
     try:
         quiz = Quiz.objects.get(uuid=uuid)
         references = quiz.references.all()
-
+ 
         data = []
         for ref in references:
             try:
                 file_url = ref.get_file_url()
                 print(f"[DEBUG] Ref ID {ref.id} | Type: {ref.source_type} | File Field: {ref.file} | URL: {file_url}")
-
+ 
                 data.append({
                     'id': ref.id,
                     'title': ref.title,
@@ -2473,11 +2473,14 @@ def get_quiz_references(request, uuid):
                 })
             except Exception as e:
                 print(f"[ERROR] Failed to load reference ID {ref.id}: {e}")
-
+ 
         return JsonResponse({'success': True, 'references': data})
-
+ 
     except Quiz.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Quiz not found'})
+    except Exception as e:
+        print(f"[ERROR] Unexpected error in get_quiz_references: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
     
     except Exception as e:
         print(f"[ERROR] Unexpected error in get_quiz_references: {e}")

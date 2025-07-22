@@ -1592,9 +1592,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 } catch (error) {
                     console.error("❌ Scroll restore error:", error);
                 }
-            }, 2000);
+            }
+        })
+        .catch(err => {
+            console.warn("⚠️ Failed to fetch suspend_data from server:", err);
         });
-    }
 
     // --- Iframe load logic ---
     iframe.addEventListener("load", function () {

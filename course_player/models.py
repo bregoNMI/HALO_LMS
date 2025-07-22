@@ -1,13 +1,17 @@
+from uuid import uuid4
 from django.db import models
 from django.contrib.auth.models import User
-from content.models import Course, Module, Lesson
+from content.models import Course, Module, Lesson, Question
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from PIL import Image
+from django.utils.translation import gettext_lazy as _
 from io import BytesIO
 from django.core.files.base import ContentFile
 from datetime import datetime
 from pytz import all_timezones
+
+from halo_lms import settings
 
 class SCORMTrackingData(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -75,3 +79,20 @@ class LessonSession(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.lesson} @ {self.start_time}"
+    
+class QuizResponse(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ##sitting_id = models.UUIDField(default=uuid4,verbose_name=_("Sitting ID"),help_text=_("The session or attempt ID for the quiz."))
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)  # changed
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, null=True, blank=True)
+    user_answer = models.TextField()
+    is_correct = models.BooleanField(null=True, blank=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    lesson_session = models.ForeignKey(
+        'LessonSession',
+        on_delete=models.CASCADE,
+        null=True,  # Optional if backfilling later
+        blank=True,
+        verbose_name=_("Lesson Session"),
+        help_text=_("Link to the session during which the answer was submitted.")
+    )
