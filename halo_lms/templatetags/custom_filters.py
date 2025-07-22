@@ -79,3 +79,12 @@ def format_session_time(value):
         result += f"{hours}h "
     result += f"{minutes}m {seconds}s"
     return result.strip()
+
+@register.filter
+def replace(value, arg):
+    """Replaces all instances of the first arg with the second."""
+    try:
+        search, replace_with = arg.split(',')
+        return value.replace(search, replace_with)
+    except ValueError:
+        return value  # fallback if input is bad

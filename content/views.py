@@ -2426,25 +2426,30 @@ def get_quiz_references(request, uuid):
     try:
         quiz = Quiz.objects.get(uuid=uuid)
         references = quiz.references.all()
-
+ 
         data = []
         for ref in references:
-            file_url = ref.get_file_url()
-            print(f"[DEBUG] Ref ID {ref.id} | Type: {ref.source_type} | File Field: {ref.file} | URL: {file_url}")
-
-            data.append({
-                'id': ref.id,
-                'title': ref.title,
-                'url_from_library': file_url,  # this will work for both upload and library
-                'type_from_library': ref.type_from_library,
-                'source_type': ref.source_type,
-            })
-
-
+            try:
+                file_url = ref.get_file_url()
+                print(f"[DEBUG] Ref ID {ref.id} | Type: {ref.source_type} | File Field: {ref.file} | URL: {file_url}")
+ 
+                data.append({
+                    'id': ref.id,
+                    'title': ref.title,
+                    'url_from_library': file_url,
+                    'type_from_library': ref.type_from_library,
+                    'source_type': ref.source_type,
+                })
+            except Exception as e:
+                print(f"[ERROR] Failed to load reference ID {ref.id}: {e}")
+ 
         return JsonResponse({'success': True, 'references': data})
-
+ 
     except Quiz.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Quiz not found'})
+    except Exception as e:
+        print(f"[ERROR] Unexpected error in get_quiz_references: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
     
 def get_file_url(self):
     if self.source_type == 'upload' and self.file:

@@ -2,6 +2,7 @@ import datetime
 import json
 import mimetypes
 import os
+import random
 import uuid
 from django.utils import timezone
 from shlex import quote
@@ -18,16 +19,18 @@ from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.conf import settings
 from botocore.exceptions import ClientError
-from content.models import Course, Module, Lesson, UploadedFile
+from content.models import Course, EssayQuestion, FITBQuestion, Module, Lesson, Question, QuestionMedia, QuestionOrder, TFQuestion, UploadedFile, QuizConfig, Quiz
 from authentication.python.views import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, get_secret
 from django.views.decorators.csrf import csrf_exempt
 import boto3 
+from django.views.decorators.http import require_GET
+from django.contrib.auth.decorators import login_required
 import base64
 from django.shortcuts import render
 import boto3
 from rsa import PrivateKey
 from botocore.exceptions import NoCredentialsError
-from course_player.models import LessonProgress, LessonSession, SCORMTrackingData
+from course_player.models import LessonProgress, LessonSession, SCORMTrackingData, QuizResponse
 from halo_lms.settings import AWS_S3_REGION_NAME, AWS_STORAGE_BUCKET_NAME
 
 secret_name = "COGNITO_SECRET"
@@ -100,6 +103,34 @@ def generate_presigned_url(key, expiration=86400):
 
     return response
 
+@csrf_exempt
+@login_required
+def mark_lesson_complete(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
+    data = json.loads(request.body)
+    lesson_id = data.get("lesson_id")
+
+    if not lesson_id:
+        return JsonResponse({"error": "Missing lesson_id"}, status=400)
+
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    user = request.user
+    course = lesson.module.course
+
+    # Create tracking record to trigger update_progress
+    SCORMTrackingData.objects.update_or_create(
+        user=user,
+        lesson=lesson,
+        defaults={"progress": 1.0, "completion_status": "completed"},
+    )
+
+    user_course, _ = UserCourse.objects.get_or_create(user=user, course=course)
+    user_course.update_progress()
+
+    return JsonResponse({"status": "success"})
+
 def proxy_scorm_file(request, file_path):
     """
     Proxy SCORM file from S3 to serve it through the LMS domain.
@@ -170,6 +201,130 @@ def get_scorm_progress(request, lesson_id):
     except Exception as e:
         print(f"[get_scorm_progress] Error parsing cmi_data: {e}")
         return JsonResponse({"suspend_data": ""}, status=500)
+    
+@require_GET
+@login_required
+def get_quiz_score(request):
+    session_id = request.GET.get("session_id")
+    if not session_id:
+        return JsonResponse({"error": "Missing session_id"}, status=400)
+
+    session = LessonSession.objects.filter(session_id=session_id, user=request.user).first()
+    if not session:
+        return JsonResponse({"error": "Session not found"}, status=404)
+
+    lesson = session.lesson
+    quiz = Quiz.objects.filter(id=lesson.quiz_id).first()  # ✅ Quiz, not QuizConfig
+
+    responses = session.quizresponse_set.all()
+    gradable = responses.exclude(is_correct=None)
+    
+    total_answered = responses.count()  # ✅ includes essays
+    total_graded = gradable.count()     # ✅ excludes essays
+    correct = gradable.filter(is_correct=True).count()
+
+    percent = int((correct / total_graded) * 100) if total_graded > 0 else 0
+
+    passed = False
+    success_text = ""
+    fail_text = ""
+
+    if quiz:
+        pass_mark = quiz.pass_mark or 0
+        passed = percent >= pass_mark
+        success_text = quiz.success_text or ""
+        fail_text = quiz.fail_text or ""
+
+    return JsonResponse({
+        "total_answered": total_answered,
+        "total_graded": total_graded,
+        "correct_answers": correct,
+        "score_percent": percent,
+        "passed": passed,
+        "success_text": success_text,
+        "fail_text": fail_text,
+    })
+
+@csrf_exempt
+@login_required
+def submit_question(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
+    data = json.loads(request.body)
+    user = request.user
+    question_id = data.get("question_id")
+    answer = data.get("answer")
+    question_type = data.get("question_type")
+    lesson_id = data.get("lesson_id")
+
+    # Fetch question and correct answer(s)
+    try:
+        question = Question.objects.get(id=question_id)
+    except Question.DoesNotExist:
+        return JsonResponse({"error": "Invalid question ID"}, status=404)
+
+    is_correct = False
+    correct_answers = []
+
+    if question_type == "TFQuestion":
+        tf = getattr(question, 'tfquestion', None)
+        if tf:
+            is_correct = (str(tf.correct).lower() == str(answer).lower())
+            correct_answers = ["True" if tf.correct else "False"]
+
+    elif question_type in ("MCQuestion", "MRQuestion"):
+        correct_answers_qs = question.answers.filter(is_correct=True)
+        correct_ids = set(str(a.id) for a in correct_answers_qs)
+        is_correct = str(answer) in correct_ids
+        correct_answers = [a.text for a in correct_answers_qs]
+
+    elif question_type == "EssayQuestion":
+        # Assume always accepted
+        is_correct = None
+        correct_answers = []
+
+    elif question_type == "FITBQuestion":
+        fitb = getattr(question, 'fitbquestion', None)
+        if fitb:
+            accepted = fitb.acceptable_answers.all()
+            for ans in accepted:
+                text = ans.content
+                if fitb.strip_whitespace:
+                    answer = answer.strip()
+                    text = text.strip()
+                if not fitb.case_sensitive:
+                    answer = answer.lower()
+                    text = text.lower()
+                if answer == text:
+                    is_correct = True
+                    break
+            correct_answers = [a.content for a in accepted]
+
+    # (Optional) Save the user's answer to your UserAnswer model here
+    # Save the user's answer
+    try:
+        lesson = Lesson.objects.get(id=lesson_id)
+    except Lesson.DoesNotExist:
+        return JsonResponse({"error": "Invalid lesson ID"}, status=404)
+
+    session_id = request.session.get("current_lesson_session_id")
+    lesson_session = LessonSession.objects.filter(session_id=session_id).first()
+
+    QuizResponse.objects.create(
+        user=user,
+        lesson=lesson,
+        lesson_session=lesson_session,  # ✅ New link to LessonSession
+        question=question,
+        user_answer=answer,
+        is_correct=is_correct
+    )
+
+    return JsonResponse({
+        "status": "success",
+        "is_correct": is_correct,
+        "correct_answers": correct_answers,
+    })
 
 @login_required
 def launch_scorm(request, course_id):
@@ -190,6 +345,74 @@ def launch_scorm(request, course_id):
 
     return render(request, "error.html", {"message": "No lessons available in this course."})
 
+def get_question_type(ordered_links, randomize_answers=False):
+    questions = []
+
+    for link in ordered_links:
+        question = link.question
+        q_type = 'Question'
+        answer_list = []
+        correct_answers = []  # ✅ Ensure it's always defined
+        allows_multiple = False
+        case_sensitive = False
+        strip_whitespace = False
+        instructions = None
+        rubric = None
+
+        if hasattr(question, 'mcquestion'):
+            mc = question.mcquestion
+            allows_multiple = getattr(mc, 'allows_multiple', False)
+            q_type = 'MRQuestion' if allows_multiple else 'MCQuestion'
+            answers = list(question.answers.all())
+            if randomize_answers:
+                random.shuffle(answers)
+            else:
+                answers.sort(key=lambda a: a.order)
+
+            answer_list = answers
+            correct_answers = list(question.answers.filter(is_correct=True).values_list('text', flat=True))
+
+        elif hasattr(question, 'tfquestion'):
+            tf = question.tfquestion
+            q_type = 'TFQuestion'
+            correct_value = tf.correct
+            correct_answers = ['True' if correct_value else 'False']
+            answer_list = [
+                {'id': 'true', 'text': 'True'},
+                {'id': 'false', 'text': 'False'}
+            ]
+
+        elif hasattr(question, 'fitbquestion'):
+            fitb = question.fitbquestion
+            q_type = 'FITBQuestion'
+            case_sensitive = getattr(fitb, 'case_sensitive', False)
+            strip_whitespace = getattr(fitb, 'strip_whitespace', False)
+            answers = [
+                {'id': a.id, 'text': a.content}
+                for a in fitb.acceptable_answers.all().order_by('order')
+            ]
+            correct_answers = [a['text'] for a in answers]  # optional
+
+        elif hasattr(question, 'essayquestion'):
+            essay = question.essayquestion
+            q_type = 'EssayQuestion'
+            instructions = essay.instructions
+            rubric = essay.rubric
+            answers = [
+                {'id': p.id, 'text': p.prompt_text, 'rubric': p.rubric}
+                for p in essay.prompts.all().order_by('order')
+            ]
+            correct_answers = []  # ✅ explicitly clear here too
+
+        question.correct_answers = correct_answers
+        question.question_type = q_type
+        question.answer_list = answer_list
+        question.allows_multiple = allows_multiple
+
+        questions.append(question)
+
+    return questions
+
 @login_required
 def launch_scorm_file(request, lesson_id):
     print('Lesson ID:', lesson_id)
@@ -197,10 +420,10 @@ def launch_scorm_file(request, lesson_id):
     course = lesson.module.course
     profile = get_object_or_404(Profile, user=request.user)
     user_course = UserCourse.objects.filter(user=request.user, course=course).first()
-
+ 
     # Fetch all modules with their lessons for the course
     modules_with_lessons = Module.objects.filter(course=course).order_by('order').prefetch_related('lessons')
-
+ 
     # Identify current lesson's module and determine nav context
     module_lessons = Lesson.objects.filter(module=lesson.module).order_by("order")
     all_lessons = list(module_lessons)
@@ -208,7 +431,7 @@ def launch_scorm_file(request, lesson_id):
     next_lesson = all_lessons[current_index + 1] if current_index + 1 < len(all_lessons) else None
     prev_lesson = all_lessons[current_index - 1] if current_index > 0 else None
     is_last_lesson = next_lesson is None
-
+ 
     # Lock logic
     course_locked = course.locked
     if course_locked and prev_lesson:
@@ -220,24 +443,24 @@ def launch_scorm_file(request, lesson_id):
         if not prev_lesson_progress:
             print('previous lesson not completed')
             return render(request, 'error.html', {'message': 'You must complete the previous lesson before proceeding.'})
-
+ 
     # Mini lesson progress
     mini_lesson_progress = list(LessonProgress.objects.filter(
         user=request.user,
         lesson=lesson
     ).values("mini_lesson_index", "progress"))
-
+ 
     # Progress for all lessons across all modules
     lesson_progress_data = []
     previous_lesson_completed = not course_locked
-
+ 
     for module in modules_with_lessons:
         for module_lesson in module.lessons.all().order_by("order"):
             progress_entry = SCORMTrackingData.objects.filter(user=request.user, lesson=module_lesson).first()
             is_completed = progress_entry.completion_status == "completed" if progress_entry else False
             locked_status = course_locked and not previous_lesson_completed
             progress_value = progress_entry.progress if progress_entry else 0
-
+ 
             lesson_progress_data.append({
                 "id": module_lesson.id,
                 "title": module_lesson.title,
@@ -247,9 +470,9 @@ def launch_scorm_file(request, lesson_id):
                 "module_id": module.id,
                 "module_title": module.title,
             })
-
+ 
             previous_lesson_completed = is_completed
-
+ 
     # Start session
     session = LessonSession.objects.create(
         user=request.user,
@@ -259,18 +482,23 @@ def launch_scorm_file(request, lesson_id):
         ip_address=request.META.get('REMOTE_ADDR', ''),
     )
     request.session['current_lesson_session_id'] = session.session_id
-
+ 
     # SCORM file entry
     entry_key = None
     proxy_url = None
 
+    # Saved state
+    saved_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=lesson).first()
+    lesson_location = saved_progress.lesson_location if saved_progress else ""
+    scroll_position = saved_progress.scroll_position if saved_progress else 0
+ 
     if lesson.content_type == 'SCORM2004':
         if lesson.uploaded_file and lesson.uploaded_file.scorm_entry_point:
             entry_key = lesson.uploaded_file.scorm_entry_point.replace("\\", "/")
             proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}"
         else:
             return render(request, 'error.html', {'message': 'No valid SCORM entry point found for this lesson.'})
-
+ 
     elif lesson.file and lesson.file.file:
         file_key = lesson.file.file.name
         if file_key.startswith("tenant/"):
@@ -280,34 +508,50 @@ def launch_scorm_file(request, lesson_id):
 
     elif lesson.content_type == 'quiz':
         quiz_config = getattr(lesson, 'quiz_config', None)
-        print(quiz_config)
-        if not quiz_config:
-            print('No quiz configuration found for this lesson.')
-            return render(request, 'error.html', {'message': 'No quiz configuration found for this lesson.'})
+        quiz_id = lesson.quiz_id
 
-        quiz_type = quiz_config.quiz_type or 'standard_quiz'
+        if not quiz_id:
+            return render(request, 'error.html', {'message': 'No quiz ID found for this lesson.'})
+
+        try:
+            quiz = Quiz.objects.get(pk=quiz_id)
+        except Quiz.DoesNotExist:
+            return render(request, 'error.html', {'message': 'Quiz not found.'})
+
+        # ✅ Get ordered questions and prefetch their answers
+        ordered_links = QuestionOrder.objects.filter(quiz=quiz).select_related('question').order_by('order')
+        questions = get_question_type(
+            ordered_links,
+            randomize_answers=quiz_config.randomize_order if quiz_config else False
+        )
+
+        for q in questions:
+            q.media_items_list = list(QuestionMedia.objects.filter(question_id=q.id))
+            q.has_media = bool(q.media_items)
 
         return render(request, 'quizzes/quiz_player.html', {
             'lesson': lesson,
             'course_title': course.title,
-            'quiz_type': quiz_type,
+            'saved_progress': saved_progress.progress if saved_progress else 0,
+            'lesson_location': lesson_location,
+            'quiz_type': quiz_config.quiz_type if quiz_config else 'standard_quiz',
             'quiz_config': quiz_config,
+            'quiz': quiz,
+            'questions': questions,  # ✅ pass question list
+            'reveal_answers': quiz_config.reveal_answers if quiz_config else False,
             'user_course': user_course,
             'profile_id': profile.id,
+            'lesson_progress_data': json.dumps(lesson_progress_data),
+            'mini_lesson_progress': json.dumps(mini_lesson_progress),
+            'course_locked': course_locked,
             'next_lesson': next_lesson,
             'prev_lesson': prev_lesson,
             'is_last_lesson': is_last_lesson,
-            'lesson_progress_data': json.dumps(lesson_progress_data),
-            'mini_lesson_progress': json.dumps(mini_lesson_progress),
+            'modules_with_lessons': modules_with_lessons,
         })
 
     else:
         return render(request, 'error.html', {'message': 'No valid file found for this lesson.'})
-
-    # Saved state
-    saved_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=lesson).first()
-    lesson_location = saved_progress.lesson_location if saved_progress else ""
-    scroll_position = saved_progress.scroll_position if saved_progress else 0
 
     return render(request, 'iplayer.html', {
         'lesson': lesson,
@@ -324,7 +568,7 @@ def launch_scorm_file(request, lesson_id):
         'next_lesson': next_lesson,
         'prev_lesson': prev_lesson,
         'is_last_lesson': is_last_lesson,
-        'modules_with_lessons': modules_with_lessons,  # ✅ New context for sidebar
+        'modules_with_lessons': modules_with_lessons,
     })
 
 def get_s3_file_metadata(bucket_name, key):

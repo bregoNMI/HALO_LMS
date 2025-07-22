@@ -1,6 +1,6 @@
-const lessonDataElement = document.getElementById('lessonData');
-const parsedLessonData = JSON.parse(lessonDataElement.textContent);
-window.lessonData = parsedLessonData;  // Make globally accessible if needed
+//const lessonDataElement = document.getElementById('lessonData');
+//const parsedLessonData = JSON.parse(lessonDataElement.textContent);
+//window.lessonData = parsedLessonData;  // Make globally accessible if needed
 let lessonScrollPositions = JSON.parse(localStorage.getItem("lessonScrollPositions") || "{}");
 window.lessonSessionId = crypto.randomUUID();
 

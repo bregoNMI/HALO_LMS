@@ -2,7 +2,7 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
-    {% include 'messageContainer/message_container.html' %} 
+    {% include 'messageContainer/message_container.html' %}
     <div class="course-body align-center">
         <!-- SCORM iframe area -->
         <div class="course-player-container">
@@ -17,7 +17,7 @@
             {% endif %}
         </div>  
     </div>
-    
+   
     <script>
         console.log("🧪 From Django: {{ scorm_index_file_url }}");
         // window.progressDataString = '{{ lesson_progress_data|default:"[]"|escapejs }}';
@@ -29,45 +29,69 @@
         window.lessonLocation = "{{ lesson.lesson_location }}";
         window.savedProgress = {{ saved_progress|default:0 }};
         window.lessonSessionId = "{{ request.session.current_lesson_session_id }}";
-
+ 
+        const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
+        console.log(launchScormUrlTemplate);
+ 
+        function launchLessonById(lessonId) {
+            console.log('launchScormUrlTemplate:', launchScormUrlTemplate, lessonId);
+            window.location.href = launchScormUrlTemplate + lessonId + "/";
+        }
+   
+        function launchNextLesson(nextLessonId) {
+            launchLessonById(nextLessonId);
+        }
+   
+        function launchPrevLesson(prevLessonId) {
+            launchLessonById(prevLessonId);
+        }
+ 
         document.addEventListener("DOMContentLoaded", function () {
             try {
                 const rawData = document.getElementById('lessonData').textContent;
                 const parsedData = JSON.parse(rawData);
                 window.lessonData = parsedData;
-
+ 
                 document.querySelectorAll('.lesson-item').forEach(item => {
                     const id = parseInt(item.dataset.lessonId);
                     const lesson = parsedData.find(l => l.id === id);
-
+ 
                     if (lesson?.completed) {
                         item.classList.add("lesson-completed");
                     }
-
-                if (lesson?.progress != null) {
-                    const progressText = document.createElement('span');
-                    progressText.className = 'lesson-progress';
-                    progressText.textContent = `${lesson.progress}%`;
-                    item.appendChild(progressText);
-                }
+ 
+                    if (lesson?.progress != null) {
+                        const progressText = document.createElement('span');
+                        progressText.className = 'lesson-progress';
+                        progressText.textContent = `${lesson.progress}%`;
+                        item.appendChild(progressText);
+                    }
+                });
+            } catch (e) {
+                console.warn("Failed to update sidebar lesson progress:", e);
+            }            
+ 
+            const iframe = document.getElementById("scormContentIframe");
+            const fallbackScormUrl = "{{ scorm_index_file_url|escapejs }}";
+            const intendedUrl = "{{ lesson_location|escapejs }}" || fallbackScormUrl;
+       
+            // ✅ Force iframe to exact saved lesson location on load
+            if ("{{ lesson.content_type }}" === "SCORM2004" && iframe) {
+                const urlToLoad = intendedUrl !== "about:blank" ? intendedUrl : fallbackScormUrl;
+                console.log("⏩ Forcing SCORM iframe to load:", urlToLoad);
+                iframe.src = urlToLoad;
+            }
+ 
+            // ✅ Highlight current lesson
+            const currentLessonId = parseInt(window.lessonId, 10);
+            document.querySelectorAll('.lesson-item').forEach(item => {
+                item.classList.remove('active-lesson');
             });
-        } catch (e) {
-            console.warn("Failed to update sidebar lesson progress:", e);
-        }
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // ✅ Highlight current lesson
-        const currentLessonId = parseInt(window.lessonId, 10);
-        document.querySelectorAll('.lesson-item').forEach(item => {
-            item.classList.remove('active-lesson');
-        });
-        const activeLesson = document.querySelector(`.lesson-item[data-lesson-id="${currentLessonId}"]`);
-        if (activeLesson) {
-            activeLesson.classList.add('active-lesson');
-        }
-
+            const activeLesson = document.querySelector(`.lesson-item[data-lesson-id="${currentLessonId}"]`);
+            if (activeLesson) {
+                activeLesson.classList.add('active-lesson');
+            }
+ 
             // ✅ Set course progress bar
             const courseProgressBar = document.getElementById("courseProgressBar");
             const courseProgressText = document.getElementById("courseProgressText");
@@ -78,13 +102,13 @@
                     courseProgressBar.style.width = `${progress}%`;
                 }
             }
-
+ 
             // ✅ Show "Finish Course" button
             const finishBtn = document.getElementById("finishCourseBtn");
             if (finishBtn) {
                 finishBtn.style.display = "block";
             }
         });
-    </script>   
+    </script>  
     <script src="{% static 'course_player/javascript/scorm_player.js' %}?v=2"></script>
 {% endblock content %}
