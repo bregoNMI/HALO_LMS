@@ -1,7 +1,7 @@
 <div id="editUploadInstructions" class="popup-background">
     <div class="popup-content max-width-6">
         <div class="popup-header">
-            <h3>Edit Upload Instructions</h3>
+            <h3>Edit Assignment Instructions</h3>
             <div onclick="closePopup('editUploadInstructions')" class="close-popup-icon">
                 <i class="fa-solid fa-xmark"></i>
             </div>
@@ -9,7 +9,7 @@
         <div class="popup-body">
             <div class="course-content-input">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <label class="edit-user-label" for="uploadInstructions">Upload Instructions</label>
+                    <label class="edit-user-label" for="uploadInstructions">Assignment Instructions</label>
                     <div class="quill-character-counter">
                         <div class="quill-current-counter">0</div>
                         <span>/</span>
@@ -18,7 +18,7 @@
                 </div>
                 <div class="editor-container" id="uploadInstructions">{{ course.upload_instructions|safe }}</div>
             </div>
-            <span class="course-content-input-subtext"> Provide Instructions for course uploads that Learners can review.</span>
+            <span class="course-content-input-subtext"> Provide Instructions for course assignments that Learners can review.</span>
         </div>
         <div class="popup-footer">
             <div class="spacer"></div>

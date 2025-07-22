@@ -81,6 +81,10 @@ def format_session_time(value):
     return result.strip()
 
 @register.filter
+def get_assignment_status(assignment_status_map, key):
+    return assignment_status_map.get(key)
+
+@register.filter
 def replace(value, arg):
     """Replaces all instances of the first arg with the second."""
     try:

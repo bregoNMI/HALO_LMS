@@ -261,12 +261,12 @@
                                         <span class="course-content-input-subtext"> HALO°'s default certificate will be used if nothing is provided. You can add your own default certificate from the settings page. </span>
                                     {% endif %}
                                 </div>
-                                <div class="course-content-input">
+                                <div class="course-content-input margin-top-4">
                                     <label class="edit-user-label" for="certTitle">Certificate Title</label>
                                     <input type="text" id="certTitle" name="certTitle" placeholder="Certificate Title (Optional)">
                                 </div>
                                 <!-- Expiration Date -->
-                                <div class="course-content-input">
+                                <div class="course-content-input margin-top-4">
                                     <label class="edit-user-label">Expiration Date</label>
                                     <div class="content-input-options-row">
                                         <label class="custom-radio">
@@ -556,7 +556,7 @@
                                 </div>
                                 <div class="thumbnail-inner-thumbnail">
                                     <div class="dropzone" id="dropzone">
-                                        <i class="fa-regular fa-panorama"></i>
+                                        <i class="fa-light fa-panorama"></i>
                                         <p>Drag & drop an image here, or click to select one</p>
                                         <input type="file" id="thumbnailFileInput" accept="image/*" style="display: none;">
                                         <!-- Thumbnail Display -->
@@ -630,12 +630,17 @@
                                             <div class="reference-card-content">
                                                 <label class="edit-user-label" for="referenceDescription-1">Reference Description</label>
                                                 <div class="editor-container" id="referenceDescription-1"></div>
+                                                <div class="quill-character-counter">
+                                                    <div class="quill-current-counter">0</div>
+                                                    <span>/</span>
+                                                    <div class="quill-max-counter">2000</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div style="display: none;" id="noReferencesCreated" class="no-lessons-container"><span>This Course currently has no references.</span></div>
                                 </div>
-                                <div id="addReference" class=" margin-top-4">
+                                <div id="addReference" class="main-add-btn margin-top-4">
                                     <i class="fa-regular fa-plus"></i>
                                     <span> Add Reference </span>
                                 </div>
@@ -655,11 +660,11 @@
                         </div>
                         <div class="info-card-body right-column-card-body">
                             <div id="editUploadInstructionBtn" style="position: absolute; right: 0.8rem; display: none; margin-top: 0; z-index: 1;" onclick="openPopup('editUploadInstructions')" class="label-action-item">
-                                <i class="fa-regular fa-pencil"></i>
+                                <i class="fa-solid fa-pen"></i>
                                 <span>Edit Instructions</span>
                             </div>
                             <div class="course-content-input">
-                                <label class="edit-user-label" for="courseUploads">Course Uploads</label>
+                                <label class="edit-user-label" for="courseUploads">Course Assignments</label>
                                 <label class="toggle-switch">
                                     <input class="toggle-option" type="checkbox" id="courseUploads" name="courseUploads">
                                     <div class="toggle-switch-background">
@@ -675,11 +680,11 @@
                                         <div class="info-card-header collapsable-header">
                                             <div class="card-header-left">
                                                 <i class="fa-thin fa-grip-dots-vertical upload-drag-icon"></i>
-                                                <input class="upload-title" type="text" placeholder="New Upload">
+                                                <input class="upload-title" type="text" placeholder="New Assignment">
                                             </div>
                                             <div class="upload-header-right">
-                                                <div onclick="openPopup('uploadDeleteConfirmation', 'deleteUpload', this)" id="deleteUpload" class="upload-delete tooltip" data-tooltip="Delete Upload">
-                                                    <span class="tooltiptext">Delete Upload</span>
+                                                <div onclick="openPopup('uploadDeleteConfirmation', 'deleteUpload', this)" id="deleteUpload" class="upload-delete tooltip" data-tooltip="Delete Assignment">
+                                                    <span class="tooltiptext">Delete Assignment</span>
                                                     <i class="fa-regular fa-trash-can"></i>
                                                 </div>
                                                 <div class="upload-dropdown">
@@ -688,9 +693,32 @@
                                             </div>
                                         </div>
                                         <div class="upload-card-body">
-                
+                                            <div class="right-column-file-wrapper">
+                                                <h5 class="right-column-option-header">Assignment Reference</h5>
+                                                <div onclick="openFileLibrary('assignmentSource', '', '1')" for="assignmentSource" class="custom-file-upload-container">
+                                                    <div class="custom-file-upload">
+                                                        <input type="file" id="assignmentSource" name="assignmentSource" style="display: none;" readonly="">
+                                                        <i class="fa-regular fa-folder-open"></i> Choose File
+                                                    </div>
+                                                    <div class="custom-file-title">
+                                                        <span id="assignmentSourceDisplay-1" class="file-name-display">No file selected</span>
+                                                    </div>
+                                                    <input type="hidden" id="assignmentURLInput-1" name="assignmentURL">
+                                                    <input type="hidden" id="assignmentTypeInput-1" name="assignmentType">
+                                                </div>
+                                                <span class="course-content-input-subtext"> Provide a file that Learners can access with this assignment. </span>
+                                            </div>
+                                            <div class="upload-card-content">
+                                                <label class="edit-user-label" for="assignmentDescription-1">Assignment Instructions</label>
+                                                <div class="editor-container" id="assignmentDescription-1"></div>
+                                                <div class="quill-character-counter">
+                                                    <div class="quill-current-counter">0</div>
+                                                    <span>/</span>
+                                                    <div class="quill-max-counter">2000</div>
+                                                </div>
+                                            </div>
                                             <div class="course-content-input">
-                                                <label class="edit-user-label">Upload Approval</label>
+                                                <label class="edit-user-label">Assignment Approval</label>
                                                 <div class="content-input-options-row">
                                                     <label class="custom-radio">
                                                         <input class="radio-option" type="radio" name="upload_approval1" data-target="uploadApprovalNone" value="None" checked="">
@@ -716,19 +744,19 @@
                                             </div>
                                             <!-- None Approval -->
                                             <div id="uploadApprovalNone" class="toggle-option-details show-toggle-option-details">
-                                                <span class="course-content-input-subtext"> No approval is required for the course upload. </span>
+                                                <span class="course-content-input-subtext"> No approval is required for the course assignment. </span>
                                             </div>
                                             <!-- Instructor Approval -->
                                             <div id="uploadApprovalInstructor" class="toggle-option-details">
-                                                <span class="course-content-input-subtext"> An Instructor must approve the course upload. </span>
+                                                <span class="course-content-input-subtext"> An Instructor must approve the course assignment. </span>
                                             </div>
                                             <!-- Admin Approval -->
                                             <div id="uploadApprovalAdmin" class="toggle-option-details">
-                                                <span class="course-content-input-subtext"> An Admin must approve the course upload. </span>
+                                                <span class="course-content-input-subtext"> An Admin must approve the course assignment. </span>
                                             </div>
                                             <!-- Other Approval -->
                                             <div id="uploadApprovalOther" class="toggle-option-details">
-                                                <span class="course-content-input-subtext"> Please select the User(s) who will approve the course upload. </span>
+                                                <span class="course-content-input-subtext"> Please select the User(s) who will approve the course assignment. </span>
                                                 <div class="right-column-file-wrapper">
                                                     <div id="userDropdown1" class="user-dropdown course-content-input">
                                                         <input type="text" class="userSearch" placeholder="Search users...">
@@ -741,11 +769,11 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div style="display: none;" id="noUploadsCreated" class="no-lessons-container"><span>This Course currently has no uploads.</span></div>
+                                    <div style="display: none;" id="noUploadsCreated" class="no-lessons-container"><span>This Course currently has no assignments.</span></div>
                                 </div>
                                 <div id="addUpload" class="main-add-btn margin-top-4">
                                     <i class="fa-regular fa-plus"></i>
-                                    <span> Add Upload </span>
+                                    <span> Add Assignment </span>
                                 </div>
                             </div>       
                         </div>

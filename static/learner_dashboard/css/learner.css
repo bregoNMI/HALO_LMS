@@ -775,6 +775,9 @@ html, body, button{
     color: #555961;
     font-weight: bold;
 }
+/* .tab.active i{
+    font-weight: 400;
+} */
 
 .tab:hover {
     color: #555961;
@@ -794,6 +797,9 @@ html, body, button{
 /* Tab Content */
 .tab-content-container {
     padding: 0;
+    overflow: hidden;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 .tab-content {
@@ -801,7 +807,7 @@ html, body, button{
     padding: 1rem 2rem 3rem 2rem;
     overflow: auto;
     flex-direction: column;
-    max-height: 30rem;
+    max-height: calc(70dvh - 200px);
 }
 
 .tab-content.active {
@@ -910,12 +916,13 @@ html, body, button{
     width: 0.9rem;
     border-radius: 50%;
     padding: var(--pad-xxxs);
-    background-color: #f2f2f2;
-    color: #696c78;
     align-items: center;
     justify-content: center;
-    font-size: 0.85rem;
-    font-weight: 900;
+    color: var(--text-color7);
+    border: 1px solid #ececf1;
+    background-color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
 }
 
 .course-item-lesson-title{
@@ -987,14 +994,33 @@ html, body, button{
     flex-direction: row;
     gap: 0.7rem;
     text-decoration: none;
-    padding: 0.3rem;
-    background-color: #f9f9f9;
+    padding: 0.3rem 0.6rem;
+    padding-right: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    /* background-color: #f9f9f9;
+    outline: 2px solid #f2f2f2; */
+    background-color: white;
+    outline: 2px solid white;
     border-radius: 8px;
     transition: all 0.2s linear;
-    outline: 2px solid #f2f2f2;
 }.reference-item:hover{
-    outline-color: var(--primary-blue);
-    background-color: #f2f6ff;
+    /* outline-color: var(--primary-blue);
+    background-color: #f2f6ff; */
+    background-color: #fcfcfc;
+    outline: 1px solid var(--bg-color4);
+}.reference-item-left{
+    display: flex;
+    flex-direction: row;
+    gap: 0.7rem;
+    align-items: center;
+}.reference-item-right{
+    opacity: 0;
+    font-size: var(--fs-med);
+    color: var(--text-color5);
+    transition: all 0.2s linear;
+}.reference-item:hover .reference-item-right{
+    opacity: 1;
 }
 
 .reference-icon{
@@ -1004,6 +1030,7 @@ html, body, button{
     border-radius: 8px;
     flex: none;
     width: 2.3rem;
+    height: 2.3rem;
     box-shadow: 0px 1px 2px 0px var(--primary-blue);
     margin-bottom: 1px;
 }.reference-icon i{
@@ -1011,44 +1038,16 @@ html, body, button{
 }
 
 .reference-text h4{
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
     font-size: 0.9rem;
     color: #41454d;
-}.reference-text span{
-    color: var(--text-color4);
-    font-size: 0.9rem;
-}
-
-/* Custom Tooltip */
-.tooltip {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-}
-
-.tooltip .tooltiptext {
-    visibility: hidden;
-    max-width: 120px;
-    background-color: #222222;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: var(--pad-xxxs) var(--pad-sm);
-    font-size: var(--fs-sm);
-    font-weight: 400;
-    position: absolute;
-    z-index: 1;
-    bottom: -95% !important;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    transition: opacity 0.3s;
-    transition-delay: 1s;
-}
-
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-    transform: translateX(-50%) translateY(-5px);
+}.reference-text p{
+    margin: 0;
 }
 
 .alert {
@@ -1316,4 +1315,102 @@ html, body, button{
     margin-bottom: 1rem;
 }.description-content li:last-child{
     margin-bottom: 0;
+}
+
+/* Assignments */
+.course-assignments-container{
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}.assignments-container{
+    
+}.assignments-top-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}.assignments-top-row-right{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    color: var(--text-color7);
+    font-weight: 600;
+    border: 1px solid #ececf1;
+    background-color: white;
+    font-size: 0.75rem;
+}.assignments-top-row h3{
+    color: var(--text-color2);
+    font-size: 0.95rem;
+    /* font-size: var(--close-icon); */
+    margin: 0;
+}.assignments-body{
+    background-color: #fcfcfc;
+    border: 1px solid #e3e3e3;
+    border-radius: 8px;
+    margin-top: 0.7rem;
+    flex: 1;
+    overflow: hidden;
+}.assignments-body .assignment-item:first-child{
+    border-top: none;
+}.assignment-item{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    padding: 0.69rem var(--pad-sm);
+    border-top: 1px solid #e3e3e3;
+    width: 100%;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.2s linear;
+}.assignment-item:hover{
+    background-color: var(--bg-color3);
+}.assignment-item:active{
+    background-color: #f2f2f2;
+}.assignment-item.active{
+    background-color: #f8f0ff;
+}.assignment-item.active .assignment-item-left i, .assignment-item.active .assignment-item-left span{
+    color: #a65bec;
+}.assignment-item-left{
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}.assignment-item-left i{
+    font-size: 0.9rem;
+    /* font-weight: 600; */
+    color: #41454d;
+}.assignment-item-left span{
+    font-size: 0.85rem;
+    /* font-weight: 600; */
+    color: #41454d;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}.assignment-locked-icon{
+    color: var(--text-color7);
+}.assignment-item.disabled{
+    opacity: 1;
+}
+
+.assignment-item-right .assignment-complete-icon, .assignment-upload-footer-status .assignment-complete-icon i{
+    color: #4caf50;
+}.assignment-item-right .assignment-complete-icon i{
+    font-weight: 500;
+}.assignment-item-right .assignment-submitted-icon, .assignment-upload-footer-status .assignment-submitted-icon i{
+    color: var(--text-color7);
+}.assignment-item-right .assignment-rejected-icon, .assignment-upload-footer-status .assignment-rejected-icon i{
+    color: #cc0202;
+}
+
+#assignment-upload-form{
+    width: 100%;
 }

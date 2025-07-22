@@ -381,6 +381,9 @@
     cursor: pointer;
     font-size: 1rem;
     border: none;
+    max-width: 2.1rem;
+    width: 100%;
+    box-sizing: border-box;
 }.input-group-addon:hover{
     background-color: dodgerblue;
 }
@@ -587,7 +590,7 @@
     padding: var(--pad-xs);
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    /* box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 0px 1px; */
     transition: all 0.2s linear;
     background-color: white;
 }.certificate-item-wrapper:hover{

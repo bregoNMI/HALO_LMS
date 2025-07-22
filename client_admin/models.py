@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from pydantic import ValidationError
-from content.models import Course, Module, Lesson, EventDate
+from content.models import Course, Module, Lesson, EventDate, Upload
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from storages.backends.s3boto3 import S3Boto3Storage
@@ -275,36 +275,75 @@ class UserCourse(models.Model):
     
     def update_progress(self):
         """
-        Recalculates the user's progress in this course based on the highest recorded progress per lesson.
-        If progress reaches 100%, marks course as completed.
+        Recalculates the user's progress in this course by combining SCORMTrackingData progress
+        and UserLessonProgress completions. Gives preference to SCORM progress if available.
         """
         lessons = Lesson.objects.filter(module__course=self.course)
         total_lessons = lessons.count()
- 
+
         if total_lessons == 0:
             self.progress = 0
             self.stored_progress = 0
             self.is_course_completed = False
             self.save()
             return
- 
-        # Get max progress per lesson
-        lesson_progress = (
-            SCORMTrackingData.objects
-            .filter(user=self.user, lesson_id__in=lessons.values_list('id', flat=True))
-            .values('lesson_id')
-            .annotate(max_progress=models.Max('progress'))
+
+        lesson_ids = lessons.values_list('id', flat=True)
+
+        # Get highest SCORM progress per lesson
+        scorm_progress = {
+            entry['lesson_id']: entry['max_progress']
+            for entry in SCORMTrackingData.objects
+                .filter(user=self.user, lesson_id__in=lesson_ids)
+                .values('lesson_id')
+                .annotate(max_progress=models.Max('progress'))
+        }
+
+        # Get completed lesson IDs from UserLessonProgress
+        completed_lesson_ids = set(
+            UserLessonProgress.objects
+                .filter(
+                    user_module_progress__user_course=self,
+                    lesson_id__in=lesson_ids,
+                    completed=True
+                )
+                .values_list('lesson_id', flat=True)
         )
- 
-        total_progress = sum(lp['max_progress'] for lp in lesson_progress)
-        self.progress = int(min((total_progress / total_lessons) * 100, 100))
- 
-        # ✅ NEW: check for full completion
+
+        # Calculate combined progress
+        total_progress = 0
+        for lesson_id in lesson_ids:
+            if lesson_id in scorm_progress:
+                total_progress += min(scorm_progress[lesson_id], 1.0)  # Cap at 1.0
+            elif lesson_id in completed_lesson_ids:
+                total_progress += 1.0  # Fully completed
+
+        percentage = int(min((total_progress / total_lessons) * 100, 100))
+        self.progress = percentage
+
+        # Mark course complete if necessary
         if self.progress >= 100 and not self.is_course_completed:
-            self.is_course_completed = True
-            self.completed_on_date = datetime.now().date()
-            self.completed_on_time = datetime.now().time()
- 
+            # Assignment completion check
+            allowed_statuses = ['completed', 'approved']
+            course_assignments = Upload.objects.filter(lesson__module__course=self.course)
+
+            incomplete_assignments = course_assignments.exclude(
+                id__in=UserAssignmentProgress.objects.filter(
+                    user=self.user,
+                    assignment__in=course_assignments,
+                    status__in=allowed_statuses
+                ).values_list('assignment_id', flat=True)
+            )
+
+            if incomplete_assignments.exists():
+                print(f"🛑 Blocking course completion — incomplete assignments: {list(incomplete_assignments.values_list('id', flat=True))}")
+                # Do NOT mark course as complete
+            else:
+                # All lessons + assignments completed — finalize
+                self.is_course_completed = True
+                self.completed_on_date = datetime.now().date()
+                self.completed_on_time = datetime.now().time()
+
         self.stored_progress = self.progress
         self.save()
 
@@ -371,6 +410,42 @@ class UserLessonProgress(models.Model):
 
     def __str__(self):
         return f"{self.user_module_progress.user_course.user.username} - {self.lesson.title}"
+    
+class UserAssignmentProgress(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('submitted', 'Submitted'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    assignment = models.ForeignKey(Upload, on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lesson, null=True, blank=True, on_delete=models.SET_NULL)
+    file = models.FileField(upload_to='user_assignments/', null=True, blank=True)
+    student_notes = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    completed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(User, null=True, blank=True, related_name='reviews', on_delete=models.SET_NULL)
+    review_notes = models.TextField(blank=True, null=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('user', 'assignment', 'lesson')
+
+    @property
+    def is_approved(self):
+        return self.status == 'approved'
+
+    @property
+    def is_submitted(self):
+        return self.status in ['submitted', 'approved', 'rejected']
+
+
+    def __str__(self):
+        return f"{self.user} - {self.assignment} - {self.status}"
     
 class GeneratedCertificate(models.Model):
     user_course = models.ForeignKey('UserCourse', on_delete=models.CASCADE, related_name='certificates', blank=True, null=True)

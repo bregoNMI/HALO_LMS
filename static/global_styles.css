@@ -23,7 +23,7 @@ h1,h2,h3,h4,h5,h6{
   gap: 0.5rem;
   /* padding: 5px var(--pad-sm); */
   padding: 5.5px var(--pad-med);
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: var(--btn-font);
   cursor: pointer;
   text-decoration: none;
@@ -59,6 +59,46 @@ h1,h2,h3,h4,h5,h6{
 }.action-button-border:hover{
   background-color: var(--bg-color3);
   color: var(--text-color5);
+}.action-button-border:active {
+  background-color: #f2f2f2;
+}
+
+/* Course Primary and Secondary buttons */
+.course-button-primary, .course-button-secondary{
+  display: flex;
+  gap: 0.5rem;
+  /* padding: 5px var(--pad-sm); */
+  padding: 5.5px var(--pad-med);
+  border-radius: 8px;
+  font-size: var(--btn-font);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s linear;
+  border: none;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  box-sizing: border-box;
+}
+
+.course-button-primary{
+  background-color: white;
+  color: #a65bec;
+  border: 2px solid #a65bec;
+  gap: 0.5rem;
+  /* flex: 1; */
+}.course-button-primary:hover{
+  background-color: #a65bec;
+  border-color: #a65bec;
+  color: white;
+}
+
+.course-button-secondary{
+  background-color: var(--bg-color4);
+  color: var(--text-color5);
+}.course-button-secondary:hover{
+  background-color: var(--bg-color1);
 }
 
 .rounded-lg{  
@@ -412,6 +452,10 @@ h1,h2,h3,h4,h5,h6{
   transform: translateY(0rem);
 }
 
+#courseItemPopup .popup-content .assignment-item{
+  pointer-events: none;
+}
+
 .footer-buttons-right{
   display: flex;
   gap: 1rem;
@@ -512,7 +556,7 @@ h1,h2,h3,h4,h5,h6{
 }
 .scrollable-content::-webkit-scrollbar-thumb {
   background: #a3a3a3; /* Scrollbar thumb color */
-  border-radius: 2px;
+  border-radius: 6px;
 }
 .scrollable-content::-webkit-scrollbar-thumb:hover {
   background: #707070; /* Scrollbar thumb color on hover */
@@ -704,6 +748,50 @@ h1,h2,h3,h4,h5,h6{
   margin-top: 3.8rem;
 }.margin-top-20{
   margin-top: 4rem;
+}
+
+.margin-bottom-0{
+  margin-bottom: 0 !important;
+}.margin-bottom-1{
+  margin-bottom: 0.2rem;
+}.margin-bottom-2{
+  margin-bottom: 0.4rem;
+}.margin-bottom-3{
+  margin-bottom: 0.6rem;
+}.margin-bottom-4{
+  margin-bottom: 0.8rem;
+}.margin-bottom-5{
+  margin-bottom: 1rem;
+}.margin-bottom-6{
+  margin-bottom: 1.2rem;
+}.margin-bottom-7{
+  margin-bottom: 1.4rem;
+}.margin-bottom-8{
+  margin-bottom: 1.6rem;
+}.margin-bottom-9{
+  margin-bottom: 1.8rem;
+}.margin-bottom-10{
+  margin-bottom: 2rem;
+}.margin-bottom-11{
+  margin-bottom:2.2rem;
+}.margin-bottom-12{
+  margin-bottom: 2.4rem;
+}.margin-bottom-13{
+  margin-bottom: 2.6rem;
+}.margin-bottom-14{
+  margin-bottom: 2.8rem;
+}.margin-bottom-15{
+  margin-bottom: 3rem;
+}.margin-bottom-16{
+  margin-bottom: 3.2rem;
+}.margin-bottom-17{
+  margin-bottom: 3.4rem;
+}.margin-bottom-18{
+  margin-bottom: 3.6rem;
+}.margin-bottom-19{
+  margin-bottom: 3.8rem;
+}.margin-bottom-20{
+  margin-bottom: 4rem;
 }
 
 /* No Padding */
@@ -1240,7 +1328,7 @@ h1,h2,h3,h4,h5,h6{
   bottom: 4rem;
   flex-direction: column-reverse;
   transition: all 0.3s linear;
-  z-index: 4;
+  z-index: 11;
 }.new-validation-message-container .alert{
   position: relative;
   margin: 0;
@@ -1477,12 +1565,12 @@ input.disabled{
 }
 
 /*Searchable User dropdown menu */
-.user-dropdown, .timezone-dropdown, .category-dropdown, .template-category-dropdown, .quiz-dropdown, .quiz-template-dropdown{
+.user-dropdown, .timezone-dropdown, .category-dropdown, .template-category-dropdown, .quiz-dropdown, .quiz-template-dropdown, .assignment-dropdown{
   position: relative;
   gap: 1rem;
 }
 
-.user-dropdown .search-icon, .timezone-dropdown .search-icon, .category-dropdown .search-icon, .template-category-dropdown .search-icon, .quiz-dropdown .search-icon, .quiz-template-dropdown .search-icon{
+.user-dropdown .search-icon, .timezone-dropdown .search-icon, .category-dropdown .search-icon, .template-category-dropdown .search-icon, .quiz-dropdown .search-icon, .quiz-template-dropdown .search-icon, .assignment-dropdown .search-icon{
   position: absolute;
   right: 0.6rem;
   top: 0.65rem;
@@ -1492,17 +1580,17 @@ input.disabled{
   pointer-events: none;
 }
 
-.user-dropdown input, .timezone-dropdown input, .category-dropdown input, .template-category-dropdown input, .quiz-dropdown input, .quiz-template-dropdown input{
+.user-dropdown input, .timezone-dropdown input, .category-dropdown input, .template-category-dropdown input, .quiz-dropdown input, .quiz-template-dropdown input, .assignment-dropdown input{
   padding-right: 2rem;
   text-overflow: ellipsis;
 }
 
-.user-dropdown input:focus-visible, .timezone-dropdown input:focus-visible, .category-dropdown input:focus-visible, .template-category-dropdown input:focus-visible, .quiz-dropdown input:focus-visible, .quiz-template-dropdown input:focus-visible{
+.user-dropdown input:focus-visible, .timezone-dropdown input:focus-visible, .category-dropdown input:focus-visible, .template-category-dropdown input:focus-visible, .quiz-dropdown input:focus-visible, .quiz-template-dropdown input:focus-visible, .assignment-dropdown input:focus-visible{
   outline: none;
   border-bottom: 2px solid #c7c7db;
 }
 
-.userList, .timezoneList, .categoryList, .quizList, .quizTemplateList{
+.userList, .timezoneList, .categoryList, .quizList, .quizTemplateList, .assignmentList{
   display: none;
   max-height: 200px;
   overflow-y: auto;
@@ -1523,7 +1611,7 @@ input.disabled{
   padding-bottom: 0;
 }
 
-.userList .dropdown-item, .timezoneList .dropdown-item, .categoryList .dropdown-item, .quizList .dropdown-item, .quizTemplateList .dropdown-item {
+.userList .dropdown-item, .timezoneList .dropdown-item, .categoryList .dropdown-item, .quizList .dropdown-item, .quizTemplateList .dropdown-item, .assignmentList .dropdown-item {
   padding: 8px;
   cursor: pointer;
   border-bottom: 1px solid #ececf1;
@@ -1557,20 +1645,20 @@ input.disabled{
   margin-top: 0.2rem;
 }
 
-.userList .dropdown-item:hover, .timezoneList .dropdown-item:hover, .categoryList .dropdown-item:hover, .quizList .dropdown-item:hover, .quizTemplateList .dropdown-item:hover{
+.userList .dropdown-item:hover, .timezoneList .dropdown-item:hover, .categoryList .dropdown-item:hover, .quizList .dropdown-item:hover, .quizTemplateList .dropdown-item:hover, .assignmentList .dropdown-item:hover{
   background-color: var(--bg-color3);
 }
 
-.userList .dropdown-item:hover .checkmark, .timezoneList .dropdown-item:hover .checkmark, .categoryList .dropdown-item:hover .checkmark, .quizList .dropdown-item:hover .checkmark, .quizTemplateList .dropdown-item:hover .checkmark{
+.userList .dropdown-item:hover .checkmark, .timezoneList .dropdown-item:hover .checkmark, .categoryList .dropdown-item:hover .checkmark, .quizList .dropdown-item:hover .checkmark, .quizTemplateList .dropdown-item:hover .checkmark, .assignmentList .dropdown-item:hover .checkmark{
   border-color: var(--primary-blue);
 }
 
-.userList .dropdown-item.selected, .timezoneList .dropdown-item.selected, .categoryList .dropdown-item.selected, .quizList .dropdown-item.selected, .quizTemplateList .dropdown-item.selected {
+.userList .dropdown-item.selected, .timezoneList .dropdown-item.selected, .categoryList .dropdown-item.selected, .quizList .dropdown-item.selected, .quizTemplateList .dropdown-item.selected, .assignmentList .dropdown-item.selected {
   background-color: var(--item-selected-blue);
   border-bottom: 1px solid #ffffff;
 }
 
-.userList .dropdown-item:last-child, .userList .dropdown-item.selected:last-child, .timezoneList .dropdown-item:last-child, .timezoneList .dropdown-item.dropdown-item.selected:last-child,  .categoryList .dropdown-item.selected:last-child, .categoryList .dropdown-item.selected:last-child, .quizList .dropdown-item.selected:last-child, .quizTemplateList .dropdown-item.selected:last-child{
+.userList .dropdown-item:last-child, .userList .dropdown-item.selected:last-child, .timezoneList .dropdown-item:last-child, .timezoneList .dropdown-item.dropdown-item.selected:last-child,  .categoryList .dropdown-item.selected:last-child, .categoryList .dropdown-item.selected:last-child, .quizList .dropdown-item.selected:last-child, .quizTemplateList .dropdown-item.selected:last-child, .assignmentList .dropdown-item.selected:last-child{
   border: none;
 }
 
@@ -1580,13 +1668,13 @@ input.disabled{
   font-size: 0.9rem;
 }
 
-.selectedUsers, .selectedTimezones, .selectedCategories {
+.selectedUsers, .selectedTimezones, .selectedCategories, .selectedAssignments {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.selectedUsers .selected-user, .selectedTimezones .selected-timezone, .selectedCategories .selected-category, .selectedCourses .selected-course  {
+.selectedUsers .selected-user, .selectedTimezones .selected-timezone, .selectedCategories .selected-category, .selectedCourses .selected-course, .selectedAssignments .selected-assignment  {
   display: flex;
   justify-content: space-between;
   padding: 3px 8px;
@@ -1597,13 +1685,13 @@ input.disabled{
   gap: 0.6rem;
 }
 
-.selected-user-details, .selected-timezone-details, .selected-category-details, .selected-course-details {
+.selected-user-details, .selected-timezone-details, .selected-category-details, .selected-course-details, .selected-assignment-details {
   font-weight: 600;
   color: #41454d;
   font-size: 0.75rem;
 }
 
-.selectedUsers .remove-user, .selectedTimezones .remove-timezone, .selectedCategories .remove-category {
+.selectedUsers .remove-user, .selectedTimezones .remove-timezone, .selectedCategories .remove-category, .selectedAssignments .remove-assignment {
   cursor: pointer;
 }
 

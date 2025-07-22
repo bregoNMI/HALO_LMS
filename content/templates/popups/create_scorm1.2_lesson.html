@@ -7,7 +7,7 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div class="popup-body">
+        <div class="popup-body scrollable-content">
             <div class="course-content-input">
                 <label class="edit-user-label" for="SCORM1.2lessonTitle">Lesson Title<span class="required-asterisk">*</span></label>
                 <input type="text" id="SCORM1.2lessonTitle" name="SCORM1.2lessonTitle" placeholder="Lesson Title" maxlength="200">
@@ -42,6 +42,32 @@
                 <span>Uploading Lesson File, please wait...</span>
             </div>
             <!-- <input type="hidden" id="SCORM1.2fileURLInput" name="fileURL" accept=".zip"> -->
+            <div class="course-content-input padding-top-1">
+                <label class="edit-user-label" for="SCORM1.2assignmentsToggle">Attach Assignments</label>
+                <label class="toggle-switch">
+                    <input class="toggle-option" type="checkbox" id="SCORM1.2assignmentsToggle" name="SCORM1.2assignmentsToggle">
+                    <div class="toggle-switch-background">
+                      <div class="toggle-switch-handle"></div>
+                    </div>
+                </label>
+                <span class="course-content-input-subtext"> Select from the list of existing course assignments to be completed with this lesson. Attached assignments will be removed from the course assignments and added to this lesson.</span>
+            </div>
+            <!-- Lesson Assignments -->
+            <div class="toggle-option-details margin-top-5 margin-bottom-5">
+                <div id="selectedAssignments">
+                    <div class="right-column-file-wrapper">
+                        <div id="assignmentDropdown2" class="assignment-dropdown course-content-input">
+                            <input type="text" class="assignmentSearch" placeholder="Search assignments...">
+                            <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                            <div class="assignmentList scrollable-content-inner">
+                                <div class="loadingIndicator" style="display:none;">Loading...</div>
+                            </div>
+                            
+                            <div class="selectedAssignments"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="popup-footer">
             <div class="spacer"></div>

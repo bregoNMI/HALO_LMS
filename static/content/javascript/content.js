@@ -402,11 +402,11 @@ function createNewUpload(){
         <div class="info-card-header collapsable-header">
             <div class="card-header-left">
                 <i class="fa-thin fa-grip-dots-vertical upload-drag-icon"></i>
-                <input class="upload-title" type="text" placeholder="New Upload">
+                <input class="upload-title" type="text" placeholder="New Assignment">
             </div>
             <div class="upload-header-right">
-                <div onclick="openPopup('uploadDeleteConfirmation', 'deleteUpload', this)" id="deleteUpload" class="upload-delete tooltip" data-tooltip="Delete Upload">
-                    <span class="tooltiptext">Delete Upload</span>
+                <div onclick="openPopup('uploadDeleteConfirmation', 'deleteUpload', this)" id="deleteUpload" class="upload-delete tooltip" data-tooltip="Delete Assignment">
+                    <span class="tooltiptext">Delete Assignment</span>
                     <i class="fa-regular fa-trash-can"></i>
                 </div>
                 <div class="upload-dropdown">
@@ -415,9 +415,32 @@ function createNewUpload(){
             </div>
         </div>
         <div class="upload-card-body">
-
+            <div class="right-column-file-wrapper">
+                <h5 class="right-column-option-header">Assignment Reference</h5>
+                <div onclick="openFileLibrary('assignmentSource', '', '${newUploadId}')" class="custom-file-upload-container">
+                    <div class="custom-file-upload">
+                        <input type="file" id="assignmentSource-${newUploadId}" name="assignmentSource" style="display: none;" readonly="">
+                        <i class="fa-regular fa-folder-open"></i> Choose File
+                    </div>
+                    <div class="custom-file-title">
+                        <span id="assignmentSourceDisplay-${newUploadId}" class="file-name-display">No file selected</span>
+                    </div>
+                    <input type="hidden" id="assignmentURLInput-${newUploadId}" name="assignmentURL">
+                    <input type="hidden" id="assignmentTypeInput-${newUploadId}" name="assignmentType">
+                </div>
+                <span class="course-content-input-subtext"> Provide a file that Learners can access with this assignment. </span>
+            </div>
+            <div class="upload-card-content">
+                <label class="edit-user-label" for="assignmentDescription-${newUploadId}">Assignment Instructions</label>
+                <div class="editor-container" id="assignmentDescription-${newUploadId}"></div>
+                <div class="quill-character-counter">
+                    <div class="quill-current-counter">0</div>
+                    <span>/</span>
+                    <div class="quill-max-counter">2000</div>
+                </div>
+            </div>
             <div class="course-content-input">
-                <label class="edit-user-label">Upload Approval</label>
+                <label class="edit-user-label">Assignment Approval</label>
                 <div class="content-input-options-row">
                     <label class="custom-radio">
                         <input class="radio-option" type="radio" name="upload_approval${newUploadId}" data-target="uploadApprovalNone${newUploadId}" value="None" checked="">
@@ -443,19 +466,19 @@ function createNewUpload(){
             </div>
             <!-- None Approval -->
             <div id="uploadApprovalNone${newUploadId}" class="toggle-option-details show-toggle-option-details">
-                <span class="course-content-input-subtext"> No approval is required for the course upload. </span>
+                <span class="course-content-input-subtext"> No approval is required for the course assignment. </span>
             </div>
             <!-- Instructor Approval -->
             <div id="uploadApprovalInstructor${newUploadId}" class="toggle-option-details">
-                <span class="course-content-input-subtext"> An Instructor must approve the course upload. </span>
+                <span class="course-content-input-subtext"> An Instructor must approve the course assignment. </span>
             </div>
             <!-- Admin Approval -->
             <div id="uploadApprovalAdmin${newUploadId}" class="toggle-option-details">
-                <span class="course-content-input-subtext"> An Admin must approve the course upload. </span>
+                <span class="course-content-input-subtext"> An Admin must approve the course assignment. </span>
             </div>
             <!-- Other Approval -->
             <div id="uploadApprovalOther${newUploadId}" class="toggle-option-details">
-                <span class="course-content-input-subtext"> Please select the User(s) who will approve the course upload. </span>
+                <span class="course-content-input-subtext"> Please select the User(s) who will approve the course assignment. </span>
                 <div class="right-column-file-wrapper">
                     <div id="userDropdownupload_approval${newUploadId}" class="user-dropdown course-content-input">
                         <input type="text" class="userSearch" placeholder="Search users...">
@@ -475,6 +498,8 @@ function createNewUpload(){
     assignUploadHeaderListeners();
     testUploadCount();
     initializeRadioOptions();
+    initializeClearImageFields();
+    initializeQuill(`#assignmentDescription-${newUploadId}`);
     // Initialize dropdown for all containers on the page
     document.querySelectorAll('.user-dropdown').forEach(dropdown => {
         initializeUserDropdown(dropdown.id);
@@ -489,6 +514,8 @@ function openPopup(popupId, action = null, context = null) {
     setTimeout(() => {
         popupContent.classList.add('animate-popup-content');
     }, 100);
+
+    window.activeLessonPopup = currentPopup;
 
     if(action == 'createLesson'){
         // Determine the closest lesson-container based on the clicked element
@@ -517,6 +544,11 @@ function openPopup(popupId, action = null, context = null) {
             window.uploadToDelete = context.closest('.upload-card');
         // Add more cases as needed
     }
+
+    // Re-Initializing the assignments to show the updated list within the lesson popups
+    document.querySelectorAll('.assignment-dropdown').forEach(dropdown => {
+        updateAssignmentDropdown(dropdown.id);
+    });
 }
 
 function closeCreateLessonPopup(popupId){
@@ -538,6 +570,14 @@ function closePopup(popupId) {
     if(popupId === 'moduleDeleteConfirmation'){window.moduleToDelete = null};
     if(popupId === 'referenceDeleteConfirmation'){window.referenceToDelete = null};
     if(popupId === 'uploadDeleteConfirmation'){window.uploadToDelete = null};
+    if(popupId === 'editLesson'){
+        // Clearing all assignment dropdowns
+        setTimeout(() => {
+            document.querySelectorAll('.assignment-dropdown').forEach(dropdown => {
+                clearSelectedAssignments(dropdown.id);
+            });
+        }, 300);
+    };
     const currentPopup = document.getElementById(popupId);
     const popupContent = currentPopup.querySelector('.popup-content');
     popupContent.classList.remove('animate-popup-content');
@@ -545,7 +585,6 @@ function closePopup(popupId) {
         currentPopup.style.display = "none";
     }, 200);
     clearQuizLessonInputs();
-    console.log('close');
 }
 
 // Function to confirm the deletion of a module
@@ -610,6 +649,8 @@ async function createLesson(lessonType) {
     let fileName;
     let popupToClose;
     let quizData = {};
+    let lessonAssignmentsToggle;
+    let lessonAssignmentsList = [];
 
     // Determine the title, description, and file input based on lesson type
     if (lessonType === 'file' && window.closestLessonContainer) {
@@ -631,6 +672,8 @@ async function createLesson(lessonType) {
         fileName = document.getElementById('SCORM2004fileNameDisplay').innerText;
         popupToClose = 'scorm2004Popup';
     }
+
+    lessonAssignmentsToggle = document.getElementById('lessonAssignmentsToggle').checked;
        
 
     if (window.closestLessonContainer) {
@@ -643,13 +686,13 @@ async function createLesson(lessonType) {
         if (lessonType === 'file' && typeof fileInput === 'string' && fileInput.startsWith('http')) {
             // Use the URL directly
             fileURL = fileInput;
-            createAndAppendLessonCard(index, title, description, fileURL, fileName, lessonType);
+            createAndAppendLessonCard(index, title, description, fileURL, fileName, lessonType, '', lessonAssignmentsToggle);
         }
         // Case: fileInput is a File object
         else if (fileInput instanceof File) {
             const fileId = await uploadFile(fileInput); // Upload the file and get the ID
             if (fileId) {
-                createAndAppendLessonCard(index, title, description, fileId, fileName, lessonType); // Use fileId
+                createAndAppendLessonCard(index, title, description, fileId, fileName, lessonType, '', lessonAssignmentsToggle); // Use fileId
             } else {
                 console.error('File upload failed, lesson not created');
             }
@@ -835,79 +878,81 @@ function clearSCORM2004LessonInputs(){
     createFileLessonBtn.setAttribute('disabled', true);
 }
 function clearQuizLessonInputs() {
-    const quizLessonFirstBtn = document.getElementById('quizLessonFirstBtn');
+    setTimeout(() => {
+        const quizLessonFirstBtn = document.getElementById('quizLessonFirstBtn');
 
-    // Title and description
-    const titleInput = document.getElementById('quizlessonTitle');
-    if (titleInput) titleInput.value = '';
-    const editor = document.querySelector('#quizlessonDescription .ql-editor');
-    if (editor) editor.innerHTML = '<p><br></p>';
+        // Title and description
+        const titleInput = document.getElementById('quizlessonTitle');
+        if (titleInput) titleInput.value = '';
+        const editor = document.querySelector('#quizlessonDescription .ql-editor');
+        if (editor) editor.innerHTML = '<p><br></p>';
 
-    // Reset quiz source selection
-    const quizTemplateInput = document.getElementById('selectedQuizTemplate');
-    if (quizTemplateInput) {
-        quizTemplateInput.value = '';
-        quizTemplateInput.removeAttribute('data-id');
-    }
-    const quizInput = document.getElementById('selectedQuiz');
-    if (quizInput) {
-        quizInput.value = '';
-        quizInput.removeAttribute('data-id');
-    }
-    document.querySelectorAll('input[name="create_quiz_from"]').forEach(r => r.checked = false);
-    const defaultCreateFrom = document.querySelector('input[name="create_quiz_from"][value="create_quiz_from1"]');
-    if (defaultCreateFrom) defaultCreateFrom.checked = true;
+        // Reset quiz source selection
+        const quizTemplateInput = document.getElementById('selectedQuizTemplate');
+        if (quizTemplateInput) {
+            quizTemplateInput.value = '';
+            quizTemplateInput.removeAttribute('data-id');
+        }
+        const quizInput = document.getElementById('selectedQuiz');
+        if (quizInput) {
+            quizInput.value = '';
+            quizInput.removeAttribute('data-id');
+        }
+        document.querySelectorAll('input[name="create_quiz_from"]').forEach(r => r.checked = false);
+        const defaultCreateFrom = document.querySelector('input[name="create_quiz_from"][value="create_quiz_from1"]');
+        if (defaultCreateFrom) defaultCreateFrom.checked = true;
 
-    // Reset quiz type radio
-    document.querySelectorAll('input[name="quiz_type"]').forEach(r => r.checked = false);
-    const defaultQuizType = document.querySelector('input[name="quiz_type"][value="standard_quiz"]');
-    if (defaultQuizType) defaultQuizType.checked = true;
+        // Reset quiz type radio
+        document.querySelectorAll('input[name="quiz_type"]').forEach(r => r.checked = false);
+        const defaultQuizType = document.querySelector('input[name="quiz_type"][value="standard_quiz"]');
+        if (defaultQuizType) defaultQuizType.checked = true;
 
-    const passingScoreInput = document.getElementById('quiz_passing_score');
-    if (passingScoreInput) passingScoreInput.value = '70';
-    
-    const requirePassingInput = document.getElementById('quiz_require_passing');
-    if (requirePassingInput) requirePassingInput.checked = false;
-    
-    const durationInput = document.getElementById('quiz_duration');
-    if (durationInput) durationInput.value = '120';
-    
-    const warningsInput = document.getElementById('quiz_maximum_warnings');
-    if (warningsInput) warningsInput.value = '10';
-    
-    const randomizeInput = document.getElementById('quiz_randomize_order');
-    if (randomizeInput) randomizeInput.checked = false;
-    
-    const revealInput = document.getElementById('quiz_reveal_answers');
-    if (revealInput) revealInput.checked = false;    
+        const passingScoreInput = document.getElementById('quiz_passing_score');
+        if (passingScoreInput) passingScoreInput.value = '70';
+        
+        const requirePassingInput = document.getElementById('quiz_require_passing');
+        if (requirePassingInput) requirePassingInput.checked = false;
+        
+        const durationInput = document.getElementById('quiz_duration');
+        if (durationInput) durationInput.value = '120';
+        
+        const warningsInput = document.getElementById('quiz_maximum_warnings');
+        if (warningsInput) warningsInput.value = '10';
+        
+        const randomizeInput = document.getElementById('quiz_randomize_order');
+        if (randomizeInput) randomizeInput.checked = false;
+        
+        const revealInput = document.getElementById('quiz_reveal_answers');
+        if (revealInput) revealInput.checked = false;    
 
-    // Reset quiz attempts custom dropdown
-    const attemptsInput = document.getElementById('quiz_attempts');
-    if (attemptsInput) attemptsInput.value = 'Unlimited';
+        // Reset quiz attempts custom dropdown
+        const attemptsInput = document.getElementById('quiz_attempts');
+        if (attemptsInput) attemptsInput.value = 'Unlimited';
 
-    // Reset Create/Next button state
-    if (quizLessonFirstBtn) {
-        quizLessonFirstBtn.classList.add('disabled');
-        quizLessonFirstBtn.setAttribute('disabled', true);
-    }
+        // Reset Create/Next button state
+        if (quizLessonFirstBtn) {
+            quizLessonFirstBtn.classList.add('disabled');
+            quizLessonFirstBtn.setAttribute('disabled', true);
+        }
 
-    // Reset quiz settings button to default mode (creation)
-    const createBtn = document.getElementById('createQuizLessonBtn');
-    if (createBtn) {
-        createBtn.removeAttribute('data-editing');
-        createBtn.setAttribute('onclick', 'createQuizLesson()');
-        createBtn.innerText = 'Create Lesson';
-    }
+        // Reset quiz settings button to default mode (creation)
+        const createBtn = document.getElementById('createQuizLessonBtn');
+        if (createBtn) {
+            createBtn.removeAttribute('data-editing');
+            createBtn.setAttribute('onclick', 'createQuizLesson()');
+            createBtn.innerText = 'Create Lesson';
+        }
 
-    // Optional: Reset quiz popup title
-    const mainTitle = document.getElementById('quizPopupMainTitle');
-    if (mainTitle) mainTitle.innerText = 'Create New Lesson';
+        // Optional: Reset quiz popup title
+        const mainTitle = document.getElementById('quizPopupMainTitle');
+        if (mainTitle) mainTitle.innerText = 'Create New Lesson';
 
-    console.log('Quiz lesson inputs cleared to default.');
+        console.log('Quiz lesson inputs cleared to default.');
+    }, 300);
 }
 
 let tempLessonId = 1;
-function createAndAppendLessonCard(index, title, description, fileURL, fileName, lessonType, quizData = {}) {
+function createAndAppendLessonCard(index, title, description, fileURL, fileName, lessonType, quizData = {}, lessonAssignmentsToggle) {
     const newLesson = document.createElement('div');
     newLesson.className = 'lesson-card';
     newLesson.setAttribute('data-temp-id', tempLessonId);
@@ -916,8 +961,44 @@ function createAndAppendLessonCard(index, title, description, fileURL, fileName,
         <input class="lesson-file-name" type="hidden" value="${fileName}">
         <input class="lesson-type" type="hidden" value="${lessonType}">
         <input class="lesson-file" type="hidden" value="${fileURL}">
-        <input class="lesson-description" type="hidden" value='${description}'>
+        <input class="lesson-description" type="hidden" value="${description}">
+        <input class="lesson-assignments-toggle" type="hidden" value="${lessonAssignmentsToggle}">
     `;
+
+    if (lessonAssignmentsToggle && window.activeLessonPopup) {
+        const assignmentDropdown = window.activeLessonPopup.querySelector('.assignment-dropdown');
+    
+        if (assignmentDropdown) {
+            const selectedAssignments = assignmentDropdown.querySelectorAll('.selected-assignment');
+    
+            selectedAssignments.forEach((assignmentEl, index) => {
+                const assignmentId = assignmentEl.getAttribute('data-assignment-id');
+                if (!assignmentId) {
+                    console.warn(`⚠ Assignment element is missing data-assignment-id`);
+                    return;
+                }
+    
+                console.log('assignmentId:', assignmentId);
+                const uploadCard = document.querySelector(`.upload-card[data-id='${assignmentId}'], .upload-card[data-temp-id='${assignmentId}']`);
+                if (!uploadCard) {
+                    console.warn(`⚠ Could not find upload card for assignmentId: ${assignmentId}`);
+                    return;
+                }
+    
+                const realId = uploadCard.getAttribute('data-id') || '';
+                const tempId = uploadCard.getAttribute('data-temp-id') || '';
+    
+                hiddenInputs += `
+                    <input type="hidden" class="lesson-assignment-id" name="lesson_assignment_id_${index}" value="${realId}">
+                    <input type="hidden" class="lesson-assignment-temp-id" name="lesson_assignment_temp_id_${index}" value="${tempId}">
+                `;
+            });
+    
+            hiddenInputs += `
+                <input type="hidden" class="lesson-assignment-count" value="${selectedAssignments.length}">
+            `;
+        }
+    }       
 
     // Separate quiz fields
     if (lessonType === 'quiz') {
@@ -947,7 +1028,7 @@ function createAndAppendLessonCard(index, title, description, fileURL, fileName,
         <div class="lesson-header-right">
             <div class="lesson-edit tooltip" data-tooltip="Edit Lesson">
                 <span class="tooltiptext">Edit Lesson</span>
-                <i class="fa-regular fa-pencil"></i>
+                <i class="fa-solid fa-pen"></i>
             </div>
             <div class="lesson-delete tooltip" data-tooltip="Delete Lesson">
                 <span class="tooltiptext">Delete Lesson</span>
@@ -1152,7 +1233,6 @@ function assignEditHandlers() {
 
     editButtons.forEach(button => {
         button.onclick = function () {
-            console.log(button);
             // Get the lesson card to be edited
             const lessonCard = button.closest('.lesson-card');
             window.lessonToEdit = lessonCard; // Store it globally if needed
@@ -1162,6 +1242,7 @@ function assignEditHandlers() {
             const title = lessonTitleElement.split(': ')[1]; // Extract title after "Lesson X: "
             const descriptionElement = lessonCard.querySelector('.lesson-description');
             const description = descriptionElement ? descriptionElement.value : '';
+            const lessonAssignmentToggle = lessonCard.querySelector('.lesson-assignments-toggle').value;
             let fileURLElement;
             let fileURL;
             
@@ -1183,6 +1264,44 @@ function assignEditHandlers() {
             document.querySelector('#editLessonDescription .ql-editor').innerHTML = description;
             document.getElementById('editFileURLInput').value = fileURL;
             document.getElementById('editLessonType').className = 'selected-lesson-type';
+            
+            if (lessonAssignmentToggle === 'true') {
+                // Reverse logic, were setting it to false first then clicking the element to have the search assignments fields show up beneath it
+                document.getElementById('editLessonAssignmentsToggle').checked = false;
+                document.getElementById('editLessonAssignmentsToggle').click();
+                const assignmentCount = parseInt(lessonCard.querySelector('.lesson-assignment-count')?.value || 0);
+                const selectedAssignments = [];
+            
+                for (let i = 0; i < assignmentCount; i++) {
+                    const id = lessonCard.querySelector(`.lesson-assignment-id[name="lesson_assignment_id_${i}"]`)?.value;
+                    const tempId = lessonCard.querySelector(`.lesson-assignment-temp-id[name="lesson_assignment_temp_id_${i}"]`)?.value;
+                    const assignmentId = id || tempId;
+            
+                    if (assignmentId) {
+                        // Find the corresponding upload title
+                        const card = document.querySelector(`.upload-card[data-id="${assignmentId}"], .upload-card[data-temp-id="${assignmentId}"]`);
+                        const titleInput = card?.querySelector('.upload-title');
+                        const assignmentTitle = titleInput?.value?.trim() || 'New Assignment';
+            
+                        selectedAssignments.push({ id: assignmentId, title: assignmentTitle });
+                    }
+                }
+            
+                // Now insert them into the assignment dropdown (if it's already rendered)
+                const dropdown = document.querySelector('#editLesson .assignment-dropdown'); // adjust selector if needed
+                const selectedList = dropdown?.querySelector('.selectedAssignments');
+            
+                if (dropdown && selectedList) {
+                    selectedAssignments.forEach(({ id, title }) => {
+                        appendSelectedAssignment(id, title, selectedList);
+                    });
+                    
+                }
+            }else{
+                document.getElementById('editLessonAssignmentsToggle').checked = true;
+                document.getElementById('editLessonAssignmentsToggle').click();
+            }
+            
             // document.getElementById('lessonFileUploadBtn').setAttribute('onclick', '');
 
             const editFileUploadSection = document.getElementById('editFileUploadSection');
@@ -1375,6 +1494,58 @@ function updateLessonCard(lessonCard, newTitle, newDescription, fileName, newFil
         lessonCard.querySelector('.lesson-quiz-randomize-order').value = quizData.randomize_order;
         lessonCard.querySelector('.lesson-quiz-reveal-answers').value = quizData.reveal_answers;
     }
+
+    // Remove old assignment-related inputs
+    lessonCard.querySelectorAll('.lesson-assignment-id, .lesson-assignment-temp-id, .lesson-assignment-count')
+    .forEach(el => el.remove());
+
+    // Recreate inputs from the currently selected assignments
+    const assignmentDropdown = document.querySelector('#editLesson .assignment-dropdown');
+    if (assignmentDropdown) {
+        const selectedAssignments = assignmentDropdown.querySelectorAll('.selected-assignment');
+
+        selectedAssignments.forEach((assignmentEl, index) => {
+            const assignmentId = assignmentEl.getAttribute('data-assignment-id');
+            if (!assignmentId) return;
+
+            const uploadCard = document.querySelector(`.upload-card[data-id='${assignmentId}'], .upload-card[data-temp-id='${assignmentId}']`);
+            if (!uploadCard) return;
+
+            const realId = uploadCard.getAttribute('data-id') || '';
+            const tempId = uploadCard.getAttribute('data-temp-id') || '';
+
+            // Create and append updated hidden inputs
+            const inputReal = document.createElement('input');
+            inputReal.type = 'hidden';
+            inputReal.className = 'lesson-assignment-id';
+            inputReal.name = `lesson_assignment_id_${index}`;
+            inputReal.value = realId;
+
+            const inputTemp = document.createElement('input');
+            inputTemp.type = 'hidden';
+            inputTemp.className = 'lesson-assignment-temp-id';
+            inputTemp.name = `lesson_assignment_temp_id_${index}`;
+            inputTemp.value = tempId;
+
+            lessonCard.appendChild(inputReal);
+            lessonCard.appendChild(inputTemp);
+        });
+
+        // Also add updated count
+        const countInput = document.createElement('input');
+        countInput.type = 'hidden';
+        countInput.className = 'lesson-assignment-count';
+        countInput.value = selectedAssignments.length;
+
+        lessonCard.appendChild(countInput);
+
+        // Update the toggle hidden input as well
+        const toggleInput = lessonCard.querySelector('.lesson-assignments-toggle');
+        if (toggleInput) {
+            toggleInput.value = selectedAssignments.length > 0 ? 'true' : 'false';
+        }
+    }
+
 }
 
 document.getElementById('confirmDeleteButton').addEventListener('click', function () {
@@ -1676,20 +1847,34 @@ function generateCourseData(isSave) {
             const tempId = uploadCard.getAttribute('data-temp-id') || null;
 
             console.log('uploadId', uploadId, 'tempId', tempId);
-
+            let assignmentURLInput;
+            let assignmentTypeInput;
+            let fileTitle;
 
             let approvalType;
             if(uploadId && !tempId){
                 approvalType = uploadCard.querySelector(`input[name="upload_approval${uploadId}"]:checked`).value;
+                assignmentURLInput = uploadCard.querySelector(`#assignmentURLInput-${uploadId}`);
+                assignmentTypeInput = uploadCard.querySelector(`#assignmentTypeInput-${uploadId}`);
+                fileTitle = uploadCard.querySelector(`#assignmentSourceDisplay-${uploadId}`);
             }else{
                 approvalType = uploadCard.querySelector(`input[name="upload_approval${tempId}"]:checked`).value;
+                assignmentURLInput = uploadCard.querySelector(`#assignmentURLInput-${tempId}`);
+                assignmentTypeInput = uploadCard.querySelector(`#assignmentTypeInput-${tempId}`);
+                fileTitle = uploadCard.querySelector(`#assignmentSourceDisplay-${tempId}`);
             }
+
+            console.log('assignmentURLInput:', assignmentURLInput, 'uploadId:', uploadId, 'tempId:', tempId);
             
             const uploadData = {
                 id: uploadId,
                 temp_id: tempId,
                 type: 'upload',
                 title: uploadCard.querySelector('.upload-title').value.trim(),
+                description: getEditorContent(`assignmentDescription-${uploadId || tempId}`),
+                source: assignmentURLInput?.value || '',
+                file_type: assignmentTypeInput?.value || '',
+                file_title: fileTitle?.innerText || '',
                 approval_type: approvalType,
             };
 
@@ -1836,6 +2021,24 @@ function generateCourseData(isSave) {
                 content_type: lessonType,
             };
 
+            const assignmentToggle = lessonCard.querySelector('.lesson-assignments-toggle')?.value === 'true';
+            lessonData.assignment_toggle = assignmentToggle;
+
+            if (assignmentToggle) {
+                const assignmentCount = parseInt(lessonCard.querySelector('.lesson-assignment-count')?.value || '0');
+                lessonData.assignments = [];
+
+                for (let i = 0; i < assignmentCount; i++) {
+                    const realId = lessonCard.querySelector(`input[name="lesson_assignment_id_${i}"]`)?.value;
+                    const tempId = lessonCard.querySelector(`input[name="lesson_assignment_temp_id_${i}"]`)?.value;
+
+                    lessonData.assignments.push({
+                        id: realId || null,
+                        temp_id: tempId || null,
+                    });
+                }
+            }
+
             const lessonFileInput = lessonCard.querySelector('.lesson-file');
             const lessonFileName = lessonCard.querySelector('.lesson-file-name').value;
 
@@ -1928,19 +2131,25 @@ function generateCourseData(isSave) {
         console.log(data, data.modules);
 
         data.modules.forEach(module => {
-            const moduleContainer = document.querySelector(`[data-temp-id='${module.temp_id}']`);
+            // Try to match by temp_id first (new modules), then fallback to data-id (existing modules)
+            let moduleSelector = module.temp_id ? `[data-temp-id='${module.temp_id}']` : `[data-id='${module.id}']`;
+        
+            const moduleContainer = document.querySelector(moduleSelector);
+        
             if (moduleContainer) {
-                moduleContainer.setAttribute('data-id', module.id); // Update module ID
-
-                // Update each lesson ID
+                moduleContainer.setAttribute('data-id', module.id); // Ensure real ID is set
+                moduleContainer.removeAttribute('data-temp-id');     // Clean up temp-id if it was there
+        
                 module.lessons.forEach(lesson => {
+                    if (!lesson.temp_id) return;  // Skip if not newly created
                     const lessonCard = moduleContainer.querySelector(`[data-temp-id='${lesson.temp_id}']`);
                     if (lessonCard) {
-                        lessonCard.setAttribute('data-id', lesson.id); // Update lesson ID
+                        lessonCard.setAttribute('data-id', lesson.id);
+                        lessonCard.removeAttribute('data-temp-id'); // Optional cleanup
                     }
                 });
             }
-        });
+        });                
 
         data.references.forEach(reference => {
             console.log(`Processing reference: temp_id: ${reference.temp_id}, id: ${reference.id}`);
@@ -1962,6 +2171,16 @@ function generateCourseData(isSave) {
             } else {
                 console.log(`No upload card found with temp_id ${upload.temp_id}`);
             }
+
+            const matchingLessons = document.querySelectorAll(`input.lesson-assignment-temp-id[value='${upload.temp_id}']`);
+            matchingLessons.forEach(input => {
+                const idInput = input.previousElementSibling;
+                if (idInput && idInput.classList.contains('lesson-assignment-id')) {
+                    idInput.value = upload.id;
+                }
+                input.remove();  // Remove temp field if desired
+            });
+            
         });        
 
         // Handle success
@@ -2302,63 +2521,41 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function initializeToggleOptions(){
-    // Get all toggle-option checkboxes
+function initializeToggleOptions() {
     const toggleOptions = document.querySelectorAll('.toggle-option');
-    
-    // Add change event listener to each checkbox
-    toggleOptions.forEach(function(toggleOption) {
-        toggleOption.addEventListener('change', function() {
-            // Find the closest .course-content-input container
-            const courseContentInput = toggleOption.closest('.course-content-input');
-            
-            if (courseContentInput) {
-                // Find the next .toggle-option-details sibling
-                const toggleOptionDetails = courseContentInput.nextElementSibling;
-                
-                if (toggleOptionDetails && toggleOptionDetails.classList.contains('toggle-option-details')) {
-                    // Add or remove the 'show' class based on checkbox state
-                    if (toggleOption.checked) {
-                        toggleOptionDetails.classList.add('show-toggle-option-details');
-                    } else {
-                        toggleOptionDetails.classList.remove('show-toggle-option-details');
-                    }
-                }
 
-                // Hiding and showing Edit Instructions Button for Course Uploads
-                if(toggleOption.id === 'courseUploads'){
-                    if(toggleOption.checked){
-                        document.getElementById('editUploadInstructionBtn').style.display = 'flex';
-                    }else{
-                        document.getElementById('editUploadInstructionBtn').style.display = 'none';
-                    }
+    toggleOptions.forEach(function (toggleOption) {
+        const courseContentInput = toggleOption.closest('.course-content-input');
+        const toggleOptionDetails = courseContentInput?.nextElementSibling;
+
+        // === INITIALIZE BASED ON CURRENT STATE ===
+        if (toggleOptionDetails?.classList.contains('toggle-option-details')) {
+            toggleOptionDetails.classList.toggle('show-toggle-option-details', toggleOption.checked);
+        }
+
+        if (toggleOption.id === 'courseUploads') {
+            const editBtn = document.getElementById('editUploadInstructionBtn');
+            if (editBtn) {
+                editBtn.style.display = toggleOption.checked ? 'flex' : 'none';
+            }
+        }
+
+        // === ON CHANGE EVENT ===
+        toggleOption.addEventListener('change', function () {
+            if (toggleOptionDetails?.classList.contains('toggle-option-details')) {
+                toggleOptionDetails.classList.toggle('show-toggle-option-details', toggleOption.checked);
+            }
+
+            if (toggleOption.id === 'courseUploads') {
+                const editBtn = document.getElementById('editUploadInstructionBtn');
+                if (editBtn) {
+                    editBtn.style.display = toggleOption.checked ? 'flex' : 'none';
                 }
             }
         });
-        // Find the closest .course-content-input container
-        const courseContentInput = toggleOption.closest('.course-content-input');
-            
-        if (courseContentInput) {
-            // Find the next .toggle-option-details sibling
-            const toggleOptionDetails = courseContentInput.nextElementSibling;
-            
-            if (toggleOptionDetails && toggleOptionDetails.classList.contains('toggle-option-details')) {
-                // Add or remove the 'show' class based on checkbox state
-                if (toggleOption.checked) {
-                    toggleOptionDetails.classList.add('show-toggle-option-details');
-                } else {
-                    toggleOptionDetails.classList.remove('show-toggle-option-details');
-                }
-            }
-            // Hiding and showing Edit Instructions Button for Course Uploads
-            if(toggleOption.id === 'courseUploads' && toggleOption.checked){
-                document.getElementById('editUploadInstructionBtn').style.display = 'flex';
-            }else{
-                document.getElementById('editUploadInstructionBtn').style.display = 'none';
-            }
-        }
     });
 }
+
 
 function initializeRadioOptions() {
     // Get all radio buttons with the class radio-option

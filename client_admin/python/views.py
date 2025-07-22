@@ -168,6 +168,10 @@ def admin_settings(request):
             if course_id:
                 settings.on_login_course_id = int(course_id)
 
+            # Clear favicon if not present in FILES
+            if 'portal_favicon' not in request.FILES and not request.POST.get('portal_favicon'):
+                settings.portal_favicon = None
+
             settings.save()
             form.save()
 

@@ -15,4 +15,10 @@ urlpatterns = [
     path('get-quiz-score/', views.get_quiz_score, name='get_quiz_score'),
     path("mark-lesson-complete/", views.mark_lesson_complete, name="mark_lesson_complete"),
 
+    # SCORM iPlayer URL pattern
+    #path('scorm/launch/<int:id>/', views.launch_scorm_file, name='launch_scorm_file'),
+
+    # Assignments fetch and submit
+    path('assignments/<int:assignment_id>/detail/', views.get_assignment_detail, name='assignment_detail'),
+    path('assignments/submit/', views.submit_assignment, name='assignment_submit'),
 ]
