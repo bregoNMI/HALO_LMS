@@ -161,8 +161,8 @@ html, body, button{
 }.create-menu-section .collapsible-header:hover{
     background-color: dodgerblue;
     color: white;
-}.create-menu-section .collapsible-header .icon-inner-header i{
-    /* font-size: 1rem; */
+}.create-menu-section .collapsible-header:hover:active{
+    background-color: #61b0ff;
 }
 
 .sidebar-toggle-wrapper{
@@ -184,6 +184,8 @@ html, body, button{
 }.sidebar-toggle:hover {
     background-color: #efefef;
     color: #191c1f;
+}.sidebar-toggle:hover:active{
+    background-color: var(--bg-color4);
 }
 
 /* Small Sidebar */
@@ -364,6 +366,8 @@ html, body, button{
 .collapsible-header:hover{
     background-color: #efefef;
     color: #191c1f;
+}.collapsible-header:hover:active{
+    background-color: var(--bg-color4);
 }
 
 .collapsible-header.active + .collapsible-content {
@@ -510,6 +514,7 @@ html, body, button{
     cursor: pointer;
     box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
     color: #41454d;
+    transition: all 0.2s linear;
 }
 
 .table-filter-item-small:hover{
@@ -807,6 +812,7 @@ tr.selected-option th, tr.selected-option td{
     box-shadow: rgba(0, 0, 0, 0.03) 0px 0px 0px 1px;
     border-left: 1px solid #ececf1;
     width: 15rem;
+    min-width: 15rem;
     margin-right: -15rem;
     /* transition: all 0.4s ease-out; */
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1011,7 +1017,6 @@ tr.selected-option th, tr.selected-option td{
 }
 
 .dropdown-content {
-    display: none;
     position: absolute;
     background-color: white;
     padding: var(--pad-xs);
@@ -1024,10 +1029,20 @@ tr.selected-option th, tr.selected-option td{
     box-sizing: border-box;
     top: 2.75rem;
     right: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 .show {
-    display: block;
+    max-height: 500px;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
 }
 
 .dropdown-user-information{

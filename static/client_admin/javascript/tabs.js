@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const settingsTabs = document.getElementById('settingsTabs');
-    initializeTabs(settingsTabs);
+    setTimeout(() => {
+        initializeTabs(settingsTabs);
+    }, 100);
 
     // Hiding / Showing User Card
     const cardHeaders = document.querySelectorAll('.card-header-right');

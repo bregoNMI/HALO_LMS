@@ -40,9 +40,9 @@
             <div class="notifications-container">
                 <div id="notificationTabs" class="tabs-container">
                     <div class="tabs">
-                        <button class="tab active" data-target="tab1">Messages</button>
-                        <!-- <button class="tab" data-target="tab2">Lessons</button>
-                        <button class="tab" data-target="tab3">Reference Materials</button> -->
+                        <button class="tab active" data-target="tab1"><i class="fa-light fa-messages"></i>Messages</button>
+                        <button class="tab" data-target="tab2"><i class="fa-light fa-message-exclamation"></i>Alerts</button>
+                        <button class="tab" data-target="tab3"><i class="fa-light fa-message-bot"></i>System Messages</button>
                         <div class="tab-indicator"></div>
                     </div>
                 
@@ -107,15 +107,137 @@
                                         </div>
                                     </div>
                                 {% empty %}
-                                    <p>No messages available.</p>
+                                    <p>No Messages available.</p>
                                 {% endfor %}
                             </div>
                         </div>
                         <div class="tab-content scrollable-content-inner" id="tab2">
-                            <p>Content for Tab 2</p>
+                            <div class="messages-list">
+                                {% for message in alerts %}
+                                    <div id="message-{{ message.id }}" class="message {% if message.read %}read{% endif %} message-container" onclick="openMessagePopup({{ message.id }})">
+                                        <div class="message-left">
+                                            <div class="dropdown-user-icon">
+                                                <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
+                                            </div>
+                                            <div class="message-content">
+                                                <div class="message-content-header">
+                                                    <p>{{ message.sender.first_name }} {{ message.sender.last_name }}</p>
+                                                    <span class="lesson-counter pastel-blue" style="padding: 0.05rem var(--pad-xs);">{{ message.sender.profile.role }}</span>
+                                                </div>
+                                                <div class="message-body">
+                                                    {{ message.body|safe }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="message-right">
+                                            <span>{{ message.sent_at }}</span>
+                                            {% if not message.read %}
+                                                <i class="fa-solid fa-circle-small mark-as-read-icon"></i>
+                                                <button class="mark-as-read-btn" data-message-id="{{ message.id }}" hidden>Mark as Read</button>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Popup for showing message details -->
+                                        <div id="popup-message-{{ message.id }}" class="popup-background" hidden>
+                                            <div class="popup-content max-width-2">
+                                                <div class="message-popup-header">
+                                                    <h4>{{ message.subject }}</h4>
+                                                    <div onclick="closeMessagePopup(event, {{ message.id }})" class="close-popup-icon">
+                                                        <i class="fa-solid fa-xmark"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="message-container" style="cursor: auto; background-color: white !important;">
+                                                    <div class="message-popup-left">
+                                                        <div class="dropdown-user-icon">
+                                                            <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
+                                                        </div>
+                                                        <div class="message-content">
+                                                            <div class="message-content-header">
+                                                                <p>{{ message.sender.first_name }} {{ message.sender.last_name }}</p>
+                                                                <span class="lesson-counter pastel-blue" style="padding: 0.05rem var(--pad-xs);">{{ message.sender.profile.role }}</span>
+                                                            </div>
+                                                            <div class="message-popup-body">
+                                                                {{ message.body|safe }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="message-right">
+                                                        <span>{{ message.sent_at }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <p>No Alerts available.</p>
+                                {% endfor %}
+                            </div>
                         </div>
                         <div class="tab-content scrollable-content-inner" id="tab3">
-                            <p>Content for Tab 3</p>
+                            <div class="messages-list">
+                                {% for message in system_messages %}
+                                    <div id="message-{{ message.id }}" class="message {% if message.read %}read{% endif %} message-container" onclick="openMessagePopup({{ message.id }})">
+                                        <div class="message-left">
+                                            <div class="dropdown-user-icon">
+                                                <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
+                                            </div>
+                                            <div class="message-content">
+                                                <div class="message-content-header">
+                                                    <p>{{ message.sender.first_name }} {{ message.sender.last_name }}</p>
+                                                    <span class="lesson-counter pastel-blue" style="padding: 0.05rem var(--pad-xs);">{{ message.sender.profile.role }}</span>
+                                                </div>
+                                                <div class="message-body">
+                                                    {{ message.body|safe }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="message-right">
+                                            <span>{{ message.sent_at }}</span>
+                                            {% if not message.read %}
+                                                <i class="fa-solid fa-circle-small mark-as-read-icon"></i>
+                                                <button class="mark-as-read-btn" data-message-id="{{ message.id }}" hidden>Mark as Read</button>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Popup for showing message details -->
+                                        <div id="popup-message-{{ message.id }}" class="popup-background" hidden>
+                                            <div class="popup-content max-width-2">
+                                                <div class="message-popup-header">
+                                                    <h4>{{ message.subject }}</h4>
+                                                    <div onclick="closeMessagePopup(event, {{ message.id }})" class="close-popup-icon">
+                                                        <i class="fa-solid fa-xmark"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="message-container" style="cursor: auto; background-color: white !important;">
+                                                    <div class="message-popup-left">
+                                                        <div class="dropdown-user-icon">
+                                                            <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
+                                                        </div>
+                                                        <div class="message-content">
+                                                            <div class="message-content-header">
+                                                                <p>{{ message.sender.first_name }} {{ message.sender.last_name }}</p>
+                                                                <span class="lesson-counter pastel-blue" style="padding: 0.05rem var(--pad-xs);">{{ message.sender.profile.role }}</span>
+                                                            </div>
+                                                            <div class="message-popup-body">
+                                                                {{ message.body|safe }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="message-right">
+                                                        <span>{{ message.sent_at }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <p>No System Messages available.</p>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div> 

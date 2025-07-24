@@ -126,24 +126,32 @@ html, body, button{
 }
 
 .dropdown-content {
-    display: none;
     position: absolute;
     background-color: white;
     padding: var(--pad-xs);
     box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
     border: 1px solid #ececf1;
     border-radius: 8px;
-    z-index: 2;
+    z-index: 100;
     width: 100%;
     min-width: 250px;
     box-sizing: border-box;
-    z-index: 1;
-    top: 2.5rem;
+    top: 2.75rem;
     right: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+    max-height: 1000px;
+    overflow-y: auto;
 }
 
 .show {
-    display: block;
+    max-height: 1000px;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
 }
 
 .dropdown-user-information{
@@ -761,7 +769,10 @@ html, body, button{
 }
 
 .tab {
-    padding: 10px;
+    display: flex;
+    padding: 11px 10px;
+    gap: 0.3rem;
+    align-items: baseline;
     background-color: transparent;
     border: none;
     cursor: pointer;

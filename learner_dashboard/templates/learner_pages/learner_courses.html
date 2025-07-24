@@ -292,86 +292,98 @@
                                         </div>
                                         <div class="tab-content scrollable-content-inner" id="tab4">
                                             <div class="course-assignments-container">
-                                                {% if full_course_assignments %}
-                                                    <div class="assignments-container">
-                                                        <div class="assignments-top-row">
-                                                            <div class="assignments-top-row-left">
-                                                                <h3>Full-Course Assignments</h3>
-                                                                <span class="popup-header-subtext">Assignments that can be completed at any time</span>
+                                                {% with full_course_assignment_map|get_item:user_course.course.id as full_course_assignments %}
+                                                    {% if full_course_assignments %}
+                                                        <div class="assignments-container">
+                                                            <div class="assignments-top-row">
+                                                                <div class="assignments-top-row-left">
+                                                                    <h3>Full-Course Assignments</h3>
+                                                                    <span class="popup-header-subtext">Assignments that can be completed at any time</span>
+                                                                </div>
+                                                                <div class="assignments-top-row-right">
+                                                                    <span>{{ full_course_assignments|length }}</span>
+                                                                </div>
                                                             </div>
-                                                            <div class="assignments-top-row-right">
-                                                                <span>{{ full_course_assignments|length }}</span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="assignments-body">
-                                                            {% for assignment in full_course_assignments %}
-                                                                <button class="assignment-item {{ assignment.status }}">
-                                                                    <div class="assignment-item-left">
-                                                                        <i class="fa-regular fa-flag"></i>
-                                                                        <span>{{ assignment.title }}</span>
-                                                                    </div>
-                                                                    <div class="assignment-item-right">
-                                                                        {% if assignment.status == 'approved' %}
-                                                                            <div class="assignment-complete-icon">
-                                                                                <i class="fa-solid fa-circle-check"></i>
-                                                                            </div>
-                                                                        {% elif assignment.status == 'submitted' %}
-                                                                            <div class="assignment-submitted-icon">
-                                                                                <i class="fa-regular fa-clock"></i>
-                                                                            </div>
-                                                                        {% elif assignment.status == 'rejected' %}
-                                                                            <div class="assignment-rejected-icon">
-                                                                                <i class="fa-regular fa-circle-xmark"></i>
-                                                                            </div>
-                                                                        {% endif %}
-                                                                    </div>
-                                                                </button>
-                                                            {% endfor %}
-                                                        </div>
-                                                    </div>
-                                                {% endif %}
-                                                {% if ordered_lesson_assignment_pairs %}
-                                                    <div class="assignments-container">
-                                                        <div class="assignments-top-row">
-                                                            <div class="assignments-top-row-left">
-                                                                <h3>Lesson-Specific Assignments</h3>
-                                                                <span class="popup-header-subtext">These assignments are tied to lessons</span>
-                                                            </div>
-                                                            <div class="assignments-top-row-right">
-                                                                <span>{{ ordered_lesson_assignment_pairs|length }}</span>
+                                                            <div class="assignments-body">
+                                                                {% for assignment in full_course_assignments %}
+                                                                    <button onclick="openAssignment({{ assignment.id }})"
+                                                                            class="assignment-item {{ assignment.status }}"
+                                                                            data-assignment-id="{{ assignment.id }}">
+                                                                        <div class="assignment-item-left">
+                                                                            <i class="fa-regular fa-flag"></i>
+                                                                            <span>{{ assignment.title }}</span>
+                                                                        </div>
+                                                                        <div class="assignment-item-right">
+                                                                            {% if assignment.status == 'approved' %}
+                                                                                <div class="assignment-complete-icon">
+                                                                                    <i class="fa-solid fa-circle-check"></i>
+                                                                                </div>
+                                                                            {% elif assignment.status == 'submitted' %}
+                                                                                <div class="assignment-submitted-icon">
+                                                                                    <i class="fa-regular fa-clock"></i>
+                                                                                </div>
+                                                                            {% elif assignment.status == 'rejected' %}
+                                                                                <div class="assignment-rejected-icon">
+                                                                                    <i class="fa-regular fa-circle-xmark"></i>
+                                                                                </div>
+                                                                            {% endif %}
+                                                                        </div>
+                                                                    </button>
+                                                                {% endfor %}
                                                             </div>
                                                         </div>
-                                                        <div class="assignments-body">
-                                                            {% for pair in ordered_lesson_assignment_pairs %}
-                                                                <button class="assignment-item {% if pair.locked %}disabled locked{% endif %} {{ pair.status }}" {% if pair.locked %}disabled{% endif %} data-assignment-id="{{ pair.assignment.id }}" {% if pair.lesson.id %}data-lesson-id="{{ pair.lesson.id }}"{% endif %}>
-                                                                    <div class="assignment-item-left">
-                                                                        <i class="fa-regular fa-flag"></i>
-                                                                        <span>{{ pair.assignment.title }} ({{ pair.lesson.title }})</span>
-                                                                    </div>
-                                                                    <div class="assignment-item-right">
-                                                                        {% if pair.locked %}
-                                                                            <div class="assignment-locked-icon">
-                                                                                <i class="fa-solid fa-lock"></i>
-                                                                            </div>
-                                                                        {% elif pair.status == 'approved' %}
-                                                                            <div class="assignment-complete-icon">
-                                                                                <i class="fa-solid fa-circle-check"></i>
-                                                                            </div>
-                                                                        {% elif pair.status == 'submitted' %}
-                                                                            <div class="assignment-submitted-icon">
-                                                                                <i class="fa-regular fa-clock"></i>
-                                                                            </div>
-                                                                        {% elif pair.status == 'rejected' %}
-                                                                            <div class="assignment-rejected-icon">
-                                                                                <i class="fa-regular fa-circle-xmark"></i>
-                                                                            </div>
-                                                                        {% endif %}
-                                                                    </div>
-                                                                </button>
-                                                            {% endfor %}
+                                                    {% endif %}
+                                                {% endwith %}
+
+                                                {# Lesson-specific assignments #}
+                                                {% with course_lesson_assignment_map|get_item:user_course.course.id as ordered_lesson_assignment_pairs %}
+                                                    {% if ordered_lesson_assignment_pairs %}
+                                                        <div class="assignments-container">
+                                                            <div class="assignments-top-row">
+                                                                <div class="assignments-top-row-left">
+                                                                    <h3>Lesson-Specific Assignments</h3>
+                                                                    <span class="popup-header-subtext">These assignments are tied to lessons</span>
+                                                                </div>
+                                                                <div class="assignments-top-row-right">
+                                                                    <span>{{ ordered_lesson_assignment_pairs|length }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="assignments-body">
+                                                                {% for pair in ordered_lesson_assignment_pairs %}
+                                                                    <button onclick="openAssignment({{ pair.assignment.id }}, {{ pair.lesson.id }})"
+                                                                            class="assignment-item {% if pair.locked %}disabled locked{% endif %} {{ pair.status }}"
+                                                                            {% if pair.locked %}disabled{% endif %}
+                                                                            data-assignment-id="{{ pair.assignment.id }}"
+                                                                            {% if pair.lesson.id %}data-lesson-id="{{ pair.lesson.id }}"{% endif %}>
+                                                                        <div class="assignment-item-left">
+                                                                            <i class="fa-regular fa-flag"></i>
+                                                                            <span>{{ pair.assignment.title }} ({{ pair.lesson.title }})</span>
+                                                                        </div>
+                                                                        <div class="assignment-item-right">
+                                                                            {% if pair.locked %}
+                                                                                <div class="assignment-locked-icon">
+                                                                                    <i class="fa-solid fa-lock"></i>
+                                                                                </div>
+                                                                            {% elif pair.status == 'approved' %}
+                                                                                <div class="assignment-complete-icon">
+                                                                                    <i class="fa-solid fa-circle-check"></i>
+                                                                                </div>
+                                                                            {% elif pair.status == 'submitted' %}
+                                                                                <div class="assignment-submitted-icon">
+                                                                                    <i class="fa-regular fa-clock"></i>
+                                                                                </div>
+                                                                            {% elif pair.status == 'rejected' %}
+                                                                                <div class="assignment-rejected-icon">
+                                                                                    <i class="fa-regular fa-circle-xmark"></i>
+                                                                                </div>
+                                                                            {% endif %}
+                                                                        </div>
+                                                                    </button>
+                                                                {% endfor %}
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                {% endif %}
+                                                    {% endif %}
+                                                {% endwith %}
                                             </div>
                                         </div>
                                     </div>

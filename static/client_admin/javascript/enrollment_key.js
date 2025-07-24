@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
                 setDisabledSaveBtns();
             } else {
-                alert('Please enter a category name.');
+                displayValidationMessage('Please enter a name.', false);
             }
         });
     });

@@ -1,0 +1,25 @@
+<div id="assignmentInstructions" class="popup-background">
+    <div class="popup-content max-width-6">
+        <div class="popup-header">
+            <h3>Assignment Instructions</h3>
+            <div onclick="closePopup('assignmentInstructions')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body scrollable-content">
+            <div class="course-content-input">
+                <div class="edit-user-input">
+                    <label class="edit-user-label">Instructions</label>
+                    <span class="popup-header-subtext">{{ assignment.assignment.description|safe }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button type="button" onclick="closePopup('assignmentInstructions')" class="popup-btn close-popup-btn">Back</button>
+                <!-- <button onclick="closePopup('assignmentInstructions')" class="popup-btn">Save Changes</button>    -->
+            </div>
+        </div>
+    </div>
+</div>

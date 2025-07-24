@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% load static %}
+{% block content %}
+    <div id="stickyNavBar">
+        <div class="details-top-row max-width-0">
+            <div class="details-top-row-left">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3> Manage Assignment </h3>
+            </div>
+            <div class="details-top-row-right">
+                <div class="option-btn-row">
+                    <button class="option-btn course-save-btns" onclick="openPopup('assignmentDeleteConfirmation')">
+                        <i class="fa-regular fa-trash-can"></i>
+                        <span> Delete </span>
+                    </button>
+                </div>
+                <button id="manageAssignmentBtn" class="action-button-primary course-save-btns manage-assignment-btns">
+                    <i class="fa-regular fa-floppy-disk"></i>
+                    <span>Save Changes</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="admin-body align-center">
+        {% if messages %}
+            <div class="alert-container">
+                {% for message in messages %}
+                    {% if message.tags == 'success' %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <i class="fa-solid fa-circle-check"></i>
+                            {{ message }}
+                        </div>
+                    {% elif message.tags == 'error' %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% include 'messageContainer/message_container.html' %}
+        <div class="max-width-0">
+            <div id="mainNavBar" class="details-top-row">
+                <div class="details-top-row-left">
+                    <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <h3> Manage Assignment </h3>
+                </div>
+                <div class="details-top-row-right">
+                    <div class="option-btn-row">
+                        <button class="option-btn course-save-btns" onclick="openPopup('assignmentDeleteConfirmation')">
+                            <i class="fa-regular fa-trash-can"></i>
+                            <span> Delete </span>
+                        </button>
+                    </div>
+                    <button id="manageAssignmentBtn" class="action-button-primary course-save-btns manage-assignment-btns">
+                        <i class="fa-regular fa-floppy-disk"></i>
+                        <span>Save Changes</span>
+                    </button>
+                </div>
+            </div>
+            {% include 'assignments/assignment_details_card.html' %}
+            <input id="assignmentId" type="hidden" value="{{ assignment.id }}">
+            <div class="settings-container">
+                <div id="settingsTabs" class="tabs-container">
+                    <div class="tabs">
+                        <div class="tab active" data-target="tab1">
+                            <i class="fa-light fa-flag"></i>
+                            Assignment
+                        </div>
+                        <div class="tab-indicator"></div>
+                    </div>
+                
+                    <div class="tab-content-container">
+                        <!-- Assignment  -->
+                        <div class="tab-content active" id="tab1">
+                            <div class="details-info-section">
+                                <div class="details-info-card">
+                                    <div class="info-card-header collapsable-header">
+                                        <div class="card-header-left">
+                                            <i class="fa-regular fa-book-open-cover"></i>
+                                            <span> Details </span>
+                                        </div>
+                                        {% if assignment.assignment.url %}
+                                            <button onclick="openPopup('assignmentReference')" class="action-button-border tooltip" data-tooltip="Assignment Reference" style="font-size: 1.05rem; padding: 4.5px 6.5px;">
+                                                <i class="fa-light fa-folder-image"></i>
+                                                <span class="tooltiptext">Assignment Reference</span>
+                                            </button>
+                                        {% endif %}
+                                        {% if assignment.assignment.description != '<p><br></p>' and assignment.assignment.description %}
+                                            <button onclick="openPopup('assignmentInstructions')" class="action-button-border tooltip" data-tooltip="Assignment Instructions" style="font-size: 1.05rem; padding: 4.5px 6.5px;">
+                                                <i class="fa-light fa-memo-circle-info"></i>
+                                                <span class="tooltiptext">Assignment Instructions</span>
+                                            </button>
+                                        {% endif %}
+                                        <div class="card-header-right">
+                                            <i class="fa-regular fa-angle-down"></i>
+                                        </div>
+                                    </div>
+                                    <div class="info-card-body right-column-card-body">
+                                        <label style="padding-bottom: 0;" class="edit-user-label" for="student_notes">Uploaded Assignment</label>
+                                        <div class="uploaded-assignment-container">            
+                                            {% with file_type=assignment.get_file_type_icon %}
+                                                <div class="media-thumb question-media-item thumbnail-inner-thumbnail">
+                                                    <a href="{{ assignment.file.url }}" target="_blank" rel="noopener noreferrer"
+                                                    class="open-in-tab-btn table-filter-item-small" title="Open in New Tab">
+                                                        <i class="fa-regular fa-arrow-up-right-from-square"></i>
+                                                    </a>
+                                                    <button onclick="expandMediaItem(this, '{{ file_type }}')" class="expand-media-btn table-filter-item-small">
+                                                        <i class="fa-regular fa-expand" aria-hidden="true"></i>
+                                                    </button>
+
+                                                    {% if file_type == 'image' %}
+                                                        <img src="{{ assignment.file.url }}" class="media-preview assignment-preview-item" alt="Assignment Image Preview">
+                                                    {% else %}
+                                                        <div src="{{ assignment.file.url }}" class="file-icon-preview {{ file_type }} placeholder-media-item assignment-preview-item">
+                                                            {% if file_type == 'pdf' %}
+                                                                <i class="fa-light fa-file-pdf"></i>
+                                                            {% elif file_type == 'document' %}
+                                                                <i class="fa-light fa-file-doc"></i>
+                                                            {% elif file_type == 'video' %}
+                                                                <i class="fa-light fa-film"></i>
+                                                            {% elif file_type == 'audio' %}
+                                                                <i class="fa-light fa-volume"></i>
+                                                            {% elif file_type == 'archive' %}
+                                                                <i class="fa-light fa-file-zipper"></i>
+                                                            {% else %}
+                                                                <i class="fa-light fa-file"></i>
+                                                            {% endif %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            {% endwith %}
+                                            <div class="uploaded-assignment-details">
+                                                <span class="popup-header-subtext"><b>File Name:</b> {{ assignment.file_name }}</span>
+                                                <span class="popup-header-subtext"><b>Date Submitted:</b> {{ assignment.completed_at }}</span>
+                                                {% if assignment.reviewed_by %}
+                                                    <span class="popup-header-subtext"><b>Reviewed By:</b> {{ assignment.reviewed_by }}</span>
+                                                {% endif %}
+                                                {% if assignment.reviewed_at %}
+                                                    <span class="popup-header-subtext"><b>Reviewed At:</b> {{ assignment.reviewed_at }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        {% if assignment.student_notes %}
+                                            <div class="edit-user-input">
+                                                <label class="edit-user-label" for="student_notes">Learner's Notes</label>
+                                                <span class="popup-header-subtext">{{ assignment.student_notes }}</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="details-info-section">
+                                <div class="details-info-card">
+                                    <div class="info-card-header collapsable-header">
+                                        <div class="card-header-left">
+                                            <i class="fa-regular fa-location-dot"></i>
+                                            <span> Mark Submission </span>
+                                        </div>
+                                        <div class="card-header-right">
+                                            <i class="fa-regular fa-angle-down"></i>
+                                        </div>
+                                    </div>
+                                    <div class="info-card-body right-column-card-body">
+                                        <div class="edit-user-input">
+                                            <label class="edit-user-label" for="review_notes">Notes</label>
+                                            <textarea type="text" id="review_notes" name="review_notes" placeholder="Enter notes for the Learner to review...">{{ assignment.review_notes|default_if_none:"" }}</textarea>
+                                        </div>
+                                        <div id="assignmentActivityContainer" class="course-content-input">
+                                            <label class="edit-user-label">Mark As</label>
+                                            <div class="content-input-options-row">
+                                                <label class="custom-radio disabled" disabled>
+                                                    <input class="radio-option" type="radio" name="assignment_status" value="submitted" {% if assignment.status == 'submitted' %}checked="checked"{% endif %} disabled>
+                                                    <span class="custom-radio-button"></span>
+                                                    Submitted
+                                                </label>
+                                                <label class="custom-radio">
+                                                    <input class="radio-option" type="radio" name="assignment_status" value="approved" {% if assignment.status == 'approved' %}checked="checked"{% endif %}>
+                                                    <span class="custom-radio-button"></span>
+                                                    Approved
+                                                </label>
+                                                <label class="custom-radio">
+                                                    <input class="radio-option" type="radio" name="assignment_status" value="rejected" {% if assignment.status == 'rejected' %}checked="checked"{% endif %}>
+                                                    <span class="custom-radio-button"></span>
+                                                    Rejected
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                                           
+                    </div>
+                </div> 
+            </div>        
+        </div>
+    </div>
+    <script src="{% static 'client_admin\javascript\ajax_search_options.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'client_admin\css\settings.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin\css\user_course_details.css' %}">
+    <script src="{% static 'client_admin\javascript\assignments.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\user_course_details.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-circle-progress/dist/circle-progress.min.js" type="module"></script>
+    <script type="text/javascript">
+        var userId = "{{ profile.user.id }}";
+    </script>
+    {% include 'popups/assignment_instructions.html' %}
+    {% include 'popups/assignment_reference.html' %}
+    {% include 'popups/assignment_media_popup.html' %}
+    {% include 'popups/delete_assignment_popup.html' %}
+{% endblock content %}

@@ -931,7 +931,7 @@
                                                                 {% if upload.file_title and upload.file_title != 'None' %}
                                                                     <span id="assignmentSourceDisplay-{{ upload.id }}" class="file-name-display">{{ upload.file_title }}</span>
                                                                 {% else %}
-                                                                    <span class="file-name-display">No file selected</span>
+                                                                    <span id="assignmentSourceDisplay-{{ upload.id }}" class="file-name-display">No file selected</span>
                                                                 {% endif %}
                                                             </div>
                                                             <input type="hidden" id="assignmentURLInput-{{ upload.id }}" name="assignmentURL" value="{{ upload.url }}">
