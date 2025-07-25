@@ -1804,7 +1804,7 @@ def edit_categories(request, category_id):
 # Assignments
 @login_required
 def admin_assignments(request):
-    sort_by = request.GET.get('sort_by', 'completed_at_asc')
+    sort_by = request.GET.get('sort_by', 'completed_at_desc')
     order_by_field = '-completed_at'  # Default sorting field
     query_string = request.GET.get('query')
 
