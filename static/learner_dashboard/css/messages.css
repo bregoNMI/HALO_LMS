@@ -123,3 +123,9 @@
     position: absolute;
     right: 0.8rem;
 }
+
+.open-course-link{
+    text-decoration: underline;
+    cursor: pointer;
+    color: dodgerblue;
+}

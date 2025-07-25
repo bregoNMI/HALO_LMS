@@ -518,16 +518,16 @@ def launch_scorm_file(request, lesson_id):
 
     assignment_status_map = {}
 
-    for assignment in full_course_assignments:
-        key = str(assignment.id)
-        assignment.status = assignment_status_map.get(key, {}).get('status', 'pending')
-
     for progress in progress_qs:
         key = f"{progress.assignment_id}-{progress.lesson_id}" if progress.lesson_id else str(progress.assignment_id)
         assignment_status_map[key] = {
             "status": progress.status,
             "locked": False  # Set this separately below
         }
+
+    for assignment in full_course_assignments:
+        key = str(assignment.id)
+        assignment.status = assignment_status_map.get(key, {}).get('status', 'pending')
 
     for assignment in lesson_assignments:
         for attached_lesson in assignment.lessons.all():

@@ -1454,10 +1454,19 @@ def manage_assignment(request):
     assignment_progress.reviewed_at = now()
     assignment_progress.save()
 
+    user_course = UserCourse.objects.filter(user=assignment_progress.user, course=assignment_progress.course).first()
+    course_lesson = assignment_progress.lesson.id if assignment_progress.lesson else (user_course.lesson_id if user_course else None)
+
     if status == 'rejected':
+        body = f"Your assignment <strong>{assignment_progress.assignment.title}</strong> was rejected. Please re-submit your assignment for additional review."
+        if course_lesson:
+            body += f" <span class='open-course-link' onclick='launchCourse({course_lesson})'>Open Course</span>"
+        if review_notes:
+            body += f" Notes from reviewer: {review_notes}"
+
         Message.objects.create(
             subject='Your assignment was rejected',
-            body=f"Your assignment **{assignment_progress.assignment.title}** was rejected. Notes from reviewer: {review_notes or 'No notes provided.'}",
+            body=body,
             sender=request.user,
             message_type='alert',
         ).recipients.add(assignment_progress.user)
@@ -1885,8 +1894,25 @@ def admin_assignments(request):
 @login_required
 def manage_assignments(request, assignment_id):
     assignment = get_object_or_404(UserAssignmentProgress, pk=assignment_id)
+    user = request.user
+    upload = assignment.assignment
 
-    # Try to get the UserCourse object that matches this user and course
+    approval_type = upload.approval_type
+    user_role = getattr(user.profile, 'role', None)
+
+    # Approval logic
+    can_approve = False
+    if approval_type in [None, 'None', '']:
+        can_approve = True
+    elif approval_type == 'instructor' and (user_role == 'instructor' or user.is_superuser):
+        can_approve = True
+    elif approval_type == 'admin' and user.is_superuser:
+        can_approve = True
+    elif approval_type == 'other' and user in upload.approvers.all():
+        can_approve = True
+
+    print(can_approve)
+
     user_course = UserCourse.objects.filter(
         user=assignment.user,
         course=assignment.course
@@ -1894,10 +1920,10 @@ def manage_assignments(request, assignment_id):
 
     context = {
         'assignment': assignment,
-        'user_course': user_course,  # Now available in the template
+        'user_course': user_course,
+        'can_approve': can_approve,
         'is_manage_page': True
     }
-
     return render(request, 'assignments/manage_assignment.html', context)
 
 @login_required

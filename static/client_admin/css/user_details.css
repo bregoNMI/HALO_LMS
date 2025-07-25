@@ -346,6 +346,13 @@
     gap: 0.5rem 3rem;
     margin-top: 0.8rem;
     flex-wrap: wrap;
+}.edit-user-column{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.8rem 3rem;
+    margin-top: 0.8rem;
+    flex-wrap: wrap;
 }
 
 .edit-user-text{

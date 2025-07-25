@@ -173,26 +173,28 @@
                                             <label class="edit-user-label" for="review_notes">Notes</label>
                                             <textarea type="text" id="review_notes" name="review_notes" placeholder="Enter notes for the Learner to review...">{{ assignment.review_notes|default_if_none:"" }}</textarea>
                                         </div>
-                                        <div id="assignmentActivityContainer" class="course-content-input">
-                                            <label class="edit-user-label">Mark As</label>
-                                            <div class="content-input-options-row">
-                                                <label class="custom-radio disabled" disabled>
-                                                    <input class="radio-option" type="radio" name="assignment_status" value="submitted" {% if assignment.status == 'submitted' %}checked="checked"{% endif %} disabled>
-                                                    <span class="custom-radio-button"></span>
-                                                    Submitted
-                                                </label>
-                                                <label class="custom-radio">
-                                                    <input class="radio-option" type="radio" name="assignment_status" value="approved" {% if assignment.status == 'approved' %}checked="checked"{% endif %}>
-                                                    <span class="custom-radio-button"></span>
-                                                    Approved
-                                                </label>
-                                                <label class="custom-radio">
-                                                    <input class="radio-option" type="radio" name="assignment_status" value="rejected" {% if assignment.status == 'rejected' %}checked="checked"{% endif %}>
-                                                    <span class="custom-radio-button"></span>
-                                                    Rejected
-                                                </label>
+                                        {% if can_approve %}
+                                            <div id="assignmentActivityContainer" class="course-content-input">
+                                                <label class="edit-user-label">Mark As</label>
+                                                <div class="content-input-options-row">
+                                                    <label class="custom-radio disabled" disabled>
+                                                        <input class="radio-option" type="radio" name="assignment_status" value="submitted" {% if assignment.status == 'submitted' %}checked{% endif %} disabled>
+                                                        <span class="custom-radio-button"></span>
+                                                        Submitted
+                                                    </label>
+                                                    <label class="custom-radio">
+                                                        <input class="radio-option" type="radio" name="assignment_status" value="approved" {% if assignment.status == 'approved' %}checked{% endif %}>
+                                                        <span class="custom-radio-button"></span>
+                                                        Approved
+                                                    </label>
+                                                    <label class="custom-radio">
+                                                        <input class="radio-option" type="radio" name="assignment_status" value="rejected" {% if assignment.status == 'rejected' %}checked{% endif %}>
+                                                        <span class="custom-radio-button"></span>
+                                                        Rejected
+                                                    </label>
+                                                </div>
                                             </div>
-                                        </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
