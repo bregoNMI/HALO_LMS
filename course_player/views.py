@@ -217,6 +217,134 @@ def get_scorm_progress(request, lesson_id):
     print(f"[get_scorm_progress] Rebuilt suspend_data with LMS progress: {suspend_data}")
     return JsonResponse({"suspend_data": json.dumps(suspend_data)})
 
+@require_GET
+@login_required
+def get_quiz_score(request):
+    session_id = request.GET.get("session_id")
+    if not session_id:
+        return JsonResponse({"error": "Missing session_id"}, status=400)
+
+    session = LessonSession.objects.filter(session_id=session_id, user=request.user).first()
+    if not session:
+        return JsonResponse({"error": "Session not found"}, status=404)
+
+    lesson = session.lesson
+    quiz = Quiz.objects.filter(id=lesson.quiz_id).first()  # ✅ Quiz, not QuizConfig
+
+    responses = session.quizresponse_set.all()
+    gradable = responses.exclude(is_correct=None)
+    
+    total_answered = responses.count()  # ✅ includes essays
+    total_graded = gradable.count()     # ✅ excludes essays
+    correct = gradable.filter(is_correct=True).count()
+
+    percent = int((correct / total_graded) * 100) if total_graded > 0 else 0
+
+    pending_review = responses.filter(is_correct=None).exists()
+
+    passed = False
+    success_text = ""
+    fail_text = ""
+
+    if quiz:
+        pass_mark = quiz.pass_mark or 0
+        if not pending_review:
+            passed = percent >= pass_mark
+        success_text = quiz.success_text or ""
+        fail_text = quiz.fail_text or "Your quiz is under review."
+
+    return JsonResponse({
+        "total_answered": total_answered,
+        "total_graded": total_graded,
+        "correct_answers": correct,
+        "score_percent": percent,
+        "passed": passed,
+        "pending_review": pending_review,
+        "success_text": success_text,
+        "fail_text": fail_text,
+    })
+
+@csrf_exempt
+@login_required
+def submit_question(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
+    data = json.loads(request.body)
+    user = request.user
+    question_id = data.get("question_id")
+    answer = data.get("answer")
+    question_type = data.get("question_type")
+    lesson_id = data.get("lesson_id")
+
+    # Fetch question and correct answer(s)
+    try:
+        question = Question.objects.get(id=question_id)
+    except Question.DoesNotExist:
+        return JsonResponse({"error": "Invalid question ID"}, status=404)
+
+    is_correct = False
+    correct_answers = []
+
+    if question_type == "TFQuestion":
+        tf = getattr(question, 'tfquestion', None)
+        if tf:
+            is_correct = (str(tf.correct).lower() == str(answer).lower())
+            correct_answers = ["True" if tf.correct else "False"]
+
+    elif question_type in ("MCQuestion", "MRQuestion"):
+        correct_answers_qs = question.answers.filter(is_correct=True)
+        correct_ids = set(str(a.id) for a in correct_answers_qs)
+        is_correct = str(answer) in correct_ids
+        correct_answers = [a.text for a in correct_answers_qs]
+
+    elif question_type == "EssayQuestion":
+        # Assume always accepted
+        is_correct = None
+        correct_answers = []
+
+    elif question_type == "FITBQuestion":
+        fitb = getattr(question, 'fitbquestion', None)
+        if fitb:
+            accepted = fitb.acceptable_answers.all()
+            for ans in accepted:
+                text = ans.content
+                if fitb.strip_whitespace:
+                    answer = answer.strip()
+                    text = text.strip()
+                if not fitb.case_sensitive:
+                    answer = answer.lower()
+                    text = text.lower()
+                if answer == text:
+                    is_correct = True
+                    break
+            correct_answers = [a.content for a in accepted]
+
+    # (Optional) Save the user's answer to your UserAnswer model here
+    # Save the user's answer
+    try:
+        lesson = Lesson.objects.get(id=lesson_id)
+    except Lesson.DoesNotExist:
+        return JsonResponse({"error": "Invalid lesson ID"}, status=404)
+
+    session_id = request.session.get("current_lesson_session_id")
+    lesson_session = LessonSession.objects.filter(session_id=session_id).first()
+
+    QuizResponse.objects.create(
+        user=user,
+        lesson=lesson,
+        lesson_session=lesson_session,  # ✅ New link to LessonSession
+        question=question,
+        user_answer=answer,
+        is_correct=is_correct
+    )
+
+    return JsonResponse({
+        "status": "success",
+        "is_correct": is_correct,
+        "correct_answers": correct_answers,
+    })
+
 @login_required
 def launch_scorm(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
@@ -369,6 +497,13 @@ def launch_scorm_file(request, lesson_id):
             # Debug logging (optional)
             print(f"🧪 Lesson {module_lesson.id} — SCORM progress: {progress_value}, Completed?: {is_completed}")
 
+            # Check if lesson has any ungraded essay responses
+            has_pending_review = QuizResponse.objects.filter(
+                user=request.user,
+                lesson=module_lesson,
+                is_correct=None
+            ).exists()
+            print(f"[🧪 DEBUG] Lesson {module_lesson.id} pending_review: {has_pending_review}")
             lesson_progress_data.append({
                 "id": module_lesson.id,
                 "title": module_lesson.title,
@@ -377,6 +512,7 @@ def launch_scorm_file(request, lesson_id):
                 "progress": int(progress_value * 100),
                 "module_id": module.id,
                 "module_title": module.title,
+                "pending_review": has_pending_review,  # ✅ inject the flag
             })
  
             previous_lesson_completed = is_completed
@@ -470,8 +606,28 @@ def launch_scorm_file(request, lesson_id):
 
     elif lesson.content_type == 'quiz':
         quiz_config = getattr(lesson, 'quiz_config', None)
+        quiz_id = lesson.quiz_id
         if not quiz_config:
             return render(request, 'error.html', {'message': 'No quiz configuration found for this lesson.'})
+        
+        if not quiz_id:
+            return render(request, 'error.html', {'message': 'No quiz ID found for this lesson.'})
+        
+        try:
+            quiz = Quiz.objects.get(pk=quiz_id)
+        except Quiz.DoesNotExist:
+            return render(request, 'error.html', {'message': 'Quiz not found.'})
+        
+        # ✅ Get ordered questions and prefetch their answers
+        ordered_links = QuestionOrder.objects.filter(quiz=quiz).select_related('question').order_by('order')
+        questions = get_question_type(
+            ordered_links,
+            randomize_answers=quiz_config.randomize_order if quiz_config else False
+        )
+        
+        for q in questions:
+            q.media_items_list = list(QuestionMedia.objects.filter(question_id=q.id))
+            q.has_media = bool(q.media_items)
 
         quiz_type = quiz_config.quiz_type or 'standard_quiz'
 
