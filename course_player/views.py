@@ -583,14 +583,17 @@ def launch_scorm_file(request, lesson_id):
     entry_key = None
     proxy_url = None
     saved_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=lesson).first()
-    lesson_location = saved_progress.lesson_location if saved_progress else ""
+    lesson_location = saved_progress.lesson_location if saved_progress and saved_progress.lesson_location else ""
+    if lesson_location.endswith("/None"):
+        lesson_location = ""
+
     scroll_position = saved_progress.scroll_position if saved_progress else 0
 
     lesson_assignment_map = defaultdict(list)
     for pair in ordered_lesson_assignment_pairs:
         lesson_assignment_map[pair["lesson"].id].append(pair)
 
-    if lesson.content_type == 'SCORM2004':
+    if lesson.content_type in ['SCORM2004', 'SCORM1.2']:
         if lesson.uploaded_file and lesson.uploaded_file.scorm_entry_point:
             entry_key = lesson.uploaded_file.scorm_entry_point.replace("\\", "/")
             proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}"
