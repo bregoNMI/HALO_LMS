@@ -66,7 +66,7 @@
                             <span class="lesson-alert-message"></span>
                         </div>
                     </div>
-                    <form id="registerForm" class="login-form-inputs-container" method="post" ction="{% url 'register_view' %}" enctype="multipart/form-data">
+                    <form id="registerForm" class="login-form-inputs-container" method="post" action="{% url 'register_view' %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="login-form-inputs-wrapper" style="gap: {{ login_form.input_space_between }}px;">
                             <div id="registrationSlideThree" class="registration-slide-container hidden" style="gap: {{ login_form.input_space_between }}px;">
@@ -195,7 +195,8 @@
                             <div class="registration-buttons-wrapper" style="margin-top: {{ login_form.button_space_above }}px;">
                                 <button id="prevBtn" type="button" class="registration-btn previous-slide-btn hidden" disabled style="border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Previous</button>
                                 <button id="nextBtn" type="button" class="registration-btn next-slide-btn" style="background-color: {{ login_form.button_color}}; color: {{ login_form.button_text }}; border-color: {{ login_form.button_border_color}}; width: {{ login_form.button_width }}%; border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Continue</button>
-                                <button disabled id="registerButton" type="submit" class="hidden login-form-button disabled scale-button" style="background-color: {{ login_form.button_color}}; color: {{ login_form.button_text }}; border-color: {{ login_form.button_border_color}}; width: {{ login_form.button_width }}%; border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Sign Up</button>
+                                <button disabled id="registerButton" type="button" class="hidden login-form-button disabled scale-button" style="background-color: {{ login_form.button_color}}; color: {{ login_form.button_text }}; border-color: {{ login_form.button_border_color}}; width: {{ login_form.button_width }}%; border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Sign Up</button>
+                                <button onclick="initiateFacialRecognition();" type="button" class="login-form-button scale-button">DEV BUTTON</button>
                             </div>
                             <div class="button-container {% if login_form.is_signup_disabled %} hidden {% endif %}" style="font-size: {{ login_form.signup_font_size }}px; margin-top: {{ login_form.signup_space_above }}px; font-weight: {{ login_form.signup_font_weight }};">
                                 <span style="color: {{ login_form.signup_text_color }};"> Already have an account? </span>
@@ -212,6 +213,7 @@
 {% include 'main/popups/take_registration_photo.html' %}
 {% include 'main/popups/id_photo_information.html' %}
 {% include 'main/popups/headshot_photo_information.html' %}
+{% include 'main/popups/facial_recognition_process.html' %}
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/login.css' %}">
 <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
 <link rel="stylesheet" href="{% static 'global_styles.css' %}">
@@ -224,5 +226,21 @@
 <script src="{% static 'custom_dashboard/javascript/registration.js' %}"></script>
 <script>
     let flatpickr_format = '{{ flatpickr_format }}';
+    let buttonBackgroundHover = '{{ login_form.button_color_hover }}';
+    let buttonBackground = '{{ login_form.button_color }}';  
+    let buttonColorHover = '{{ login_form.button_text_hover }}';
+    let buttonColor = '{{ login_form.button_text }}';
+    let buttonBorderHover = '{{ login_form.button_border_color_hover }}';
+    let buttonBorder = '{{ login_form.button_border_color }}';
+
+    let forgetColor = '{{ login_form.forgot_link_color }}';
+    let forgetColorHover = '{{ login_form.forgot_link_color_hover }}';
+    let forgotTextDecoration = '{{ login_form.forgot_text_decoration }}';
+    let forgotTextDecorationHover = '{{ login_form.forgot_text_decoration_hover }}';
+
+    let signupColor = '{{ login_form.signup_link_color }}';
+    let signupColorHover = '{{ login_form.signup_link_color_hover }}';
+    let signupTextDecoration = '{{ login_form.signup_text_decoration }}';
+    let signupTextDecorationHover = '{{ login_form.signup_text_decoration_hover }}';
 </script>
 {% endblock %}

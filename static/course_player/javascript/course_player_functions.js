@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     const courseFooterTabs = document.getElementById('courseFooterTabs');
-    initializeTabs(courseFooterTabs);
+    setTimeout(() => {
+        initializeTabs(courseFooterTabs);
+    }, 100);
 
     document.getElementById('toggleCourseSidebar').addEventListener('click', () => {
         toggleCourseSidebar();
@@ -142,7 +144,7 @@ async function openAssignment(assignmentId, lessonId = null) {
                 ` : ''}
                 ${data.status == 'rejected' ? `
                     <div class="alert alert-error new-alert-container animate-alert-container">
-                        <i class="fa-regular fa-triangle-exclamation"></i>
+                        <i class="fa-light fa-triangle-exclamation"></i>
                         <div class="new-alert-container-right">
                             <span>Assignment Rejected</span>
                             ${data.review_notes ? `
@@ -362,7 +364,7 @@ async function openAssignment(assignmentId, lessonId = null) {
             displayValidationMessage('Assignment Submitted Successfully.', true);
             removeDisabledUploadBtns();
             updateAssignmentStatus(assignmentId, lessonId, result.final_status);
-            saveLessonProgress();
+            // saveLessonProgress();
         } else {
             displayValidationMessage('Assignment Upload Failed.', false);
             removeDisabledUploadBtns();
@@ -457,4 +459,20 @@ function removeDisabledUploadBtns() {
             btn.style.height = "";
         }
     }, 400);
+}
+
+// Function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }

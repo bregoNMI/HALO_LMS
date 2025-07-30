@@ -317,6 +317,22 @@ h1,h2,h3,h4,h5,h6{
   /* max-width: 200px; */
 }
 
+.edit-user-input textarea{
+  padding: var(--pad-xxs) var(--pad-xs);
+  border: 1px solid #ececf1;
+  border-radius: 8px;
+  font-size: var(--btn-font);
+  color: var(--text-color8);
+  resize: none;
+  font-family: var(--primary-font);
+  overflow-y: auto;
+  overflow-y: auto;
+  max-height: 200px;
+  align-self: stretch;
+  box-sizing: border-box;
+  width: 100%;
+}
+
 .edit-user-input input{
   padding: var(--pad-xxs) var(--pad-xs);
   border: 1px solid #ececf1;
@@ -325,15 +341,16 @@ h1,h2,h3,h4,h5,h6{
   color: var(--text-color8);
   flex: 1;
   text-overflow: ellipsis;
-}.edit-user-input input::placeholder{
+  font-family: var(--primary-font);
+}.edit-user-input input::placeholder, .edit-user-input textarea::placeholder{
   color: var(--text-color3);
 }
 
-.edit-user-input input:hover {
+.edit-user-input input:hover, .edit-user-input textarea:hover {
   background-color: var(--bg-color3);
 }
 
-.edit-user-input input:focus-visible {
+.edit-user-input input:focus-visible, .edit-user-input textarea:focus-visible {
   outline-color: var(--primary-blue);
 }
 
@@ -469,7 +486,7 @@ h1,h2,h3,h4,h5,h6{
   margin-bottom: 10px;
 }
 
-.custom-select i{
+.custom-select .fa-angles-up-down{
   position: absolute;
   right: 0.6rem;
   top: 0.55rem;

@@ -11,7 +11,7 @@ from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
 from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType, Quiz, Question, QuestionOrder, MCQuestion, Answer, TFQuestion, FITBQuestion, FITBAnswer, EssayQuestion, EssayPrompt, QuestionMedia, QuizReference, QuizTemplate, TemplateCategorySelection, TemplateQuestion, QuizConfig
-from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse, EnrollmentKey, ActivityLog, Profile
+from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse, EnrollmentKey, ActivityLog, Profile, UserAssignmentProgress, Message
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 import uuid as uuid_lib
 from halo_lms import settings
@@ -1428,6 +1428,59 @@ def submit_enrollment_key(request):
         'message': f"You were enrolled in {len(enrolled_courses)} new course(s)." if enrolled_courses else "You are already enrolled in all courses tied to this key."
     }, status=200)
 
+
+@require_POST
+@login_required
+def manage_assignment(request):
+    assignment_id = request.POST.get('id')
+    status = request.POST.get('status', '').strip()
+    review_notes = request.POST.get('review_notes', '').strip()
+    is_create_page = request.POST.get('isCreatePage')
+
+    if not assignment_id:
+        return JsonResponse({'error': 'Missing assignment ID.'}, status=400)
+
+    try:
+        assignment_progress = UserAssignmentProgress.objects.get(id=assignment_id)
+    except UserAssignmentProgress.DoesNotExist:
+        return JsonResponse({'error': 'Assignment progress not found.'}, status=404)
+
+    if status not in dict(UserAssignmentProgress.STATUS_CHOICES):
+        return JsonResponse({'error': 'Invalid status value.'}, status=400)
+
+    assignment_progress.status = status
+    assignment_progress.review_notes = review_notes
+    assignment_progress.reviewed_by = request.user
+    assignment_progress.reviewed_at = now()
+    assignment_progress.save()
+
+    user_course = UserCourse.objects.filter(user=assignment_progress.user, course=assignment_progress.course).first()
+    course_lesson = assignment_progress.lesson.id if assignment_progress.lesson else (user_course.lesson_id if user_course else None)
+
+    if status == 'rejected':
+        body = f"Your assignment <strong>{assignment_progress.assignment.title}</strong> was rejected. Please re-submit your assignment for additional review."
+        if course_lesson:
+            body += f" <span class='open-course-link' onclick='launchCourse({course_lesson})'>Open Course</span>"
+        if review_notes:
+            body += f" Notes from reviewer: {review_notes}"
+
+        Message.objects.create(
+            subject='Your assignment was rejected',
+            body=body,
+            sender=request.user,
+            message_type='alert',
+        ).recipients.add(assignment_progress.user)
+
+    if is_create_page == 'true':
+        messages.success(request, 'Assignment updated successfully!')
+
+    return JsonResponse({
+        'id': assignment_progress.id,
+        'review_notes': assignment_progress.review_notes,
+        'status': assignment_progress.status,
+        'is_create_page': is_create_page,
+    }, status=200)
+
 # This is setting the last_opened_course to populate the resume widget on the dashboard
 @require_POST
 @login_required
@@ -1756,6 +1809,122 @@ def edit_categories(request, category_id):
     }
 
     return render(request, 'categories/edit_category.html', context)
+
+# Assignments
+@login_required
+def admin_assignments(request):
+    sort_by = request.GET.get('sort_by', 'completed_at_desc')
+    order_by_field = '-completed_at'  # Default sorting field
+    query_string = request.GET.get('query')
+
+    query = Q()
+    active_filters = {}
+
+    # Apply the general search query if provided
+    if query_string:
+        query &= (
+            Q(course__title__icontains=query_string) |
+            Q(assignment__title__icontains=query_string) |
+            Q(user__first_name__icontains=query_string) |
+            Q(user__last_name__icontains=query_string) |
+            Q(status__icontains=query_string) |
+            Q(completed_at__icontains=query_string)
+        )
+        active_filters['query'] = query_string
+
+    # Build the query dynamically based on the provided filter parameters
+    for key, value in request.GET.items():
+        if key.startswith('filter_') and value:
+            field_name = key[len('filter_'):]  # Extract field name after 'filter_'
+            query &= Q(**{f"{field_name}__icontains": value})
+            active_filters[field_name] = value
+
+    # Define a dictionary to map sort options to user-friendly text
+    sort_options = {
+        'completed_at_asc': 'Submitted At <i class="fa-regular fa-arrow-up"></i>',
+        'completed_at_desc': 'Submitted At <i class="fa-regular fa-arrow-down"></i>',
+        'course_title_asc': 'Course (A-Z)',
+        'course_title_desc': 'Course (Z-A)',
+        'assignment_title_asc': 'Assignment (A-Z)',
+        'assignment_title_desc': 'Assignment (Z-A)',
+        'first_name_asc': 'First Name (A-Z)',
+        'first_name_desc': 'First Name (Z-A)',
+        'last_name_asc': 'Last Name (A-Z)',
+        'last_name_desc': 'Last Name (Z-A)',
+        'status_asc': 'Status (A-Z)',
+        'status_desc': 'Status (Z-A)',
+    }
+
+    order_by_field_map = {
+        'completed_at_asc': 'completed_at',
+        'completed_at_desc': '-completed_at',
+        'course_title_asc': 'course__title',
+        'course_title_desc': '-course__title',
+        'assignment_title_asc': 'assignment__title',
+        'assignment_title_desc': '-assignment__title',
+        'first_name_asc': 'user__first_name',
+        'first_name_desc': '-user__first_name',
+        'last_name_asc': 'user__last_name',
+        'last_name_desc': '-user__last_name',
+        'status_asc': 'status',
+        'status_desc': '-status',
+    }
+
+    order_by_field = order_by_field_map.get(sort_by, '-completed_at')
+
+    # Add the sort option to the active filters only if it is present in the request
+    if 'sort_by' in request.GET and sort_by:
+        active_filters['sort_by'] = sort_options.get(sort_by, 'Submitted at <i class="fa-regular fa-arrow-down" aria-hidden="true"></i>')
+
+    # Apply the filtering and sorting to the users list
+    courses_list = UserAssignmentProgress.objects.filter(query).order_by(order_by_field)
+
+    # Paginate the filtered users_list
+    paginator = Paginator(courses_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Render the results with the active filters
+    return render(request, 'assignments/assignments.html', {
+        'page_obj': page_obj,
+        'active_filters': active_filters,
+        'sort_by': sort_by,
+    })
+
+@login_required
+def manage_assignments(request, assignment_id):
+    assignment = get_object_or_404(UserAssignmentProgress, pk=assignment_id)
+    user = request.user
+    upload = assignment.assignment
+
+    approval_type = upload.approval_type
+    user_role = getattr(user.profile, 'role', None)
+
+    # Approval logic
+    can_approve = False
+    if approval_type in [None, 'None', '']:
+        can_approve = True
+    elif approval_type == 'instructor' and (user_role == 'instructor' or user.is_superuser):
+        can_approve = True
+    elif approval_type == 'admin' and user.is_superuser:
+        can_approve = True
+    elif approval_type == 'other' and user in upload.approvers.all():
+        can_approve = True
+
+    print(can_approve)
+
+    user_course = UserCourse.objects.filter(
+        user=assignment.user,
+        course=assignment.course
+    ).first()
+
+    context = {
+        'assignment': assignment,
+        'user_course': user_course,
+        'can_approve': can_approve,
+        'is_manage_page': True
+    }
+    return render(request, 'assignments/manage_assignment.html', context)
 
 @login_required
 def admin_enrollment_keys(request):
@@ -2463,7 +2632,11 @@ def get_quiz_references(request, uuid):
             try:
                 file_url = ref.get_file_url()
                 print(f"[DEBUG] Ref ID {ref.id} | Type: {ref.source_type} | File Field: {ref.file} | URL: {file_url}")
+<<<<<<<<< Temporary merge branch 1
 
+=========
+ 
+>>>>>>>>> Temporary merge branch 2
                 data.append({
                     'id': ref.id,
                     'title': ref.title,
@@ -2473,7 +2646,11 @@ def get_quiz_references(request, uuid):
                 })
             except Exception as e:
                 print(f"[ERROR] Failed to load reference ID {ref.id}: {e}")
+<<<<<<<<< Temporary merge branch 1
 
+=========
+ 
+>>>>>>>>> Temporary merge branch 2
         return JsonResponse({'success': True, 'references': data})
  
     except Quiz.DoesNotExist:

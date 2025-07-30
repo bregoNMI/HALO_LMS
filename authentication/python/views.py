@@ -303,6 +303,8 @@ def register_view(request):
 
         except cognito_client.exceptions.UsernameExistsException:
             messages.error(request, 'Username already exists.')
+        except cognito_client.exceptions.EmailExistsException:
+            messages.error(request, 'Email already exists.')
         except cognito_client.exceptions.InvalidParameterException as e:
             messages.error(request, f'Invalid parameters provided: {e}')
         except Exception as e:

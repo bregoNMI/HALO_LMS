@@ -20,7 +20,11 @@ from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.conf import settings
 from botocore.exceptions import ClientError
-from content.models import Course, EssayQuestion, FITBQuestion, Module, Lesson, Question, QuestionMedia, QuestionOrder, TFQuestion, UploadedFile, Upload, QuizConfig, Quiz
+<<<<<<<<< Temporary merge branch 1
+from content.models import Course, Module, Lesson, UploadedFile, Upload
+=========
+from content.models import Course, EssayQuestion, FITBQuestion, Module, Lesson, Question, QuestionMedia, QuestionOrder, TFQuestion, UploadedFile, QuizConfig, Quiz
+>>>>>>>>> Temporary merge branch 2
 from authentication.python.views import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, get_secret
 from django.views.decorators.csrf import csrf_exempt
 import boto3 
@@ -216,7 +220,10 @@ def get_scorm_progress(request, lesson_id):
 
     print(f"[get_scorm_progress] Rebuilt suspend_data with LMS progress: {suspend_data}")
     return JsonResponse({"suspend_data": json.dumps(suspend_data)})
-
+=========
+        print(f"[get_scorm_progress] Error parsing cmi_data: {e}")
+        return JsonResponse({"suspend_data": ""}, status=500)
+    
 @require_GET
 @login_required
 def get_quiz_score(request):
@@ -530,16 +537,16 @@ def launch_scorm_file(request, lesson_id):
 
     assignment_status_map = {}
 
-    for assignment in full_course_assignments:
-        key = str(assignment.id)
-        assignment.status = assignment_status_map.get(key, {}).get('status', 'pending')
-
     for progress in progress_qs:
         key = f"{progress.assignment_id}-{progress.lesson_id}" if progress.lesson_id else str(progress.assignment_id)
         assignment_status_map[key] = {
             "status": progress.status,
             "locked": False  # Set this separately below
         }
+
+    for assignment in full_course_assignments:
+        key = str(assignment.id)
+        assignment.status = assignment_status_map.get(key, {}).get('status', 'pending')
 
     for assignment in lesson_assignments:
         for attached_lesson in assignment.lessons.all():

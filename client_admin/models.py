@@ -442,7 +442,33 @@ class UserAssignmentProgress(models.Model):
     @property
     def is_submitted(self):
         return self.status in ['submitted', 'approved', 'rejected']
+    
+    @property
+    def file_name(self):
+        if self.file:
+            return os.path.basename(self.file.name)
+        return ''
+    
+    def get_file_type_icon(self):
+        if not self.file:
+            return 'other'
 
+        ext = os.path.splitext(self.file.name)[1].lower()
+
+        if ext in ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp']:
+            return 'image'
+        elif ext in ['.pdf']:
+            return 'pdf'
+        elif ext in ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt']:
+            return 'document'
+        elif ext in ['.mp4', '.mov', '.wmv', '.flv', '.avi', '.mkv']:
+            return 'video'
+        elif ext in ['.mp3', '.wav', '.aac', '.ogg', '.flac']:
+            return 'audio'
+        elif ext in ['.zip', '.rar', '.scorm', '.xml']:
+            return 'archive'
+        else:
+            return 'other'
 
     def __str__(self):
         return f"{self.user} - {self.assignment} - {self.status}"
@@ -458,12 +484,19 @@ class GeneratedCertificate(models.Model):
         return f"Certificate for {self.user_course.user.username} - {self.user_course.course.title}"
     
 class Message(models.Model):
+    MESSAGE_TYPES = [
+        ('message', 'Message'),
+        ('alert', 'Alert'),
+        ('system', 'System Message'),
+    ]
+
     subject = models.CharField(max_length=255)
     body = models.TextField(max_length=2000)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     recipients = models.ManyToManyField(User, related_name='received_messages')
     sent_at = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
+    message_type = models.CharField(max_length=20, choices=MESSAGE_TYPES, default='message')
 
     def __str__(self):
         return self.subject

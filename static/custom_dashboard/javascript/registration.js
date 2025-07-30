@@ -1,20 +1,3 @@
-let buttonBackgroundHover = '{{ login_form.button_color_hover }}';
-let buttonBackground = '{{ login_form.button_color }}';  
-let buttonColorHover = '{{ login_form.button_text_hover }}';
-let buttonColor = '{{ login_form.button_text }}';
-let buttonBorderHover = '{{ login_form.button_border_color_hover }}';
-let buttonBorder = '{{ login_form.button_border_color }}';
-
-let forgetColor = '{{ login_form.forgot_link_color }}';
-let forgetColorHover = '{{ login_form.forgot_link_color_hover }}';
-let forgotTextDecoration = '{{ login_form.forgot_text_decoration }}';
-let forgotTextDecorationHover = '{{ login_form.forgot_text_decoration_hover }}';
-
-let signupColor = '{{ login_form.signup_link_color }}';
-let signupColorHover = '{{ login_form.signup_link_color_hover }}';
-let signupTextDecoration = '{{ login_form.signup_text_decoration }}';
-let signupTextDecorationHover = '{{ login_form.signup_text_decoration_hover }}';
-
 // handle file input changes
 document.addEventListener('DOMContentLoaded', function() {
     const fileInputs = document.querySelectorAll('.custom-file');
@@ -431,6 +414,14 @@ function detectBrowser() {
 }
 
 submitFormBtn.addEventListener("click", addLoadingSymbol);
+document.getElementById('registerForm').addEventListener('keydown', function(event) {
+    if ((event.key === 'Enter' || event.keyCode === 13) &&
+        !submitFormBtn.classList.contains('hidden') &&
+        !submitFormBtn.disabled) {
+        event.preventDefault();
+        addLoadingSymbol();
+    }
+});
 
 function addLoadingSymbol(){
     const password = document.getElementById('id_password').value;
@@ -486,6 +477,8 @@ function addLoadingSymbol(){
 
     if(areFieldsComplete == true){
         submitFormBtn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
+        // Call this after facial recognition is complete
+        document.getElementById('registerForm').submit();
     }
 }
 
@@ -496,5 +489,27 @@ function showErrorMessage(message, isError, slide){
     if(isError == true){
         javascriptErrorContainer.classList.remove('hidden');
         javascriptErrorMessage.innerText = message;
+    }
+}
+
+let facialStream = null;
+
+function initiateFacialRecognition() {
+    const videoElement = document.getElementById('facialRecognitionVideo');
+
+    // Check for support
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }) // 'user' = front camera on mobile
+            .then(function(stream) {
+                facialStream = stream; // Store for cleanup later
+                videoElement.srcObject = stream;
+                openPopup('facialRecognition');
+            })
+            .catch(function(error) {
+                console.error("Camera access error:", error);
+                alert("Unable to access the camera. Please check permissions.");
+            });
+    } else {
+        alert("Camera is not supported on this device.");
     }
 }

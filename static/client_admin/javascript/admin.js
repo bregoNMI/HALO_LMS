@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }else{
             selectedOptionsWrapper.style.display = 'flex';
             openOptionsSidebar();
+            populateUploadedAssignmentsBtn(); 
         };
         if(checkedOptionsList.length < 2){
             singleOptionsSelect();
@@ -83,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (matchingAttribute) {
                 // Add click event listener to redirect to the matching URL
                 item.addEventListener('click', () => {
-                    updateSelectedIds();              
+                    updateSelectedIds();             
                     console.log(checkedOptionsList, selectedIds);                
                     // Store the unique IDs in localStorage
                     localStorage.setItem('selectedUserIds', JSON.stringify(selectedIds)); 
@@ -126,6 +127,18 @@ document.addEventListener("DOMContentLoaded", function () {
     function multiOptionsSelect(){
         document.getElementById('singleOptionsSelect').style.display = 'none';
         document.getElementById('multiOptionsSelect').style.display = 'flex';
+    }
+
+    function populateUploadedAssignmentsBtn(){
+        // Opening uploaded course assignments
+        document.querySelectorAll('#data-uploaded-assignments').forEach(item => {
+            const selectedOption = document.querySelector('.selected-option');
+            const courseTitle = selectedOption.querySelector('.course-title');
+            console.log('selectedOption:', selectedOption, 'courseTitle:', courseTitle.innerText, courseTitle.innerHTML, );
+            item.addEventListener('click', () => {
+                window.location.href = `/admin/assignments/?filter_course__title=${courseTitle.textContent}`;
+            });
+        });
     }
 
     const activeFilters = document.getElementById('activeFilters');
@@ -344,7 +357,8 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('.sort-item-wrapper').forEach(function(sortItemWrapper) {
         var radioInput = sortItemWrapper.querySelector('.radio-button__input');
         var labelDiv = sortItemWrapper.querySelector('.radio-button__label div');
-        if (labelDiv && labelDiv.innerText === activeSort) {
+        
+        if (labelDiv && labelDiv.innerHTML === activeSort || labelDiv && labelDiv.innerText === activeSort) {
             radioInput.checked = true;
         }
     });
@@ -628,6 +642,57 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
+
+    // Deleting Assignments
+    document.querySelectorAll('#data-delete-assignments').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('assignmentDeleteConfirmation');
+        });
+    });
+
+    const deleteAssignmentConfirmation = document.getElementById('deleteAssignmentConfirmation');
+    if(deleteAssignmentConfirmation){
+        deleteAssignmentConfirmation.addEventListener('click', () => {
+            console.log(selectedIds);
+            const url = '/admin/assignments/delete-assignments/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+    // Approving Assignments
+    document.querySelectorAll('#data-approve').forEach(item => {
+        item.addEventListener('click', () => {
+            manageAssignment(selectedIds, 'approved','', true);
+        });
+    });
+
+    // Rejecting Assignments
+    document.querySelectorAll('#data-reject').forEach(item => {
+        item.addEventListener('click', () => {
+            manageAssignment(selectedIds, 'rejected','', true);
+        });
+    });
 
     function getCsrfToken() {
         const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];

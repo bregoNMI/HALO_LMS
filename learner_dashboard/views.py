@@ -75,38 +75,38 @@ def learner_courses(request):
         .prefetch_related('module_progresses__module__lessons')
 
     all_courses = [uc.course for uc in user_courses]
-    all_lesson_ids = set()
-    for uc in user_courses:
-        for module_progress in uc.module_progresses.all():
-            for lesson in module_progress.module.lessons.all():
-                all_lesson_ids.add(lesson.id)
 
-    # Fetch assignment progress for this user
+    # All assignment progress for the user
     progress_qs = UserAssignmentProgress.objects.filter(user=user)
+
     completed_assignment_ids = set(
         progress_qs.filter(status__in=['submitted', 'approved'])
         .values_list('assignment_id', flat=True)
     )
 
-    # Build assignment status map
+    # Map of assignment ID (or assignment-lesson key) → status + lock
     assignment_status_map = {}
     for progress in progress_qs:
         key = f"{progress.assignment_id}-{progress.lesson_id}" if progress.lesson_id else str(progress.assignment_id)
         assignment_status_map[key] = {
             "status": progress.status,
-            "locked": False
+            "locked": False  # To be calculated later
         }
 
-    ordered_lesson_assignment_pairs = []
-    lesson_assignment_map = defaultdict(list)
+    course_lesson_assignment_map = {}     # course_id → ordered lesson-assignment pairs
+    full_course_assignment_map = {}       # course_id → list of full-course assignments
+    lesson_assignment_map = defaultdict(list)  # lesson_id → list of assignments
 
-    for course in all_courses:
+    for uc in user_courses:
+        course = uc.course
+        user_course = uc
+
         ordered_lessons = Lesson.objects.filter(
             module__course=course
         ).select_related('module').order_by('module__order', 'order')
 
-        user_course = UserCourse.objects.filter(user=user, course=course).first()
         previous_lesson_completed = True
+        ordered_pairs = []
 
         for lesson in ordered_lessons:
             is_completed = UserLessonProgress.objects.filter(
@@ -122,33 +122,33 @@ def learner_courses(request):
                 key = f"{assignment.id}-{lesson.id}"
                 status = assignment_status_map.get(key, {}).get('status', 'pending')
 
-                pair_data = {
+                assignment_status_map.setdefault(key, {})["status"] = status
+                assignment_status_map[key]["locked"] = locked
+
+                pair = {
                     'lesson': lesson,
                     'assignment': assignment,
                     'locked': locked,
                     'status': status,
                     'key': key,
                 }
+                ordered_pairs.append(pair)
+                lesson_assignment_map[lesson.id].append(pair)
 
-                ordered_lesson_assignment_pairs.append(pair_data)
-                lesson_assignment_map[lesson.id].append(pair_data)
+        course_lesson_assignment_map[course.id] = ordered_pairs
 
-    # ✅ Fetch full-course assignments
-    full_course_assignments = Upload.objects.filter(
-        course__in=all_courses,
-        lessons__isnull=True
-    ).distinct()
-
-    # ✅ Annotate status for full-course assignments
-    for assignment in full_course_assignments:
-        key = str(assignment.id)
-        assignment.status = assignment_status_map.get(key, {}).get('status', 'pending')
-        assignment.locked = assignment_status_map.get(key, {}).get('locked', False)
+        # Full-course assignments (not linked to specific lessons)
+        full_assignments = Upload.objects.filter(course=course, lessons__isnull=True).distinct()
+        for assignment in full_assignments:
+            key = str(assignment.id)
+            assignment.status = assignment_status_map.get(key, {}).get('status', 'pending')
+            assignment.locked = assignment_status_map.get(key, {}).get('locked', False)
+        full_course_assignment_map[course.id] = full_assignments
 
     context = {
         'user_courses': user_courses,
-        'full_course_assignments': full_course_assignments,
-        'ordered_lesson_assignment_pairs': ordered_lesson_assignment_pairs,
+        'course_lesson_assignment_map': course_lesson_assignment_map,
+        'full_course_assignment_map': full_course_assignment_map,
         'lesson_assignment_map': lesson_assignment_map,
         'assignment_status_map': assignment_status_map,
         'completed_assignment_ids': completed_assignment_ids,
@@ -595,11 +595,11 @@ def change_password(request):
 
 @login_required
 def learner_notifications(request):
-    # Retrieve the messages for the current user
-    messages = Message.objects.filter(recipients=request.user).order_by('-sent_at')
     
     context = {
-        'messages': messages
+        'messages': Message.objects.filter(message_type='message', recipients=request.user).order_by('-sent_at'),
+        'alerts': Message.objects.filter(message_type='alert', recipients=request.user).order_by('-sent_at'),
+        'system_messages': Message.objects.filter(message_type='system', recipients=request.user).order_by('-sent_at')
     }
     
     return render(request, 'learner_pages/learner_notifications.html', context)

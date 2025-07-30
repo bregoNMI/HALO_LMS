@@ -158,6 +158,7 @@ function selectFile(popupId, referenceId = null, assignmentId = null) {
             const assignmentURLInput = document.querySelector(`#assignmentURLInput-${assignmentId}`);
             const assignmentTypeInput = document.querySelector(`#assignmentTypeInput-${assignmentId}`);
             const assignmentSourceDisplay = document.querySelector(`#assignmentSourceDisplay-${assignmentId}`);
+            console.log('assignmentSourceDisplay:', assignmentSourceDisplay, 'assignmentId:', assignmentId);
             assignmentURLInput.value = selectedFileURL;
             assignmentTypeInput.value = selectedFileType;
             assignmentSourceDisplay.innerText = selectedFileTitle;

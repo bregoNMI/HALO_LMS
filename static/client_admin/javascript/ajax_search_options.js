@@ -858,6 +858,7 @@ function sendMessageRequest() {
     userIds.forEach(id => data.append('user_ids[]', id));
     data.append('subject', subject);  // Include key 'subject'
     data.append('body', body);        // Include key 'body'
+    data.append('message_type', 'message');
 
     fetch('/admin/users/message-user-request/', {
         method: 'POST',
@@ -1208,7 +1209,8 @@ function editCategory(id, parent_category, name, description, isCreatePage) {
         document.querySelectorAll('.category-dropdown').forEach(dropdown => {
             initializeCategoryDropdown(dropdown.id);
         });
-        if(data.is_create_page == true){
+        console.log(data.is_create_page);
+        if(data.is_create_page == 'true'){
             location.href = '/admin/categories/';
         }
     })
@@ -1281,7 +1283,7 @@ function createEnrollmentKey(name, keyName, courseIds, active, maxUses, isCreate
     });
 }
 
-// Function to create a edit enrollment key
+// Function to create and edit enrollment key
 function editEnrollmentKey(id, name, keyName, courseIds, active, maxUses, isCreatePage) {
     console.log(id, name, keyName, courseIds, active, maxUses, isCreatePage);
     fetch('/requests/edit-enrollment-key/', {
@@ -1319,6 +1321,74 @@ function editEnrollmentKey(id, name, keyName, courseIds, active, maxUses, isCrea
     .catch(error => {
         console.error('Unexpected error:', error);
         displayValidationMessage('Something went wrong. Please try again.', false);
+    });
+}
+
+// Function to manage an assignment
+function manageAssignment(assignmentId, markAs, notes, isCreatePage) {
+    console.log(assignmentId, markAs, notes, isCreatePage);
+    fetch('/requests/manage-assignment/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: new URLSearchParams({
+            'id': assignmentId,
+            'status': markAs,
+            'review_notes': notes,
+            'isCreatePage': isCreatePage,
+        }),
+    })
+    .then(async response => {
+        const data = await response.json();
+
+        if (!response.ok) {
+            displayValidationMessage(data.error || 'Failed to update assignment.', false);
+            removeDisabledSaveBtns();
+            return;
+        }
+
+        if (data.is_create_page === 'true') {
+            location.href = '/admin/assignments/';
+        } else {
+            displayValidationMessage('Assignment updated successfully!', true);
+            removeDisabledSaveBtns();
+        }
+    })
+    .catch(error => {
+        console.error('Unexpected error:', error);
+        displayValidationMessage('Something went wrong. Please try again.', false);
+    });
+}
+
+function deleteAssignment(assignmentId){
+    setDisabledSaveBtns();
+    console.log(assignmentId);
+    const url = '/admin/assignments/delete-assignments/';
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({ ids: [assignmentId] })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+            // displayValidationMessage(data.message, true);
+        } else {
+            console.log('show error');
+            displayValidationMessage(data.message, false);  // Error message
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
     });
 }
 

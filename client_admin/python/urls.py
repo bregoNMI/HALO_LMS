@@ -54,6 +54,11 @@ urlpatterns = [
     path('categories/edit/<int:category_id>/', content_views.edit_categories, name='edit_categories'),
     path('categories/delete-categories/', views.delete_categories, name='delete_categories'),
 
+    # Assignments
+    path('assignments/', content_views.admin_assignments, name='admin_assignments'),
+    path('assignments/manage/<int:assignment_id>/', content_views.manage_assignments, name='manage_assignments'),
+    path('assignments/delete-assignments/', views.delete_assignments, name='delete_assignments'),
+
     # Enrollment Keys
     path('enrollment-keys/', content_views.admin_enrollment_keys, name='admin_enrollment_keys'),
     path('enrollment-keys/add/', content_views.add_enrollment_keys, name='add_enrollment_keys'),

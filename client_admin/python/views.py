@@ -27,8 +27,8 @@ from django.utils.timezone import now
 from django.http import HttpResponseForbidden, HttpRequest
 from learner_dashboard.views import learner_dashboard
 from django.contrib import messages
-from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos, EnrollmentKey
-from course_player.models import LessonSession, SCORMTrackingData
+from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos, EnrollmentKey, UserAssignmentProgress
+from course_player.models import LessonSession, SCORMTrackingData, LessonProgress
 from content.models import Lesson, Category, Quiz, Question, QuizTemplate
 from client_admin.forms import OrganizationSettingsForm
 from .forms import UserRegistrationForm, ProfileForm, CSVUploadForm
@@ -771,24 +771,30 @@ def message_users_request(request):
         user_ids = request.POST.getlist('user_ids[]')
         subject = request.POST.get('subject')
         body = request.POST.get('body')
+        message_type = request.POST.get('message_type', 'message').strip()
 
         if not subject or not body:
             return JsonResponse({'message': 'Subject and body are required.'}, status=400)
 
-        # Create the message and associate it with the recipients
-        sender = request.user
-        message = Message.objects.create(subject=subject, body=body, sender=sender)
+        if message_type not in dict(Message.MESSAGE_TYPES):
+            return JsonResponse({'message': 'Invalid message type.'}, status=400)
 
-        # Associate the message with the selected users
+        sender = request.user
+        message = Message.objects.create(
+            subject=subject,
+            body=body,
+            sender=sender,
+            message_type=message_type
+        )
+
         recipients = User.objects.filter(id__in=user_ids)
         message.recipients.set(recipients)
         message.save()
 
         messages.success(request, 'Message sent successfully.')
-
         return JsonResponse({'message': 'Message sent successfully', 'redirect_url': '/admin/users/'})
-    else:
-        return JsonResponse({'message': 'Invalid request method'}, status=400)
+
+    return JsonResponse({'message': 'Invalid request method'}, status=400)
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -1203,60 +1209,82 @@ def edit_usercourse_detail_view(request, uuid):
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
 
+@login_required
 def reset_lesson_progress(request, user_lesson_progress_id):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
+    data = json.loads(request.body)
+    lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
 
-        lesson_progress.attempts = 0
-        lesson_progress.completed = False
-        lesson_progress.save()
+    lesson_progress.attempts = 0
+    lesson_progress.completed = False
+    lesson_progress.save()
 
-        lesson = lesson_progress.lesson
-        user = lesson_progress.user_module_progress.user_course.user
+    lesson = lesson_progress.lesson
+    user = lesson_progress.user_module_progress.user_course.user
 
-        sessions_to_delete = LessonSession.objects.filter(lesson=lesson, user=user)
-        deleted_count, _ = sessions_to_delete.delete()
+    # Delete lesson sessions
+    sessions_to_delete = LessonSession.objects.filter(lesson=lesson, user=user)
+    sessions_deleted_count, _ = sessions_to_delete.delete()
 
-        messages.success(request, f'Lesson progress reset.')
-        return JsonResponse({'success': True, 'message': f'Lesson progress reset.'})
+    # Delete SCORM tracking data
+    scorm_data_deleted_count, _ = SCORMTrackingData.objects.filter(lesson=lesson, user=user).delete()
 
-    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+    # Delete lesson progress entries (for mini-lessons, if used)
+    mini_progress_deleted_count, _ = LessonProgress.objects.filter(lesson=lesson, user=user).delete()
+
+    messages.success(request, 'Lesson progress reset.')
+    return JsonResponse({
+        'success': True,
+        'message': 'Lesson progress reset.',
+        'sessions_deleted': sessions_deleted_count,
+        'scorm_data_deleted': scorm_data_deleted_count,
+        'mini_progress_deleted': mini_progress_deleted_count,
+    })
 
 def edit_lesson_progress(request, user_lesson_progress_id):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
-        print(data, lesson_progress)
+    data = json.loads(request.body)
+    lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
+    user = lesson_progress.user_module_progress.user_course.user
+    lesson = lesson_progress.lesson
 
-        lesson_progress.completed = data.get('completed', lesson_progress.completed)
-            
-        # Completed Date & Time
-        completed_on_date = data.get('completed_on_date', '').strip()
-        completed_on_time = data.get('completed_on_time', '').strip()
+    # Toggle completion state
+    completed = data.get('completed', lesson_progress.completed)
+    lesson_progress.completed = completed
 
-        if completed_on_date:
-            try:
-                lesson_progress.completed_on_date = datetime.strptime(completed_on_date, '%Y-%m-%d').date()
-            except ValueError:
-                pass
-        else:
+    # Parse date and time
+    completed_on_date = data.get('completed_on_date', '').strip()
+    completed_on_time = data.get('completed_on_time', '').strip()
+
+    if completed_on_date:
+        try:
+            lesson_progress.completed_on_date = datetime.strptime(completed_on_date, '%Y-%m-%d').date()
+        except ValueError:
             lesson_progress.completed_on_date = None
+    else:
+        lesson_progress.completed_on_date = None
 
-        if completed_on_time:
-            try:
-                lesson_progress.completed_on_time = datetime.strptime(completed_on_time, '%I:%M %p').time()
-            except ValueError:
-                pass
-        else:
+    if completed_on_time:
+        try:
+            lesson_progress.completed_on_time = datetime.strptime(completed_on_time, '%I:%M %p').time()
+        except ValueError:
             lesson_progress.completed_on_time = None
+    else:
+        lesson_progress.completed_on_time = None
 
-        lesson_progress.save()
+    lesson_progress.save()
 
-        # messages.success(request, f'Lesson Activity updated successfully.')
-        return JsonResponse({'success': True, 'message': 'Lesson Activity updated successfully.'})
+    # --- Sync with SCORMTrackingData ---
+    scorm_tracking, created = SCORMTrackingData.objects.get_or_create(user=user, lesson=lesson)
+    if completed:
+        scorm_tracking.completion_status = 'completed'
+        scorm_tracking.progress = 1.0
+    else:
+        scorm_tracking.completion_status = 'incomplete'
+        scorm_tracking.progress = 0.0
 
-    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+    scorm_tracking.last_updated = now()
+    scorm_tracking.save()
+
+    return JsonResponse({'success': True, 'message': 'Lesson Activity updated successfully.'})
 
 def fetch_lesson_progress(request, user_lesson_progress_id):
     if request.method == 'POST':
@@ -1290,7 +1318,7 @@ def delete_categories(request):
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
-    
+     
 def delete_enrollment_keys(request):
     data = json.loads(request.body)
     key_ids = data['ids']
@@ -1377,6 +1405,29 @@ def delete_quiz_templates(request):
                 'status': 'success',
                 'redirect_url': '/admin/quiz-templates/',
                 'message': 'All selected quizzes templates deleted'
+            })
+    except ValueError as e:
+        logger.error(f"Deletion error: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+    
+def delete_assignments(request):
+    data = json.loads(request.body)
+    assignment_ids = data['ids']
+    try:
+        with transaction.atomic():
+            for assignment_id in assignment_ids:
+                assignment = UserAssignmentProgress.objects.filter(id=assignment_id)
+                if not assignment.exists():
+                    raise ValueError(f"No assignment found with ID {assignment_id}")
+                assignment.delete()
+            messages.success(request, 'All selected assignments deleted successfully.')
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': '/admin/assignments/',
+                'message': 'All selected assignments deleted successfully'
             })
     except ValueError as e:
         logger.error(f"Deletion error: {e}")

@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const notificationTabs = document.getElementById('notificationTabs');
-    initializeTabs(notificationTabs);
+    setTimeout(() => {
+        initializeTabs(notificationTabs);
+    }, 100);
 
     const markAsReadButtons = document.querySelectorAll('.mark-as-read-btn');
 

@@ -1567,15 +1567,31 @@ document.addEventListener("DOMContentLoaded", function () {
             window.API_1484_11.Initialize();
             rebuildMiniLessonProgressFromSCORM(data.suspend_data);
 
-                const dataSrc = iframe?.dataset?.src;
-                console.log("🧪 iframe.dataset.src before setting src:", dataSrc);
-                console.log("🧪 iframe current src before setting:", iframe?.src);
+            const dataSrc = iframe?.dataset?.src;
+            console.log("🧪 iframe.dataset.src before setting src:", dataSrc);
+            console.log("🧪 iframe current src before setting:", iframe?.src);
 
-                if (dataSrc && dataSrc !== "about:blank") {
-                    iframe.src = dataSrc;
-                    console.log("✅ iframe.src set from dataset.src:", dataSrc);
-                } else {
-                    console.warn("⚠️ iframe.dataset.src was about:blank — skipping src assignment");
+            if (dataSrc && dataSrc !== "about:blank") {
+                iframe.src = dataSrc;
+                console.log("✅ iframe.src set from dataset.src:", dataSrc);
+            } else {
+                console.warn("⚠️ iframe.dataset.src was about:blank — skipping src assignment");
+            }
+        }
+    })
+    .catch(err => {
+        console.warn("⚠️ Failed to fetch suspend_data from server:", err);
+    });
+
+    // --- Resume to saved location ---
+    if (window.savedLocation) {
+        console.log(`📌 Resuming at saved location: ${window.savedLocation}`);
+        iframe.addEventListener("load", function () {
+            setTimeout(() => {
+                try {
+                    iframe.contentWindow.scrollTo(0, window.savedScrollPosition);
+                } catch (error) {
+                    console.error("❌ Scroll restore error:", error);
                 }
             }
         })
