@@ -2632,11 +2632,6 @@ def get_quiz_references(request, uuid):
             try:
                 file_url = ref.get_file_url()
                 print(f"[DEBUG] Ref ID {ref.id} | Type: {ref.source_type} | File Field: {ref.file} | URL: {file_url}")
-<<<<<<<<< Temporary merge branch 1
-
-=========
- 
->>>>>>>>> Temporary merge branch 2
                 data.append({
                     'id': ref.id,
                     'title': ref.title,
@@ -2646,11 +2641,6 @@ def get_quiz_references(request, uuid):
                 })
             except Exception as e:
                 print(f"[ERROR] Failed to load reference ID {ref.id}: {e}")
-<<<<<<<<< Temporary merge branch 1
-
-=========
- 
->>>>>>>>> Temporary merge branch 2
         return JsonResponse({'success': True, 'references': data})
  
     except Quiz.DoesNotExist:

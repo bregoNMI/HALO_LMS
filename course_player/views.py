@@ -20,11 +20,8 @@ from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.conf import settings
 from botocore.exceptions import ClientError
-<<<<<<<<< Temporary merge branch 1
 from content.models import Course, Module, Lesson, UploadedFile, Upload
-=========
 from content.models import Course, EssayQuestion, FITBQuestion, Module, Lesson, Question, QuestionMedia, QuestionOrder, TFQuestion, UploadedFile, QuizConfig, Quiz
->>>>>>>>> Temporary merge branch 2
 from authentication.python.views import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, get_secret
 from django.views.decorators.csrf import csrf_exempt
 import boto3 
@@ -137,10 +134,11 @@ def mark_lesson_complete(request):
 
     return JsonResponse({"status": "success"})
 
+"""
 def proxy_scorm_file(request, file_path):
-    """
-    Proxy SCORM file from S3 to serve it through the LMS domain.
-    """
+
+    # Proxy SCORM file from S3 to serve it through the LMS domain.
+
     decoded_file_path = unquote_plus(file_path).strip()
     print(f"🔍 Incoming SCORM request: {decoded_file_path}")
 
@@ -187,7 +185,85 @@ def proxy_scorm_file(request, file_path):
     except ClientError as e:
         print(f"❌ Error fetching file {decoded_file_path} from S3: {e}")
         raise Http404("SCORM file not found")
-    
+"""
+def proxy_scorm_absolute(request, file_path):
+    """
+    Serves absolute SCORM asset paths like /scormcontent/lib/...
+    by prepending the dynamic folder from session.
+    """
+    folder = request.session.get("active_scorm_folder")
+    if not folder:
+        print("❌ No SCORM folder found in session.")
+        raise Http404("SCORM folder not set")
+
+    # Combine dynamic folder + asset path
+    full_path = f"{folder}/scormcontent/{file_path}"
+    print(f"🔄 Rewriting absolute asset path to: {full_path}")
+
+    # Reuse the existing proxy logic
+    return proxy_scorm_file(request, full_path)
+
+def proxy_scorm_file(request, file_path):
+    """
+    Proxy SCORM file from S3 to serve it through the LMS domain.
+    """
+    from urllib.parse import unquote_plus
+
+    decoded_file_path = unquote_plus(file_path).strip()
+    print(f"🔍 Incoming SCORM request: {decoded_file_path}")
+
+    # ✅ Clean up paths where index.html is treated as a folder (SCORM quirk)
+    if "index.html/" in decoded_file_path:
+        decoded_file_path = decoded_file_path.replace("index.html/", "")
+        print(f"🧹 Removed 'index.html/' from path → {decoded_file_path}")
+    elif decoded_file_path.endswith("index.html/"):
+        decoded_file_path = decoded_file_path.rstrip("/")
+        print(f"🧹 Removed trailing slash after index.html → {decoded_file_path}")
+
+    # 🧼 Fix nested font path bug: "lib/icomoon.css/fonts/icomoon.woff" → "lib/fonts/icomoon.woff"
+    if "lib/icomoon.css/fonts/" in decoded_file_path:
+        decoded_file_path = decoded_file_path.replace("lib/icomoon.css/fonts/", "lib/fonts/")
+        print(f"🧼 Normalized font path from CSS: {decoded_file_path}")
+
+    # Only prepend folder if path is truly absolute (starts with just "scormcontent/...")
+    if "scormcontent/" in decoded_file_path and not decoded_file_path.startswith("gmdss-"):
+        folder = request.session.get("active_scorm_folder")
+        if not folder:
+            print("❌ No SCORM folder in session for absolute path")
+            raise Http404("SCORM folder not set")
+        decoded_file_path = f"{folder}/{decoded_file_path}"
+
+    # Final key
+    s3_key = f"media/default/uploads/{decoded_file_path}".replace("\\", "/").strip()
+    print(f"📂 Final S3 Key: {s3_key}")
+
+    # S3 fetch
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        region_name=AWS_S3_REGION_NAME
+    )
+
+    try:
+        s3_response = s3_client.get_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=s3_key)
+        file_data = s3_response['Body']
+        content_type = s3_response.get('ContentType') or mimetypes.guess_type(s3_key)[0] or "application/octet-stream"
+
+        # Normalize common types
+        if s3_key.endswith(".html"):
+            content_type = "text/html"
+        elif s3_key.endswith(".css"):
+            content_type = "text/css"
+        elif s3_key.endswith(".js"):
+            content_type = "application/javascript"
+
+        return FileResponse(file_data, content_type=content_type)
+
+    except ClientError as e:
+        print(f"❌ Error fetching {s3_key} from S3: {e}")
+        raise Http404("SCORM file not found")
+        
 def get_scorm_progress(request, lesson_id):
     user = request.user
     lesson = get_object_or_404(Lesson, pk=lesson_id)
@@ -220,9 +296,9 @@ def get_scorm_progress(request, lesson_id):
 
     print(f"[get_scorm_progress] Rebuilt suspend_data with LMS progress: {suspend_data}")
     return JsonResponse({"suspend_data": json.dumps(suspend_data)})
-=========
-        print(f"[get_scorm_progress] Error parsing cmi_data: {e}")
-        return JsonResponse({"suspend_data": ""}, status=500)
+
+    print(f"[get_scorm_progress] Error parsing cmi_data: {e}")
+    return JsonResponse({"suspend_data": ""}, status=500)
     
 @require_GET
 @login_required
@@ -603,7 +679,13 @@ def launch_scorm_file(request, lesson_id):
     if lesson.content_type in ['SCORM2004', 'SCORM1.2']:
         if lesson.uploaded_file and lesson.uploaded_file.scorm_entry_point:
             entry_key = lesson.uploaded_file.scorm_entry_point.replace("\\", "/")
+
+            # ✅ Now safe to split
+            folder_name = entry_key.split("/")[0]
+            request.session["active_scorm_folder"] = folder_name
+
             proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}"
+
         else:
             return render(request, 'error.html', {'message': 'No valid SCORM entry point found for this lesson.'})
  
