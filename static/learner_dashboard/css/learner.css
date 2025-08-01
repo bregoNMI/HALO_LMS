@@ -175,6 +175,7 @@ html, body, button{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: 500;
 }
 
 .dropdown-user-details span{
@@ -195,6 +196,8 @@ html, body, button{
 .dropdown-user-icon i{
     font-size: 1.75rem;
     color: blueviolet;
+    height: 29px;
+    width: 30px;
 }
 
 .dropdown-content-option{
@@ -327,7 +330,9 @@ html, body, button{
     width: 1.6rem;
 }
 
-.learner-sidebar-option.active, .learner-sidebar-option.active i{
+.learner-sidebar-option.active{
+    font-weight: 500;
+}.learner-sidebar-option.active i{
     font-weight: 600;
 }
 
@@ -351,6 +356,7 @@ html, body, button{
     color: var(--text-color5);
     margin: 0;
     font-size: 1.3rem;
+    font-weight: 500;
 }
 
 .learner-top-row-left span{
@@ -580,6 +586,7 @@ html, body, button{
 .course-item-title{
     font-size: 0.9rem;
     color: #41454d;
+    font-weight: 500;
 }
 
 .limit-text-wrap {
@@ -654,7 +661,7 @@ html, body, button{
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--fs-lg);
+    font-size: 0.95rem;
     height: 1.7rem;
     width: 1.7rem;
     border-radius: 8px;
@@ -784,7 +791,7 @@ html, body, button{
 
 .tab.active {
     color: #555961;
-    font-weight: bold;
+    font-weight: 500;
 }
 /* .tab.active i{
     font-weight: 400;
@@ -1057,6 +1064,7 @@ html, body, button{
     text-align: left;
     font-size: 0.9rem;
     color: #41454d;
+    font-weight: 500;
 }.reference-text p{
     margin: 0;
 }
@@ -1161,7 +1169,7 @@ html, body, button{
     overflow: hidden;
 }.row-course-item .course-type-icon i{
     display: flex;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     padding: var(--pad-xxxs);
     height: 0.78rem;
     width: 0.78rem;
@@ -1355,6 +1363,7 @@ html, body, button{
 }.assignments-top-row h3{
     color: var(--text-color2);
     font-size: 0.95rem;
+    font-weight: 500;
     /* font-size: var(--close-icon); */
     margin: 0;
 }.assignments-body{

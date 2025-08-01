@@ -1310,7 +1310,7 @@ function assignEditHandlers() {
                     <div id="lessonFileUploadBtn" for="lessonFile" class="custom-file-upload-container">
                         <div class="custom-file-upload">
                             <input type="file" id="lessonFile" name="file" style="display: none;" readonly>
-                            <i class="fa-solid fa-upload"></i> Choose File
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Choose File
                         </div>
                         <div class="custom-file-title">
                             <span id="editLessonFileDisplay" class="file-name-display">No file selected</span>
@@ -1325,7 +1325,7 @@ function assignEditHandlers() {
                     <label for="SCORM12FileEditInput" class="custom-file-upload-container">
                         <div class="custom-file-upload">
                             <input type="file" id="SCORM12FileEditInput" name="file" style="display: none;" accept=".zip">
-                            <i class="fa-solid fa-upload"></i> Choose File
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Choose File
                         </div>
                         <div class="custom-file-title">
                             <span id="editLessonFileDisplay" class="file-name-display">No file selected</span>
@@ -1341,7 +1341,7 @@ function assignEditHandlers() {
                     <label for="SCORM2004FileEditInput" class="custom-file-upload-container">
                         <div class="custom-file-upload">
                             <input type="file" id="SCORM2004FileEditInput" name="file" style="display: none;" accept=".zip">
-                            <i class="fa-solid fa-upload"></i> Choose File
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Choose File
                         </div>
                         <div class="custom-file-title">
                             <span id="editLessonFileDisplay" class="file-name-display">No file selected</span>

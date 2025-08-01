@@ -1,35 +1,3 @@
-.option-btn{
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    text-decoration: none;
-    padding: 6px var(--pad-sm);
-    border-radius: 6px;
-    font-size: var(--btn-font);
-    cursor: pointer;
-    background-color: var(--bg-color4);
-    color: #41454d;
-    flex: 1;
-    transition: all 0.2s linear;
-    border: none;
-    justify-content: center;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-}
-
-.option-btn:hover {
-    background-color: var(--bg-color1);
-    color: #191c1f;
-}
-
-.option-btn i{
-    font-size: 1.03rem;
-    display: inline-block;           /* Prevent icon resize jitter */
-    text-align: center;
-    -webkit-font-smoothing: antialiased; /* Prevents jump on render */
-    -moz-osx-font-smoothing: grayscale;
-}
-
 /* User Card Section */
 .details-user-card{
     display: flex;
@@ -114,6 +82,7 @@
     color: #191c1f;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: 500;
 }
 
 .card-info-icons{
@@ -201,7 +170,7 @@
 
 .info-card-header span{
     color: #41454d;
-    font-weight: 600;
+    font-weight: 500;
     text-wrap: nowrap;
     white-space: nowrap;
     overflow: hidden;
@@ -380,7 +349,7 @@
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: var(--pad-xxs) var(--pad-xs);
+    padding: var(--pad-xxs) var(--pad-xxs);
     border-radius: 6px 0 0 6px;
     /* max-width: 0.87rem; */
     color: white;
@@ -402,7 +371,7 @@
 
 .course-type-icon i{
     display: flex;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     padding: var(--pad-xxxs);
     border-radius: 6px;
     height: 0.9rem;
@@ -552,32 +521,19 @@
 .custom-file-title{
     flex: 1;
     border: 1px solid #ececf1;
-    padding: 5.5px 9px;
+    padding: 6.2px 9px;
     border-radius: 0 8px 8px 0;
     overflow: hidden;
     max-height: 1.2rem;
     text-wrap: nowrap;
+    font-size: var(--btn-font);
+    color: var(--text-color8);
+    flex: 1;
     text-overflow: ellipsis;
 }
 
 .custom-file-title:hover {
     background-color: var(--bg-color3);
-}
-
-.file-name-display {
-    font-size: 14px;
-    color: #555;
-}
-
-.file-upload-inner{
-    padding: 1rem 0;
-}
-
-.file-upload-inner h5{
-    margin-top: 0;
-    margin-bottom: 0.7rem;
-    color: var(--text-color2);
-    font-size: 0.9rem;
 }
 
 .certificate-items-container{

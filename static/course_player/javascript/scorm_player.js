@@ -258,6 +258,7 @@ function trackProgress() {
                     scroll_position: scrollPosition,
                 }) // ✅ Send structured SCORM data
             });
+            trackMiniLessonProgress();
 
         } else {
             console.warn("Progress measure not found or is 0.");
@@ -543,6 +544,7 @@ function markStaticLessonComplete(lessonUrl = "") {
 
     console.log('markStaticLessonComplete');
     sendTrackingData(trackingData);
+    trackMiniLessonProgress();
 }
 
 function restoreLessonProgress(iframe, suspendRaw) {
@@ -1321,6 +1323,7 @@ function saveLessonProgress() {
         session_time: getSessionTime(),
         score: null,
     });
+    trackMiniLessonProgress();
 }    
 /*
 function updateSidebarProgress() {
@@ -1592,11 +1595,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 } catch (error) {
                     console.error("❌ Scroll restore error:", error);
                 }
-            }
-        })
-        .catch(err => {
-            console.warn("⚠️ Failed to fetch suspend_data from server:", err);
+            }, 0); // or some delay if needed
         });
+    }
 
     // --- Iframe load logic ---
     iframe.addEventListener("load", function () {

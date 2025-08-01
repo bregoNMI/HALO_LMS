@@ -3,7 +3,17 @@ from . import views
 
 urlpatterns = [
     path('modify-course/', views.create_or_update_course, name='create_or_update_course'),
+    # File Library
     path('file-upload/', views.file_upload, name='file_upload'),
+    path('file-delete/', views.file_delete, name='file_delete'),
+    path('file-rename/', views.file_rename, name='file_rename'),
+    path('folder-create/', views.folder_create, name='folder_create'),
+    path('folder-delete/', views.folder_delete, name='folder_delete'),
+    path('folder-rename/', views.folder_rename, name='folder_rename'),
+    path('move-to-folder/', views.move_to_folder, name='move_to_folder'),
+    path('get-folder-children/', views.get_folder_children, name='get_folder_children'), 
+    path('folder-path/', views.folder_path, name='folder_path'),
+
     path('get-users/', views.get_users, name='get_users'),
     path('get-courses/', views.get_courses, name='get_courses'),
     path('delete-course-object/', views.delete_object_ajax, name='delete_object_ajax'),

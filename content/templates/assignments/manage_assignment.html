@@ -17,10 +17,12 @@
                         <span> Delete </span>
                     </button>
                 </div>
-                <button id="manageAssignmentBtn" class="action-button-primary course-save-btns manage-assignment-btns">
-                    <i class="fa-regular fa-floppy-disk"></i>
-                    <span>Save Changes</span>
-                </button>
+                {% if can_approve %}
+                    <button id="manageAssignmentBtn" class="action-button-primary course-save-btns manage-assignment-btns">
+                        <i class="fa-regular fa-floppy-disk"></i>
+                        <span>Save Changes</span>
+                    </button>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -58,10 +60,12 @@
                             <span> Delete </span>
                         </button>
                     </div>
-                    <button id="manageAssignmentBtn" class="action-button-primary course-save-btns manage-assignment-btns">
-                        <i class="fa-regular fa-floppy-disk"></i>
-                        <span>Save Changes</span>
-                    </button>
+                    {% if can_approve %}
+                        <button id="manageAssignmentBtn" class="action-button-primary course-save-btns manage-assignment-btns">
+                            <i class="fa-regular fa-floppy-disk"></i>
+                            <span>Save Changes</span>
+                        </button>
+                    {% endif %}
                 </div>
             </div>
             {% include 'assignments/assignment_details_card.html' %}

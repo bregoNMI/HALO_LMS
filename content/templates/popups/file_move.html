@@ -1,0 +1,27 @@
+<div id="fileMove" class="popup-background">
+    <div class="popup-content max-width-6">
+        <div class="popup-header">
+            <h3 id="newFileNameHeading">Move item to...</h3>
+            <button type="button" onclick="closePopup('fileMove')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="popup-body">          
+            <div id="moveFolderBreadcrumbs" class="folder-move-breadcrumbs"></div>
+            <table id="entireFolderList"></table>
+            <div id="fileMoveLoadingSymbol" class="loading-symbol-blue-sm" style="padding-top: 1rem;">
+                <svg class="loading-symbol-sm-inner" viewBox="25 25 50 50">
+                    <circle r="20" cy="50" cx="50"></circle>
+                </svg>
+                <span>Moving File, please wait...</span>
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button type="button" onclick="closePopup('fileMove')" class="popup-btn close-popup-btn">Cancel</button>
+                <button id="fileMoveBtn" type="button" class="popup-btn">Move</button>
+            </div>
+        </div>
+    </div>
+</div>

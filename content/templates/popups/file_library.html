@@ -5,7 +5,7 @@
             <h3>File Library</h3>
             <div class="library-search-input">
                 <i class="fa-regular fa-magnifying-glass search-icon"></i>
-                <input type="text" id="librarySearch" name="librarySearch" placeholder="Search Files">
+                <input type="text" id="librarySearch" name="librarySearch" placeholder="Search">
             </div>
             <div id="closeFileLibrary" onclick="closeFileLibrary()" class="close-popup-icon">
                 <i class="fa-solid fa-xmark"></i>
@@ -19,51 +19,113 @@
                     <span id="upload-message"></span>
                 </div>
             </div>
-            <div class="file-library-filters">
-                <span>File Type</span>
-                <div class="library-filter-options">
-                    <label class="container"><input type="checkbox" class="filter" data-type="image"><div class="checkmark"></div> <span>Image</span></label>
-                    <label class="container"><input type="checkbox" class="filter" data-type="document"><div class="checkmark"></div> <span>Document</span></label>
-                    <label class="container"><input type="checkbox" class="filter" data-type="video"><div class="checkmark"></div> <span>Video</span></label>
-                    <label class="container"><input type="checkbox" class="filter" data-type="audio"><div class="checkmark"></div> <span>Audio</span></label>
-                    <label class="container"><input type="checkbox" class="filter" data-type="pdf"><div class="checkmark"></div> <span>PDF</span></label>
-                    <label class="container"><input type="checkbox" class="filter" data-type="other"><div class="checkmark"></div> <span>Other</span></label>
-                </div>                
-            </div>
-            <div class="popup-body scrollable-content">
-                <div class="file-library-top-row">
-                    <h3>Uploads</h3>
-                    <div onclick="openFileUpload()" class="action-button-primary">
-                        <i class="fa-regular fa-upload"></i>
-                        <span>Upload</span>
+            <div class="file-library-filters scrollable-content">
+                <div class="file-library-filters-wrapper">
+                    <span class="filter-label">File Type</span>
+                    <div class="library-filter-options">
+                        <label class="container"><input type="checkbox" class="filter" data-type="image"><div class="checkmark"></div> <span>Image</span></label>
+                        <label class="container"><input type="checkbox" class="filter" data-type="document"><div class="checkmark"></div> <span>Document</span></label>
+                        <label class="container"><input type="checkbox" class="filter" data-type="video"><div class="checkmark"></div> <span>Video</span></label>
+                        <label class="container"><input type="checkbox" class="filter" data-type="audio"><div class="checkmark"></div> <span>Audio</span></label>
+                        <label class="container"><input type="checkbox" class="filter" data-type="pdf"><div class="checkmark"></div> <span>PDF</span></label>
+                        <label class="container"><input type="checkbox" class="filter" data-type="other"><div class="checkmark"></div> <span>Other</span></label>
                     </div>
                 </div>
-                <table>
-                    <thead>      
+                <div class="file-library-filters-wrapper">
+                    <span class="filter-label">Used As</span>
+                    <div class="library-filter-options">
+                        <label class="container"><input type="checkbox" class="filter" data-type="certificate"><div class="checkmark"></div> <span>Certificate</span></label>
+                        <label class="container"><input type="checkbox" class="filter" data-type="thumbnail"><div class="checkmark"></div> <span>Thumbnail</span></label>
+                        <label class="container"><input type="checkbox" class="filter" data-type="reference"><div class="checkmark"></div> <span>Reference</span></label>
+                    </div>
+                </div>
+                <div class="file-library-filters-wrapper">
+                    <span class="filter-label">Courses</span>
+                    <div id="selectedCourses">
+                        <div class="right-column-file-wrapper">
+                            <div id="courseDropdownFileLibrary" class="course-dropdown course-content-input">
+                                <input type="text" class="courseSearch" placeholder="Search courses...">
+                                <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                                <div class="courseList scrollable-content-inner">
+                                    <div class="loadingIndicator" style="display:none;">Loading...</div>
+                                </div>
+                                
+                                <div class="selectedCourses"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>                 
+            </div>
+            <div id="fileLibraryBody" class="popup-body">
+                <div class="file-library-top-row">
+                    <div class="file-library-top-row-left">
+                        <h2 id="fileLibraryHeader">All Files</h2>
+                        <div id="folderBreadcrumbs" class="folder-breadcrumbs" style="display: none;"></div>
+                    </div>
+                    <div class="details-top-row-right">
+                        <div class="file-library-layout-options">
+                            <div id="gridLayout" class="file-library-layout-option tooltip" data-tooltip="Grid View" onclick="switchTableLayout('gridLayout')">
+                                <span class="tooltiptext">Grid View</span>
+                                <i class="fa-solid fa-grid-2"></i>
+                            </div>
+                            <div id="listLayout" class="file-library-layout-option active-layout tooltip" data-tooltip="List View" onclick="switchTableLayout('listLayout')">
+                                <span class="tooltiptext">List View</span>
+                                <i class="fa-solid fa-bars"></i>
+                            </div>
+                        </div>
+                        <button onclick="openPopup('folderCreate')" class="option-btn course-save-btns">
+                            <i class="fa-regular fa-folder-plus"></i>
+                            <span> Create Folder </span>
+                        </button>
+                        <button onclick="openFileUpload()" class="action-button-primary">
+                            <i class="fa-regular fa-arrow-up-from-bracket"></i>
+                            <span>Upload or drop</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="file-library-main-container scrollable-content">
+                    <!-- Table Layout -->
+                    <table id="fileLibraryTable" class="file-library-list layout-wrapper">
+                        <thead>
                         <tr>
-                            <th></th>
+                            <th style="width: 20px;"></th>
                             <th>File Name</th>
                             <th style="width: 12%;">Type</th>
                             <th>Date Uploaded</th>
                         </tr>
-                    </thead>
-                    <tbody id="fileList">
-                        
-                    </tbody> 
-                </table>
-                <div id="sentinel"></div> <!-- Sentinel for infinite scrolling -->
+                        </thead>
+                        <tbody id="fileListTable" class="file-list-body"></tbody>
+                    </table>
+
+                    <!-- Grid Layout -->
+                    <div id="fileLibraryGrid" class="file-library-grid layout-wrapper" style="display: none;">
+                        <!-- Grid items will be rendered here -->
+                    </div>
+
+                    <div id="sentinel"></div>
+                </div>
             </div>
         </div>
         
         <div class="file-library-footer">
-            <div class="spacer"></div>
+            <div id="selectedFileDestination" class="selected-file-destination">
+                <i class="fa-light fa-circle-info"></i>
+                <span>Selecting file for: <span id="fileDestination"></span></span>
+            </div>
             <div class="popup-btns">
                 <button id="closeFileLibraryBtn" onclick="closeFileLibrary()" class="popup-btn close-library-btn">Cancel</button>
-                <button id="selectFileBtn" onclick="selectFile()" class="popup-btn disabled" disabled>Select File</button>   
+                <button id="selectFileBtn" onclick="selectFile()" class="popup-btn disabled" disabled>Select File</button>
+                <button id="selectFolderBtn" class="popup-btn disabled" style="display: none;" disabled>Open Folder</button>   
             </div>
         </div>
     </div>
 </div>
 {% include 'popups/file_upload.html' %}
+{% include 'popups/file_rename.html' %}
+{% include 'popups/file_delete_confirmation.html' %}
+{% include 'popups/file_move.html' %}
+{% include 'popups/folder_create.html' %}
 <link rel="stylesheet" href="{% static 'content\css\file_library.css' %}">
 <script src="{% static 'content\javascript\file_library.js' %}"></script>
+<link rel="stylesheet" href="{% static 'content\css\quizzes.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>

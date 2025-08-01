@@ -63,7 +63,7 @@
     margin-top: 1.5rem;
 }.bottom-row-item h4{
     /* color: var(--text-color6); */
-    font-weight: 500;
+    font-weight: 400;
     color: #555961;
     font-size: 0.9rem;
 }.bottom-row-item{
@@ -93,7 +93,7 @@
     /* color: #191c1f; */
     overflow: hidden;
     text-overflow: ellipsis;
-    font-weight: 600;
+    font-weight: 500;
 }.bottom-row-data-item{
     display: flex;
     align-items: center;

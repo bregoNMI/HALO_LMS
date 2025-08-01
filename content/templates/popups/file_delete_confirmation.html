@@ -1,0 +1,20 @@
+<div id="fileDeleteConfirmation" class="popup-background">
+    <div class="popup-content max-width-6">
+        <div class="popup-header">
+            <h3 id="fileDeletionHeading">Are you sure you want to delete this file?</h3>
+            <div onclick="closePopup('fileDeleteConfirmation')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <p class="warning-message">Deleting <b id="fileDeletionName"></b> will permananently remove it from the File Library.</p>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button type="button" onclick="closePopup('fileDeleteConfirmation')" class="popup-btn close-popup-btn">Cancel</button>
+                <button id="fileLibraryDeleteConfirmationBtn" onclick="confirmDelete()" class="popup-btn delete-confirm-btn"><i class="fa-regular fa-trash-can"></i> Delete File </button>
+            </div>
+        </div>
+    </div>
+</div>

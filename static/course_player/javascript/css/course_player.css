@@ -59,10 +59,10 @@ circle.progress-circle__runner {
     text-align: left;
     font-size: 0.95rem;
     color: #41454d;
-    font-weight: 600;
+    font-weight: 500;
 }.course-title-wrapper .course-type-icon i {
     display: flex;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     padding: var(--pad-xxxs);
     border-radius: 6px;
     height: 0.78rem;
@@ -223,6 +223,7 @@ circle.progress-circle__runner {
 }.course-sidebar-header-top h4{
     font-size: 0.9rem;
     color: #41454d;
+    font-weight: 500;
 }.course-sidebar-header-top span {
     color: var(--text-color4);
     font-size: 0.8rem;
@@ -263,7 +264,7 @@ circle.progress-circle__runner {
 }
 .module-section-container{}.module-title span{
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 500;
     color: #41454d;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -700,57 +701,6 @@ circle.progress-circle__runner {
     box-sizing: border-box;
 }
 
-.assignment-upload-file{
-    opacity: 0;
-    transition: all 0.3s ease;
-}.assignment-upload-file.show-assignment-upload-file{
-    opacity: 1;
-}.uploaded-file-preview{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.7rem;
-    padding: 8.5px 10.5px;
-    border-radius: 8px;
-    font-size: var(--btn-font);
-    text-decoration: none;
-    transition: all 0.2s linear;
-    background-color: white;
-    border: 1px solid #ececf1;
-    align-items: center;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-    box-sizing: border-box;
-    color: var(--text-color7);
-    margin-top: 1rem;
-}.file-preview-left{
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}.remove-file-btn{
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    justify-content: center;
-    padding: var(--pad-xxs);
-    border-radius: 8px;
-    transition: all 0.3s ease-in-out;
-    /* color: var(--text-color5); */
-    color: var(--text-color7);
-    height: 2rem;
-    width: 2rem;
-    cursor: pointer;
-    background-color: white;
-    border: 1px solid #dbdbdf;
-    font-size: 1rem;
-}.remove-file-btn:hover {
-    background-color: #f8d7da;
-    color: #cc0202;
-    border: 1px solid #f0b6b6;
-}.uploaded-file-preview .file-icon i{
-    font-size: 1.4rem;
-}
-
 .assignment-upload-footer{
     display: flex;
     gap: 0.8rem;
@@ -788,45 +738,6 @@ circle.progress-circle__runner {
 }.close-assignment-detail-card:hover{
     background-color: var(--bg-color3);
     color: #41454d;
-}
-
-.dropzone {
-    display: flex;
-    flex-direction: column;
-    border: 2px dashed #dde0e6;
-    border-radius: 8px;
-    padding: 2rem 20px;
-    text-align: center;
-    background-color: #fdfdfd;
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}.dropzone i{
-    font-size: 1.9rem;
-    margin-bottom: 1rem;
-    color: #838c9b;
-    transition: all 0.3s ease;
-}.dropzone p {
-    margin: 0;
-    color: #41454d;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}.dropzone:hover {
-    background-color: #f9f9f9;
-}
-
-.dropzone.drag-over {
-    background-color: #f2f6ff;
-    border-color: var(--primary-blue);
-}.dropzone.drag-over i, .dropzone.drag-over p{
-    color: var(--primary-blue);
-}
-
-.dropzone input[type="file"] {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
 }
 
 #assignmentUploadBtn{

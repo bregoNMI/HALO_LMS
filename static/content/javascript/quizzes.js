@@ -139,7 +139,7 @@ function displayQuestionEditor(question) {
         questionIconcolor = 'pastel-green';
         questionType = 'Multiple Response';
     }else if(question.type == 'TFQuestion'){
-        questionIcon = '<i class="fa-regular fa-circle-half-stroke"></i>';
+        questionIcon = '<i class="fa-solid fa-circle-half-stroke"></i>';
         questionIconcolor = 'pastel-blue';
         questionType = 'True/False';
     }else if(question.type == 'FITBQuestion'){
@@ -220,19 +220,19 @@ function displayQuestionEditor(question) {
                         <div class="quiz-builder-dropdown-toggle tooltip" data-tooltip="Category">
                             <span class="tooltiptext">Add Category</span>
                             <div class="question-editor-action-icon">
-                                <i class="fa-light fa-grid-2"></i>
+                                <i class="fa-light fa-shapes"></i>
                             </div>
                         </div>
                         <div class="quiz-builder-dropdown-options width-2">
                             <div onclick="openPopup('assignCategory')" class="quiz-builder-type-option">
                                 <div class="question-item-icon pastel-gray">
-                                    <i class="fa-regular fa-grid-2"></i>
+                                    <i class="fa-regular fa-shapes"></i>
                                 </div>
                                 <span>Assign Category</span>
                             </div>
                             <div onclick="openPopup('createCategory')" class="quiz-builder-type-option">
                                 <div class="question-item-icon pastel-gray">
-                                    <i class="fa-regular fa-grid-2-plus"></i>
+                                    <i class="fa-kit fa-regular-shapes-circle-plus"></i>
                                 </div>
                                 <span>Create Category</span>
                             </div>
@@ -864,7 +864,7 @@ function renderQuestions(questions) {
             questionIcon = '<i class="fa-regular fa-square-check"></i>';
             questionIconcolor = 'pastel-green';
         }else if(q.type == 'TFQuestion'){
-            questionIcon = '<i class="fa-regular fa-circle-half-stroke"></i>';
+            questionIcon = '<i class="fa-solid fa-circle-half-stroke"></i>';
             questionIconcolor = 'pastel-blue';
         }else if(q.type == 'FITBQuestion'){
             questionIcon = '<i class="fa-regular fa-pen-line"></i>';

@@ -8,17 +8,27 @@
         </div>
         <form id="fileUploadForm" enctype="multipart/form-data">
             <div class="popup-body">
+                <div class="course-content-input">
+                    <label class="edit-user-label" for="fileName">File Name</label>
+                    <input type="text" id="fileName" name="fileName" placeholder="File Name">
+                </div>
                 <div class="file-upload-inner">
-                    <h5>Choose File</h5>
-                    <label for="fileInput" class="custom-file-upload-container" style="cursor: pointer;">
+                    <h5>Choose File<span class="required-asterisk">*</span></h5>
+                    <!-- <label for="fileInput" class="custom-file-upload-container" style="cursor: pointer;">
                         <div class="custom-file-upload">
                             <input type="file" id="fileInput" name="file" style="display: none;" accept=".pdf, .doc, .docx, .jpg, .jpeg, .png, .mp4, .mp3, .wav, .ogg">
-                            <i class="fa-solid fa-upload"></i> Choose File
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Choose File
                         </div>
                         <div class="custom-file-title">
                             <span id="fileNameDisplay" class="file-name-display">No file selected</span>
                         </div>
-                    </label>                  
+                    </label>   -->
+                    <div class="dropzone" id="fileLibraryDropzone">
+                        <i id="dropzoneIcon" class="fa-light fa-cloud-arrow-up"></i>
+                        <p id="dropzoneText">Drag & drop your file here or <u>click to browse</u></p>
+                        <input type="file" name="file" id="fileInput" required>
+                    </div>
+                    <div class="assignment-upload-file" id="fileDisplayContainer"></div>                
                 </div>
                 <div class="loading-symbol-blue-sm">
                     <svg class="loading-symbol-sm-inner" viewBox="25 25 50 50">
@@ -30,7 +40,7 @@
             <div class="popup-footer">
                 <div class="spacer"></div>
                 <div class="popup-btns">
-                    <button type="button" onclick="closeFileUpload()" class="popup-btn close-popup-btn">Cancel</button>
+                    <button type="button" onclick="closeFileUpload()" class="popup-btn close-popup-btn">Back</button>
                     <button id="fileUploadSubmit" type="submit" class="popup-btn disabled" disabled>Upload</button>
                 </div>
             </div>

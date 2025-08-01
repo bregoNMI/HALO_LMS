@@ -87,11 +87,12 @@
 
 .info-card-header span{
     color: #41454d;
-    font-weight: 600;
+    font-weight: 500;
     text-wrap: nowrap;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 0.95rem;
 }
 
 .card-header-right i{
@@ -217,13 +218,12 @@
 }
 
 .edit-settings-input label{
-    font-size: 0.87rem;
+    position: relative;
+    font-size: 0.85rem;
     margin-top: 0;
     color: var(--text-color7);
     margin-bottom: 0.4rem;
-    /* padding-bottom: 0.4rem;*/
-    font-weight: 600;
-    position: relative;
+    font-weight: 500;
 }
 
 .edit-settings-input input{
@@ -296,35 +296,21 @@
 }
 
 .custom-file-title{
-    flex: 1;
     border: 1px solid #ececf1;
-    padding: 5.5px 9px;
+    padding: 6.2px 9px;
     border-radius: 0 8px 8px 0;
     overflow: hidden;
     max-height: 1.2rem;
     text-wrap: nowrap;
+    font-size: var(--btn-font);
+    color: var(--text-color8);
+    flex: 1;
     text-overflow: ellipsis;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .custom-file-title:hover {
     background-color: var(--bg-color3);
-}
-
-.file-name-display {
-    font-size: 14px;
-    color: #555;
-}
-
-.file-upload-inner{
-    padding: 1rem 0;
-}
-
-.file-upload-inner h5{
-    margin-top: 0;
-    margin-bottom: 0.7rem;
-    color: var(--text-color2);
-    font-size: 0.9rem;
 }
 
 .favicon-preview img{

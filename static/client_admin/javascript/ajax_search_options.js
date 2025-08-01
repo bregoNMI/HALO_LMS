@@ -45,8 +45,8 @@ function initializeUserDropdown(containerId, selectedUserIds = []) {
                     // Create the checkbox with the proper structure
                     const checkboxWrapper = document.createElement('div');
                     checkboxWrapper.innerHTML = `
-                        <label class="container">
-                            <input value="${user.id}" class="user-checkbox" type="checkbox">
+                        <label class="container" readonly disabled>
+                            <input value="${user.id}" class="user-checkbox" type="checkbox" readonly disabled>
                             <div class="checkmark"></div>
                         </label>
                     `;
@@ -236,8 +236,8 @@ function initializeCourseDropdown(containerId, initialSelectedCourseIds = []) {
 
                 const checkboxWrapper = document.createElement('div');
                 checkboxWrapper.innerHTML = `
-                    <label class="container">
-                        <input value="${course.id}" class="course-checkbox" type="checkbox">
+                    <label class="container" readonly disabled>
+                        <input value="${course.id}" class="course-checkbox" type="checkbox" readonly disabled>
                         <div class="checkmark"></div>
                     </label>
                 `;

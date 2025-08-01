@@ -4,7 +4,7 @@ from content.models import (
     EventDate, Media, Upload, Resources, UploadedFile,
     Quiz, Question, QuestionOrder, Answer, MCQuestion, TFQuestion, FITBQuestion, 
     FITBAnswer, EssayQuestion, EssayPrompt, QuestionMedia, QuizReference, QuizTemplate,
-    TemplateCategorySelection, TemplateQuestion
+    TemplateCategorySelection, TemplateQuestion, Folder
 )
 
 # Register basic models
@@ -13,6 +13,7 @@ admin.site.register(Course)
 admin.site.register(Module)
 admin.site.register(Lesson)
 admin.site.register(File)
+admin.site.register(Folder)
 admin.site.register(Credential)
 admin.site.register(EventDate)
 admin.site.register(Media)

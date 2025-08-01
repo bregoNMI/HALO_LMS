@@ -32,6 +32,15 @@ class UploadedFile(models.Model):
     def __str__(self):
         return self.title
     
+class Folder(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='subfolders', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+    
 class File(models.Model):
     FILE_TYPE_CHOICES = [
         ('image', 'Image'),
@@ -47,6 +56,7 @@ class File(models.Model):
     title = models.CharField(max_length=255, default='Untitled')
     uploaded_at = models.DateTimeField(auto_now_add=True)
     file_type = models.CharField(max_length=50, choices=FILE_TYPE_CHOICES, default='other')
+    folders = models.ManyToManyField(Folder, related_name='files', blank=True)
 
     def __str__(self):
         return self.title

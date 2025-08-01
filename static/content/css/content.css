@@ -75,7 +75,7 @@ input[type="text"], input[type="number"]{
     color: white;
     border: 1px solid var(--primary-blue);
     transition: all 0.2s linear;
-    font-weight: 500;
+    font-weight: 400;
     box-sizing: border-box;
 }
 
@@ -119,7 +119,7 @@ input[type="text"], input[type="number"]{
     font-size: 0.85rem;
     color: #41454d !important;
     font-family: var(--primary-font);
-    font-weight: 600;
+    font-weight: 500;
     text-rendering: unset;
     color: unset;
     letter-spacing: unset;
@@ -204,8 +204,10 @@ input[type="text"], input[type="number"]{
     transform: rotate(-90deg);
 }
 
-.module-drag-icon, .lesson-drag-icon, .reference-drag-icon, .upload-drag-icon {
+.card-header-left .module-drag-icon, .lesson-drag-icon, .card-header-left .reference-drag-icon, .card-header-left .upload-drag-icon {
     cursor: grab;
+    font-size: 1rem;
+    
 }
 
 .module-drag-icon:active, .lesson-drag-icon:active, .reference-drag-icon:active, .upload-drag-icon:active {
@@ -267,6 +269,9 @@ input[type="text"], input[type="number"]{
     display: flex;
     gap: 0.4rem;
     padding-left: 0.8rem;
+    align-items: center;
+}.lesson-header-left .lesson-drag-icon{
+    font-size: 0.9rem;
 }
 
 .lesson-header-right{
@@ -446,7 +451,7 @@ input[type="text"], input[type="number"]{
     font-size: 0.85rem;
     margin-top: 0;
     color: var(--text-color2);
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .right-column-file-wrapper{
@@ -482,6 +487,7 @@ input[type="text"], input[type="number"]{
     background-color: #fdfdfd;
     position: relative;
     cursor: pointer;
+    align-items: center;
 }
 
 .dropzone:hover, .image-preview:hover{
@@ -588,7 +594,7 @@ input[type="text"], input[type="number"]{
     font-size: 0.85rem;
     color: #41454d !important;
     font-family: var(--primary-font);
-    font-weight: 600;
+    font-weight: 500;
     text-rendering: unset;
     color: unset;
     letter-spacing: unset;
@@ -724,7 +730,7 @@ input[type="text"], input[type="number"]{
     font-size: 0.85rem;
     color: #41454d !important;
     font-family: var(--primary-font);
-    font-weight: 600;
+    font-weight: 500;
     text-rendering: unset;
     color: unset;
     letter-spacing: unset;

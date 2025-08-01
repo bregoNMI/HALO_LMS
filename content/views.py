@@ -2,6 +2,7 @@ import os
 import uuid
 import zipfile
 import boto3
+import re
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
@@ -15,7 +16,7 @@ from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 import uuid as uuid_lib
 from halo_lms import settings
-from .models import File
+from .models import File, Folder
 from django.contrib.auth.models import User
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -31,6 +32,7 @@ from datetime import timedelta
 from collections import OrderedDict
 from django.db.models.functions import TruncDate, TruncMonth
 from django.db.models import Count
+from urllib.parse import urlparse
 
 # Courses
 @login_required
@@ -779,7 +781,9 @@ def file_upload(request):
     if request.method == 'POST':
         try:
             uploaded_file = request.FILES['file']
-            file_name = uploaded_file.name
+            custom_title = request.POST.get('title', '').strip()
+            file_name = custom_title if custom_title else uploaded_file.name
+            parent_id = request.POST.get('parent_id')
 
             # Detect file type based on extension
             file_type = detect_file_type(file_name)
@@ -791,7 +795,16 @@ def file_upload(request):
                 title=file_name,
                 file_type=file_type
             )
-            file_instance.save()
+            
+            if parent_id:
+                folder = Folder.objects.filter(id=parent_id, user=request.user).first()
+                if folder:
+                    file_instance.save()
+                    file_instance.folders.add(folder)
+                else:
+                    file_instance.save()
+            else:
+                file_instance.save()
 
             uploaded_at_formatted = file_instance.uploaded_at.strftime('%b %d, %Y %I:%M')
             uploaded_at_formatted += ' ' + ('p.m.' if file_instance.uploaded_at.hour >= 12 else 'a.m.')
@@ -800,10 +813,12 @@ def file_upload(request):
                 'success': True,
                 'message': 'File uploaded successfully.',
                 'file': {
+                    'id': file_instance.id,
                     'title': file_instance.title,
                     'file_type': file_instance.file_type,
                     'uploaded_at': uploaded_at_formatted,
                     'size': file_instance.file.size,
+                    'file_url': file_instance.file.url
                 }
             })
         except ValidationError as ve:
@@ -813,55 +828,353 @@ def file_upload(request):
     # Searching Files
     elif request.method == 'GET':
         search_query = request.GET.get('q', '')
-        filters = request.GET.get('filters', '').split(',')
-        page = int(request.GET.get('page', 1))  # Current page number
-        per_page = 15  # Number of items per page
+        filters_raw = request.GET.get('filters', '')
+        parent_id = request.GET.get('parent')  # can be null for root
+        page = int(request.GET.get('page', 1))
+        per_page = 20
+        layout = request.GET.get('layout', '')
 
-        # Build the query
-        filter_conditions = Q(user=request.user)
+        # Build base filter conditions for current user
+        file_filter_conditions = Q(user=request.user)
+        folder_filter_conditions = Q(user=request.user)
 
-        # Apply search query if present
+        # Search filtering
         if search_query:
-            filter_conditions &= Q(title__icontains=search_query)
+            file_filter_conditions &= Q(title__icontains=search_query)
+            folder_filter_conditions &= Q(title__icontains=search_query)
 
-        # Apply filters if present and valid
-        valid_filters = [f for f in filters if f]
-        if valid_filters:
-            filter_conditions &= Q(file_type__in=valid_filters)
+        # Separate regular file type filters and special filters
+        filters = [f.strip().lower() for f in filters_raw.split(',') if f.strip()]
+        special_keys = {'certificate', 'thumbnail', 'reference'}
+        regular_filters = [f for f in filters if f not in special_keys]
+        special_filters = [f for f in filters if f in special_keys]
 
-        files = File.objects.filter(filter_conditions).order_by('-uploaded_at')
+        # Apply regular file_type filter
+        if regular_filters:
+            file_filter_conditions &= Q(file_type__in=regular_filters)
 
-        # Apply pagination
-        paginator = Paginator(files, per_page)
+        # Apply special file filters
+        if special_filters:
+            file_filter_conditions &= build_special_file_filters(special_filters, request.user)
+
+        course_ids = request.GET.getlist('course_ids[]')
+        if course_ids:
+            course_ids = [int(cid) for cid in course_ids if cid.isdigit()]
+            file_filter_conditions &= build_course_file_filter(course_ids)
+
+        print("Course IDs:", course_ids)
+
+        # Root vs nested folder handling
+        if parent_id:
+            folder_filter_conditions &= Q(parent_id=parent_id)
+            file_filter_conditions &= Q(folders__id=parent_id)
+        else:
+            folder_filter_conditions &= Q(parent=None)
+            file_filter_conditions &= Q(folders=None)  # files not attached to any folder
+
+        print("Raw filters:", filters_raw)
+        print("Parsed filters:", filters)
+        print("Final file_filter_conditions:", file_filter_conditions)
+
+        # Fetch data
+        folders = Folder.objects.filter(folder_filter_conditions)
+        files = File.objects.filter(file_filter_conditions).distinct()
+
+        # Merge and sort
+        combined_items = list(folders) + list(files)
+        combined_items.sort(
+            key=lambda x: x.created_at if hasattr(x, 'created_at') else x.uploaded_at,
+            reverse=True
+        )
+
+        # Paginate
+        paginator = Paginator(combined_items, per_page)
         try:
-            paginated_files = paginator.page(page)
+            page_items = paginator.page(page)
         except EmptyPage:
             return JsonResponse({
                 'success': True,
-                'files': [],
+                'items': [],
                 'has_next': False,
-                'next_page': None
+                'next_page': None,
+                'layout': layout
             })
 
-        # Prepare the response data
-        file_list = []
-        for file in paginated_files:
-            uploaded_at_formatted = file.uploaded_at.strftime('%b %d, %Y %I:%M')
-            uploaded_at_formatted += ' ' + ('p.m.' if file.uploaded_at.hour >= 12 else 'a.m.')
-
-            file_list.append({
-                'title': file.title,
-                'file_url': file.file.url,
-                'file_type': file.file_type,
-                'uploaded_at': uploaded_at_formatted,
-            })
+        # Serialize
+        response_data = []
+        for item in page_items:
+            if isinstance(item, Folder):
+                response_data.append({
+                    'type': 'folder',
+                    'id': item.id,
+                    'title': item.title,
+                    'created_at': item.created_at.strftime('%b %d, %Y %I:%M %p')
+                })
+            else:  # it's a File
+                uploaded_at_formatted = item.uploaded_at.strftime('%b %d, %Y %I:%M')
+                uploaded_at_formatted += ' ' + ('p.m.' if item.uploaded_at.hour >= 12 else 'a.m.')
+                response_data.append({
+                    'type': 'file',
+                    'id': item.id,
+                    'title': item.title,
+                    'file_url': item.file.url,
+                    'file_type': item.file_type,
+                    'uploaded_at': uploaded_at_formatted,
+                })
 
         return JsonResponse({
             'success': True,
-            'files': file_list,
-            'has_next': paginated_files.has_next(),
-            'next_page': page + 1 if paginated_files.has_next() else None
+            'items': response_data,
+            'has_next': page_items.has_next(),
+            'next_page': page + 1 if page_items.has_next() else None,
+            'layout': layout
         })
+    
+def build_special_file_filters(filters, user):
+    def get_file_names_from_urls(urls):
+        stripped = []
+        for url in urls:
+            if url:
+                parsed = urlparse(url).path.replace('/media/', '').lstrip('/')
+                stripped.append(parsed.split('/')[-1])  # or just parsed if full relative path needed
+        return stripped
+
+    q_objects = Q()
+
+    if 'certificate' in filters:
+        cert_urls = Credential.objects.filter(type='certificate').values_list('source', flat=True)
+        cert_file_names = get_file_names_from_urls(cert_urls)
+
+        if cert_file_names:
+            regex = r'(' + '|'.join(map(re.escape, cert_file_names)) + ')'
+            q_objects &= Q(file__iregex=regex)
+
+    if 'thumbnail' in filters:
+        thumb_urls = Media.objects.exclude(thumbnail_link='').values_list('thumbnail_link', flat=True)
+        thumb_file_names = get_file_names_from_urls(thumb_urls)
+
+        if thumb_file_names:
+            regex = r'(' + '|'.join(map(re.escape, thumb_file_names)) + ')'
+            q_objects &= Q(file__iregex=regex)
+
+    if 'reference' in filters:
+        reference_urls = Resources.objects.filter(type='reference').values_list('url', flat=True)
+        upload_urls = Upload.objects.exclude(url='').values_list('url', flat=True)
+        combined_urls = list(reference_urls) + list(upload_urls)
+        ref_file_names = get_file_names_from_urls(combined_urls)
+        if ref_file_names:
+            regex = r'(' + '|'.join(map(re.escape, ref_file_names)) + ')'
+            q_objects &= Q(file__iregex=regex)
+
+    return q_objects
+
+def get_filenames_from_urls(urls):
+    filenames = []
+    for url in urls:
+        if url:
+            parsed = urlparse(url).path.replace('/media/', '').lstrip('/')
+            filenames.append(parsed.split('/')[-1])
+    return filenames
+
+def build_course_file_filter(course_ids):
+    q = Q()
+    
+    creds = Credential.objects.filter(course_id__in=course_ids).values_list('source', flat=True)
+    media = Media.objects.filter(course_id__in=course_ids).values_list('thumbnail_link', flat=True)
+    resources = Resources.objects.filter(course_id__in=course_ids).values_list('url', flat=True)
+    uploads = Upload.objects.filter(course_id__in=course_ids).values_list('url', flat=True)
+    lesson_file_ids = Lesson.objects.filter(module__course_id__in=course_ids).values_list('file_id', flat=True)
+    lesson_file_ids = [fid for fid in lesson_file_ids if fid]
+
+    url_files = get_filenames_from_urls(list(creds) + list(media) + list(resources) + list(uploads))
+
+    if url_files:
+        regex = r'(' + '|'.join(map(re.escape, url_files)) + ')'
+        q |= Q(file__iregex=regex)
+
+    if lesson_file_ids:
+        q |= Q(id__in=lesson_file_ids)
+
+    return q
+    
+@login_required
+def file_delete(request):
+    if request.method == 'POST':
+        try:
+            payload = json.loads(request.body)
+            file_id = payload.get('id')
+            file = File.objects.get(id=file_id, user=request.user)
+            file.delete()
+            return JsonResponse({'success': True})
+        except File.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'File not found.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+@login_required
+def file_rename(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            file_id = data.get('id')
+            new_title = data.get('title', '').strip()
+
+            if not new_title:
+                return JsonResponse({'success': False, 'message': 'Title cannot be empty.'})
+
+            file = File.objects.get(id=file_id, user=request.user)
+            file.title = new_title
+            file.save()
+
+            return JsonResponse({'success': True})
+        except File.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'File not found.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+@login_required
+def folder_create(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)
+
+    title = request.POST.get('title', '').strip()
+    parent_id = request.POST.get('parent')
+
+    if not title:
+        return JsonResponse({'success': False, 'message': 'Folder name is required.'}, status=400)
+
+    parent_folder = None
+    if parent_id:
+        try:
+            parent_folder = Folder.objects.get(id=parent_id, user=request.user)
+        except Folder.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Parent folder not found.'}, status=404)
+
+    folder = Folder.objects.create(
+        user=request.user,
+        title=title,
+        parent=parent_folder
+    )
+
+    return JsonResponse({
+        'success': True,
+        'folder': {
+            'id': folder.id,
+            'title': folder.title,
+            'parent_id': folder.parent.id if folder.parent else None,
+            'created_at': folder.created_at.strftime('%b %d, %Y %I:%M %p')
+        }
+    })
+
+@login_required
+def folder_delete(request):
+    if request.method == 'POST':
+        try:
+            payload = json.loads(request.body)
+            folder_id = payload.get('id')
+            folder = Folder.objects.get(id=folder_id, user=request.user)
+            folder.delete()
+            return JsonResponse({'success': True})
+        except Folder.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Folder not found.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+@login_required
+def folder_rename(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            folder_id = data.get('id')
+            new_title = data.get('title', '').strip()
+
+            if not new_title:
+                return JsonResponse({'success': False, 'message': 'Title cannot be empty.'})
+
+            folder = Folder.objects.get(id=folder_id, user=request.user)
+            folder.title = new_title
+            folder.save()
+
+            return JsonResponse({'success': True})
+        except Folder.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Folder not found.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+@require_POST
+@login_required
+def move_to_folder(request):
+    item_id = request.POST.get('item_id')
+    item_type = request.POST.get('item_type')
+    target_folder_id = request.POST.get('target_folder_id')
+
+    # Handle root-level move
+    target_folder = None
+    if target_folder_id != 'null':
+        try:
+            target_folder = Folder.objects.get(id=target_folder_id, user=request.user)
+        except Folder.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Target folder not found.'})
+
+    try:
+        if item_type == 'file':
+            file = File.objects.get(id=item_id, user=request.user)
+            file.folders.clear()
+            if target_folder:
+                file.folders.add(target_folder)
+        elif item_type == 'folder':
+            folder = Folder.objects.get(id=item_id, user=request.user)
+            folder.parent = target_folder
+            folder.save()
+        else:
+            return JsonResponse({'success': False, 'message': 'Invalid item type.'})
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+    
+@login_required
+def get_folder_children(request):
+    parent_id = request.GET.get('parent_id')
+
+    if parent_id == '' or parent_id is None:
+        folders = Folder.objects.filter(user=request.user, parent__isnull=True)
+    else:
+        folders = Folder.objects.filter(user=request.user, parent_id=parent_id)
+
+    data = [{
+        'id': f.id,
+        'title': f.title,
+        'has_children': Folder.objects.filter(user=request.user, parent=f).exists()
+    } for f in folders]
+
+    return JsonResponse({'folders': data})
+
+@login_required
+def folder_path(request):
+    item_id = request.GET.get('item_id')
+    item_type = request.GET.get('item_type')
+
+    try:
+        if item_type == 'file':
+            file = File.objects.get(id=item_id, user=request.user)
+            folder = file.folders.first()
+        elif item_type == 'folder':
+            folder = Folder.objects.get(id=item_id, user=request.user).parent
+        else:
+            return JsonResponse({'path': []})
+
+        path = []
+        while folder:
+            path.insert(0, {'id': folder.id, 'title': folder.title})
+            folder = folder.parent
+
+        return JsonResponse({'path': path})
+    except:
+        return JsonResponse({'path': []})
     
 # Quiz Templates
 @login_required
