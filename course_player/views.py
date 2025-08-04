@@ -20,7 +20,8 @@ from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.conf import settings
 from botocore.exceptions import ClientError
-from content.models import Course, EssayQuestion, FITBQuestion, Module, Lesson, Question, QuestionMedia, QuestionOrder, TFQuestion, UploadedFile, QuizConfig, Quiz, Upload
+from content.models import Course, Module, Lesson, UploadedFile, Upload
+from content.models import Course, EssayQuestion, FITBQuestion, Module, Lesson, Question, QuestionMedia, QuestionOrder, TFQuestion, UploadedFile, QuizConfig, Quiz
 from authentication.python.views import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, get_secret
 from django.views.decorators.csrf import csrf_exempt
 import boto3 
@@ -133,10 +134,11 @@ def mark_lesson_complete(request):
 
     return JsonResponse({"status": "success"})
 
+"""
 def proxy_scorm_file(request, file_path):
-    """
-    Proxy SCORM file from S3 to serve it through the LMS domain.
-    """
+
+    # Proxy SCORM file from S3 to serve it through the LMS domain.
+
     decoded_file_path = unquote_plus(file_path).strip()
     print(f"🔍 Incoming SCORM request: {decoded_file_path}")
 
@@ -183,7 +185,85 @@ def proxy_scorm_file(request, file_path):
     except ClientError as e:
         print(f"❌ Error fetching file {decoded_file_path} from S3: {e}")
         raise Http404("SCORM file not found")
-    
+"""
+def proxy_scorm_absolute(request, file_path):
+    """
+    Serves absolute SCORM asset paths like /scormcontent/lib/...
+    by prepending the dynamic folder from session.
+    """
+    folder = request.session.get("active_scorm_folder")
+    if not folder:
+        print("❌ No SCORM folder found in session.")
+        raise Http404("SCORM folder not set")
+
+    # Combine dynamic folder + asset path
+    full_path = f"{folder}/scormcontent/{file_path}"
+    print(f"🔄 Rewriting absolute asset path to: {full_path}")
+
+    # Reuse the existing proxy logic
+    return proxy_scorm_file(request, full_path)
+
+def proxy_scorm_file(request, file_path):
+    """
+    Proxy SCORM file from S3 to serve it through the LMS domain.
+    """
+    from urllib.parse import unquote_plus
+
+    decoded_file_path = unquote_plus(file_path).strip()
+    print(f"🔍 Incoming SCORM request: {decoded_file_path}")
+
+    # ✅ Clean up paths where index.html is treated as a folder (SCORM quirk)
+    if "index.html/" in decoded_file_path:
+        decoded_file_path = decoded_file_path.replace("index.html/", "")
+        print(f"🧹 Removed 'index.html/' from path → {decoded_file_path}")
+    elif decoded_file_path.endswith("index.html/"):
+        decoded_file_path = decoded_file_path.rstrip("/")
+        print(f"🧹 Removed trailing slash after index.html → {decoded_file_path}")
+
+    # 🧼 Fix nested font path bug: "lib/icomoon.css/fonts/icomoon.woff" → "lib/fonts/icomoon.woff"
+    if "lib/icomoon.css/fonts/" in decoded_file_path:
+        decoded_file_path = decoded_file_path.replace("lib/icomoon.css/fonts/", "lib/fonts/")
+        print(f"🧼 Normalized font path from CSS: {decoded_file_path}")
+
+    # Only prepend folder if path is truly absolute (starts with just "scormcontent/...")
+    if "scormcontent/" in decoded_file_path and not decoded_file_path.startswith("gmdss-"):
+        folder = request.session.get("active_scorm_folder")
+        if not folder:
+            print("❌ No SCORM folder in session for absolute path")
+            raise Http404("SCORM folder not set")
+        decoded_file_path = f"{folder}/{decoded_file_path}"
+
+    # Final key
+    s3_key = f"media/default/uploads/{decoded_file_path}".replace("\\", "/").strip()
+    print(f"📂 Final S3 Key: {s3_key}")
+
+    # S3 fetch
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        region_name=AWS_S3_REGION_NAME
+    )
+
+    try:
+        s3_response = s3_client.get_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=s3_key)
+        file_data = s3_response['Body']
+        content_type = s3_response.get('ContentType') or mimetypes.guess_type(s3_key)[0] or "application/octet-stream"
+
+        # Normalize common types
+        if s3_key.endswith(".html"):
+            content_type = "text/html"
+        elif s3_key.endswith(".css"):
+            content_type = "text/css"
+        elif s3_key.endswith(".js"):
+            content_type = "application/javascript"
+
+        return FileResponse(file_data, content_type=content_type)
+
+    except ClientError as e:
+        print(f"❌ Error fetching {s3_key} from S3: {e}")
+        raise Http404("SCORM file not found")
+        
 def get_scorm_progress(request, lesson_id):
     user = request.user
     lesson = get_object_or_404(Lesson, pk=lesson_id)
@@ -216,6 +296,9 @@ def get_scorm_progress(request, lesson_id):
 
     print(f"[get_scorm_progress] Rebuilt suspend_data with LMS progress: {suspend_data}")
     return JsonResponse({"suspend_data": json.dumps(suspend_data)})
+
+    print(f"[get_scorm_progress] Error parsing cmi_data: {e}")
+    return JsonResponse({"suspend_data": ""}, status=500)
     
 @require_GET
 @login_required
@@ -240,15 +323,18 @@ def get_quiz_score(request):
 
     percent = int((correct / total_graded) * 100) if total_graded > 0 else 0
 
+    pending_review = responses.filter(is_correct=None).exists()
+
     passed = False
     success_text = ""
     fail_text = ""
 
     if quiz:
         pass_mark = quiz.pass_mark or 0
-        passed = percent >= pass_mark
+        if not pending_review:
+            passed = percent >= pass_mark
         success_text = quiz.success_text or ""
-        fail_text = quiz.fail_text or ""
+        fail_text = quiz.fail_text or "Your quiz is under review."
 
     return JsonResponse({
         "total_answered": total_answered,
@@ -256,6 +342,7 @@ def get_quiz_score(request):
         "correct_answers": correct,
         "score_percent": percent,
         "passed": passed,
+        "pending_review": pending_review,
         "success_text": success_text,
         "fail_text": fail_text,
     })
@@ -493,6 +580,13 @@ def launch_scorm_file(request, lesson_id):
             # Debug logging (optional)
             print(f"🧪 Lesson {module_lesson.id} — SCORM progress: {progress_value}, Completed?: {is_completed}")
 
+            # Check if lesson has any ungraded essay responses
+            has_pending_review = QuizResponse.objects.filter(
+                user=request.user,
+                lesson=module_lesson,
+                is_correct=None
+            ).exists()
+            print(f"[🧪 DEBUG] Lesson {module_lesson.id} pending_review: {has_pending_review}")
             lesson_progress_data.append({
                 "id": module_lesson.id,
                 "title": module_lesson.title,
@@ -501,6 +595,7 @@ def launch_scorm_file(request, lesson_id):
                 "progress": int(progress_value * 100),
                 "module_id": module.id,
                 "module_title": module.title,
+                "pending_review": has_pending_review,  # ✅ inject the flag
             })
  
             previous_lesson_completed = is_completed
@@ -571,22 +666,26 @@ def launch_scorm_file(request, lesson_id):
     entry_key = None
     proxy_url = None
     saved_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=lesson).first()
-    lesson_location = saved_progress.lesson_location if saved_progress else ""
+    lesson_location = saved_progress.lesson_location if saved_progress and saved_progress.lesson_location else ""
+    if lesson_location.endswith("/None"):
+        lesson_location = ""
+
     scroll_position = saved_progress.scroll_position if saved_progress else 0
 
     lesson_assignment_map = defaultdict(list)
     for pair in ordered_lesson_assignment_pairs:
         lesson_assignment_map[pair["lesson"].id].append(pair)
 
-    # Saved state
-    saved_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=lesson).first()
-    lesson_location = saved_progress.lesson_location if saved_progress else ""
-    scroll_position = saved_progress.scroll_position if saved_progress else 0
- 
-    if lesson.content_type == 'SCORM2004':
+    if lesson.content_type in ['SCORM2004', 'SCORM1.2']:
         if lesson.uploaded_file and lesson.uploaded_file.scorm_entry_point:
             entry_key = lesson.uploaded_file.scorm_entry_point.replace("\\", "/")
+
+            # ✅ Now safe to split
+            folder_name = entry_key.split("/")[0]
+            request.session["active_scorm_folder"] = folder_name
+
             proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}"
+
         else:
             return render(request, 'error.html', {'message': 'No valid SCORM entry point found for this lesson.'})
  
@@ -600,33 +699,36 @@ def launch_scorm_file(request, lesson_id):
     elif lesson.content_type == 'quiz':
         quiz_config = getattr(lesson, 'quiz_config', None)
         quiz_id = lesson.quiz_id
-        print('quiz_id:', quiz_id)
-
+        if not quiz_config:
+            return render(request, 'error.html', {'message': 'No quiz configuration found for this lesson.'})
+        
         if not quiz_id:
             return render(request, 'error.html', {'message': 'No quiz ID found for this lesson.'})
-
+        
         try:
             quiz = Quiz.objects.get(pk=quiz_id)
         except Quiz.DoesNotExist:
             return render(request, 'error.html', {'message': 'Quiz not found.'})
-
+        
         # ✅ Get ordered questions and prefetch their answers
         ordered_links = QuestionOrder.objects.filter(quiz=quiz).select_related('question').order_by('order')
         questions = get_question_type(
             ordered_links,
             randomize_answers=quiz_config.randomize_order if quiz_config else False
         )
-
+        
         for q in questions:
             q.media_items_list = list(QuestionMedia.objects.filter(question_id=q.id))
             q.has_media = bool(q.media_items)
+
+        quiz_type = quiz_config.quiz_type or 'standard_quiz'
 
         return render(request, 'quizzes/quiz_player.html', {
             'lesson': lesson,
             'course_title': course.title,
             'saved_progress': saved_progress.progress if saved_progress else 0,
             'lesson_location': lesson_location,
-            'quiz_type': quiz_config.quiz_type if quiz_config else 'standard_quiz',
+            'quiz_type': quiz_type,
             'quiz_config': quiz_config,
             'quiz': quiz,
             'questions': questions,  # ✅ pass question list

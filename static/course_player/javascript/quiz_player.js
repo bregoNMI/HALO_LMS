@@ -4,6 +4,33 @@ document.addEventListener("DOMContentLoaded", function () {
   let answeredQuestions = 0;
   let correctAnswers = 0;
 
+  document.querySelectorAll('.lesson-item').forEach(item => {
+      const id = parseInt(item.dataset.lessonId);
+      const lesson = window.lessonData.find(l => l.id === id);
+
+      if (lesson?.completed) {
+          item.classList.add("lesson-completed");
+      }
+
+      // ✅ Prevent duplicate progress label
+      const existing = item.querySelector(".lesson-progress");
+      if (existing) existing.remove();
+
+      const progressText = document.createElement('span');
+      progressText.className = 'lesson-progress';
+
+      if (lesson?.pending_review) {
+          progressText.textContent = 'Pending';
+          progressText.classList.add('pending-progress');
+      } else {
+          const progress = typeof lesson.progress === "number" ? lesson.progress : 0;
+          progressText.textContent = `${progress}%`;
+      }
+
+      item.appendChild(progressText);
+  });
+
+
 
   submitButtons.forEach(button => {
     button.addEventListener("click", function () {
@@ -113,10 +140,33 @@ document.addEventListener("DOMContentLoaded", function () {
               <p>Your Score: ${data.score_percent}%</p>
             `;
 
-            if (data.passed) {
+            if (data.pending_review === true) {
+              gradeContainer.innerHTML += `<div class="quiz-pending">📝 This quiz contains open responses and is pending manual review.</div>`;
+              console.log("⏳ Quiz pending manual review – not marked complete.");
+            } else if (data.passed) {
               gradeContainer.innerHTML += `<div class="quiz-success">${data.success_text}</div>`;
+
+              fetch("/course_player/mark-lesson-complete/", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRFToken": getCookie("csrftoken"),
+                },
+                body: JSON.stringify({
+                  lesson_id: window.lessonId,
+                }),
+              })
+                .then(res => res.json())
+                .then(data => {
+                  console.log("✅ Lesson marked complete:", data);
+                })
+                .catch(err => {
+                  console.error("❌ Failed to mark lesson complete:", err);
+                });
+
             } else {
               gradeContainer.innerHTML += `<div class="quiz-fail">${data.fail_text}</div>`;
+              console.log("⏳ Lesson not marked complete – quiz not passed");
             }
 
             gradeContainer.style.marginTop = "20px";
@@ -126,30 +176,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Failed to fetch quiz score:", err);
             alert("Failed to load final score.");
           });
-        if (data.score_percent === 100) {
-          fetch("/course_player/mark-lesson-complete/", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": getCookie("csrftoken"),
-            },
-            body: JSON.stringify({
-              lesson_id: window.lessonId
-            }),
-          })
-          .then(res => res.json())
-          .then(data => {
-            console.log("✅ Lesson marked complete:", data);
-          })
-          .catch(err => {
-            console.error("❌ Failed to mark lesson complete:", err);
-          });
-        } else {
-          console.log("⏳ Lesson not marked complete – score < 100%");
-        }
-
-      }
-
+       }
     }
 
     nextButton.addEventListener("click", showNextQuestion);
@@ -220,7 +247,34 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(`/course_player/get-quiz-score/?session_id=${window.lessonSessionId}`)
           .then(res => res.json())
           .then(data => {
-            const msg = `You scored ${data.correct_answers} out of ${data.total_answered} (${data.score_percent}%)`;
+            const questionEl = button.closest(".quiz-question");
+            let feedbackEl = questionEl.querySelector(".question-feedback");
+
+            if (!feedbackEl) {
+              feedbackEl = document.createElement("div");
+              feedbackEl.className = "question-feedback";
+              questionEl.appendChild(feedbackEl);
+            }
+
+            feedbackEl.innerHTML = `<p class="neutral-feedback">📝 Answer submitted and pending manual review.</p>`;
+
+            console.log("⏳ Essay submitted – lesson not marked complete yet (pending manual review).");
+
+            // Update lessonData and the sidebar if pending review
+            const lesson = window.lessonData.find(l => l.id === window.lessonId);
+            if (lesson) {
+              lesson.pending_review = true;
+
+              const sidebarItem = document.querySelector(`.lesson-item[data-lesson-id="${window.lessonId}"]`);
+              if (sidebarItem) {
+                const progressLabel = sidebarItem.querySelector(".lesson-progress");
+                if (progressLabel) {
+                  progressLabel.textContent = "Pending";
+                  progressLabel.classList.add("pending-progress");
+                }
+              }
+            }
+
           });
     });
   });

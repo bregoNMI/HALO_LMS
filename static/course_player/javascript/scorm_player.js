@@ -201,6 +201,7 @@ function getCurrentMiniLessonIndex() {
 setInterval(trackScrollPosition, 5000);
 
 function trackProgress() {
+    console.log('here')
     try {
         // console.log("Attempting to track progress...");
         const iframe = document.getElementById("scormContentIframe");
@@ -1598,7 +1599,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 0); // or some delay if needed
         });
     }
-
     // --- Iframe load logic ---
     iframe.addEventListener("load", function () {
         // console.log("✅ SCORM iframe loaded — restoring progress");

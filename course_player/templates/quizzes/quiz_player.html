@@ -101,12 +101,17 @@
             {% for answer in question.answer_list %}
             <li>
                 <label>
-                <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}">
+                {% if question.question_type == "MRQuestion" %}
+                    <input type="checkbox" name="question_{{ question.id }}" value="{{ answer.id }}">
+                {% else %}
+                    <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}">
+                {% endif %}
                 {{ answer.text }}
                 </label>
             </li>
             {% endfor %}
         </ul>
+
         <button class="submit-question-btn"
                 data-question-id="{{ question.id }}"
                 data-question-type="{{ question.question_type }}">
@@ -126,14 +131,13 @@
 
     <!-- ✅ Bottom Tab Bar -->
     <div id="quiz-tab-bar">
-        <button class="quiz-tab" data-tab="instructions">Instructions</button>
+        <button class="quiz-tab" data-tab="materials">Materials</button>
         <button class="quiz-tab" data-tab="media">Media</button>
-        <button class="quiz-tab" data-tab="rubric">Rubric</button>
     </div>
 
     <div id="quiz-tab-content">
-        <div id="instructions" class="tab-pane" style="display: none;">
-            {{ quiz_config.instructions|safe }}
+        <div id="materials" class="tab-pane" style="display: none;">
+            {{ quiz.quiz_material|safe }}
         </div>
         <div id="media" class="tab-pane" style="display: none;">
             {% for question in questions %}
@@ -149,10 +153,11 @@
                 {% endif %}
             {% endfor %}
         </div>
-        <div id="rubric" class="tab-pane" style="display: none;">
-            {{ quiz_config.rubric|safe }}
-        </div>
     </div>
+        
+    <script id="lessonData" type="application/json">
+        {{ lesson_progress_data|default:"[]"|safe }}
+    </script>
 
     <script>
         console.log("🧪 From Django: {{ scorm_index_file_url }}");
@@ -167,8 +172,11 @@
         window.savedProgress = {{ saved_progress|default:0 }};
         window.lessonSessionId = "{{ request.session.current_lesson_session_id }}";
         window.submitQuestionUrl = "{% url 'submit_question' %}";
+        window.launchScormUrlTemplate = window.launchScormUrlTemplate || "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
+        
 
-        const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
+
+        // const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
         console.log(launchScormUrlTemplate);
 
         function launchLessonById(lessonId) {
@@ -189,22 +197,6 @@
                 const rawData = document.getElementById('lessonData').textContent;
                 const parsedData = JSON.parse(rawData);
                 window.lessonData = parsedData;
-
-                document.querySelectorAll('.lesson-item').forEach(item => {
-                    const id = parseInt(item.dataset.lessonId);
-                    const lesson = parsedData.find(l => l.id === id);
-
-                    if (lesson?.completed) {
-                        item.classList.add("lesson-completed");
-                    }
-
-                    if (lesson?.progress != null) {
-                        const progressText = document.createElement('span');
-                        progressText.className = 'lesson-progress';
-                        progressText.textContent = `${lesson.progress}%`;
-                        item.appendChild(progressText);
-                    }
-                });
             } catch (e) {
                 console.warn("Failed to update sidebar lesson progress:", e);
             }             
@@ -291,7 +283,6 @@
                     document.getElementById(tabId).style.display = "block";
                 });
             });
-
         });
     </script>
     <script src="{% static 'course_player/javascript/quiz_player.js' %}?v=2"></script>

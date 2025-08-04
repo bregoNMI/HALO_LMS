@@ -10,7 +10,7 @@
         </button>
         <!-- SCORM iframe area -->
         <div class="course-player-container">
-            {% if lesson.content_type == 'SCORM2004' %}
+            {% if lesson.content_type == 'SCORM2004' or lesson.content_type == 'SCORM1.2' %}
                 <iframe id="scormContentIframe"
                         data-src="{{ lesson_location|default:scorm_index_file_url }}"
                         width="100%" height="1200px" frameborder="0" allowfullscreen></iframe>

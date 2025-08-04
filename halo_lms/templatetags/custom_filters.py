@@ -83,3 +83,12 @@ def format_session_time(value):
 @register.filter
 def get_assignment_status(assignment_status_map, key):
     return assignment_status_map.get(key)
+
+@register.filter
+def replace(value, arg):
+    """Replaces all instances of the first arg with the second."""
+    try:
+        search, replace_with = arg.split(',')
+        return value.replace(search, replace_with)
+    except ValueError:
+        return value  # fallback if input is bad
