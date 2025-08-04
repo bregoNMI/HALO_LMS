@@ -257,6 +257,7 @@ def update_header(request):
         header.header_text_color = request.POST.get('header_text_color', header.header_text_color)
         header.header_text_hover_color = request.POST.get('header_text_hover_color', header.header_text_hover_color)
         header.header_text_background_color = request.POST.get('header_text_background_color', header.header_text_background_color)
+        header.header_texture = request.POST.get('header_texture', header.header_texture)
         
         header.save()
         
@@ -267,10 +268,11 @@ def update_header(request):
 @login_required
 def update_footer(request):
     if request.method == 'POST':
-        footer = Footer.objects.first()  # Get the first and only Header instance
+        footer = Footer.objects.first()  # Get the first and only Footer instance
 
         footer.footer_background_color = request.POST.get('footer_background_color', footer.footer_background_color)
         footer.footer_text_color = request.POST.get('footer_text_color', footer.footer_text_color)
+        footer.footer_texture = request.POST.get('footer_texture', footer.footer_texture)
         
         footer.save()
         

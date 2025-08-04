@@ -41,6 +41,7 @@ class Header(models.Model):
     header_text_color = models.CharField(max_length=7, default='#e7e7e7')
     header_text_hover_color = models.CharField(max_length=7, default='#e7e7e7')
     header_text_background_color = models.CharField(max_length=7, default='#e7e7e7')
+    header_texture = models.CharField(max_length=64, default='none', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.pk and Header.objects.exists():
@@ -58,6 +59,7 @@ class Header(models.Model):
 class Footer(models.Model):
     footer_background_color = models.CharField(max_length=7, default='#183b73')
     footer_text_color = models.CharField(max_length=7, default='#e7e7e7')
+    footer_texture = models.CharField(max_length=64, default='none', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.pk and Footer.objects.exists():

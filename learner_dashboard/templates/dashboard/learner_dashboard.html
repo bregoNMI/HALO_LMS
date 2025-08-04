@@ -137,4 +137,8 @@
 <link rel="stylesheet" href="{% static 'content/css/content.css' %}">
 <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+<script>
+    window.savedTexture = "{{ header.header_texture|default:'texture0' }}";
+    window.savedFooterTexture = "{{ footer.footer_texture|default:'footer-texture0' }}"; 
+</script>
 {% endblock %}

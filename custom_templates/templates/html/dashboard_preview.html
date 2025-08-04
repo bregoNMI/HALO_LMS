@@ -11,8 +11,8 @@
                         <i class="{{ dashboard.header_icon }}" style="color: {{ dashboard.header_icon_color }};"></i>
                     </div>
                     <div class="text-wrapper">
-                        <h3 id="headerTitle" style="color: {{ dashboard.header_text_color }};"> {{ dashboard.header_title }} </h3>
-                        <span id="headerSubtext" style="color: {{ dashboard.header_subtext_color }};"> {{ dashboard.header_subtext }} </span>
+                        <h3 id="headerTitle" data-header-title="Welcome, {{ first_name }} {{ last_name }}" data-first-name="{{ first_name }}" data-last-name="{{ last_name }}" style="color: {{ dashboard.header_text_color }};"> {{ dashboard.header_title }} </h3>
+                        <span id="headerSubtext" data-header-subtext="{{ dashboard.header_subtext }}" data-first-name="{{ first_name }}" data-last-name="{{ last_name }}" style="color: {{ dashboard.header_subtext_color }};"> {{ dashboard.header_subtext }} </span>
                     </div>
                 </div>
                 <div class="dashboard-header-inner-right"></div>
@@ -97,4 +97,8 @@
 <link rel="stylesheet" href="{% static 'content/css/content.css' %}">
 <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+<script>
+    window.savedTexture = "{{ header.header_texture|default:'texture0' }}";
+    window.savedFooterTexture = "{{ footer.footer_texture|default:'footer-texture0' }}"; 
+</script>
 {% endblock %}
