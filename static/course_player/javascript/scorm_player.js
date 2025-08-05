@@ -1336,7 +1336,7 @@ function saveLessonProgress() {
         lesson_location: lessonLocation,
         scroll_position: scrollPosition,
         completion_status: isComplete ? "complete" : "incomplete",
-        session_time: getSessionTime(),
+        session_time: getNewSessionTime(),
         score: null,
     });
     trackMiniLessonProgress();
