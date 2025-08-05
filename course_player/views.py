@@ -212,13 +212,13 @@ def proxy_scorm_file(request, file_path):
     decoded_file_path = unquote_plus(file_path).strip()
     print(f"🔍 Incoming SCORM request: {decoded_file_path}")
 
-    # ✅ Clean up paths where index.html is treated as a folder (SCORM quirk)
+    # 🧹 Normalize anything weird about index.html
+    if decoded_file_path.endswith("index.html/"):
+        decoded_file_path = decoded_file_path.rstrip("/")
+        print(f"🧹 Removed trailing slash after index.html → {decoded_file_path}")
     if "index.html/" in decoded_file_path:
         decoded_file_path = decoded_file_path.replace("index.html/", "")
         print(f"🧹 Removed 'index.html/' from path → {decoded_file_path}")
-    elif decoded_file_path.endswith("index.html/"):
-        decoded_file_path = decoded_file_path.rstrip("/")
-        print(f"🧹 Removed trailing slash after index.html → {decoded_file_path}")
 
     # 🧼 Fix nested font path bug: "lib/icomoon.css/fonts/icomoon.woff" → "lib/fonts/icomoon.woff"
     if "lib/icomoon.css/fonts/" in decoded_file_path:
@@ -670,6 +670,12 @@ def launch_scorm_file(request, lesson_id):
     if lesson_location.endswith("/None"):
         lesson_location = ""
 
+    # Clean broken index.html paths
+    if lesson_location.endswith("index.html/"):
+        lesson_location = lesson_location.rstrip("/")
+    elif "index.html/" in lesson_location:
+        lesson_location = lesson_location.replace("index.html/", "index.html")
+
     scroll_position = saved_progress.scroll_position if saved_progress else 0
 
     lesson_assignment_map = defaultdict(list)
@@ -684,7 +690,9 @@ def launch_scorm_file(request, lesson_id):
             folder_name = entry_key.split("/")[0]
             request.session["active_scorm_folder"] = folder_name
 
-            proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}"
+            #proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}"
+            proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}".rstrip("/")
+
 
         else:
             return render(request, 'error.html', {'message': 'No valid SCORM entry point found for this lesson.'})
@@ -798,6 +806,39 @@ def get_s3_file_metadata(bucket_name, key):
     except ClientError as e:
         print(f"Error retrieving metadata for {key}: {e}")
         return {}
+    
+def parse_iso8601_duration(duration_str):
+    """
+    Parse a simplified ISO 8601 duration string (e.g., 'PT1H2M3S') into seconds.
+    """
+    pattern = r'^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$'
+    match = re.match(pattern, duration_str)
+    if not match:
+        return 0
+
+    hours = int(match.group(1)) if match.group(1) else 0
+    minutes = int(match.group(2)) if match.group(2) else 0
+    seconds = int(match.group(3)) if match.group(3) else 0
+
+    return hours * 3600 + minutes * 60 + seconds
+
+def format_iso8601_duration(total_seconds):
+    """
+    Convert total seconds to ISO 8601 duration string (e.g., 3723 → 'PT1H2M3S').
+    """
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+    return f"PT{hours}H{minutes}M{seconds}S"
+
+def accumulate_time(existing, new):
+    try:
+        existing_sec = parse_iso8601_duration(existing or "PT0H0M0S")
+        new_sec = parse_iso8601_duration(new or "PT0H0M0S")
+        return format_iso8601_duration(existing_sec + new_sec)
+    except Exception as e:
+        print("⚠️ Error in accumulate_time:", e)
+        return existing or "PT0H0M0S"
 
 @login_required
 def available_lessons(request):
@@ -840,6 +881,15 @@ def track_scorm_data(request):
         score = data.get("score")
         lesson_location = data.get("lesson_location", "")
         scroll_position = data.get("scroll_position", 0)
+
+        # 🧼 Fix broken trailing slash on index.html
+        if lesson_location.endswith("index.html/"):
+            lesson_location = lesson_location.rstrip("/")
+            print(f"🧹 Cleaned lesson_location path → {lesson_location}")
+        elif "index.html/" in lesson_location:
+            lesson_location = lesson_location.replace("index.html/", "index.html")
+            print(f"🧹 Cleaned broken index.html subpath → {lesson_location}")
+
 
         if not profile_id or not lesson_id:
             print("❌ Missing profile_id or lesson_id")
@@ -996,9 +1046,13 @@ def track_scorm_data(request):
                     fields_to_update["completion_status"] = completion_status
                     updated = True
 
+            if lesson_location != existing_tracking.lesson_location:
+                fields_to_update["lesson_location"] = lesson_location
+                updated = True
+
             if updated:
                 fields_to_update.update({
-                    "session_time": session_time,
+                    "session_time": accumulate_time(existing_tracking.session_time, session_time),
                     "scroll_position": scroll_position,
                     "lesson_location": lesson_location,
                     "score": score,
