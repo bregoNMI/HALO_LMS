@@ -718,8 +718,14 @@ def launch_scorm_file(request, lesson_id):
         )
         
         for q in questions:
-            q.media_items_list = list(QuestionMedia.objects.filter(question_id=q.id))
-            q.has_media = bool(q.media_items)
+            media_items = list(QuestionMedia.objects.filter(question_id=q.id))
+            q.media_items_list = media_items
+
+            q.has_media = any(
+                m.source_type in ["upload", "library"] and (m.file or m.url_from_library)
+                for m in media_items
+            )
+            q.has_embed = any(m.embed_code for m in media_items)
 
         quiz_type = quiz_config.quiz_type or 'standard_quiz'
 

@@ -1,34 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
+  updateReferencesButton();
+
+
   const submitButtons = document.querySelectorAll(".submit-question-btn");
   let totalQuestions = document.querySelectorAll(".quiz-question").length;
   let answeredQuestions = 0;
   let correctAnswers = 0;
-
-  document.querySelectorAll('.lesson-item').forEach(item => {
-      const id = parseInt(item.dataset.lessonId);
-      const lesson = window.lessonData.find(l => l.id === id);
-
-      if (lesson?.completed) {
-          item.classList.add("lesson-completed");
-      }
-
-      // ✅ Prevent duplicate progress label
-      const existing = item.querySelector(".lesson-progress");
-      if (existing) existing.remove();
-
-      const progressText = document.createElement('span');
-      progressText.className = 'lesson-progress';
-
-      if (lesson?.pending_review) {
-          progressText.textContent = 'Pending';
-          progressText.classList.add('pending-progress');
-      } else {
-          const progress = typeof lesson.progress === "number" ? lesson.progress : 0;
-          progressText.textContent = `${progress}%`;
-      }
-
-      item.appendChild(progressText);
-  });
 
 
 
@@ -122,6 +99,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (currentIndex === questions.length - 1 && nextButton) {
           nextButton.textContent = "Finish";
         }
+        updateReferencesButton();
+
 
       } else {
         // No more questions left – fetch and show final score
@@ -338,4 +317,20 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   });
+
+
+  function updateReferencesButton() {
+    const questions = document.querySelectorAll(".quiz-question");
+    const referencesBtn = document.getElementById("toggleReferencesBtn");
+
+    const current = [...questions].find(q => q.style.display !== "none");
+
+    if (current && current.dataset.hasMedia === "true") {
+      referencesBtn.style.display = "inline-flex"; // or "block" depending on layout
+    } else {
+      referencesBtn.style.display = "none";
+    }
+  }
+
+
 });

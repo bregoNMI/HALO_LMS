@@ -669,7 +669,7 @@ circle.progress-circle__runner {
 }.assignment-detail-header h3{
     font-size: 1.1rem;
     color: #41454d;
-    font-weight: 600;
+    font-weight: 500;
     margin-top: 1rem;
 }.assignment-instructions{
     display: flex;

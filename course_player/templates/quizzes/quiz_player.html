@@ -2,158 +2,221 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
-    {% include 'messageContainer/message_container.html' %} 
-    <h3>Questions</h3>
-    <ol class="quiz-question-list">
-    {% for question in questions %}
-        <li class="quiz-question" data-question-index="{{ forloop.counter0 }}" data-has-media="{{ question.has_media|yesno:'true,false' }}" style="{% if not forloop.first %}display:none;{% endif %}">
-        <p><strong>{{ question.content }}</strong></p>
-        <p><em>Type: {{ question.question_type }}</em></p>
-        {% if question.has_media %}
-            <div class="question-media">
-                {% for media in question.media_items_list %}
-                    {% with media.file.url|replace:"/tenant/,/media/default/" as corrected_url %}
-                        {% if media.embed_code %}
-                            <div class="media-embed">
-                                {{ media.embed_code|safe }}
+    {% include 'messageContainer/message_container.html' %}
+    <div class="course-body align-center">
+        <button id="toggleCourseSidebar" class="toggle-course-sidebar tooltip" data-tooltip="Hide Sidebar">
+            <i class="fa-regular fa-angle-right"></i>
+            <span class="tooltiptext">Hide Sidebar</span>  
+        </button>
+        <div class="course-player-container">
+            <div id="scormContentIframe" class="quiz-player-container">
+                <div class="quiz-player-top-row">
+                    <div class="quiz-player-top-row-left">
+                        <h3>Question <span id="currentQuestionNumber">1</span></h3>
+                        <span class="quiz-player-total-questions">/<span id="totalQuestionsCount">10</span></span>
+                    </div>
+                    <div class="quiz-player-top-row-right">
+                        <div id="quiz-tab-bar">
+                            <button class="quiz-tab" data-tab="materials">Materials</button>
+                            <button class="quiz-tab" data-tab="media">Media</button>
+                        </div>
+
+                        <div id="quiz-tab-content">
+                            <div id="materials" class="tab-pane" style="display: none;">
+                                {{ quiz.quiz_material|safe }}
                             </div>
-                        {% elif media.file %}
-                            <div class="media-file">
-                                {% with corrected_url|lower as url %}
-                                    {% if ".jpg" in url or ".jpeg" in url or ".png" in url %}
-                                        <div class="media-image-wrapper">
-                                            <img src="{{ corrected_url }}"
-                                                alt="{{ media.title }}"
-                                                class="toggle-expand-image"
-                                                style="max-width: 300px; cursor: zoom-in;">
+                            <div id="media" class="tab-pane" style="display: none;">
+                                {% for question in questions %}
+                                    {% if question.has_media %}
+                                        <div><strong>Q{{ forloop.counter }}:</strong>
+                                        {% for media in question.media_items_list %}
+                                            <div style="margin-bottom: 8px;">
+                                                {{ media.title }}<br>
+                                                {% if media.source_type == "upload" and media.file %}
+                                                    <a href="{{ media.file.url }}" target="_blank">Open</a>
+                                                {% elif media.source_type == "library" and media.url_from_library %}
+                                                    <a href="{{ media.url_from_library }}" target="_blank">Open</a>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
                                         </div>
-                                    {% elif ".mp4" in url %}
-                                        <video controls width="600">
-                                            <source src="{{ corrected_url }}" type="video/mp4">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    {% elif ".pdf" in url %}
-                                        <iframe src="{{ corrected_url }}"
-                                            class="toggle-expand-pdf"
-                                            allowfullscreen
-                                            style="width: 100%; height: 300px; border: 1px solid #ccc; cursor: zoom-in;"></iframe>
-                                    {% elif ".mp3" in url %}
-                                        <audio controls>
-                                            <source src="{{ corrected_url }}" type="audio/mpeg">
-                                            Your browser does not support the audio element.
-                                        </audio>
-                                    {% else %}
-                                        <p><strong>Unsupported format:</strong> <a href="{{ corrected_url }}" target="_blank">{{ corrected_url }}</a></p>
                                     {% endif %}
-                                {% endwith %}
+                                {% endfor %}
                             </div>
-                        {% elif media.url_from_library %}
-                            <div class="media-url">
-                                <iframe src="{{ media.url_from_library }}" width="100%" height="600px" style="border:none;"></iframe>
-                            </div>
-                        {% endif %}
-                    {% endwith %}
-                {% endfor %}
-            </div>
-        {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-player-body scrollable-content">
+                    {% for question in questions %}
+                        <div class="quiz-question" data-question-index="{{ forloop.counter0 }}" data-has-media="{{ question.has_media|yesno:'true,false' }}" style="{% if not forloop.first %}display:none;{% endif %}">
+                            
+                            <p><strong>{{ question.content }}</strong></p>
+                            <!-- <p><em>Type: {{ question.question_type }}</em></p> -->
+                            {% if question.has_embed %}
+                                <div class="question-embed">
+                                    {% for media in question.media_items_list %}
+                                        {% if media.embed_code %}
+                                            <div class="media-embed">
+                                                {{ media.embed_code|safe }}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
 
-        {% if reveal_answers and question.correct_answers %}
-        <p>
-            <strong>Correct Answer{% if question.correct_answers|length > 1 %}s{% endif %}:</strong>
-            {{ question.correct_answers|join:", " }}
-        </p>
-        {% endif %}
+                            {% if reveal_answers and question.correct_answers %}
+                            <p>
+                                <strong>Correct Answer{% if question.correct_answers|length > 1 %}s{% endif %}:</strong>
+                                {{ question.correct_answers|join:", " }}
+                            </p>
+                            {% endif %}
 
 
-        {% if question.question_type == "EssayQuestion" %}
-        <textarea
-            name="question_{{ question.id }}"
-            data-question-id="{{ question.id }}"
-            data-question-type="{{ question.question_type }}"
-            class="essay-response"
-            rows="5"
-            cols="60"
-            placeholder="Type your answer here..."></textarea>
-        <br>
-        <button class="submit-essay-btn"
-                data-question-id="{{ question.id }}"
-                data-question-type="{{ question.question_type }}">
-            Submit Answer
-        </button>
+                            {% if question.question_type == "EssayQuestion" %}
+                            <textarea
+                                name="question_{{ question.id }}"
+                                data-question-id="{{ question.id }}"
+                                data-question-type="{{ question.question_type }}"
+                                class="essay-response"
+                                rows="5"
+                                cols="60"
+                                placeholder="Type your answer here..."></textarea>
+                            <br>
+                            <button class="submit-essay-btn"
+                                    data-question-id="{{ question.id }}"
+                                    data-question-type="{{ question.question_type }}">
+                                Submit Answer
+                            </button>
 
-        {% elif question.question_type == "FITBQuestion" %}
-        <input
-            type="text"
-            name="question_{{ question.id }}"
-            class="fitb-response"
-            data-question-id="{{ question.id }}"
-            data-question-type="{{ question.question_type }}"
-            placeholder="Type your answer here...">
-        <br>
-        <button class="submit-fitb-btn"
-                data-question-id="{{ question.id }}"
-                data-question-type="{{ question.question_type }}">
-            Submit Answer
-        </button>
+                            {% elif question.question_type == "FITBQuestion" %}
+                            <input
+                                type="text"
+                                name="question_{{ question.id }}"
+                                class="fitb-response"
+                                data-question-id="{{ question.id }}"
+                                data-question-type="{{ question.question_type }}"
+                                placeholder="Type your answer here...">
+                            <br>
+                            <button class="submit-fitb-btn"
+                                    data-question-id="{{ question.id }}"
+                                    data-question-type="{{ question.question_type }}">
+                                Submit Answer
+                            </button>
 
-        {% elif question.answer_list %}
-        <ul class="quiz-answers">
-            {% for answer in question.answer_list %}
-            <li>
-                <label>
-                {% if question.question_type == "MRQuestion" %}
-                    <input type="checkbox" name="question_{{ question.id }}" value="{{ answer.id }}">
-                {% else %}
-                    <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}">
-                {% endif %}
-                {{ answer.text }}
-                </label>
-            </li>
-            {% endfor %}
-        </ul>
+                            {% elif question.answer_list %}
+                            <ul class="quiz-answers">
+                                {% for answer in question.answer_list %}
+                                <li>
+                                    <label>
+                                    {% if question.question_type == "MRQuestion" %}
+                                        <input type="checkbox" name="question_{{ question.id }}" value="{{ answer.id }}">
+                                    {% else %}
+                                        <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}">
+                                    {% endif %}
+                                    {{ answer.text }}
+                                    </label>
+                                </li>
+                                {% endfor %}
+                            </ul>
 
-        <button class="submit-question-btn"
-                data-question-id="{{ question.id }}"
-                data-question-type="{{ question.question_type }}">
-            Submit Answer
-        </button>
 
-        {% else %}
-        <p><em>No answer options available for this question.</em></p>
-        {% endif %}
-        </li>
-    {% endfor %}
-    </ol>
-    <!-- ✅ Add a button -->
-    <div class="question-navigation">
-        <button id="nextQuestionBtn" class="next-button">Next Question</button>
-    </div>
+                            {% else %}
+                            <p><em>No answer options available for this question.</em></p>
+                            {% endif %}
+                            {% if question.has_media %}                                                            
 
-    <!-- ✅ Bottom Tab Bar -->
-    <div id="quiz-tab-bar">
-        <button class="quiz-tab" data-tab="materials">Materials</button>
-        <button class="quiz-tab" data-tab="media">Media</button>
-    </div>
+                                <div class="question-media">
+                                    {% for media in question.media_items_list %}
+                                        {% if media.source_type == "upload" and media.file %}
+                                            {% with media.file.url|replace:"/tenant/,/media/default/" as corrected_url %}
+                                                {% with corrected_url|lower as url %}
+                                                    {% if ".jpg" in url or ".jpeg" in url or ".png" in url or ".gif" in url %}
+                                                        <div class="media-image-wrapper">
+                                                            <img src="{{ corrected_url }}"
+                                                                alt="{{ media.title }}"
+                                                                class="toggle-expand-image"
+                                                                style="max-width: 300px; cursor: zoom-in;">
+                                                        </div>
+                                                    {% elif ".mp4" in url %}
+                                                        <video controls width="600">
+                                                            <source src="{{ corrected_url }}" type="video/mp4">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    {% elif ".mp3" in url %}
+                                                        <audio controls>
+                                                            <source src="{{ corrected_url }}" type="audio/mpeg">
+                                                            Your browser does not support the audio element.
+                                                        </audio>
+                                                    {% elif ".pdf" in url %}
+                                                        <iframe src="{{ corrected_url }}"
+                                                                class="toggle-expand-pdf"
+                                                                allowfullscreen
+                                                                style="width: 100%; height: 300px; border: 1px solid #ccc; cursor: zoom-in;"></iframe>
+                                                    {% else %}
+                                                        <p><strong>Download file:</strong> <a href="{{ corrected_url }}" target="_blank">{{ media.title|default:corrected_url }}</a></p>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endwith %}
 
-    <div id="quiz-tab-content">
-        <div id="materials" class="tab-pane" style="display: none;">
-            {{ quiz.quiz_material|safe }}
-        </div>
-        <div id="media" class="tab-pane" style="display: none;">
-            {% for question in questions %}
-                {% if question.has_media %}
-                    <div><strong>Q{{ forloop.counter }}:</strong>
-                    {% for media in question.media_items_list %}
-                        <div style="margin-bottom: 8px;">
-                        {{ media.title }}<br>
-                        <a href="{{ media.file.url }}" target="_blank">Open</a>
+                                        {% elif media.source_type == "library" and media.url_from_library %}
+                                            {% with media.url_from_library|lower as url %}
+                                                {% if ".jpg" in url or ".jpeg" in url or ".png" in url or ".gif" in url %}
+                                                    <div class="media-image-wrapper">
+                                                        <img src="{{ media.url_from_library }}"
+                                                            alt="{{ media.title }}"
+                                                            class="toggle-expand-image"
+                                                            style="max-width: 300px; cursor: zoom-in;">
+                                                    </div>
+                                                {% elif ".mp4" in url %}
+                                                    <video controls width="600">
+                                                        <source src="{{ media.url_from_library }}" type="video/mp4">
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                {% elif ".mp3" in url %}
+                                                    <audio controls>
+                                                        <source src="{{ media.url_from_library }}" type="audio/mpeg">
+                                                        Your browser does not support the audio element.
+                                                    </audio>
+                                                {% elif ".pdf" in url %}
+                                                    <iframe src="{{ media.url_from_library }}"
+                                                            class="toggle-expand-pdf"
+                                                            allowfullscreen
+                                                            style="width: 100%; height: 300px; border: 1px solid #ccc; cursor: zoom-in;"></iframe>
+                                                {% else %}
+                                                    <p><strong>View file:</strong> <a href="{{ media.url_from_library }}" target="_blank">{{ media.title|default:media.url_from_library }}</a></p>
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                     {% endfor %}
+                </div>
+                <div class="quiz-player-footer">
+                    <div class="quiz-player-footer-inner">
+                        <div class="quiz-player-footer-left">
+                            <button id="toggleReferencesBtn" class="quiz-tab" style="display: none;">
+                                <i class="fa-regular fa-book-open-lines"></i>
+                                <span>References</span>
+                            </button>
+                        </div>
+                        <div class="quiz-player-footer-right">
+                            <button class="submit-question-btn"
+                                    data-question-id="{{ question.id }}"
+                                    data-question-type="{{ question.question_type }}">
+                                Submit Answer
+                            </button>
+                            <div class="question-navigation">
+                                <button id="nextQuestionBtn" class="next-button">Next Question</button>
+                            </div>
+                        </div>
                     </div>
-                {% endif %}
-            {% endfor %}
+                </div>
+            </div>
+            <div id="courseAssignmentsViewer" class="course-assignments-viewer hide-assignments"></div>
         </div>
-    </div>
+    </div> 
         
     <script id="lessonData" type="application/json">
         {{ lesson_progress_data|default:"[]"|safe }}
@@ -286,4 +349,5 @@
         });
     </script>
     <script src="{% static 'course_player/javascript/quiz_player.js' %}?v=2"></script>
+    <link rel="stylesheet" href="{% static 'course_player\javascript\css\quiz_player.css' %}">
 {% endblock content %}
