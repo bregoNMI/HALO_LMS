@@ -180,6 +180,7 @@ function selectFile(popupId, referenceId = null, assignmentId = null) {
                 header_logoDisplay.value = selectedFileTitle;
                 document.getElementById('header_logo_name_display').innerText = selectedFileTitle;
                 document.getElementById('logoImagePreview').src = selectedFileURL;
+                document.querySelector('.logo-image-preview').style.display = 'block';
                 openLibraryPopup("editHeaderPopup");
             } else {
                 displayMessage('Please Select an Image for Header Logo', false);
@@ -597,6 +598,7 @@ function displayMessage(message, isSuccess) {
 let currentLayout = localStorage.getItem('fileLibraryLayout') || 'list';
 let folderPath = [];
 let currentParentFolderId = null;
+let selectedFilterCourseIds = [];
 
 document.getElementById('fileUploadForm').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -861,7 +863,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let moveItemId = null;
     let moveItemType = null;
     let selectedTargetFolderId = null;
-    let selectedFilterCourseIds = [];
 
     function loadMoreFiles() {
         if (isLoading || !hasNext || layoutJustSwitched) return;

@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
             clearBtn.addEventListener('click', () => {
                 if (input._flatpickr) {
                     input._flatpickr.clear();
-                    input.value = '';               
+                    input.value = '';             
                 } else {
                     input.value = '';
                     input.previousElementSibling.value = '';
@@ -145,7 +145,9 @@ function initializeClearImageFields(){
                 }else{
                     trueInputValue.value = '';
                     imageFieldName.innerText = 'No file selected';
-                }            
+                }          
+                const headerImagePreview = clearBtn.closest('.course-content-input').querySelector('.logo-image-preview');  
+                if(headerImagePreview){headerImagePreview.style.display = 'none'}
             });
         }
     });

@@ -9,16 +9,22 @@
         <div id="header-form" class="popup-body scrollable-content">
             {% csrf_token %}
             <div class="course-content-input">
-                <label style="padding: 0;" class="edit-user-label" for="header_logo">Logo</label>
-                <div class="logo-image-preview">
-                    <img id="logoImagePreview" src="{{header.header_logo }}" alt="Header Logo">
-                </div>
+                <label style="padding: 0;" class="edit-user-label" for="header_logo">Logo</label>               
+                {% if header.header_logo %}
+                    <div class="logo-image-preview">
+                        <img id="logoImagePreview" src="{{ header.header_logo }}" alt="Header Logo">
+                    </div>
+                {% else %}
+                    <div class="logo-image-preview" style="display: none;">
+                        <img id="logoImagePreview">
+                    </div>
+                {% endif %}
                 <div onclick="openFileLibrary('header_logo')" class="custom-file-upload-container">
                     <div class="custom-file-upload">
                         <i class="fa-regular fa-folder-open"></i> Choose File
                     </div>
                     <div class="custom-file-title">
-                        <span id="header_logo_name_display" class="file-name-display">{{header.header_logo_display }}</span>
+                        <span id="header_logo_name_display" class="file-name-display">{% if header.header_logo %}{{ header.header_logo_display }}{% else %}No file selected{% endif %}</span>
                     </div>
                     <!-- This is where the header_logo File Lives -->
                     <input type="hidden" id="header_logo" name="header_logo" value="{{header.header_logo }}">
@@ -58,6 +64,42 @@
                         <input type="text" id="header_text_background_colorHex" value="{{ header.header_text_background_color }}">                  
                     </div>      
                 </div>
+                <div class="course-content-input">
+                    <label class="edit-user-label" for="header_background_texture">Background Texture</label>
+                    <div class="icon-selection-container padding-bottom-1 textures-container">
+                        <label class="icon-selection-item tooltip" for="texture0" data-tooltip="No Texture"> 
+                            <span class="tooltiptext">No Texture</span>
+                            <input id="texture0" type="radio" name="texture-selection" hidden="" checked="">
+                            <div class="icon-selection-icon no-texture-icon">
+                                <i class="fa-solid fa-ban"></i>
+                            </div>
+                        </label>
+                        <label class="icon-selection-item horizontal-stripes-texture" for="texture1">
+                            <input id="texture1" type="radio" name="texture-selection" hidden="">
+                            <div class="icon-selection-icon">
+                                <i class="fa-regular fa-books"></i>
+                            </div>
+                        </label>
+                        <label class="icon-selection-item dotted-texture" for="texture2">
+                            <input id="texture2" type="radio" name="texture-selection" hidden="">
+                            <div class="icon-selection-icon">
+                                <i class="fa-solid fa-book-open-cover"></i>
+                            </div>
+                        </label>
+                        <label class="icon-selection-item weave-texture" for="texture3">
+                            <input id="texture3" type="radio" name="texture-selection" hidden="">
+                            <div class="icon-selection-icon">
+                                <i class="fa-solid fa-book-open-cover"></i>
+                            </div>
+                        </label>
+                        <label class="icon-selection-item wave-texture" for="texture4">
+                            <input id="texture4" type="radio" name="texture-selection" hidden="">
+                            <div class="icon-selection-icon">
+                                <i class="fa-solid fa-book-open-cover"></i>
+                            </div>
+                        </label>
+                    </div>
+                </div>
             </div>  
         </div>
         <div class="popup-footer">
@@ -69,3 +111,6 @@
         </div>
     </div>
 </div>
+<script>
+    window.savedTexture = "{{ header.header_texture|default:'texture0' }}"; 
+</script>

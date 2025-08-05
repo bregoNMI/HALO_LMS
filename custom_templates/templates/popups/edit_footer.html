@@ -24,7 +24,43 @@
                         <input class="color-picker" type="color" id="footer_text_color" name="footer_text_color" value="{{ footer.footer_text_color }}" oninput="updateColorInfo('footer_text_color')">
                         <input type="text" id="footer_text_colorHex" value="{{ footer.footer_text_color }}">
                     </div>
-                </div>              
+                </div> 
+                <div class="course-content-input">
+                    <label class="edit-user-label" for="footer_background_texture">Background Texture</label>
+                    <div class="icon-selection-container padding-bottom-1 footer-textures-container">
+                        <label class="icon-selection-item tooltip" for="footer-texture0" data-tooltip="No Texture"> 
+                            <span class="tooltiptext">No Texture</span>
+                            <input id="footer-texture0" type="radio" name="footer-texture-selection" hidden="" checked="">
+                            <div class="icon-selection-icon no-texture-icon">
+                                <i class="fa-solid fa-ban"></i>
+                            </div>
+                        </label>
+                        <label class="icon-selection-item horizontal-stripes-texture" for="footer-texture1">
+                            <input id="footer-texture1" type="radio" name="footer-texture-selection" hidden="">
+                            <div class="icon-selection-icon">
+                                <i class="fa-regular fa-books"></i>
+                            </div>
+                        </label>
+                        <label class="icon-selection-item dotted-texture" for="footer-texture2">
+                            <input id="footer-texture2" type="radio" name="footer-texture-selection" hidden="">
+                            <div class="icon-selection-icon">
+                                <i class="fa-solid fa-book-open-cover"></i>
+                            </div>
+                        </label>
+                        <label class="icon-selection-item weave-texture" for="footer-texture3">
+                            <input id="footer-texture3" type="radio" name="footer-texture-selection" hidden="">
+                            <div class="icon-selection-icon">
+                                <i class="fa-solid fa-book-open-cover"></i>
+                            </div>
+                        </label>
+                        <label class="icon-selection-item wave-texture" for="footer-texture4">
+                            <input id="footer-texture4" type="radio" name="footer-texture-selection" hidden="">
+                            <div class="icon-selection-icon">
+                                <i class="fa-solid fa-book-open-cover"></i>
+                            </div>
+                        </label>
+                    </div>
+                </div>             
             </div>  
         </div>
         <div class="popup-footer">
@@ -36,3 +72,6 @@
         </div>
     </div>
 </div>
+<script>
+    window.savedFooterTexture = "{{ footer.footer_texture|default:'footer-texture0' }}"; 
+</script>
