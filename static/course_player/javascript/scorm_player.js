@@ -295,12 +295,6 @@ function sendTrackingData(trackingData) {
     lastTrackingPayload = payloadKey;
     trackingData.session_id = window.lessonSessionId;
 
-    if (trackingData.completion_status === "complete" || trackingData.final === true) {
-        trackingData.session_time = getNewSessionTime();
-    } else {
-        delete trackingData.session_time;
-    }
-
     fetch('/course_player/track-scorm-data/', {
         method: 'POST',
         headers: {
@@ -1336,7 +1330,7 @@ function saveLessonProgress() {
         lesson_location: lessonLocation,
         scroll_position: scrollPosition,
         completion_status: isComplete ? "complete" : "incomplete",
-        session_time: getNewSessionTime(),
+        session_time: getSessionTime(),
         score: null,
     });
     trackMiniLessonProgress();
@@ -1727,7 +1721,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     window.addEventListener("pagehide", () => {
-        const sessionTime = getNewSessionTime();
+        const sessionTime = getSessionTime();
         const finalPayload = {
             lesson_id: window.lessonId,
             user_id: window.userId,
@@ -1755,7 +1749,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "hidden") {
-            const sessionTime = getNewSessionTime();
+            const sessionTime = getSessionTime();
             const finalPayload = {
                 lesson_id: window.lessonId,
                 user_id: window.userId,
