@@ -280,6 +280,7 @@ window.addEventListener("message", function(event) {
 
 let lastTrackingPayload = null;
 let lessonMarkedComplete = false;
+
 function sendTrackingData(trackingData) {
     if (lessonMarkedComplete && trackingData.completion_status !== "complete") {
         console.warn("🚫 Skipping post-completion tracking payload:", trackingData);

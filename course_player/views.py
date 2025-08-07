@@ -1067,6 +1067,19 @@ def track_scorm_data(request):
 
         # 📈 Update course-level progress
         user_course.update_progress()
+        
+
+        session_id = data.get("session_id")
+        print("🔍 Trying to update LessonSession for:", session_id)
+        if session_id:
+            try:
+                session = LessonSession.objects.get(session_id=session_id)
+                session.end_time = timezone.now()
+                session.session_time = session_time
+                session.save()
+                print(f"⏱️ LessonSession updated: {session.session_id} with {session_time}")
+            except LessonSession.DoesNotExist:
+                print(f"⚠️ LessonSession not found for session_id: {session_id}")
 
         return JsonResponse({
             "status": "success" if lesson_marked_complete else "incomplete",
