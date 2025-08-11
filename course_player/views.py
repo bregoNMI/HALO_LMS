@@ -263,7 +263,7 @@ def proxy_scorm_file(request, file_path):
     except ClientError as e:
         print(f"❌ Error fetching {s3_key} from S3: {e}")
         raise Http404("SCORM file not found")
-        
+
 def get_scorm_progress(request, lesson_id):
     user = request.user
     lesson = get_object_or_404(Lesson, pk=lesson_id)
@@ -299,7 +299,7 @@ def get_scorm_progress(request, lesson_id):
 
     print(f"[get_scorm_progress] Error parsing cmi_data: {e}")
     return JsonResponse({"suspend_data": ""}, status=500)
-    
+
 @require_GET
 @login_required
 def get_quiz_score(request):

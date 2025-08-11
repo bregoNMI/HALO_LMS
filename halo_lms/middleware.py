@@ -59,6 +59,10 @@ class TermsAcceptanceMiddleware(MiddlewareMixin):
             reverse('terms_and_conditions'),
             reverse('custom_logout_view'),
             '/admin/', '/django-admin/', '/static/','/login-course/', '/requests/modify-course/', '/launch_scorm_file/', '/scorm-content/',
+            '/course_player/track-scorm-data/',
+            '/course_player/track-mini-lesson-progress/',
+            '/course_player/get-scorm-progress/',
+            '/course_player/assignments/',
         ]
 
         if (

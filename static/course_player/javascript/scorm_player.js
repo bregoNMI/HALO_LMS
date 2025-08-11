@@ -301,6 +301,8 @@ function sendTrackingData(trackingData) {
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken'),
+            'Accept': 'application/json',            // ← add this
+            'X-Requested-With': 'XMLHttpRequest',    // ← and this
         },
         body: JSON.stringify(trackingData),
     })
@@ -440,6 +442,8 @@ function sendMiniLessonProgress(lessonProgressArray) {
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken'),
+            'Accept': 'application/json',            // ← add this
+            'X-Requested-With': 'XMLHttpRequest',    // ← and this
         },
         body: JSON.stringify({
             user_id: window.userId,
