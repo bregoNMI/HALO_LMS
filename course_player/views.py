@@ -16,7 +16,7 @@ from client_admin.utils import get_formatted_datetime
 from urllib.parse import quote, unquote, unquote_plus
 from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, UserAssignmentProgress
 from django.contrib.auth.decorators import login_required
-from django.http import FileResponse, Http404, JsonResponse
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.conf import settings
 from botocore.exceptions import ClientError
@@ -202,11 +202,11 @@ def proxy_scorm_absolute(request, file_path):
 
     # Reuse the existing proxy logic
     return proxy_scorm_file(request, full_path)
-
+"""
 def proxy_scorm_file(request, file_path):
-    """
-    Proxy SCORM file from S3 to serve it through the LMS domain.
-    """
+
+    #Proxy SCORM file from S3 to serve it through the LMS domain.
+
     from urllib.parse import unquote_plus
 
     decoded_file_path = unquote_plus(file_path).strip()
@@ -263,6 +263,219 @@ def proxy_scorm_file(request, file_path):
     except ClientError as e:
         print(f"❌ Error fetching {s3_key} from S3: {e}")
         raise Http404("SCORM file not found")
+"""
+
+"""
+def proxy_scorm_file(request, file_path):
+
+    #Proxy SCORM file from S3 to serve it through the LMS domain.
+    #Resolves both absolute ('scormcontent/...') and relative ('assets/...', 'lib/...', etc.) paths
+    #against the active lesson folder stored in session.
+
+    from urllib.parse import unquote_plus
+
+    decoded_file_path = unquote_plus(file_path or "").strip()
+    print(f"🔍 Incoming SCORM request: {decoded_file_path}")
+
+    # Normalize "index.html" quirks
+    if decoded_file_path.endswith("index.html/"):
+        decoded_file_path = decoded_file_path.rstrip("/")
+        print(f"🧹 Removed trailing slash after index.html → {decoded_file_path}")
+    if "index.html/" in decoded_file_path:
+        decoded_file_path = decoded_file_path.replace("index.html/", "")
+        print(f"🧹 Removed 'index.html/' from path → {decoded_file_path}")
+
+    # Fix nested font path bug produced by some themes
+    if "lib/icomoon.css/fonts/" in decoded_file_path:
+        decoded_file_path = decoded_file_path.replace("lib/icomoon.css/fonts/", "lib/fonts/")
+        print(f"🧼 Normalized font path from CSS: {decoded_file_path}")
+
+    # Drop any accidental leading slash for consistent joining
+    if decoded_file_path.startswith("/"):
+        decoded_file_path = decoded_file_path.lstrip("/")
+
+    # Resolve against the active SCORM folder
+    folder = request.session.get("active_scorm_folder")
+    if not folder:
+        print("❌ No SCORM folder in session")
+        raise Http404("SCORM folder not set")
+
+    # If the path is an absolute SCORM path (begins with scormcontent/), scope it to the folder
+    if decoded_file_path.startswith("scormcontent/"):
+        resolved_path = f"{folder}/{decoded_file_path}"
+
+    else:
+        # Common SCORM subfolders that appear as relative URLs in HTML/CSS/JS
+        RELATIVE_ROOTS = ("assets/", "lib/", "scripts/", "images/", "img/", "css/", "js/", "fonts/")
+
+        if decoded_file_path.startswith(RELATIVE_ROOTS):
+            resolved_path = f"{folder}/scormcontent/{decoded_file_path}"
+        else:
+            # Fallback: treat anything else as relative to scormcontent root
+            # (covers odd theme paths or bare filenames like "index_lesson2.html")
+            resolved_path = f"{folder}/scormcontent/{decoded_file_path}"
+
+    # Build final S3 key under your uploads root
+    s3_key = f"media/default/uploads/{resolved_path}".replace("\\", "/").strip()
+    print(f"📂 Final S3 Key: {s3_key}")
+
+    # Fetch from S3
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        region_name=AWS_S3_REGION_NAME
+    )
+
+    try:
+        s3_response = s3_client.get_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=s3_key)
+        file_body = s3_response["Body"]
+
+        # Prefer S3 metadata; otherwise guess; force-correct for web types
+        content_type = (
+            s3_response.get("ContentType")
+            or mimetypes.guess_type(s3_key)[0]
+            or "application/octet-stream"
+        )
+
+        # Normalize common web types
+        path_lower = s3_key.lower()
+        if path_lower.endswith(".html"):
+            content_type = "text/html"
+        elif path_lower.endswith(".css"):
+            content_type = "text/css"
+        elif path_lower.endswith(".js"):
+            content_type = "application/javascript"
+        elif path_lower.endswith(".svg"):
+            content_type = "image/svg+xml"
+
+        return FileResponse(file_body, content_type=content_type)
+
+    except ClientError as e:
+        print(f"❌ Error fetching {s3_key} from S3: {e}")
+        raise Http404("SCORM file not found")
+"""
+
+def proxy_scorm_file(request, file_path):
+    """
+    Proxy SCORM file from S3 through the LMS domain.
+
+    Handles:
+      - URLs that accidentally include "index.html/" before asset folders
+      - Absolute paths like:  <folder>/scormcontent/...
+      - Relative paths like:  assets/... , lib/... , css/... (resolved under scormcontent/)
+      - Prevents double-prepending the active folder
+    """
+    from urllib.parse import unquote_plus
+
+    decoded = unquote_plus((file_path or "").strip())
+    print(f"🔍 Incoming SCORM request: {decoded}")
+
+    # --- Normalize "index.html/" quirks --------------------------------------
+    if decoded.endswith("index.html/"):
+        decoded = decoded.rstrip("/")
+        print(f"🧹 Trimmed trailing slash after index.html → {decoded}")
+
+    if "index.html/" in decoded:
+        before = decoded
+        decoded = decoded.replace("index.html/", "")
+        print(f"🧹 Removed 'index.html/' segment → {before} → {decoded}")
+
+    # Some packages nest fonts oddly: lib/icomoon.css/fonts/... -> lib/fonts/...
+    if "lib/icomoon.css/fonts/" in decoded:
+        decoded = decoded.replace("lib/icomoon.css/fonts/", "lib/fonts/")
+        print(f"🧼 Normalized font path → {decoded}")
+
+    # Uniform leading slash handling
+    if decoded.startswith("/"):
+        decoded = decoded.lstrip("/")
+
+    # Resolve against the active SCORM folder
+    folder = request.session.get("active_scorm_folder")
+    if not folder:
+        print("❌ No SCORM folder in session")
+        raise Http404("SCORM folder not set")
+
+    # If the incoming path already starts with the dynamic folder, strip it
+    # so we don’t double-prefix below.
+    path_after_folder = decoded
+    folder_prefix = f"{folder}/"
+    if decoded.startswith(folder_prefix):
+        path_after_folder = decoded[len(folder_prefix):]
+        print(f"🔧 Stripped leading folder prefix: {decoded} → {path_after_folder}")
+
+    # Now decide how to join:
+    RELATIVE_ROOTS = ("assets/", "lib/", "scripts/", "images/", "img/", "css/", "js/", "fonts/")
+    if path_after_folder.startswith("scormcontent/"):
+        # Absolute within the package; just prefix the folder once.
+        resolved_path = f"{folder}/{path_after_folder}"
+    elif path_after_folder.startswith(RELATIVE_ROOTS) or path_after_folder == "" or path_after_folder == "index.html":
+        # Relative asset or bare/entry reference → under scormcontent/
+        resolved_path = f"{folder}/scormcontent/{path_after_folder}"
+    else:
+        # Fallback: treat as a relative asset living under scormcontent/
+        resolved_path = f"{folder}/scormcontent/{path_after_folder}"
+
+    s3_key = f"media/default/uploads/{resolved_path}".replace("\\", "/").strip()
+    print(f"📂 Final S3 Key: {s3_key}")
+
+    # --- Fetch from S3 -------------------------------------------------------
+    s3_client = boto3.client(
+        "s3",
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        region_name=AWS_S3_REGION_NAME,
+    )
+
+    try:
+        s3_response = s3_client.get_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=s3_key)
+        file_body = s3_response["Body"]
+
+        # Prefer S3 metadata, else guess, then normalize
+        content_type = (
+            s3_response.get("ContentType")
+            or mimetypes.guess_type(s3_key)[0]
+            or "application/octet-stream"
+        )
+
+        # Normalize common web types
+        lower = s3_key.lower()
+        if lower.endswith(".html"):
+            content_type = "text/html"
+        elif lower.endswith(".css"):
+            content_type = "text/css"
+        elif lower.endswith(".js"):
+            content_type = "application/javascript"
+        elif lower.endswith(".svg"):
+            content_type = "image/svg+xml"
+        elif lower.endswith(".json"):
+            content_type = "application/json"
+        elif lower.endswith(".woff2"):
+            content_type = "font/woff2"
+        elif lower.endswith(".woff"):
+            content_type = "font/woff"
+        elif lower.endswith(".ttf"):
+            content_type = "font/ttf"
+        elif lower.endswith(".otf"):
+            content_type = "font/otf"
+        elif lower.endswith(".map"):
+            content_type = "application/json"
+        elif lower.endswith(".png"):
+            content_type = "image/png"
+        elif lower.endswith(".jpg") or lower.endswith(".jpeg"):
+            content_type = "image/jpeg"
+        elif lower.endswith(".gif"):
+            content_type = "image/gif"
+        elif lower.endswith(".webp"):
+            content_type = "image/webp"
+
+        return FileResponse(file_body, content_type=content_type)
+
+    except ClientError as e:
+        print(f"❌ Error fetching {s3_key} from S3: {e}")
+        raise Http404("SCORM file not found")
+
+
 
 def get_scorm_progress(request, lesson_id):
     user = request.user

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
@@ -14,7 +14,8 @@ urlpatterns = [
     path("submit-question/", views.submit_question, name="submit_question"),
     path('get-quiz-score/', views.get_quiz_score, name='get_quiz_score'),
     path("mark-lesson-complete/", views.mark_lesson_complete, name="mark_lesson_complete"),
-    path('scormcontent/<path:file_path>/', views.proxy_scorm_file, name='proxy_scorm_absolute'),
+    path('scormcontent/<path:file_path>/', views.proxy_scorm_absolute, name='proxy_scorm_absolute'),
+    re_path(r"^scorm-content/(?P<file_path>.+)/$", views.proxy_scorm_file, name='proxy_scorm_file_slash'),
 
     # SCORM iPlayer URL pattern
     #path('scorm/launch/<int:id>/', views.launch_scorm_file, name='launch_scorm_file'),
