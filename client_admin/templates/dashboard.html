@@ -77,11 +77,11 @@
                                     <div class="date-selection-dropdown-left">
                                         <i class="fa-light fa-calendar-lines"></i>
                                         <span class="date-select-selected">Last 12 months</span>
-                                        <div class="date-select-items scrollable-content" style="display: none;">
+                                        <div class="date-select-items scrollable-content">
                                             <div class="select-item" data-value="Last 7 days">Last 7 days</div>
                                             <div class="select-item" data-value="Last 30 days">Last 30 days</div>
                                             <div class="select-item" data-value="Last 6 months">Last 6 months</div>
-                                            <div class="select-item" data-value="Last 12 months">Last 12 months</div>
+                                            <div class="select-item same-as-selected" data-value="Last 12 months">Last 12 months</div>
                                         </div>
                                     </div>
                                     <div class="date-selection-dropdown-right">
@@ -194,9 +194,8 @@
             </div>
         </div>       
     </div>
-    <link rel="stylesheet" href="{% static 'client_admin\css\admin_dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin\css\analytics.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <script>
         const timeSpentLabels = {{ time_spent_labels|safe }};
         const timeSpentData = {{ time_spent_data|safe }};

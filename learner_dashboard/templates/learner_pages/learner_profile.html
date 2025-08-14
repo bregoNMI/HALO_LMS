@@ -223,7 +223,7 @@
                                 <div style="border: none;" class="popup-body">
                                     <div class="edit-images-row">
                                         <div class="edit-image">
-                                            <label class="edit-user-label" for="photoid">Headshot Image</label>
+                                            <label class="edit-user-label" for="photoid">Identification Image</label>
                                             {% if profile.photoid %}
                                                 <img id="photoidPreview" src="{{ profile.photoid.url }}" alt="photoid">
                                             {% else %}
@@ -247,7 +247,7 @@
                                             </label>
                                         </div>
                                         <div class="edit-image">
-                                            <label class="edit-user-label" for="passportphoto">Identification Image</label>
+                                            <label class="edit-user-label" for="passportphoto">Headshot Image</label>
                                             {% if profile.passportphoto %}
                                                 <img id="passportphotoPreview" src="{{ profile.passportphoto.url }}" alt="passportphoto">
                                             {% else %}

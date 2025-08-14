@@ -1,0 +1,69 @@
+{% load static %}
+<div id="courseLaunchVerification" class="popup-background facial-recognition-popup"> 
+    <div class="popup-content max-width-6">
+        <div class="facial-recognition-body scrollable-content">
+            <h3 id="facialVerificationHeader"><span id="baseText">Let's Confirm It's You</span><span id="animatedDots"></span></h3>
+            <div id="facialVerification" class="camera-error-container hidden">
+                <div class="form-heading-wrapper">
+                    <div class="icon-warning">
+                        <i class="fa-light fa-triangle-exclamation"></i>
+                    </div>
+                    <h1 id="cameraErrorHeading"> </h1>
+                    <h6 id="cameraErrorSubtext"> </h6>
+                </div>
+                <div id="cameraAccessTroubleshooting" class="camera-error-body hidden">
+                    <div class="help-steps-item-wrapper">
+                        <div class="help-steps-item-header">
+                            <div class="help-steps-item-icon">1</div>
+                            <h5 class="help-steps-item-title">Ensure that no other applications, browser tabs or windows are actively using your camera. Your camera can only be used on one application at a time. Close all other apps or browser tabs that may be using your camera.</h5>
+                        </div>
+                        <div class="help-steps-item-header">
+                            <div class="help-steps-item-icon">2</div>
+                            <h5 class="help-steps-item-title">Your camera may be disabled, not plugged in or not selected within your browser's settings. Please check your camera's connection to ensure that it is working properly. You may test this within your device's camera app or within your browser's settings.</h5>
+                        </div>
+                        <div class="help-steps-item-header">
+                            <div class="help-steps-item-icon">3</div>
+                            <h5 class="help-steps-item-title">Your browser may not have received the proper access to your camera. Please click on the "Refresh Page" button below to re-attempt camera access.</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="facialVideoFeedContainer" class="facial-videofeed-container">
+                <div id="facialVideoFeedPlaceholder" class="facial-videofeed-placeholder">
+                    <i class="fa-light fa-face-viewfinder fa-beat-fade slow-beat" aria-hidden="true"></i>
+                </div>
+                <div id="cameraLoadingVerification" class="item-loading-container hidden">
+                    <svg viewBox="0 0 240 240" height="240" width="240" class="pl">
+                        <circle stroke-linecap="round" stroke-dashoffset="-330" stroke-dasharray="0 660" stroke-width="10" stroke="#000" fill="none" r="105" cy="120" cx="120" class="pl__ring pl__ring--a"></circle>
+                        <circle stroke-linecap="round" stroke-dashoffset="-110" stroke-dasharray="0 220" stroke-width="10" stroke="#000" fill="none" r="35" cy="120" cx="120" class="pl__ring pl__ring--b"></circle>
+                        <circle stroke-linecap="round" stroke-dasharray="0 440" stroke-width="10" stroke="#000" fill="none" r="70" cy="120" cx="85" class="pl__ring pl__ring--c"></circle>
+                        <circle stroke-linecap="round" stroke-dasharray="0 440" stroke-width="10" stroke="#000" fill="none" r="70" cy="120" cx="155" class="pl__ring pl__ring--d"></circle>
+                    </svg>       
+                </div>
+                <video class="facial-recognition-video hidden" id="facialRecognitionVideo" autoplay="" playsinline=""></video>
+            </div>
+            <div id="facialVideoFeedSuccessfulContainer" class="facial-videofeed-success-container hidden">
+                <div class="facial-videofeed-successful">
+                    <i class="fa-regular fa-circle-check fa-bounce"></i>
+                </div>
+            </div>
+            <div id="facialRecognitionMessage" class="facial-recognition-message">
+                <span>To ensure the integrity of your learning experience, we'll perform occasional facial verification checks during your course.</span>
+            </div>
+            <div class="facial-recognition-button-container">
+                <button id="scanFaceBtn" onclick="initiateFacialRecognition()" type="button" class="action-button-primary facial-recognition-button"> Scan My Face </button>
+                <button onclick="location.reload()" id="refreshPageVerificationBtn" type="button" class="action-button-primary facial-recognition-button hidden">Refresh Page</button>
+                <a target="_blank" id="fixPermissionsVerificationBtn" type="button" class="action-button-primary facial-recognition-button hidden">Fix Permissions</a>
+                <button id="closeVerificationPopupBtn" onclick="closeVerificationPopup('course_launch_verification')" type="button" class="action-button-border facial-recognition-button hidden">Return</button>
+            </div>
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="{% static 'facial_verification\css\facial_verification.css' %}">
+<script src="{% static 'facial_verification\javascript\facial_verification.js' %}"></script>
+<script>
+    window.COURSE_LAUNCH_VERIFICATION_ENABLED = {{ settings.course_launch_verification|yesno:"true,false" }};
+    window.CHECK_FREQUENCY_TIME = {{ check_frequency_ms|default:"0" }};
+    window.PENDING_USER_COURSE_ID = {{ user_course.id|default:"null" }};
+    window.PENDING_COURSE_ID = {{ user_course.course.id|default:"null" }};
+</script>

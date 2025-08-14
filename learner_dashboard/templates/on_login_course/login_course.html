@@ -89,13 +89,16 @@
                             </div> 
                         </div>
                     </div>
-                    <div class="course-item-popup">
+                    <div id="courseItemPopup" class="course-item-popup">
                         <div id="settingsTabs" class="tabs-container">
                             <div class="tabs">
                                 <button class="tab active" data-target="tab1">Overview</button>
                                 <button class="tab" data-target="tab2">Lessons</button>
                                 {% if user_course.course.resources.exists and user_course.course.referencesEnabled %}
                                     <button class="tab" data-target="tab3">Reference Materials</button>
+                                {% endif %}
+                                {% if user_course.course.uploads.exists and user_course.course.uploadsEnabled %}
+                                    <button class="tab" data-target="tab4">Assignments</button>
                                 {% endif %}
                                 <div class="tab-indicator"></div>
                             </div>
@@ -174,6 +177,9 @@
                                                         </div>
                                                         <div class="reference-text">
                                                             <h4>{{ resource.title }}</h4>
+                                                            {% if resource.description != '<p><br></p>' %}
+                                                                <span class="popup-header-subtext">{{ resource.description|safe }}</span>
+                                                            {% endif %}
                                                             <!-- <span>{{ resource.file_type }}</span> -->
                                                         </div>
                                                     </div>
@@ -183,6 +189,102 @@
                                                 </a>                                                    
                                             {% endif %}
                                         {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="tab-content scrollable-content-inner" id="tab4">
+                                    <div class="course-assignments-container">
+                                        {% with full_course_assignment_map|get_item:user_course.course.id as full_course_assignments %}
+                                            {% if full_course_assignments %}
+                                                <div class="assignments-container">
+                                                    <div class="assignments-top-row">
+                                                        <div class="assignments-top-row-left">
+                                                            <h3>Full-Course Assignments</h3>
+                                                            <span class="popup-header-subtext">Assignments that can be completed at any time</span>
+                                                        </div>
+                                                        <div class="assignments-top-row-right">
+                                                            <span>{{ full_course_assignments|length }}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="assignments-body">
+                                                        {% for assignment in full_course_assignments %}
+                                                            <button onclick="openAssignment({{ assignment.id }})"
+                                                                    class="assignment-item {{ assignment.status }}"
+                                                                    data-assignment-id="{{ assignment.id }}">
+                                                                <div class="assignment-item-left">
+                                                                    <i class="fa-regular fa-flag"></i>
+                                                                    <span>{{ assignment.title }}</span>
+                                                                </div>
+                                                                <div class="assignment-item-right">
+                                                                    {% if assignment.status == 'approved' %}
+                                                                        <div class="assignment-complete-icon">
+                                                                            <i class="fa-solid fa-circle-check"></i>
+                                                                        </div>
+                                                                    {% elif assignment.status == 'submitted' %}
+                                                                        <div class="assignment-submitted-icon">
+                                                                            <i class="fa-regular fa-clock"></i>
+                                                                        </div>
+                                                                    {% elif assignment.status == 'rejected' %}
+                                                                        <div class="assignment-rejected-icon">
+                                                                            <i class="fa-regular fa-circle-xmark"></i>
+                                                                        </div>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </button>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        {% endwith %}
+
+                                        {# Lesson-specific assignments #}
+                                        {% with course_lesson_assignment_map|get_item:user_course.course.id as ordered_lesson_assignment_pairs %}
+                                            {% if ordered_lesson_assignment_pairs %}
+                                                <div class="assignments-container">
+                                                    <div class="assignments-top-row">
+                                                        <div class="assignments-top-row-left">
+                                                            <h3>Lesson-Specific Assignments</h3>
+                                                            <span class="popup-header-subtext">These assignments are tied to lessons</span>
+                                                        </div>
+                                                        <div class="assignments-top-row-right">
+                                                            <span>{{ ordered_lesson_assignment_pairs|length }}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="assignments-body">
+                                                        {% for pair in ordered_lesson_assignment_pairs %}
+                                                            <button onclick="openAssignment({{ pair.assignment.id }}, {{ pair.lesson.id }})"
+                                                                    class="assignment-item {% if pair.locked %}disabled locked{% endif %} {{ pair.status }}"
+                                                                    {% if pair.locked %}disabled{% endif %}
+                                                                    data-assignment-id="{{ pair.assignment.id }}"
+                                                                    {% if pair.lesson.id %}data-lesson-id="{{ pair.lesson.id }}"{% endif %}>
+                                                                <div class="assignment-item-left">
+                                                                    <i class="fa-regular fa-flag"></i>
+                                                                    <span>{{ pair.assignment.title }} ({{ pair.lesson.title }})</span>
+                                                                </div>
+                                                                <div class="assignment-item-right">
+                                                                    {% if pair.locked %}
+                                                                        <div class="assignment-locked-icon">
+                                                                            <i class="fa-solid fa-lock"></i>
+                                                                        </div>
+                                                                    {% elif pair.status == 'approved' %}
+                                                                        <div class="assignment-complete-icon">
+                                                                            <i class="fa-solid fa-circle-check"></i>
+                                                                        </div>
+                                                                    {% elif pair.status == 'submitted' %}
+                                                                        <div class="assignment-submitted-icon">
+                                                                            <i class="fa-regular fa-clock"></i>
+                                                                        </div>
+                                                                    {% elif pair.status == 'rejected' %}
+                                                                        <div class="assignment-rejected-icon">
+                                                                            <i class="fa-regular fa-circle-xmark"></i>
+                                                                        </div>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </button>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        {% endwith %}
                                     </div>
                                 </div>
                             </div>
@@ -203,7 +305,7 @@
                         <a href="{% url 'custom_logout_view' %}" class="popup-btn close-popup-btn">
                             <i class="fa-regular fa-arrow-right-from-bracket"></i>Logout and complete later
                         </a>
-                        <button id="acceptBtn" type="button" class="action-button-primary learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}')"><i class="fa-regular fa-rocket-launch"></i> Begin Course</button>
+                        <button class="action-button-primary learner-save-btns" onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')"><i class="fa-regular fa-rocket-launch"></i> Begin Course</button>
                     </div> 
                 </div>      
             </div>                            

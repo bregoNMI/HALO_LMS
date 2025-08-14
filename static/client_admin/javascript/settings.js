@@ -105,10 +105,35 @@ function testCreateField(){
 
 const form = document.querySelector('#adminSettingsForm');
 
-function submitSettingsForm(){
+function submitSettingsForm() {
     setDisabledSaveBtns();
     document.getElementById('terms_and_conditions_text').value = getEditorContent('terms_editor');
-    console.log(getEditorContent('terms_editor'));
+
+    const inSessionChecks = document.getElementById('in_session_checks');
+    const minutesInput = document.getElementById('check_frequency_minutes');
+    const hoursInput = document.getElementById('check_frequency_hours');
+
+    const minutes = parseInt(minutesInput.value || 0, 10);
+    const hours = parseInt(hoursInput.value || 0, 10);
+
+    if (inSessionChecks.checked) {
+        if (isNaN(minutes) || minutes < 1 || minutes > 60) {
+            displayValidationMessage('Check Frequency minutes must be between 1 and 60', false);
+            document.querySelector('.tab[data-target="tab4"]').click();
+            minutesInput.focus();
+            removeDisabledSaveBtns();
+            return;
+        }
+
+        if (isNaN(hours) || hours < 0) {
+            displayValidationMessage('Check Frequency hours cannot be negative', false);
+            document.querySelector('.tab[data-target="tab4"]').click();
+            hoursInput.focus();
+            removeDisabledSaveBtns();
+            return;
+        }
+    }
+
     form.submit();
 }
 

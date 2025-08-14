@@ -87,19 +87,19 @@
                                         {% endif %}
                                         <div class="course-item-status">
                                             {% if user_course.get_status == 'Not Started' %}
-                                                <div class="course-item-status-item purple-status-item" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                                <div class="course-item-status-item purple-status-item" onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
                                                     <i class="fa-regular fa-rocket-launch"></i>
                                                 </div>
                                             {% elif user_course.get_status == 'Started' %}
-                                                <div class="course-item-status-item purple-status-item" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                                <div class="course-item-status-item purple-status-item" onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
                                                     <i class="fa-solid fa-play"></i>
                                                 </div>
                                             {% elif user_course.get_status == 'Completed' %}
-                                                <div class="course-item-status-item green-status-item" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                                <div class="course-item-status-item green-status-item" onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
                                                     <i class="fa-solid fa-check"></i>
                                                 </div>
                                             {% elif user_course.get_status == 'Not Completed' %}
-                                                <div class="course-item-status-item yellow-status-item" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                                <div class="course-item-status-item yellow-status-item" onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
                                                     <i class="fa-regular fa-light-emergency-on"></i>
                                                 </div>
                                             {% else %}
@@ -180,17 +180,17 @@
                                     <div class="coure-item-start-btn">
                                         <!-- Button To Start Course -->
                                         {% if user_course.get_status == 'Not Started' %}
-                                            <button class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                            <button class="start-course-btn learner-save-btns" onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
                                                 <i class="fa-regular fa-rocket-launch"></i>
                                                 <span> Start</span>
                                             </button>
                                         {% elif user_course.get_status == 'Started' or user_course.get_status == 'Not Completed' %}
-                                            <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                            <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
                                                 <i class="fa-regular fa-circle-play"></i>
                                                 <span> Resume </span>
                                             </div>
                                         {% elif user_course.get_status == 'Completed' %}
-                                            <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}')">
+                                            <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
                                                 <i class="fa-regular fa-glasses"></i>
                                                 <span> Review </span>
                                             </div>

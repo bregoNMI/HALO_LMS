@@ -83,3 +83,10 @@ def format_session_time(value):
 @register.filter
 def get_assignment_status(assignment_status_map, key):
     return assignment_status_map.get(key)
+
+@register.filter
+def mul(value, arg):
+    try:
+        return float(value) * float(arg)
+    except (ValueError, TypeError):
+        return ''

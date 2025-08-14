@@ -348,14 +348,14 @@ body{
     gap: 0.3rem;
 }.true-login-container h1{
     color: #41454d;
-    font-weight: 600;
+    font-weight: 500;
     text-align: center;
     font-size: var(--fs-xl);
 }.true-login-container h6{
     margin-top: 0.2rem;
     color: var(--text-color3);
     font-size: 0.83rem;
-    font-weight: 500;
+    font-weight: 400;
     text-align: center;
 }
 
@@ -371,14 +371,14 @@ body{
     gap: 0.3rem;
 }.camera-error-container h1 {
     color: #41454d;
-    font-weight: 600;
+    font-weight: 500;
     text-align: center;
     font-size: var(--fs-med);
 }.camera-error-container h6 {
     margin-top: 0.2rem;
     color: var(--text-color3);
     font-size: 0.83rem;
-    font-weight: 500;
+    font-weight: 400;
     text-align: center;
 }
 
@@ -598,4 +598,108 @@ body{
     .popup-btn span{
         display: none;
     }
+}
+
+
+/* Facial Recognition Popup */
+.facial-recognition-popup{
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}.facial-recognition-popup .popup-content{
+    height: 100%;
+    border-radius: 0;
+}.facial-recognition-body{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: var(--pad-xxxxl) var(--pad-xl);
+    align-items: center;
+}.facial-recognition-body h3{
+    color: #41454d;
+    font-weight: 500;
+    text-align: center;
+    font-size: 1rem;
+    margin-bottom: 3rem;
+}
+
+.facial-videofeed-container{
+    position: absolute;
+    top: 7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f2f2f2;
+    border-radius: 50%;
+    width: 20rem;
+    height: 20rem;
+    flex: none;
+    overflow: hidden;
+    outline: 1px solid #e4e4e4;
+    margin-bottom: 5rem;
+}.facial-videofeed-container i {
+    color: gray;
+    font-size: 4.5rem;
+}
+
+.facial-recognition-video{
+    border-radius: 50%;
+    /* width: 20rem; */
+    height: 20rem;
+}
+
+#scanFaceBtn{
+    position: absolute;
+    top: 33rem;
+    right: 1.4rem;
+    width: unset !important;
+    left: 1.4rem;
+}
+
+#closeFacialPopupBtn{
+    position: absolute;
+    top: 36.4rem;
+    right: 1.4rem;
+    width: unset !important;
+    left: 1.4rem;
+}
+
+.facial-recognition-message{
+    position: absolute;
+    top: 28rem;
+    color: var(--text-color3);
+    font-size: 0.83rem;
+    font-weight: 400;
+    text-align: center;
+    right: 1.4rem;
+    width: unset !important;
+    left: 1.4rem;
+}
+
+.facial-videofeed-success-container{
+    position: absolute;
+    top: 7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e9fde9;
+    border-radius: 50%;
+    width: 20rem;
+    height: 20rem;
+    flex: none;
+    overflow: hidden;
+    outline: 1px solid #9bd79b;
+    margin-bottom: 5rem;
+}.facial-videofeed-success-container i{
+    color: #059f48;
+    font-size: 5rem;
+}
+
+.facial-videofeed-successful-message{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}.facial-videofeed-successful-message i{
+    font-size: 1.5rem;
 }

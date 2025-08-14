@@ -149,6 +149,8 @@ def admin_settings(request):
             settings.default_course_thumbnail = request.POST.get('default_course_thumbnail') == 'on' 
             settings.default_certificate = request.POST.get('default_certificate') == 'on' 
             settings.terms_and_conditions = request.POST.get('terms_and_conditions') == 'on'
+            settings.course_launch_verification = request.POST.get('course_launch_verification') == 'on'
+            settings.in_session_checks = request.POST.get('in_session_checks') == 'on'
 
             # Check for course ID if on_login_course is enabled
             course_id = request.POST.get('on_login_course_id')
@@ -171,6 +173,11 @@ def admin_settings(request):
             # Clear favicon if not present in FILES
             if 'portal_favicon' not in request.FILES and not request.POST.get('portal_favicon'):
                 settings.portal_favicon = None
+
+            hours = safe_int(request.POST.get('check_frequency_hours'))
+            minutes = safe_int(request.POST.get('check_frequency_minutes'))
+
+            settings.check_frequency_time = timedelta(hours=hours, minutes=minutes)
 
             settings.save()
             form.save()
@@ -195,11 +202,27 @@ def admin_settings(request):
 
     allowed_photos = settings.allowed_id_photos.order_by('id')
 
+    check_frequency = settings.check_frequency_time
+    hours = minutes = 0
+    if check_frequency:
+        total_seconds = check_frequency.total_seconds()
+        hours = int(total_seconds // 3600)
+        minutes = int((total_seconds % 3600) // 60)
+
+
     return render(request, 'settings.html', {
         'form': form,
         'selected_course_name': selected_course_name,
         'allowed_photos': allowed_photos,
+        'hours': hours,
+        'minutes': minutes,
     })
+
+def safe_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
 
 @login_required
 def custom_admin_header(request):

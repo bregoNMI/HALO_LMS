@@ -48,8 +48,16 @@ def unread_messages_processor(request):
 
 def organization_settings(request):
     settings = OrganizationSettings.objects.first()
+
+    check_frequency = settings.check_frequency_time
+    check_frequency_ms = 0
+
+    if check_frequency:
+        check_frequency_ms = int(check_frequency.total_seconds() * 1000)
+
     return {
         'settings': settings,
+        'check_frequency_ms': check_frequency_ms
     }
 
 def user_impersonation(request):

@@ -2,6 +2,7 @@
 {% load static %}
 {% load custom_filters %}
 {% block content %}
+    {% include 'messageContainer/message_container.html' %} 
     {% if messages %}
         <div class="alert-container">
             {% for message in messages %}
@@ -160,10 +161,10 @@
                                                         <input type="text" id="contact_address" name="contact_address" value="{{ form.contact_address.value|default:'' }}" placeholder="Address">
                                                     </div>
                                                     <div class="edit-settings-input">
-                                                        <label class="edit-settings-label" for="contact_country">Country</label>
+                                                        <label class="edit-settings-label" for="country">Country</label>
                                                         <div class="custom-select margin-0">
                                                             <i class="fa-light fa-angles-up-down"></i>     
-                                                            <input class="select-selected" type="text" id="contact_country" name="contact_country" value="{{ form.contact_country.value|default:'' }}" placeholder="Country" readonly>
+                                                            <input class="select-selected" type="text" id="country" name="country" value="{{ form.country.value|default:'' }}" placeholder="Country" readonly>
                                                             <div class="select-items scrollable-content" style="display: none;">
                                                                 {% include 'dropdownOptions/country_options.html' %}
                                                             </div>
@@ -347,6 +348,68 @@
                                     <div class="details-info-card">
                                         <div class="info-card-header collapsable-header">
                                             <div class="card-header-left">
+                                                <i class="fa-regular fa-face-viewfinder"></i>
+                                                <span> Facial Verification </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="settings-card-wrapper">
+                                                <div class="edit-settings-row">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="course_launch_verification">Course Launch Verification</label>
+                                                        <label class="toggle-switch">
+                                                            <input type="checkbox" id="course_launch_verification" name="course_launch_verification" {% if form.course_launch_verification.value %}checked{% endif %}>
+                                                            <div class="toggle-switch-background">
+                                                            <div class="toggle-switch-handle"></div>
+                                                            </div>
+                                                        </label>
+                                                        <span class="settings-input-subtext"> Learners must complete a facial verification check before entering the course.</span>
+                                                    </div> 
+                                                </div> 
+                                                <div class="edit-settings-column">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="in_session_checks">In-Session Checks</label>
+                                                        <label class="toggle-switch">
+                                                            <input class="toggle-hidden-settings-input" type="checkbox" id="in_session_checks" name="in_session_checks" {% if form.in_session_checks.value %}checked{% endif %}>
+                                                            <div class="toggle-switch-background">
+                                                            <div class="toggle-switch-handle"></div>
+                                                            </div>
+                                                        </label>
+                                                        <span class="settings-input-subtext"> Learners will be prompted for facial verification at random intervals during the course.</span>
+                                                    </div>
+                                                    <div class="edit-settings-input hidden-settings-input toggle-option-details show-toggle-option-details">
+                                                        <div class="edit-settings-input" style="flex: 1 1 35%;">
+                                                            <label class="edit-settings-label">Check Frequency</label>
+                                                            <div style="display: flex; gap: 1rem;">
+                                                                <div class="edit-user-input" style="max-width: 13.6rem;">                                                                   
+                                                                    <input type="number" id="check_frequency_hours" name="check_frequency_hours" class="icon-field form-control" placeholder="Hours" min="0" value="{{ hours }}">
+                                                                    <span class="input-group-addon tooltip" data-tooltip="Hours">
+                                                                        <span class="tooltiptext">Hours</span>
+                                                                        <i class="fa-regular fa-hourglass"></i>
+                                                                    </span>
+                                                                </div>
+                                                                <div class="edit-user-input" style="max-width: 13.6rem;">
+                                                                    <input type="number" id="check_frequency_minutes" name="check_frequency_minutes" class="icon-field form-control" placeholder="Minutes" min="1" max="60" value="{{ minutes }}">
+                                                                    <span class="input-group-addon tooltip" data-tooltip="Minutes">
+                                                                        <span class="tooltiptext">Minutes</span>
+                                                                        <i class="fa-regular fa-watch"></i>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <span class="course-content-input-subtext"> Define how often learners should be randomly checked during a session.</span>
+                                                        </div>
+                                                    </div> 
+                                                </div>                                        
+                                            </div>                 
+                                        </div>
+                                    </div>
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
                                                 <i class="fa-regular fa-palette"></i>
                                                 <span> Appearance </span>
                                             </div>
@@ -491,7 +554,6 @@
     {% include 'popups/edit_allowed_id_photo.html' %}
     <link rel="stylesheet" href="{% static 'client_admin\css\settings.css' %}">
     <script src="{% static 'client_admin\javascript\settings.js' %}"></script>
-    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <script src="{% static 'client_admin\javascript\ajax_search_options.js' %}"></script>
     <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>

@@ -99,6 +99,12 @@
                                         </div>
                                         <span class="field-requirement-text"> Password must contain at least 8 characters</span>
                                     </div>
+                                    <div id="passwordReqThree" class="field-requirement">
+                                        <div class="field-requirement-icon">
+                                            <i class="fa-regular fa-circle-small"></i>
+                                        </div>
+                                        <span class="field-requirement-text"> Password must contains at least 1 number</span>
+                                    </div>
                                     <div id="passwordReqTwo" class="field-requirement">
                                         <div class="field-requirement-icon">
                                             <i class="fa-regular fa-circle-small"></i>
@@ -193,10 +199,10 @@
                         
                         <div class="login-form-footer-container">
                             <div class="registration-buttons-wrapper" style="margin-top: {{ login_form.button_space_above }}px;">
-                                <button id="prevBtn" type="button" class="registration-btn previous-slide-btn hidden" disabled style="border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Previous</button>
-                                <button id="nextBtn" type="button" class="registration-btn next-slide-btn" style="background-color: {{ login_form.button_color}}; color: {{ login_form.button_text }}; border-color: {{ login_form.button_border_color}}; width: {{ login_form.button_width }}%; border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Continue</button>
+                                <button id="prevBtn" type="button" class="true-registration-btn registration-btn previous-slide-btn hidden" disabled style="border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Previous</button>
+                                <button id="nextBtn" type="button" class="true-registration-btn registration-btn next-slide-btn" style="background-color: {{ login_form.button_color}}; color: {{ login_form.button_text }}; border-color: {{ login_form.button_border_color}}; width: {{ login_form.button_width }}%; border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Continue</button>
                                 <button disabled id="registerButton" type="button" class="hidden login-form-button disabled scale-button" style="background-color: {{ login_form.button_color}}; color: {{ login_form.button_text }}; border-color: {{ login_form.button_border_color}}; width: {{ login_form.button_width }}%; border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Sign Up</button>
-                                <button onclick="initiateFacialRecognition();" type="button" class="login-form-button scale-button">DEV BUTTON</button>
+                                <!-- <button onclick="showFacialRecognitionPopup();" type="button" class="login-form-button scale-button">DEV BUTTON</button> -->
                             </div>
                             <div class="button-container {% if login_form.is_signup_disabled %} hidden {% endif %}" style="font-size: {{ login_form.signup_font_size }}px; margin-top: {{ login_form.signup_space_above }}px; font-weight: {{ login_form.signup_font_weight }};">
                                 <span style="color: {{ login_form.signup_text_color }};"> Already have an account? </span>

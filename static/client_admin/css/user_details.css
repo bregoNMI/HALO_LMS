@@ -338,32 +338,6 @@
     top: 2rem;
 }
 
-.edit-user-input .date-picker, .edit-user-input .time-picker, .edit-user-input .icon-field{
-    padding-left: 2.6rem !important;
-}.edit-user-input .date-picker, .edit-user-input .time-picker{
-    padding-left: 2.6rem !important;
-    cursor: pointer;
-}
-
-.input-group-addon{
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    padding: var(--pad-xxs) var(--pad-xxs);
-    border-radius: 6px 0 0 6px;
-    /* max-width: 0.87rem; */
-    color: white;
-    background-color: #1863dc;
-    cursor: pointer;
-    font-size: 1rem;
-    border: none;
-    max-width: 2.1rem;
-    width: 100%;
-    box-sizing: border-box;
-}.input-group-addon:hover{
-    background-color: dodgerblue;
-}
-
 /* Course Type Icon */
 .table-select-option td .course-name{
     margin-left: 0.4rem;

@@ -5,14 +5,15 @@ import boto3
 import re
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage
-from django.db.models import Q
+from django.db.models import Count, Q, F, DateTimeField, Avg
+from django.utils import timezone
 from authentication.python.views import get_secret
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
 from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType, Quiz, Question, QuestionOrder, MCQuestion, Answer, TFQuestion, FITBQuestion, FITBAnswer, EssayQuestion, EssayPrompt, QuestionMedia, QuizReference, QuizTemplate, TemplateCategorySelection, TemplateQuestion, QuizConfig
-from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse, EnrollmentKey, ActivityLog, Profile, UserAssignmentProgress, Message
+from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse, EnrollmentKey, ActivityLog, Profile, UserAssignmentProgress, Message, FacialVerificationLog
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 import uuid as uuid_lib
 from halo_lms import settings
@@ -30,8 +31,7 @@ from django.apps import apps
 from django.utils.timezone import now
 from datetime import timedelta
 from collections import OrderedDict
-from django.db.models.functions import TruncDate, TruncMonth
-from django.db.models import Count
+from django.db.models.functions import TruncDay, TruncWeek, TruncMonth, TruncYear, TruncDate
 from urllib.parse import urlparse
 
 # Courses
@@ -103,7 +103,7 @@ def admin_courses(request):
     courses_list = Course.objects.filter(query).order_by(order_by_field)
 
     # Paginate the filtered users_list
-    paginator = Paginator(courses_list, 10)
+    paginator = Paginator(courses_list, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -744,7 +744,7 @@ def admin_quizzes(request):
     quizzes_list = Quiz.objects.filter(query).order_by(order_by_field)
 
     # Paginate the filtered users_list
-    paginator = Paginator(quizzes_list, 10)
+    paginator = Paginator(quizzes_list, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -1229,7 +1229,7 @@ def admin_quiz_templates(request):
     quiz_templates_list = QuizTemplate.objects.filter(query).order_by(order_by_field)
 
     # Paginate the filtered users_list
-    paginator = Paginator(quiz_templates_list, 10)
+    paginator = Paginator(quiz_templates_list, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -1333,7 +1333,7 @@ def admin_questions(request):
     questions_list = Question.objects.filter(query).order_by(order_by_field)
 
     # Paginate the filtered users_list
-    paginator = Paginator(questions_list, 10)
+    paginator = Paginator(questions_list, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -2092,7 +2092,7 @@ def admin_categories(request):
     courses_list = Category.objects.filter(query).order_by(order_by_field)
 
     # Paginate the filtered users_list
-    paginator = Paginator(courses_list, 10)
+    paginator = Paginator(courses_list, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -2193,7 +2193,7 @@ def admin_assignments(request):
     courses_list = UserAssignmentProgress.objects.filter(query).order_by(order_by_field)
 
     # Paginate the filtered users_list
-    paginator = Paginator(courses_list, 10)
+    paginator = Paginator(courses_list, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -2302,7 +2302,7 @@ def admin_enrollment_keys(request):
     keys_list = EnrollmentKey.objects.filter(query).order_by(order_by_field)
 
     # Paginate the filtered keys_list
-    paginator = Paginator(keys_list, 10)
+    paginator = Paginator(keys_list, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -3102,3 +3102,283 @@ def get_matching_questions(selection):
         return Question.objects.none()  # nothing to match against
 
     return Question.objects.filter(category=category).order_by('?')[:selection.num_questions]
+
+@login_required
+def admin_facial_verification_analytics(request):
+    raw_sort_by = request.GET.get('sort_by')
+    sort_by = raw_sort_by if raw_sort_by else None
+    query_string = request.GET.get('query')
+    query = Q()
+    active_filters = {}
+
+    # General search
+    if query_string:
+        query &= (
+            Q(user__first_name__icontains=query_string) |
+            Q(user__last_name__icontains=query_string) |
+            Q(user__email__icontains=query_string) |
+            Q(course__title__icontains=query_string) |
+            Q(error_type__icontains=query_string) |
+            Q(status__icontains=query_string) |
+            Q(device_type__icontains=query_string) |
+            Q(browser__icontains=query_string)
+        )
+        active_filters['query'] = query_string
+
+    # Filter by individual fields
+    for key, value in request.GET.items():
+        if key.startswith('filter_') and value:
+            field_name = key[len('filter_'):]
+            query &= Q(**{f"{field_name}__icontains": value})
+            active_filters[field_name] = value
+
+    # Sort mapping
+    sort_options = {
+        'timestamp_desc': ('-timestamp', 'Timestamp <i class="fa-regular fa-arrow-down"></i>'),
+        'timestamp_asc': ('timestamp', 'Timestamp <i class="fa-regular fa-arrow-up"></i>'),
+        'course_title_asc': ('course__title', 'Course Title (A-Z)'),
+        'course_title_desc': ('-course__title', 'Course Title (Z-A)'),
+        'first_name_asc': ('user__first_name', 'First Name (A-Z)'),
+        'first_name_desc': ('-user__first_name', 'First Name (Z-A)'),
+        'last_name_asc': ('user__last_name', 'Last Name (A-Z)'),
+        'last_name_desc': ('-user__last_name', 'Last Name (Z-A)'),
+        'status_asc': ('status', 'Status (A-Z)'),
+        'status_desc': ('-status', 'Status (Z-A)'),
+        'similarity_asc': ('similarity_score', 'Similarity (Low → High)'),
+        'similarity_desc': ('-similarity_score', 'Similarity (High → Low)'),
+    }
+
+    order_by_field, sort_label = sort_options.get(sort_by, ('-timestamp', None))
+
+    if sort_by and sort_label:
+        active_filters['sort_by'] = sort_label
+
+    if 'sort_by' in request.GET:
+        active_filters['sort_by'] = sort_label
+
+    logs = FacialVerificationLog.objects.select_related('user', 'course', 'lesson') \
+                                        .filter(query) \
+                                        .order_by(order_by_field)
+
+    paginator = Paginator(logs, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'analytics/facial_verification/facial_verification_analytics.html', {
+        'page_obj': page_obj,
+        'active_filters': active_filters,
+        'sort_by': sort_by,
+        'sort_options': sort_options,
+    })
+
+def _parse_chart_filters(request):
+    """
+    Accepts:
+      start=YYYY-MM-DD (optional)
+      end=YYYY-MM-DD   (optional)
+      bucket in {Daily, Weekly, Monthly, Yearly} or {day, week, month, year}
+    Defaults: last 30 days, bucket = day.
+    """
+    raw_bucket = (request.GET.get('bucket') or 'month').strip().lower()
+    bucket_map = {
+        'day': 'day', 'daily': 'day',
+        'week': 'week', 'weekly': 'week',
+        'month': 'month', 'monthly': 'month',
+        'year': 'year', 'yearly': 'year',
+    }
+    bucket = bucket_map.get(raw_bucket, 'day')
+
+    start_str = request.GET.get('start')
+    end_str = request.GET.get('end')
+
+    now = timezone.now()
+    if start_str and end_str:
+        try:
+            start = timezone.make_aware(datetime.strptime(start_str, "%Y-%m-%d"))
+            # include the end date fully
+            end = timezone.make_aware(datetime.strptime(end_str, "%Y-%m-%d")) + timezone.timedelta(days=1)
+        except ValueError:
+            start = now - timezone.timedelta(days=30)
+            end = now
+    else:
+        end = now
+        start = now - timezone.timedelta(days=30)
+
+    trunc_map = {
+        'day': TruncDay,
+        'week': TruncWeek,
+        'month': TruncMonth,
+        'year': TruncYear,
+    }
+    TruncFn = trunc_map[bucket]
+    return start, end, bucket, TruncFn
+
+@login_required
+def facial_verification_timeseries_api(request):
+    start, end, bucket, TruncFn = _parse_chart_filters(request)
+
+    base = FacialVerificationLog.objects.filter(
+        timestamp__gte=start,
+        timestamp__lt=end
+    )
+
+    # ---- Optional filters
+    vt = request.GET.get('verification_type')
+    if vt:
+        base = base.filter(verification_type=vt)
+
+    course_id = request.GET.get('course_id')
+    if course_id:
+        base = base.filter(course_id=course_id)
+
+    device_type = request.GET.get('device_type')
+    if device_type:
+        base = base.filter(device_type=device_type)
+
+    browser = request.GET.get('browser')
+    if browser:
+        base = base.filter(browser=browser)
+
+    # ---- Aggregate by bucket
+    bucketed_qs = (
+        base
+        .annotate(bucket=TruncFn('timestamp', output_field=DateTimeField()))
+        .values('bucket')
+        .annotate(
+            total=Count('id'),
+            pass_count=Count('id', filter=Q(status='success')),
+            fail_count=Count('id', filter=Q(status='failure')),
+        )
+        .order_by('bucket')
+    )
+    bucket_rows   = list(bucketed_qs)
+    bucket_labels = [row['bucket'].date().isoformat() for row in bucket_rows]
+    idx_map       = {lbl: i for i, lbl in enumerate(bucket_labels)}
+
+    pass_counts = [row['pass_count'] for row in bucket_rows]
+    fail_counts = [row['fail_count'] for row in bucket_rows]
+    totals      = [row['total']      for row in bucket_rows]
+    pass_rates  = [(p / t) if t else 0 for p, t in zip(pass_counts, totals)]
+
+    # ---- Failures by reason (per bucket)
+    failures = (
+        base
+        .filter(status='failure')
+        .annotate(bucket=TruncFn('timestamp', output_field=DateTimeField()))
+        .values('bucket', 'error_type')
+        .annotate(n=Count('id'))
+        .order_by('bucket', 'error_type')
+    )
+
+    reasons = sorted(set([(r['error_type'] or 'unknown') for r in failures]))
+    reason_series = {reason: [0] * len(bucket_labels) for reason in reasons}
+
+    for r in failures:
+        label = r['bucket'].date().isoformat()
+        reason = r['error_type'] or 'unknown'
+        i = idx_map.get(label)
+        if i is not None:
+            reason_series[reason][i] = r['n']
+
+    # ---- Failures by reason AND verification_type (per bucket)
+    failures_vt = (
+        base
+        .filter(status='failure')
+        .annotate(bucket=TruncFn('timestamp', output_field=DateTimeField()))
+        .values('bucket', 'error_type', 'verification_type')
+        .annotate(n=Count('id'))
+        .order_by('bucket', 'error_type', 'verification_type')
+    )
+
+    vt_keys = ['course_launch_verification', 'in_session_check']
+    # ensure we have at least an 'unknown' reason key if nothing else
+    if not reasons:
+        reasons = ['unknown']
+
+    reason_vt_series = {
+        reason: {vt: [0] * len(bucket_labels) for vt in vt_keys}
+        for reason in reasons
+    }
+
+    for row in failures_vt:
+        label = row['bucket'].date().isoformat()
+        reason = row['error_type'] or 'unknown'
+        vt = row['verification_type'] or 'unknown'
+        i = idx_map.get(label)
+        if i is not None and reason in reason_vt_series and vt in reason_vt_series[reason]:
+            reason_vt_series[reason][vt][i] = row['n']
+
+    # ---- Similarity (per-bucket averages by status)
+    sim_bucketed = (
+        base
+        .exclude(similarity_score__isnull=True)
+        .annotate(bucket=TruncFn('timestamp', output_field=DateTimeField()))
+        .values('bucket', 'status')
+        .annotate(avg=Avg('similarity_score'), n=Count('id'))
+    )
+
+    sim_avg_success = [0.0] * len(bucket_labels)
+    sim_n_success   = [0]   * len(bucket_labels)
+    sim_avg_failure = [0.0] * len(bucket_labels)
+    sim_n_failure   = [0]   * len(bucket_labels)
+
+    for row in sim_bucketed:
+        label = row['bucket'].date().isoformat()
+        i = idx_map.get(label)
+        if i is None:
+            continue
+        if row['status'] == 'success':
+            sim_avg_success[i] = float(row['avg'] or 0.0)
+            sim_n_success[i]   = int(row['n'] or 0)
+        elif row['status'] == 'failure':
+            sim_avg_failure[i] = float(row['avg'] or 0.0)
+            sim_n_failure[i]   = int(row['n'] or 0)
+
+    # ---- Platform (overall mix in selected range; not bucketed)
+    by_device = (
+        base
+        .values('device_type')
+        .annotate(
+            total=Count('id'),
+            failures=Count('id', filter=Q(status='failure')),
+        )
+        .order_by('-total')
+    )
+    by_browser = (
+        base
+        .values('browser')
+        .annotate(
+            total=Count('id'),
+            failures=Count('id', filter=Q(status='failure')),
+        )
+        .order_by('-total')
+    )
+
+    bucket_ui = {'day': 'Daily', 'week': 'Weekly', 'month': 'Monthly', 'year': 'Yearly'}[bucket]
+
+    return JsonResponse({
+        'labels': bucket_labels,
+        'pass_count': pass_counts,
+        'fail_count': fail_counts,
+        'pass_rate': pass_rates,
+
+        'failures_by_reason': reason_series,
+        'failures_by_reason_vt': reason_vt_series,
+
+        'similarity': {
+            'avg_success': sim_avg_success,
+            'n_success':   sim_n_success,
+            'avg_failure': sim_avg_failure,
+            'n_failure':   sim_n_failure,
+        },
+
+        'platform': {
+            'by_device':  [{'key': (r['device_type'] or 'unknown'), 'total': r['total'], 'failures': r['failures']} for r in by_device],
+            'by_browser': [{'key': (r['browser']     or 'unknown'), 'total': r['total'], 'failures': r['failures']} for r in by_browser],
+        },
+
+        'bucket': bucket,
+        'bucket_ui': bucket_ui,
+        'start': start.date().isoformat(),
+        'end':   (end - timezone.timedelta(days=1)).date().isoformat(),
+    })

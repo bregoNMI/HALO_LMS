@@ -358,7 +358,7 @@ function openFileLibrary(popupId, referenceId = null, assignmentId = null) {
         popupContent.classList.remove('animate-popup-content');
         lessonCreationPopup.style.display = "none";
         document.getElementById('selectFileBtn').setAttribute('onclick', 'selectFile()');
-        selectedFileDestination.style.display = 'none';
+        fileDestination.innerText = 'Lesson File';
     }
 
     const fileLibrary = document.getElementById('fileLibrary');
@@ -781,7 +781,7 @@ function assignTableOptionListeners() {
             option.classList.add('selected-option');
 
             // Now handle buttons
-            if (option.classList.contains('folder-card')) {
+            if (option.classList.contains('folder-card') || option.classList.contains('folder-list')) {
                 selectFileBtn.style.display = 'none';
                 selectFolderBtn.style.display = 'flex';
 
@@ -807,7 +807,7 @@ function assignTableOptionListeners() {
                 } else {
                     console.warn('❌ Missing data-id or data-title on selected folder.');
                 }
-            } else if (option.classList.contains('file-card')) {
+            } else if (option.classList.contains('file-card') || option.classList.contains('file-list')) {
                 selectFileBtn.style.display = 'flex';
                 selectFolderBtn.style.display = 'none';
 
@@ -1026,7 +1026,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     `;
                 } else {
                     item = document.createElement('tr');
-                    item.className = 'table-select-option folder-row';
+                    item.className = 'table-select-option folder-row folder-list';
                     item.setAttribute('data-id', file.id);
                     item.setAttribute('data-title', file.title)
                     item.innerHTML = `
@@ -1139,7 +1139,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     `;
                 } else {
                     item = document.createElement('tr');
-                    item.className = 'table-select-option';
+                    item.className = 'table-select-option file-list';
                     item.setAttribute('data-file-url', file.file_url);
                     item.setAttribute('data-id', file.id);
                     let iconMarkup = fileType === 'image'
