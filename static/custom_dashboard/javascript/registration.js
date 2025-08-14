@@ -11,14 +11,20 @@ document.addEventListener('DOMContentLoaded', function() {
             fileDisplayArea.textContent = fileName;
     
             if (file) {
-                const fileURL = URL.createObjectURL(file);   
-                if (input.getAttribute('id') === 'id_id_photo') {
-                    document.getElementById('id_id_photo_preview').src = fileURL;
-                    document.getElementById('id_id_photo_preview').classList.remove('hidden');
-                } else if (input.getAttribute('id') === 'id_reg_photo') {
-                    document.getElementById('id_reg_photo_preview').src = fileURL;
-                    document.getElementById('id_reg_photo_preview').classList.remove('hidden');
-                }
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const base64 = e.target.result;
+
+                    const inputId = input.getAttribute('id');
+                    const previewId = inputId + '_preview';
+                    const imgPreview = document.getElementById(previewId);
+
+                    if (imgPreview) {
+                        imgPreview.src = base64;
+                        imgPreview.classList.remove('hidden');
+                    }
+                };
+                reader.readAsDataURL(file);
             }
         });
     });
@@ -30,41 +36,54 @@ document.addEventListener('DOMContentLoaded', function() {
     usernameInput.addEventListener('input', testUsernameReqs);
 });
 
+
 function testPasswordReqs() {
     const passwordInput = document.getElementById('id_password');
     const passwordValue = passwordInput.value;
 
     const passwordReqOne = document.getElementById('passwordReqOne');
     const passwordReqTwo = document.getElementById('passwordReqTwo');
+    const passwordReqThree = document.getElementById('passwordReqThree');
 
-    if(passwordValue.length == 0){
-        passwordReqOne.className = 'field-requirement';
-        passwordReqOne.querySelector('.field-requirement-icon').innerHTML = `<i class="fa-regular fa-circle-small"></i>`;
-        passwordReqTwo.className = 'field-requirement';            
-        passwordReqTwo.querySelector('.field-requirement-icon').innerHTML = `<i class="fa-regular fa-circle-small"></i>`;
+    if (passwordValue.length === 0) {
+        [passwordReqOne, passwordReqTwo, passwordReqThree].forEach(req => {
+            req.className = 'field-requirement';
+            req.querySelector('.field-requirement-icon').innerHTML = `<i class="fa-regular fa-circle-small"></i>`;
+        });
+        disableSubmitButton();
         return;
     }
 
     const isAtLeastEight = passwordValue.length >= 8;
     const isNumeric = /^[0-9]+$/.test(passwordValue);
+    const containsNumber = /\d/.test(passwordValue);
 
     if (isAtLeastEight) {
         passwordReqOne.className = 'field-requirement req-success';
         passwordReqOne.querySelector('.field-requirement-icon').innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
-        enableSubmitButton();
     } else {
         passwordReqOne.className = 'field-requirement req-error';
         passwordReqOne.querySelector('.field-requirement-icon').innerHTML = `<i class="fa-solid fa-circle-xmark"></i>`;
-        disableSubmitButton();
     }
     if(isNumeric){
         passwordReqTwo.className = 'field-requirement req-error';
         passwordReqTwo.querySelector('.field-requirement-icon').innerHTML = `<i class="fa-solid fa-circle-xmark"></i>`;
-        disableSubmitButton();
     }else{
         passwordReqTwo.className = 'field-requirement req-success';
         passwordReqTwo.querySelector('.field-requirement-icon').innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+    }
+    if (containsNumber) {
+        passwordReqThree.className = 'field-requirement req-success';
+        passwordReqThree.querySelector('.field-requirement-icon').innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+    } else {
+        passwordReqThree.className = 'field-requirement req-error';
+        passwordReqThree.querySelector('.field-requirement-icon').innerHTML = `<i class="fa-solid fa-circle-xmark"></i>`;
+    }
+
+    if (isAtLeastEight && !isNumeric && containsNumber) {
         enableSubmitButton();
+    } else {
+        disableSubmitButton();
     }
 }
 
@@ -125,7 +144,7 @@ function enableSubmitButton(){
 const circles = document.querySelectorAll(".circle");
 progressBar = document.querySelector(".indicator");
 let buttons;
-buttons = document.querySelectorAll(".registration-btn");
+buttons = document.querySelectorAll(".true-registration-btn");
 let currentStep = 1;
 const nextBtn = document.getElementById('nextBtn');
 const prevBtn = document.getElementById('prevBtn');
@@ -137,7 +156,6 @@ let currentErrorStep = 0;
 const updateSteps = (e) => {
     if(currentStep > 0){
         // update current step based on the button clicked
-        console.log(e);
         if(e != undefined){
             currentStep = e.target.classList.contains('next-slide-btn') ? ++currentStep : --currentStep;
         }
@@ -262,10 +280,10 @@ function openCamera(photoId) {
             })
             .catch(function (error) {
                 cameraLoading.classList.add('hidden');
-                showCameraError(error);
+                showCameraError(error, 'cameraErrorContainer');
             });
     } else {
-        showCameraError('MediaDevices API not supported');
+        showCameraError('MediaDevices API not supported', 'cameraErrorContainer');
     }
 
     retakeRegistrationPhoto.classList.add('hidden');
@@ -359,16 +377,15 @@ function setupPhotoButtons(photoId) {
     retakeBtn.addEventListener('click', retakeBtn.clickHandler);
 }
 
-function showCameraError(error){
-    console.log(error.name, error.message);
+function showCameraError(error, errorContainer){
     const cameraAccessTroubleshooting = document.getElementById('cameraAccessTroubleshooting');
     const fixPermissionsBtn = document.getElementById('fixPermissionsBtn');
     const refreshPageBtn= document.getElementById('refreshPageBtn')
     const captureRegistrationPhoto = document.getElementById('captureRegistrationPhoto');
-    const cameraErrorContainer= document.getElementById('cameraErrorContainer');
-    const cameraLoading = document.getElementById('cameraLoading');
-    const cameraErrorHeading = document.getElementById('cameraErrorHeading');
-    const cameraErrorSubtext = document.getElementById('cameraErrorSubtext');
+    const cameraErrorContainer = document.getElementById(errorContainer);
+    const cameraLoading = cameraErrorContainer.nextElementSibling;
+    const cameraErrorHeading = cameraErrorContainer.querySelector('#cameraErrorHeading');
+    const cameraErrorSubtext = cameraErrorContainer.querySelector('#cameraErrorSubtext');
     cameraErrorContainer.classList.remove('hidden');
     cameraLoading.classList.add('hidden');
     captureRegistrationPhoto.classList.add('hidden');
@@ -376,22 +393,37 @@ function showCameraError(error){
     // Detecting browser to show the correct enable permissions popup
     if(error.name == 'NotAllowedError'){
         cameraErrorHeading.innerText = "We don't have permissions to access your camera";
-        cameraErrorSubtext.innerText = `To enable your camera permissions on ${detectBrowser()}, please click on the "Fix Permissions" button below to be taken to an external website for additional information.`;
+        cameraErrorSubtext.innerText = `To enable your camera permissions on ${detectBrowser(errorContainer)}, please click on the "Fix Permissions" button below to be taken to an external website for additional information.`;
         cameraAccessTroubleshooting.classList.add('hidden');
         fixPermissionsBtn.classList.remove('hidden');
-        fixPermissionsBtn.removeAttribute('disabled', true);   
+        fixPermissionsBtn.removeAttribute('disabled', true);
+        if(errorContainer == 'facialVerification'){
+            fadeIn('fixPermissionsVerificationBtn');
+        }   
     }else if(error.name == 'NotReadableError'){
         cameraErrorHeading.innerText = "We can't seem to access your camera";
-        cameraErrorSubtext.innerText = `${detectBrowser()} has permissions to use your camera, but something is preventing your camera from being accessed. Below are a few steps to follow to troubleshoot why your camera may not be working, after going through these steps please click on the "Refresh page" button below.`;
+        cameraErrorSubtext.innerText = `${detectBrowser(errorContainer)} has permissions to use your camera, but something is preventing your camera from being accessed. Below are a few steps to follow to troubleshoot why your camera may not be working, after going through these steps please click on the "Refresh page" button below.`;
         cameraAccessTroubleshooting.classList.remove('hidden');
         refreshPageBtn.classList.remove('hidden');
         refreshPageBtn.removeAttribute('disabled', true);
+        if(errorContainer == 'facialVerification'){
+            fadeIn('refreshPageVerificationBtn');
+            fadeIn('cameraAccessTroubleshootingVerification')
+        }  
     }
 }
 
-function detectBrowser() {
+function detectBrowser(errorContainer) {
     const userAgent = navigator.userAgent;
-    const fixPermissionsBtn = document.getElementById('fixPermissionsBtn');
+    let fixPermissionsBtn;
+    if(errorContainer == 'facialVerification'){
+        fixPermissionsBtn = document.getElementById('fixPermissionsVerificationBtn');
+        fadeOut('facialVerificationHeader');
+        fadeOut('facialRecognitionMessage');
+    }else{
+        fixPermissionsBtn = document.getElementById('fixPermissionsBtn');
+    }
+    
 
     if (userAgent.includes("Chrome") && !userAgent.includes("Edg") && !userAgent.includes("OPR")) {
         fixPermissionsBtn.href = 'https://support.google.com/chrome/answer/2693767';
@@ -423,63 +455,66 @@ document.getElementById('registerForm').addEventListener('keydown', function(eve
     }
 });
 
-function addLoadingSymbol(){
+function addLoadingSymbol() {
     const password = document.getElementById('id_password').value;
     const confirmPassword = document.getElementById('id_confirm_password').value;
     const slideOneInputFields = document.querySelectorAll('.slide-one-input-field');
     const slideThreeInputFields = document.querySelectorAll('.slide-three-input-field');
     const fileFields = document.querySelectorAll('.form-file-field');
-    let areFieldsComplete = true;
-    // Running just to reset the message incase
-    showErrorMessage('', false);
+    
+    showErrorMessage('', false); // Reset message
 
-    // Testing Slide 1 Input fields
-    slideOneInputFields.forEach((field) => {
-        if(field.value == '' || field.id === 'id_email' && !field.value.includes('@')){            
+    // Step 1: Check Slide 1 Input fields
+    for (let field of slideOneInputFields) {
+        if (field.value === '' || (field.id === 'id_email' && !field.value.includes('@'))) {
             currentStep = 1;
             updateSteps();
-            areFieldsComplete = false;
-            showErrorMessage('Please fill out all of the required fields.', true)
+            showErrorMessage('Please fill out all of the required fields.', true);
             currentErrorStep = 1;
-            return;
-        }      
-    });
+            console.log('Step 1 Error');
+            return; // ⛔ stop execution
+        }
+    }
 
-    // Testing Slide 2 File fields
+    // Step 2: Check file inputs
     for (let field of fileFields) {
         if (!field.files || field.files.length === 0) {
-            areFieldsComplete = false;
             currentStep = 2;
             updateSteps();
-            showErrorMessage('Please ensure that you have entered both your Identification Photo and Headshot Photo.', true)
+            showErrorMessage('Please ensure that you have entered both your Identification Photo and Headshot Photo.', true);
             currentErrorStep = 2;
-            break;
+            console.log('Step 2 Error');
+            return; // ⛔ stop execution
         }
     }
 
-    // Testing Slide 3 Input fields
-    slideThreeInputFields.forEach((field) => {
-        if(field.value == ''){            
+    // Step 3: Check Slide 3 Input fields
+    for (let field of slideThreeInputFields) {
+        if (field.value === '') {
             currentStep = 3;
             updateSteps();
-            areFieldsComplete = false;
-            return;
-        }
-        // Testing if password fields match   
-        if (password !== confirmPassword) {
-            currentStep = 3;
-            updateSteps();
-            showErrorMessage('Passwords do not match.', true)
+            showErrorMessage('Please fill out all of the required fields.', true);
             currentErrorStep = 3;
-            return;
-        }      
-    });
-
-    if(areFieldsComplete == true){
-        submitFormBtn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
-        // Call this after facial recognition is complete
-        document.getElementById('registerForm').submit();
+            console.log('Step 3 Error - Empty Field');
+            return; // ⛔ stop execution
+        }
     }
+
+    // Step 3: Check password match
+    if (password !== confirmPassword) {
+        currentStep = 3;
+        updateSteps();
+        showErrorMessage('Passwords do not match.', true);
+        currentErrorStep = 3;
+        console.log('Step 3 Error - Password Mismatch');
+        return; // ⛔ stop execution
+    }
+
+    // All checks passed
+    submitFormBtn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;"></i>`;
+    javascriptErrorContainer.classList.add('hidden');
+    showFacialRecognitionPopup();
+    // document.getElementById('registerForm').submit(); // Call after facial recognition
 }
 
 function showErrorMessage(message, isError, slide){
@@ -492,24 +527,208 @@ function showErrorMessage(message, isError, slide){
     }
 }
 
+function showFacialRecognitionPopup(){
+    fadeIn('scanFaceBtn');
+    openPopup('facialRecognition');
+    document.getElementById('closeFacialPopupBtn').style.top = '36.4rem';
+    javascriptErrorContainer.classList.add('hidden');
+}
+
 let facialStream = null;
 
-function initiateFacialRecognition() {
+async function initiateFacialRecognition() {
     const videoElement = document.getElementById('facialRecognitionVideo');
+    const cameraLoading = document.getElementById('cameraLoadingVerification');
+    const regPhotoPreview = document.getElementById('id_reg_photo_preview');
+    const facialVideoFeedPlaceholder = document.getElementById('facialVideoFeedPlaceholder');
 
-    // Check for support
+    if (!regPhotoPreview || regPhotoPreview.classList.contains('hidden')) {
+        alert("Please upload your registration photo before scanning.");
+        closePopup('facialRecognition');
+        return;
+    }
+
+    facialVideoFeedPlaceholder.classList.add('hidden');
+    fadeIn('cameraLoadingVerification');
+    fadeOut('scanFaceBtn');
+    fadeOut('closeFacialPopupBtn');
+    fadeIn('facialRecognitionMessage');
+    facialRecognitionMessage.innerHTML = `<span>Please look directly into the camera while we work our magic.</span`
+
+    // Check for support            
+
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }) // 'user' = front camera on mobile
-            .then(function(stream) {
-                facialStream = stream; // Store for cleanup later
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+            .then(async function(stream) {
+                cameraLoading.classList.add('hidden');
+                facialStream = stream;
+                const dotsInterval = animateEllipses('animatedDots');
+                baseText.innerText = 'Scanning';
+                facialVerificationHeader.style.fontSize = '1.2rem';
+                fadeIn('facialRecognitionVideo');
                 videoElement.srcObject = stream;
-                openPopup('facialRecognition');
+
+                // Give camera time to show a frame before capturing
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                const liveImage = captureVideoFrame(videoElement);
+                const regImage = regPhotoPreview.src;
+
+                const formData = new FormData();
+                formData.append('image1', liveImage);
+                formData.append('image2', regImage);
+
+                try {
+                    const response = await fetch('/admin/compare-faces/', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        console.log(`Verified! Similarity: ${result.similarity.toFixed(2)}`);
+                        showSuccess(`<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;"></i> Now Finalizing your account...`, dotsInterval, videoElement, false);
+                        baseText.innerText = 'Verification Successful!';
+                        animatedDots.innerText = '';
+                    } else {
+                        switch (result.error_type) {
+                            case 'no_face_live':
+                                showFacialError("Hmm... we couldn't detect your face. Please make sure you're looking directly into the camera and avoid wearing hats or glasses during the scan.", dotsInterval, videoElement, false);
+                                baseText.innerText = 'Face not detected';
+                                animatedDots.innerText = '';
+                                break;
+                            case 'no_face_uploaded':
+                                showFacialError("Hmm... we couldn't detect any facial features in the Headshot Photo you uploaded. Please re-upload a clearer Photo then try again.", dotsInterval, videoElement, true);
+                                baseText.innerText = 'Re-upload Headshot Photo';
+                                animatedDots.innerText = '';
+                                break;
+                            case 'face_mismatch':
+                                showFacialError("Hmm... your face doesn't match the Headshot Photo you uploaded. Please try again or re-upload your Headshot Photo and try again.", dotsInterval, videoElement, false);
+                                baseText.innerText = 'Faces do not match';
+                                animatedDots.innerText = '';
+                                break;
+                            default:
+                                showFacialError("Unexpected error: " + result.message, dotsInterval, videoElement, false);
+                        }
+                    }
+
+                } catch (err) {
+                    alert("An error occurred while verifying your face.");
+                    console.error(err);
+                }
+
             })
-            .catch(function(error) {
-                console.error("Camera access error:", error);
-                alert("Unable to access the camera. Please check permissions.");
+            .catch(function (error) {
+                showCameraError(error, 'facialVerification');
             });
     } else {
-        alert("Camera is not supported on this device.");
+        showCameraError({ name: 'Unsupported' }, 'facialVerification');
     }
+}
+
+function showFacialError(message, dotsInterval, videoElement, headshotError){
+    const facialRecognitionMessage = document.getElementById('facialRecognitionMessage');
+    facialRecognitionMessage.innerHTML = `<span>${message}</span>`
+    scanFaceBtn.innerText = 'Scan My Face Again';
+
+    videoElement.classList.add('hidden');
+
+    if(headshotError == false){
+        fadeIn('scanFaceBtn');
+    }else{
+        document.getElementById('closeFacialPopupBtn').style.top = '33rem';
+    }
+    fadeIn('facialVideoFeedPlaceholder');
+    fadeIn('closeFacialPopupBtn');
+    clearInterval(dotsInterval);
+}
+
+function showSuccess(message, dotsInterval, videoElement, headshotError){
+    const facialVideoFeedContainer = document.getElementById('facialVideoFeedContainer');
+    const facialRecognitionMessage = document.getElementById('facialRecognitionMessage');
+    facialRecognitionMessage.innerHTML = `<span class="facial-videofeed-successful-message">${message}</span`
+
+    videoElement.classList.add('hidden');
+    facialVideoFeedContainer.classList.add('hidden');
+
+    fadeIn('facialVideoFeedSuccessfulContainer');
+    clearInterval(dotsInterval);
+    setTimeout(() => {
+        document.getElementById('registerForm').submit();
+    }, 2000);
+}
+
+function reUploadHeadshot(){
+    submitFormBtn.innerText = `Sign Up`;
+    javascriptErrorContainer.classList.add('hidden');
+
+    currentStep = 2;
+    currentErrorStep = 0;
+    updateSteps();
+    closePopup('facialRecognition');
+}
+
+function captureVideoFrame(videoElement) {
+    const canvas = document.createElement('canvas');
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg');
+}
+
+function fadeOut(container) {
+    if (typeof container === 'string') {
+        container = document.getElementById(container);
+    }
+    if (!container) return;
+
+    container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    container.style.opacity = '0';
+    container.style.transform = 'scale(0.95)';
+
+    setTimeout(() => {
+        container.classList.add('hidden');
+        // Optional cleanup
+        container.style.opacity = '';
+        container.style.transform = '';
+        container.style.transition = '';
+    }, 300); // Match the transition duration
+}
+
+function fadeIn(container) {
+    if (typeof container === 'string') {
+        container = document.getElementById(container);
+    }
+    if (!container) return;
+
+    container.classList.remove('hidden');
+    container.style.opacity = '0';
+    container.style.transform = 'scale(0.95)';
+    container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+
+    requestAnimationFrame(() => {
+        container.style.opacity = '1';
+        container.style.transform = 'scale(1)';
+    });
+
+    setTimeout(() => {
+        container.style.opacity = '';
+        container.style.transform = '';
+        container.style.transition = '';
+    }, 300);
+}
+
+function animateEllipses(dotSpanId, intervalSpeed = 500) {
+    const dotSpan = document.getElementById(dotSpanId);
+    let dotCount = 0;
+    const maxDots = 3;
+
+    const interval = setInterval(() => {
+        dotCount = (dotCount + 1) % (maxDots + 1);
+        dotSpan.textContent = '.'.repeat(dotCount);
+    }, intervalSpeed);
+
+    return interval;
 }

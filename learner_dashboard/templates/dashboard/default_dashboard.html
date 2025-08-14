@@ -19,7 +19,7 @@
         </div>
         <div id="widgets-container">
             {% if profile.last_opened_course and user_course %}
-                <button onclick="launchCourse('{{ profile.last_opened_lesson_id }}'), setDisabledWidget();" class="widget resume-course">
+                <button onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}'), setDisabledWidget();" class="widget resume-course">
                     <div class="widget-top">
                         <div class="widget-inner-wrapper">
                             {% if user_course.course.thumbnail.thumbnail_link %}

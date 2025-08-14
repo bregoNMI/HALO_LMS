@@ -92,3 +92,10 @@ def replace(value, arg):
         return value.replace(search, replace_with)
     except ValueError:
         return value  # fallback if input is bad
+    
+@register.filter
+def mul(value, arg):
+    try:
+        return float(value) * float(arg)
+    except (ValueError, TypeError):
+        return ''

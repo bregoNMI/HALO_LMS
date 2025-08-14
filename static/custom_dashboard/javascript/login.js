@@ -75,6 +75,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    const scanFaceBtn = document.getElementById('scanFaceBtn');
+    // Adding hover colors to scan face Button
+    if(scanFaceBtn){
+        scanFaceBtn.addEventListener('mouseover', () => {
+            scanFaceBtn.style.backgroundColor = buttonBackgroundHover;
+            scanFaceBtn.style.color = buttonColorHover;
+            scanFaceBtn.style.borderColor = buttonBorderHover;
+        });
+        scanFaceBtn.addEventListener('mouseout', () => {
+            scanFaceBtn.style.backgroundColor = buttonBackground;
+            scanFaceBtn.style.color = buttonColor;
+            scanFaceBtn.style.borderColor = buttonBorder;
+        });
+    }
+
     flatpickr(".date-picker", {
         altInput: true,
         altFormat: flatpickr_format,

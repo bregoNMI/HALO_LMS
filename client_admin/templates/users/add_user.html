@@ -93,28 +93,28 @@
                             <div class="learner-card-wrapper">                          
                                 <div class="edit-images-row edit-user-row">
                                     <div class="edit-image">
-                                        <label class="edit-user-label" for="photoid">Headshot Image</label>
-                                        
-                                        <label for="photoid" class="custom-file-upload-container">
-                                            <div class="custom-file-upload">
-                                                <input type="file" id="photoid" name="photoid" accept="image/*" style="display: none;">
-                                                <i class="fa-solid fa-arrow-up-from-bracket"></i> Choose File
-                                            </div>
-                                            <div class="custom-file-title">                                               
-                                                <span id="photoidNameDisplay" class="file-name-display">No file selected</span>                                                                         
-                                            </div>
-                                        </label> 
-                                    </div>
-                                    <div class="edit-image">
-                                        <label class="edit-user-label" for="passportphoto">Identification Image</label>
+                                        <label class="edit-user-label" for="passportphoto">Headshot Image<span class="required-asterisk">*</span></label>
                                         
                                         <label for="passportphoto" class="custom-file-upload-container">
                                             <div class="custom-file-upload">
-                                                <input type="file" id="passportphoto" name="passportphoto" accept="image/*" style="display: none;">
+                                                <input type="file" id="passportphoto" name="passportphoto" accept="image/*" style="display: none;" required>
                                                 <i class="fa-solid fa-arrow-up-from-bracket"></i> Choose File
                                             </div>
                                             <div class="custom-file-title">                                              
                                                 <span id="passportphotoNameDisplay" class="file-name-display">No file selected</span>                                            
+                                            </div>
+                                        </label> 
+                                    </div>
+                                    <div class="edit-image">
+                                        <label class="edit-user-label" for="photoid">Identification Image<span class="required-asterisk">*</span></label>
+                                        
+                                        <label for="photoid" class="custom-file-upload-container">
+                                            <div class="custom-file-upload">
+                                                <input type="file" id="photoid" name="photoid" accept="image/*" style="display: none;" required>
+                                                <i class="fa-solid fa-arrow-up-from-bracket"></i> Choose File
+                                            </div>
+                                            <div class="custom-file-title">                                               
+                                                <span id="photoidNameDisplay" class="file-name-display">No file selected</span>                                                                         
                                             </div>
                                         </label> 
                                     </div>
@@ -304,7 +304,6 @@
             allowInput: true       // Allow manual input
         });
     </script>
-    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
     <link rel="stylesheet" href="{% static 'content\css\content.css' %}">

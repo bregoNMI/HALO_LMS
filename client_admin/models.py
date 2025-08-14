@@ -519,7 +519,7 @@ class OrganizationSettings(models.Model):
     contact_address = models.CharField(max_length=255, blank=True, null=True)
     contact_city = models.CharField(max_length=255, blank=True, null=True)
     contact_state = models.CharField(max_length=255, blank=True, null=True)
-    contact_country = models.CharField(max_length=255, blank=True, null=True)
+    country = models.CharField(max_length=255, blank=True, null=True)
     contact_postal_code = models.CharField(max_length=20, blank=True, null=True)
     contact_phone = models.CharField(max_length=20, blank=True, null=True)
     contact_email = models.EmailField(blank=True, null=True)
@@ -539,13 +539,17 @@ class OrganizationSettings(models.Model):
     default_course_thumbnail_image = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
     default_certificate = models.BooleanField(default=False, blank=True, null=True)
     default_certificate_template = models.FileField(upload_to='certificates/', blank=True, null=True)
-    terms_and_conditions = models.BooleanField(default=False, blank=True, null=True)
-    terms_and_conditions_text = models.TextField(max_length=50000, blank=True, null=True)
-    terms_last_modified = models.DateTimeField(blank=True, null=True)
 
     # Portal
     portal_favicon = models.ImageField(upload_to='logos/', blank=True, null=True)
     allowed_id_photos = models.ManyToManyField(AllowedIdPhotos, related_name='OrganizationSettings', blank=True)
+    terms_and_conditions = models.BooleanField(default=False, blank=True, null=True)
+    terms_and_conditions_text = models.TextField(max_length=50000, blank=True, null=True)
+    terms_last_modified = models.DateTimeField(blank=True, null=True)
+
+    in_session_checks = models.BooleanField(default=True, blank=True, null=True)
+    course_launch_verification = models.BooleanField(default=True, blank=True, null=True)
+    check_frequency_time = models.DurationField(null=True, blank=True, default=timedelta(minutes=10), help_text="Customize how often verification checks will occur within a session.")
     
     def save(self, *args, **kwargs):
         if not self.pk and OrganizationSettings.objects.exists():
@@ -581,3 +585,45 @@ class ActivityLog(models.Model):
 
     def __str__(self):
         return f"{self.action_performer} performed '{self.action}' on {self.action_target} at {self.timestamp}"
+
+class FacialVerificationLog(models.Model):
+    VERIFICATION_TYPE_CHOICES = [
+        ('course_launch_verification', 'Course Launch'),
+        ('in_session_check', 'In-Session Check'),
+    ]
+
+    STATUS_CHOICES = [
+        ('success', 'Success'),
+        ('failure', 'Failure'),
+    ]
+
+    TYPE_CHOICES = [
+        ('verified', 'Verified'),
+        ('no_face_live', 'No Face Detected'),
+        ('face_mismatch', 'Different Face Than Expected'),
+        ('no_face_uploaded', 'No Headshot Face Detected')
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
+    course = models.ForeignKey(Course, on_delete=models.SET_NULL, null=True, blank=True)
+    user_course = models.ForeignKey(UserCourse, on_delete=models.SET_NULL, null=True, blank=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True, blank=True)
+
+    verification_type = models.CharField(max_length=30, choices=VERIFICATION_TYPE_CHOICES, db_index=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, db_index=True)
+    error_type = models.CharField(max_length=100, choices=TYPE_CHOICES, null=True, blank=True)  # e.g., 'no_face_live', 'face_mismatch', etc.
+
+    similarity_score = models.FloatField(null=True, blank=True)
+
+    device_type = models.CharField(max_length=20, blank=True, null=True)  # 'desktop', 'mobile', 'tablet'
+    browser = models.CharField(max_length=50, blank=True, null=True)  # e.g., 'Chrome', 'Safari'
+
+    metadata = models.JSONField(null=True, blank=True)  # Can include IP, user-agent, future data like location
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.user} - {self.verification_type} - {self.status} ({self.timestamp})"

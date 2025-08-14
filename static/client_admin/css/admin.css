@@ -471,7 +471,7 @@ html, body, button{
 .table-container{
     background-color: white;
     border-radius: 8px;
-    outline: 1px solid #d7d7d7;
+    /* outline: 1px solid #d7d7d7; */
     box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
 }
 
@@ -578,6 +578,7 @@ html, body, button{
     transform: translate(-50%, -50%);
     color: gray;
     font-size: 0.8rem;
+    pointer-events: none;
 }
 
 .search-table-option input[type="text"]{
@@ -767,6 +768,8 @@ tr.selected-option th, tr.selected-option td{
     border: 2px solid #ddd;
     transition: all 0.3s;
     border-radius: 6px;
+}.legend-item .checkmark{
+    background-color: white !important;
 }
 
 .checkmark:hover{

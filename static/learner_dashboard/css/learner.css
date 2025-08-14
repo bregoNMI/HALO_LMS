@@ -894,12 +894,12 @@ html, body, button{
     /* color: #555961; */
     color: var(--text-color2);
     font-size: 0.9rem;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .lesson-counter{
     border-radius: 99px;
-    font-weight: 500;
+    font-weight: 400;
     font-size: 0.7rem;
     text-wrap: nowrap;
     border: 1px solid #aabce0;
@@ -981,7 +981,7 @@ html, body, button{
 .event-dates-subtext{
     color: #555961;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1.4;
 }
 
@@ -1086,7 +1086,7 @@ html, body, button{
 
 .alert span{
     font-size: var(--btn-font);
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .alert-success {
@@ -1106,14 +1106,16 @@ html, body, button{
     padding: 0.3rem 0.8rem;
     border-radius: 8px;
     background-color: #ffd0d0;
-    font-weight: 500;
-    font-size: 1rem;
+    font-weight: 400;
+    font-size: 1.05rem;
     cursor: pointer;
     transition: all 0.2s linear;
     text-decoration: none;
 }.learner-impersonate:hover{
     background-color: #f7a5a5;
     color: #cc0202;
+}.learner-impersonate span{
+    font-size: 0.95rem;
 }
 
 .stop-impersonating-btn{

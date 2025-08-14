@@ -288,32 +288,34 @@
                                                         </div>
                                                         <div class="lesson-info-card-body hidden">
                                                             {% if lesson_sessions_map|get_item:lesson_progress.id %}
-                                                                <table>
-                                                                    <thead>      
-                                                                        <tr>
-                                                                            <th>#</th>
-                                                                            <th>Date</th>
-                                                                            <th>Duration</th>
-                                                                            <th>Status</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        {% for session in lesson_sessions_map|get_item:lesson_progress.id %}
-                                                                            <tr class="table-select-option">
-                                                                                <td>{{ forloop.counter }}</td>                                                          
-                                                                                <td>{{ session.end_time }}</td>
-                                                                                <td>{{ session.session_time|format_session_time }}</td>
-                                                                                {% if session.completion_status == 'incomplete' %}
-                                                                                    <td>In Progress </td>
-                                                                                {% else %}
-                                                                                    <td> Completed </td>
-                                                                                {% endif %} 
+                                                                <div class="scrollable-content">
+                                                                    <table>
+                                                                        <thead>      
+                                                                            <tr>
+                                                                                <th>#</th>
+                                                                                <th>Date</th>
+                                                                                <th>Duration</th>
+                                                                                <th>Status</th>
                                                                             </tr>
-                                                                        {% empty %}
-                                                                            <tr><td>No sessions available.</td></tr>
-                                                                        {% endfor %}
-                                                                    </tbody>
-                                                                </table>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            {% for session in lesson_sessions_map|get_item:lesson_progress.id %}
+                                                                                <tr class="table-select-option">
+                                                                                    <td>{{ forloop.counter }}</td>                                                          
+                                                                                    <td>{{ session.end_time }}</td>
+                                                                                    <td>{{ session.session_time|format_session_time }}</td>
+                                                                                    {% if session.completion_status == 'incomplete' %}
+                                                                                        <td>In Progress </td>
+                                                                                    {% else %}
+                                                                                        <td> Completed </td>
+                                                                                    {% endif %} 
+                                                                                </tr>
+                                                                            {% empty %}
+                                                                                <tr><td>No sessions available.</td></tr>
+                                                                            {% endfor %}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
                                                             {% else %}
                                                                 <span class="no-sessions-found"> No sessions available.</span>
                                                             {% endif %}
@@ -339,7 +341,6 @@
     <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
     <link rel="stylesheet" href="{% static 'client_admin\css\user_course_details.css' %}">
     <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
-    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <script src="{% static 'client_admin\javascript\user_course_details.js' %}"></script>
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-circle-progress/dist/circle-progress.min.js" type="module"></script>

@@ -373,7 +373,7 @@ function checkOverflow() {
     });
 }
 
-function launchCourse(lessonId){
+function launchCourse(lessonId, userCourseId, courseId){
     setDisabledSaveBtns();
 
     if (!lessonId || lessonId == 0) {
@@ -382,7 +382,20 @@ function launchCourse(lessonId){
         return;
     }
 
-    console.log(getCookie('csrftoken'));
+    if (window.COURSE_LAUNCH_VERIFICATION_ENABLED && !window.facialVerifiedForCourseLaunch) {
+        document.querySelectorAll('.popup-background').forEach(function(el) {
+            el.style.display = 'none'
+            el.querySelector('.popup-content').classList.remove('animate-popup-content');
+            console.log(el);
+        });
+        window.PENDING_LESSON_ID = lessonId;
+        window.PENDING_USER_COURSE_ID = userCourseId
+        window.PENDING_COURSE_ID = courseId
+        initializeFacialVerification('course_launch_verification');
+        removeDisabledSaveBtns();
+        removeDisabledWidgets();
+        return;
+    }
 
     // Sending request to update last_opened_course
     fetch('/requests/opened-course-data/', {
@@ -446,6 +459,28 @@ function setDisabledWidget() {
         btn.innerHTML += `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s; position: absolute; top: 50%;left: 50%; transform: translate(-50%, -50%); font-size: 1.4rem;">`;
     }
     removeDisabledSaveBtns();
+}
+
+function removeDisabledWidgets() {
+    setTimeout(() => {
+        const resumeBtns = document.querySelectorAll('.resume-course');
+
+        for (const btn of resumeBtns) {
+            btn.classList.remove('disabled');
+            btn.removeAttribute('disabled');
+
+            if (btn.dataset.originalHtml) {
+                btn.innerHTML = btn.dataset.originalHtml;
+                delete btn.dataset.originalHtml;
+            }
+
+            // Reset any styling added during disable
+            btn.style.width = "";
+            btn.style.height = "";
+            btn.style.opacity = "";
+            btn.style.color = "";
+        }
+    }, 400);
 }
 
 function setDisabledSaveBtns() {

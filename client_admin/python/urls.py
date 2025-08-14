@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from content import views as content_views
+from client_admin import views as facial_recognition_views
 from custom_templates import views as custom_template_views
 
 urlpatterns = [
@@ -65,6 +66,10 @@ urlpatterns = [
     path('enrollment-keys/edit/<int:key_id>/', content_views.edit_enrollment_keys, name='edit_enrollment_keys'),
     path('enrollment-keys/delete-keys/', views.delete_enrollment_keys, name='delete_enrollment_keys'),
 
+    # Analytics
+    path('analytics/facial-verification/', content_views.admin_facial_verification_analytics, name='admin_facial_verification_analytics'),
+    path('analytics/api/facial_verification/timeseries', content_views.facial_verification_timeseries_api, name='facial_verification_timeseries_api'),
+
     # Settings
     path('settings/', views.admin_settings, name='admin_settings'), 
     path('settings/create-allowed-id/', views.create_allowed_id_photo, name='create_allowed_id_photo'),
@@ -99,4 +104,11 @@ urlpatterns = [
     path('stop-impersonating/', views.stop_impersonating, name='stop_impersonating'),
 
     path('import-users/', views.import_user, name='import_user'),
+
+
+
+
+    # Facial Recognition
+    path('compare-faces/', facial_recognition_views.compare_faces, name='compare_faces'),
+    path('facial-verification-check/', facial_recognition_views.facial_verification_check, name='facial_verification_check'),
 ]

@@ -1,0 +1,30 @@
+<!-- charts_filters.html (include in your analytics page) -->
+<div class="chart-filters-container js-chart-filters">
+    <label class="chart-filter-label js-open-date">
+        <div class="chart-filter-label-left">
+        <i class="fa-regular fa-calendar"></i>
+        <input class="js-date-range" type="text" placeholder="Select date range" />
+        </div>
+        <div class="chart-filter-label-right">
+        <i class="fa-regular fa-angle-down"></i>
+        </div>
+    </label>
+
+    <div class="date-selection-dropdown date-custom-select chart-filter-label js-bucket">
+        <div class="date-selection-dropdown-left">
+            <i class="fa-regular fa-chart-line"></i>
+            <span class="date-select-selected js-bucket-selected">Monthly</span>
+            <div class="date-select-items scrollable-content">
+                <div class="select-item analytics-select-item" data-value="Daily">Daily</div>
+                <div class="select-item analytics-select-item" data-value="Weekly">Weekly</div>
+                <div class="select-item analytics-select-item same-as-selected" data-value="Monthly">Monthly</div>
+                <div class="select-item analytics-select-item" data-value="Yearly">Yearly</div>
+            </div>
+        </div>
+        <div class="date-selection-dropdown-right">
+            <i class="fa-regular fa-angle-down"></i>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

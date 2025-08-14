@@ -46,7 +46,7 @@
                             {% endif %}
                         {% endfor %} 
                         <i class="fa-regular fa-magnifying-glass search-icon"></i>                  
-                        <input id="searchTable" name="query" value="{{ active_filters.query }}" type="text" placeholder="Search all categories">
+                        <input id="searchTable" name="query" value="{{ active_filters.query }}" type="text" placeholder="Search">
                         <button style="display: none;" id="searchAllUsersBtn" class="search-all-users-btn" type="submit">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button> 
@@ -55,11 +55,11 @@
                 <div class="table-filter-section-right">
                     <div onclick="openPopup('filtersPopup')" class="table-filter-item-small tooltip" data-tooltip="Filter">
                         <span class="tooltiptext"></span>
-                        <i class="fa-regular fa-filter"></i>
+                        <i class="fa-light fa-filter"></i>
                     </div>
                     <div id="sortButton" class="table-filter-item-small tooltip" data-tooltip="Sort">
                         <span class="tooltiptext"></span>
-                        <i class="fa-regular fa-arrow-up-arrow-down"></i>
+                        <i class="fa-light fa-arrow-up-arrow-down"></i>
                     </div>
                     <!-- Hidden input or data attribute to store the active sort value -->
                     {% for key, value in active_filters.items %}
@@ -161,24 +161,26 @@
                 </div>
             </div>
             {% if page_obj %}
-                <table>
-                    <thead>      
-                        <tr>
-                            <th><label class="container"><input type="checkbox" class="table-select-all-option"><div class="checkmark"></div></label></th>
-                            <th>Category Name</th>
-                            <th>Parent Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>     
-                        {% for category in page_obj %}
-                            <tr data-id="{{ category.id }}" data-details="{% url 'edit_categories' category.id %}" class="table-select-option">
-                                <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
-                                <td>{{ category.name }}</td>
-                                <td>{{ category.parent_category.name }}</td>
+                <div class="scrollable-content">
+                    <table>
+                        <thead>      
+                            <tr>
+                                <th><label class="container"><input type="checkbox" class="table-select-all-option"><div class="checkmark"></div></label></th>
+                                <th>Category Name</th>
+                                <th>Parent Name</th>
                             </tr>
-                        {% endfor %}        
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>     
+                            {% for category in page_obj %}
+                                <tr data-id="{{ category.id }}" data-details="{% url 'edit_categories' category.id %}" class="table-select-option">
+                                    <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
+                                    <td>{{ category.name }}</td>
+                                    <td>{{ category.parent_category.name }}</td>
+                                </tr>
+                            {% endfor %}        
+                        </tbody>
+                    </table>
+                </div>
             {% else %}
                 <div class="no-results-found">
                     <img src="{% static 'client_admin\Images\HALO LMS No Graphic Test-27.png' %}" alt="HALO Graphic">    

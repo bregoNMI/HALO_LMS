@@ -115,7 +115,7 @@ def learner_courses(request):
                 completed=True
             ).exists()
 
-            locked = not previous_lesson_completed
+            locked = course.locked and not previous_lesson_completed
             previous_lesson_completed = is_completed
 
             for assignment in lesson.assignments.all():
@@ -439,24 +439,24 @@ def on_login_course(request, uuid):
     if settings.on_login_course and user.profile.completed_on_login_course:
         return redirect('learner_dashboard')
 
-    # Continue loading the course if not yet completed
     user_course = get_object_or_404(UserCourse, uuid=uuid)
-    lesson_sessions_map = {}
+    course = user_course.course
 
+    # Lesson session map
+    lesson_sessions_map = {}
     for module_progress in user_course.module_progresses.all():
         for lesson_progress in module_progress.lesson_progresses.all():
             sessions = LessonSession.objects.filter(
                 lesson=lesson_progress.lesson,
-                user=user_course.user
+                user=user
             )
             lesson_sessions_map[lesson_progress.id] = sessions
 
     # Calculate total SCORM time
     scorm_sessions = SCORMTrackingData.objects.filter(
-        user=user_course.user,
-        lesson__module__course=user_course.course
+        user=user,
+        lesson__module__course=course
     )
-
     total_time = timedelta()
     for session in scorm_sessions:
         total_time += parse_iso_duration(session.session_time)
@@ -466,17 +466,85 @@ def on_login_course(request, uuid):
     else:
         total_hours, remainder = divmod(total_time.total_seconds(), 3600)
         total_minutes, total_seconds = divmod(remainder, 60)
-
         if total_hours > 0:
             formatted_total_time = f"{int(total_hours)}h {int(total_minutes)}m {int(total_seconds)}s"
         else:
             formatted_total_time = f"{int(total_minutes)}m {int(total_seconds)}s"
+
+    # === Assignment logic (replicated from learner_courses) ===
+    progress_qs = UserAssignmentProgress.objects.filter(user=user)
+
+    completed_assignment_ids = set(
+        progress_qs.filter(status__in=['submitted', 'approved'])
+        .values_list('assignment_id', flat=True)
+    )
+
+    assignment_status_map = {}
+    for progress in progress_qs:
+        key = f"{progress.assignment_id}-{progress.lesson_id}" if progress.lesson_id else str(progress.assignment_id)
+        assignment_status_map[key] = {
+            "status": progress.status,
+            "locked": False
+        }
+
+    course_lesson_assignment_map = {}     # course_id → ordered lesson-assignment pairs
+    full_course_assignment_map = {}       # course_id → list of full-course assignments
+    lesson_assignment_map = defaultdict(list)  # lesson_id → list of assignments
+
+    ordered_lessons = Lesson.objects.filter(
+        module__course=course
+    ).select_related('module').order_by('module__order', 'order')
+
+    previous_lesson_completed = True
+    ordered_pairs = []
+
+    for lesson in ordered_lessons:
+        is_completed = UserLessonProgress.objects.filter(
+            user_module_progress__user_course=user_course,
+            lesson=lesson,
+            completed=True
+        ).exists()
+
+        locked = course.locked and not previous_lesson_completed
+        previous_lesson_completed = is_completed
+
+        for assignment in lesson.assignments.all():
+            key = f"{assignment.id}-{lesson.id}"
+            status = assignment_status_map.get(key, {}).get('status', 'pending')
+
+            assignment_status_map.setdefault(key, {})["status"] = status
+            assignment_status_map[key]["locked"] = locked
+
+            pair = {
+                'lesson': lesson,
+                'assignment': assignment,
+                'locked': locked,
+                'status': status,
+                'key': key,
+            }
+            ordered_pairs.append(pair)
+            lesson_assignment_map[lesson.id].append(pair)
+
+    course_lesson_assignment_map[course.id] = ordered_pairs
+
+    # Full-course assignments (not linked to specific lessons)
+    full_assignments = Upload.objects.filter(course=course, lessons__isnull=True).distinct()
+    for assignment in full_assignments:
+        key = str(assignment.id)
+        assignment.status = assignment_status_map.get(key, {}).get('status', 'pending')
+        assignment.locked = assignment_status_map.get(key, {}).get('locked', False)
+    full_course_assignment_map[course.id] = full_assignments
 
     return render(request, 'on_login_course/login_course.html', {
         'on_login_course_id': settings.on_login_course_id,
         'user_course': user_course,
         'lesson_sessions_map': lesson_sessions_map,
         'total_time_spent': formatted_total_time,
+        'full_course_assignment_map': full_course_assignment_map,
+        'course_lesson_assignment_map': course_lesson_assignment_map,
+        'lesson_assignment_map': lesson_assignment_map,
+        'assignment_status_map': assignment_status_map,
+        'completed_assignment_ids': completed_assignment_ids,
     })
 
 @login_required
