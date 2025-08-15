@@ -414,6 +414,7 @@ circle.progress-circle__runner {
     cursor: pointer;
     border: 1px solid #ececf1;
     background-color: white;
+    box-sizing: unset;
 }
 
 .card-header-right:hover {
@@ -557,6 +558,7 @@ circle.progress-circle__runner {
 
 .course-footer-container .row-course-item .course-item-bottom{
     justify-content: flex-end;
+    flex: none;
 }
 
 .course-footer-container .tab-content-description{

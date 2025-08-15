@@ -866,6 +866,13 @@ h1,h2,h3,h4,h5,h6{
   margin-bottom: 4rem;
 }
 
+/* Cursor Status */
+.cursor-pointer{
+  cursor: pointer;
+}.cursor-auto{
+  cursor: auto !important;
+}
+
 /* No Padding */
 .padding-0{
   padding: 0 !important;
@@ -2153,6 +2160,7 @@ input.disabled{
 .thumbnail-inner-thumbnail .table-filter-item-small i{
   font-size: 0.95rem;
   margin-bottom: 0rem;
+  color: #41454d;
 }
 
 .thumbnail-inner-thumbnail .table-filter-item-small{

@@ -21,11 +21,11 @@ from django.shortcuts import get_object_or_404, redirect
 from django.conf import settings
 from botocore.exceptions import ClientError
 from content.models import Course, Module, Lesson, UploadedFile, Upload
-from content.models import Course, EssayQuestion, FITBQuestion, Module, Lesson, Question, QuestionMedia, QuestionOrder, TFQuestion, UploadedFile, QuizConfig, Quiz
+from content.models import Course, EssayQuestion, FITBQuestion, Module, Lesson, Question, QuestionMedia, QuestionOrder, TFQuestion, UploadedFile, QuizConfig, Quiz, QuizTemplate, TemplateQuestion
 from authentication.python.views import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, get_secret
 from django.views.decorators.csrf import csrf_exempt
 import boto3 
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.decorators import login_required
 import base64
 from django.shortcuts import render
@@ -35,6 +35,8 @@ from botocore.exceptions import NoCredentialsError
 from course_player.models import LessonProgress, LessonSession, SCORMTrackingData, QuizResponse
 from halo_lms.settings import AWS_S3_REGION_NAME, AWS_STORAGE_BUCKET_NAME
 from collections import defaultdict
+from typing import List
+from django.middleware.csrf import get_token
 
 secret_name = "COGNITO_SECRET"
 secrets = get_secret(secret_name)
@@ -299,9 +301,12 @@ def get_scorm_progress(request, lesson_id):
 
     print(f"[get_scorm_progress] Error parsing cmi_data: {e}")
     return JsonResponse({"suspend_data": ""}, status=500)
-    
-@require_GET
+
+
+
+
 @login_required
+@require_GET
 def get_quiz_score(request):
     session_id = request.GET.get("session_id")
     if not session_id:
@@ -312,29 +317,22 @@ def get_quiz_score(request):
         return JsonResponse({"error": "Session not found"}, status=404)
 
     lesson = session.lesson
-    quiz = Quiz.objects.filter(id=lesson.quiz_id).first()  # ✅ Quiz, not QuizConfig
+    quiz, _ = _resolve_question_ids_for_lesson(lesson)
 
     responses = session.quizresponse_set.all()
     gradable = responses.exclude(is_correct=None)
-    
-    total_answered = responses.count()  # ✅ includes essays
-    total_graded = gradable.count()     # ✅ excludes essays
+
+    total_answered = responses.count()
+    total_graded = gradable.count()
     correct = gradable.filter(is_correct=True).count()
 
     percent = int((correct / total_graded) * 100) if total_graded > 0 else 0
-
     pending_review = responses.filter(is_correct=None).exists()
 
     passed = False
-    success_text = ""
-    fail_text = ""
-
-    if quiz:
-        pass_mark = quiz.pass_mark or 0
-        if not pending_review:
-            passed = percent >= pass_mark
-        success_text = quiz.success_text or ""
-        fail_text = quiz.fail_text or "Your quiz is under review."
+    pass_mark = quiz.pass_mark or 0
+    if not pending_review:
+        passed = percent >= pass_mark
 
     return JsonResponse({
         "total_answered": total_answered,
@@ -343,8 +341,8 @@ def get_quiz_score(request):
         "score_percent": percent,
         "passed": passed,
         "pending_review": pending_review,
-        "success_text": success_text,
-        "fail_text": fail_text,
+        "success_text": quiz.success_text or "",
+        "fail_text": quiz.fail_text or "Your quiz is under review.",
     })
 
 @csrf_exempt
@@ -353,73 +351,81 @@ def submit_question(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid method"}, status=405)
 
-    data = json.loads(request.body)
+    data = json.loads(request.body or "{}")
     user = request.user
     question_id = data.get("question_id")
     answer = data.get("answer")
     question_type = data.get("question_type")
     lesson_id = data.get("lesson_id")
 
-    # Fetch question and correct answer(s)
+    # --- look up objects ---
     try:
         question = Question.objects.get(id=question_id)
     except Question.DoesNotExist:
         return JsonResponse({"error": "Invalid question ID"}, status=404)
 
+    try:
+        lesson = Lesson.objects.get(id=lesson_id)
+    except Lesson.DoesNotExist:
+        return JsonResponse({"error": "Invalid lesson ID"}, status=404)
+
+    # Ensure a LessonSession (you already use this)
+    session_id = request.session.get("current_lesson_session_id")
+    lesson_session = LessonSession.objects.filter(session_id=session_id, user=user).first()
+
+    # --- correctness ---
     is_correct = False
     correct_answers = []
 
     if question_type == "TFQuestion":
         tf = getattr(question, 'tfquestion', None)
         if tf:
-            is_correct = (str(tf.correct).lower() == str(answer).lower())
+            truth = str(answer).lower() in ("true", "1", "t", "yes", "y")
+            is_correct = (tf.correct == truth)
             correct_answers = ["True" if tf.correct else "False"]
 
-    elif question_type in ("MCQuestion", "MRQuestion"):
-        correct_answers_qs = question.answers.filter(is_correct=True)
-        correct_ids = set(str(a.id) for a in correct_answers_qs)
+    elif question_type == "MCQuestion":
+        correct_qs = question.answers.filter(is_correct=True)
+        correct_ids = {str(a.id) for a in correct_qs}
         is_correct = str(answer) in correct_ids
-        correct_answers = [a.text for a in correct_answers_qs]
+        correct_answers = [a.text for a in correct_qs]
+
+    elif question_type == "MRQuestion":
+        # your client sometimes sends lists (the failing row had ['13'])
+        submitted = {str(x) for x in (answer or [])}
+        correct_qs = question.answers.filter(is_correct=True)
+        correct_ids = {str(a.id) for a in correct_qs}
+        is_correct = submitted == correct_ids
+        correct_answers = [a.text for a in correct_qs]
 
     elif question_type == "EssayQuestion":
-        # Assume always accepted
         is_correct = None
         correct_answers = []
 
     elif question_type == "FITBQuestion":
         fitb = getattr(question, 'fitbquestion', None)
         if fitb:
-            accepted = fitb.acceptable_answers.all()
-            for ans in accepted:
-                text = ans.content
-                if fitb.strip_whitespace:
-                    answer = answer.strip()
-                    text = text.strip()
-                if not fitb.case_sensitive:
-                    answer = answer.lower()
-                    text = text.lower()
-                if answer == text:
-                    is_correct = True
-                    break
-            correct_answers = [a.content for a in accepted]
+            ans = answer or ""
+            if fitb.strip_whitespace:
+                ans = ans.strip()
+            matched = False
+            for acc in fitb.acceptable_answers.all():
+                want = acc.content.strip() if fitb.strip_whitespace else acc.content
+                if fitb.case_sensitive:
+                    if ans == want: matched = True; break
+                else:
+                    if ans.lower() == want.lower(): matched = True; break
+            is_correct = matched
+            correct_answers = [a.content for a in fitb.acceptable_answers.all()]
 
-    # (Optional) Save the user's answer to your UserAnswer model here
-    # Save the user's answer
-    try:
-        lesson = Lesson.objects.get(id=lesson_id)
-    except Lesson.DoesNotExist:
-        return JsonResponse({"error": "Invalid lesson ID"}, status=404)
-
-    session_id = request.session.get("current_lesson_session_id")
-    lesson_session = LessonSession.objects.filter(session_id=session_id).first()
-
+    # --- save response (NOW including sitting) ---
     QuizResponse.objects.create(
         user=user,
         lesson=lesson,
-        lesson_session=lesson_session,  # ✅ New link to LessonSession
+        lesson_session=lesson_session,
         question=question,
-        user_answer=answer,
-        is_correct=is_correct
+        user_answer=json.dumps(answer) if isinstance(answer, (list, dict)) else str(answer),
+        is_correct=is_correct,
     )
 
     return JsonResponse({
@@ -427,6 +433,165 @@ def submit_question(request):
         "is_correct": is_correct,
         "correct_answers": correct_answers,
     })
+
+def _resolve_question_ids_for_lesson(lesson: Lesson) -> (Quiz, List[int]):
+    """
+    Return (quiz, ordered_question_ids) given a Lesson that may reference
+    either a QuizTemplate or a concrete Quiz.
+    """
+    # Template case
+    if lesson.create_quiz_from == "create_quiz_from1" and lesson.quiz_template_id:
+        template = get_object_or_404(QuizTemplate, id=lesson.quiz_template_id)
+        qids = list(
+            TemplateQuestion.objects.filter(template=template)
+            .values_list("question_id", flat=True)
+        )
+        # Use/require a concrete Quiz row to hang metadata off of.
+        # If you already create one for templates, fetch that instead:
+        quiz = Quiz.objects.filter(id=lesson.quiz_id).first() or Quiz.objects.filter(url=f"template-{template.id}").first()
+        if not quiz:
+            # last-resort: pick any quiz-like container; or you can create one
+            # but typically you'd have set lesson.quiz_id when “creating from template”
+            quiz = Quiz.objects.create(
+                title=f"Template: {template.title}",
+                description=f"Derived from template {template.id}",
+                url=f"template-{template.id}"
+            )
+            lesson.quiz_id = quiz.id
+            lesson.save(update_fields=["quiz_id"])
+        return quiz, qids
+
+    # Concrete quiz case
+    if lesson.quiz_id:
+        quiz = get_object_or_404(Quiz, id=lesson.quiz_id)
+        qids = list(QuestionOrder.objects.filter(quiz=quiz).order_by("order").values_list("question_id", flat=True))
+        if not qids:
+            # fallback to M2M natural ordering
+            qids = list(quiz.questions.all().order_by("id").values_list("id", flat=True))
+        return quiz, qids
+
+    raise Http404("Lesson has no quiz or template assigned.")
+
+def _question_to_json(q: Question):
+    # Answers (MC/MR). Provide TF fallback if no Answer rows exist.
+    answers = list(q.answers.all().order_by("order").values("id", "text"))
+
+    # ✅ TF fallback
+    if hasattr(q, "tfquestion") and not answers:
+        answers = [
+            {"id": "true", "text": "True"},
+            {"id": "false", "text": "False"},
+        ]
+
+    # Media
+    media_items = []
+    for m in q.media_items.all():
+        media_items.append({
+            "source_type": m.source_type,
+            "title": m.title or "",
+            "file_url": (m.file.url if m.file else None),
+            "url_from_library": m.url_from_library or None,
+            "type_from_library": m.type_from_library or "",
+            "embed_code": m.embed_code or "",
+        })
+
+    # Essay prompts
+    prompts = []
+    if hasattr(q, "essayquestion"):
+        prompts = [
+            {"id": p.id, "prompt_text": p.prompt_text, "rubric": p.rubric or ""}
+            for p in q.essayquestion.prompts.all().order_by("order")
+        ]
+
+    fitb = getattr(q, "fitbquestion", None)
+    fitb_meta = None
+    if fitb:
+        fitb_meta = {
+            "case_sensitive": fitb.case_sensitive,
+            "strip_whitespace": fitb.strip_whitespace
+        }
+
+    # Normalize type: if it allows multiple, treat as MR on the client
+    qtype = q.__class__.__name__
+    if getattr(q, "allows_multiple", False) and qtype == "Question":
+        qtype = "MRQuestion"
+
+    return {
+        "id": q.id,
+        "question_type": qtype,
+        "content": q.content,
+        "allows_multiple": bool(getattr(q, "allows_multiple", False)),
+        "answers": answers,
+        "has_media": q.media_items.exists(),
+        "media_items": media_items,
+        "has_embed": any(mi["embed_code"] for mi in media_items),
+        "essay_prompts": prompts,
+        "fitb_meta": fitb_meta,
+    }
+
+# ---------- page shell (kept) ----------
+
+@login_required
+def quiz_player_page(request, lesson_id):
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+
+    # set up/ensure a LessonSession
+    session = LessonSession.objects.filter(user=request.user, lesson=lesson).first()
+    if not session:
+        session = LessonSession.objects.create(user=request.user, lesson=lesson)
+    request.session["current_lesson_session_id"] = session.session_id
+
+    quiz, qids = _resolve_question_ids_for_lesson(lesson)
+
+    # Reveal answers: prefer QuizConfig if present
+    reveal = False
+    if hasattr(lesson, "quiz_config") and lesson.quiz_config:
+        reveal = bool(lesson.quiz_config.reveal_answers)
+    else:
+        reveal = not bool(quiz.answers_at_end)
+
+    ctx = {
+        "lesson": lesson,
+        "quiz": quiz,
+        "total_questions": len(qids),
+        "reveal_answers": reveal,
+        "lesson_progress_data": "[]",
+        "scorm_index_file_url": getattr(lesson, "scorm_id", ""),
+        "lesson_location": getattr(lesson, "scorm_id", ""),
+        "course_locked": False,
+        "mini_lesson_progress": [],
+        "profile_id": request.user.id,
+        "saved_progress": 0,
+    }
+    return render(request, "course_player/quiz_player.html", ctx)
+
+# ---------- JSON question fetch ----------
+
+@login_required
+@require_GET
+def quiz_question_json(request, lesson_id, position):
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    quiz, qids = _resolve_question_ids_for_lesson(lesson)
+    total = len(qids)
+    if position < 0 or position >= total:
+        raise Http404("No such question")
+
+    q = get_object_or_404(Question, id=qids[position])
+
+    payload = {
+        "question": _question_to_json(q),
+        "meta": {
+            "position": position,
+            "display_index": position + 1,
+            "total": total,
+            "is_last": position == total - 1,
+            "quiz_id": quiz.id,
+        }
+    }
+    return JsonResponse(payload)
+
+
+
 
 @login_required
 def launch_scorm(request, course_id):

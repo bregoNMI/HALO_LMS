@@ -194,6 +194,8 @@
     transition: all 0.2s linear;
 }.chart-filter-label:hover {
     background-color: var(--bg-color3);
+}.chart-filter-label:active {
+    background-color: #f2f2f2;
 }.chart-filter-label input{
     background-color: transparent;
     border: none;
