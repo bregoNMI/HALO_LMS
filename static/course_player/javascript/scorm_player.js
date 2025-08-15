@@ -280,12 +280,13 @@ window.addEventListener("message", function(event) {
 
 let lastTrackingPayload = null;
 let lessonMarkedComplete = false;
+
 function sendTrackingData(trackingData) {
     if (lessonMarkedComplete && trackingData.completion_status !== "complete") {
         console.warn("🚫 Skipping post-completion tracking payload:", trackingData);
         return;
     }
-
+    console.log("LIGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG")
     // Deduplication logic
     const payloadKey = JSON.stringify(trackingData);
     if (lastTrackingPayload === payloadKey) {
@@ -295,17 +296,13 @@ function sendTrackingData(trackingData) {
     lastTrackingPayload = payloadKey;
     trackingData.session_id = window.lessonSessionId;
 
-    if (trackingData.completion_status === "complete" || trackingData.final === true) {
-        trackingData.session_time = getNewSessionTime();
-    } else {
-        delete trackingData.session_time;
-    }
-
     fetch('/course_player/track-scorm-data/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken'),
+            'Accept': 'application/json',            // ← add this
+            'X-Requested-With': 'XMLHttpRequest',    // ← and this
         },
         body: JSON.stringify(trackingData),
     })
@@ -445,6 +442,8 @@ function sendMiniLessonProgress(lessonProgressArray) {
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken'),
+            'Accept': 'application/json',            // ← add this
+            'X-Requested-With': 'XMLHttpRequest',    // ← and this
         },
         body: JSON.stringify({
             user_id: window.userId,
@@ -682,44 +681,69 @@ function observeAndLockTooltip() {
             if (!el) return;
 
             const index = el.getAttribute("data-lesson-index");
-            const savedEntry = saved.find(p => p.mini_lesson_index == index && p.progress === "Completed");
+            const savedEntry = saved.find(p => p.mini_lesson_index == index);
             if (!savedEntry) return;
 
-            const currentLabel = el.getAttribute("aria-label");
-            if (currentLabel === "Completed" && el.classList.contains("progress-circle--done")) {
-                // Already good — skip mutation
-                return;
-            }
+            const normalizedProgress = (savedEntry.progress || "").trim().toLowerCase();
 
-            // 🛠️ Re-apply completed state
-            el.setAttribute("aria-label", "Completed");
-            el.setAttribute("data-completion-status", "completed");
-            el.classList.add("progress-circle--done");
+            const currentLabel = el.getAttribute("aria-label");
+            const alreadyCompleted = currentLabel === "Completed" && el.classList.contains("progress-circle--done");
+            const alreadyFailed = currentLabel === "Failed" && el.classList.contains("progress-circle--done");
+
+            if (alreadyCompleted || alreadyFailed) return;
 
             const circle = el.querySelector("circle.progress-circle__runner");
-            if (circle) {
-                circle.classList.add("progress-circle__runner--done", "progress-circle__runner--passed");
-                circle.classList.remove("progress-circle__runner--unstarted");
-                circle.setAttribute("stroke-dashoffset", "0");
-            }
-
             const checkmark = el.querySelector("path.progress-circle__pass");
-            if (checkmark) {
-                checkmark.style.display = "block";
-                checkmark.style.opacity = "1";
-                checkmark.style.visibility = "visible";
-            }
-
             const failIcon = el.querySelector("path.progress-circle__fail");
-            if (failIcon) {
-                failIcon.style.display = "none";
-            }
 
-            // console.log(`🔁 Reapplied and locked completion state for mini-lesson ${index}`);
+            if (normalizedProgress === "completed") {
+                el.setAttribute("aria-label", "Completed");
+                el.setAttribute("data-completion-status", "completed");
+                el.classList.add("progress-circle--done");
+
+                if (circle) {
+                    circle.classList.add("progress-circle__runner--done", "progress-circle__runner--passed");
+                    circle.classList.remove("progress-circle__runner--unstarted");
+                    circle.setAttribute("stroke-dashoffset", "0");
+                }
+
+                if (checkmark) {
+                    checkmark.style.display = "block";
+                    checkmark.style.opacity = "1";
+                    checkmark.style.visibility = "visible";
+                }
+
+                if (failIcon) {
+                    failIcon.style.display = "none";
+                }
+
+                console.log(`🔁 Reapplied and locked COMPLETED state for mini-lesson ${index}`);
+            } else if (normalizedProgress === "failed") {
+                el.setAttribute("aria-label", "Failed");
+                el.setAttribute("data-completion-status", "failed");
+                el.classList.add("progress-circle--done");
+
+                if (circle) {
+                    circle.classList.add("progress-circle__runner--done", "progress-circle__runner--failed");
+                    circle.classList.remove("progress-circle__runner--unstarted");
+                    circle.setAttribute("stroke-dashoffset", "0");
+                }
+
+                if (failIcon) {
+                    failIcon.style.display = "block";
+                    failIcon.style.opacity = "1";
+                    failIcon.style.visibility = "visible";
+                }
+
+                if (checkmark) {
+                    checkmark.style.display = "none";
+                }
+
+                console.log(`🔁 Reapplied and locked FAILED state for mini-lesson ${index}`);
+            }
         });
     });
 
-    // Attach observer to each progress circle SVG once
     const circles = iframeDoc.querySelectorAll("svg.progress-circle--sidebar");
     circles.forEach(svg => {
         observer.observe(svg, {
@@ -728,7 +752,7 @@ function observeAndLockTooltip() {
         });
     });
 
-    // console.log("👀 Safe MutationObserver attached to lock mini-lesson completion state.");
+    console.log("👀 MutationObserver attached to persist ✅ and ❌ icons.");
 }
 
 function waitForTooltipPortal(callback, retries = 100, delay = 500) {
@@ -878,6 +902,36 @@ function updateProgressCircles() {
             if (match) {
                 progressPercentage = parseInt(match[1], 10);
             }
+        }
+
+        if (normalized === "failed") {
+            console.log("FAIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIILED")
+            const svg = iframeDocument.querySelector(`svg.progress-circle--sidebar[data-lesson-index="${mini_lesson_index}"]`);
+            if (!svg) return;
+
+            const circle = svg.querySelector("circle.progress-circle__runner");
+            if (!circle) return;
+
+            svg.setAttribute("aria-label", "Failed");
+            svg.setAttribute("data-completion-status", "failed");
+            svg.classList.add("progress-circle--done");
+            circle.classList.add("progress-circle__runner--done", "progress-circle__runner--failed");
+            circle.classList.remove("progress-circle__runner--unstarted");
+
+            const failIcon = svg.querySelector("path.progress-circle__fail");
+            if (failIcon) {
+                failIcon.style.display = "block";
+                failIcon.style.opacity = "1";
+                failIcon.style.visibility = "visible";
+            }
+
+            const checkmark = svg.querySelector("path.progress-circle__pass");
+            if (checkmark) {
+                checkmark.style.display = "none";
+            }
+
+            console.log(`❌ Mini-lesson ${mini_lesson_index} marked as failed`);
+            return;  // skip remaining logic
         }
 
         if (progressPercentage === 0) {
@@ -1199,24 +1253,6 @@ function getProgressFromIframe() {
     }
     return 0; // Default progress if not found
 }
-/*
-function getLessonLocation() {
-    try {
-        const iframe = document.getElementById("scormContentIframe");
-        if (!iframe || !iframe.contentWindow) {
-            console.warn("⚠️ Iframe not accessible in getLessonLocation()");
-            return "";
-        }
-
-        let lessonLocation = iframe.contentWindow.location.href;
-        console.log(`📍 Captured Lesson Location: ${lessonLocation}`);
-        return lessonLocation;
-    } catch (error) {
-        console.error("🚨 Error retrieving lesson location:", error);
-        return "";
-    }
-}
-*/
 
 function getLessonLocation() {
     try {
@@ -1233,49 +1269,7 @@ function getLessonLocation() {
         console.error("🚨 Error retrieving lesson location:", error);
         return "";
     }
-}    
-/*
-function saveLessonProgress() {
-    let lessonId = window.lessonId;
-    if (!lessonId) {
-        console.warn("⚠️ No active lesson found, skipping progress save.");
-        return;
-    }
-
-    try {
-        let iframe = document.getElementById("scormContentIframe");
-        let scrollPosition = 0;
-        
-
-        if (iframe && iframe.contentWindow) {
-            scrollPosition = iframe.contentWindow.scrollY || 
-                            iframe.contentWindow.document.documentElement.scrollTop || 
-                            iframe.contentWindow.document.body.scrollTop || 0;
-        }
-
-        let lessonLocation = getLessonLocation();
-
-        lessonScrollPositions[lessonId] = { scrollPosition, lessonLocation };
-        localStorage.setItem("lessonScrollPositions", JSON.stringify(lessonScrollPositions));
-
-        console.log(`✅ Progress Saved for Lesson ${lessonId}:`, lessonScrollPositions[lessonId]);
-        
-        sendTrackingData({
-            lesson_id: lessonId,
-            user_id: window.userId,
-            progress: getProgressFromIframe(),
-            lesson_location: lessonLocation, // 🔹 Send the exact lesson location
-            scroll_position: scrollPosition, // 🔹 Send the exact scroll position
-            completion_status: "incomplete",
-            session_time: getSessionTime(),
-            score: null,
-        });
-        
-    } catch (error) {
-        console.error("🚨 Error saving lesson progress:", error);
-    }
-}
-*/
+}       
 
 function saveLessonProgress() {
     let lessonId = window.lessonId;
@@ -1313,7 +1307,27 @@ function saveLessonProgress() {
     const progress = isScormLesson() ? getProgressFromIframe() : 1;
     const isComplete = progress >= 1.0;
 
-    console.log('saveLessonProgress');
+    console.group("🧪 [saveLessonProgress] Tracking Debug");
+
+    console.log("📍 lessonId:", lessonId);
+    console.log("📦 lessonLocation (to be sent):", lessonLocation);
+    console.log("📜 scrollPosition:", scrollPosition);
+
+    if (isScormLesson()) {
+        try {
+            const suspendDataRaw = window.API_1484_11.GetValue("cmi.suspend_data");
+            console.log("🧠 suspend_data from SCORM API:", suspendDataRaw);
+
+            const parsed = JSON.parse(suspendDataRaw || "{}");
+            console.log("📦 Parsed suspend_data:", parsed);
+            console.log("📌 suspend_data.lessonLocation:", parsed.lessonLocation);
+        } catch (e) {
+            console.warn("❌ Failed to parse suspend_data:", e);
+        }
+    }
+
+    console.groupEnd();
+
     sendTrackingData({
         lesson_id: lessonId,
         user_id: window.userId,
@@ -1712,7 +1726,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     window.addEventListener("pagehide", () => {
-        const sessionTime = getNewSessionTime();
+        const sessionTime = getSessionTime();
         const finalPayload = {
             lesson_id: window.lessonId,
             user_id: window.userId,
@@ -1740,7 +1754,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "hidden") {
-            const sessionTime = getNewSessionTime();
+            const sessionTime = getSessionTime();
             const finalPayload = {
                 lesson_id: window.lessonId,
                 user_id: window.userId,

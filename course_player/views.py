@@ -16,7 +16,7 @@ from client_admin.utils import get_formatted_datetime
 from urllib.parse import quote, unquote, unquote_plus
 from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, UserAssignmentProgress
 from django.contrib.auth.decorators import login_required
-from django.http import FileResponse, Http404, JsonResponse
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.conf import settings
 from botocore.exceptions import ClientError
@@ -204,23 +204,23 @@ def proxy_scorm_absolute(request, file_path):
 
     # Reuse the existing proxy logic
     return proxy_scorm_file(request, full_path)
-
+"""
 def proxy_scorm_file(request, file_path):
-    """
-    Proxy SCORM file from S3 to serve it through the LMS domain.
-    """
+
+    #Proxy SCORM file from S3 to serve it through the LMS domain.
+
     from urllib.parse import unquote_plus
 
     decoded_file_path = unquote_plus(file_path).strip()
     print(f"🔍 Incoming SCORM request: {decoded_file_path}")
 
-    # ✅ Clean up paths where index.html is treated as a folder (SCORM quirk)
+    # 🧹 Normalize anything weird about index.html
+    if decoded_file_path.endswith("index.html/"):
+        decoded_file_path = decoded_file_path.rstrip("/")
+        print(f"🧹 Removed trailing slash after index.html → {decoded_file_path}")
     if "index.html/" in decoded_file_path:
         decoded_file_path = decoded_file_path.replace("index.html/", "")
         print(f"🧹 Removed 'index.html/' from path → {decoded_file_path}")
-    elif decoded_file_path.endswith("index.html/"):
-        decoded_file_path = decoded_file_path.rstrip("/")
-        print(f"🧹 Removed trailing slash after index.html → {decoded_file_path}")
 
     # 🧼 Fix nested font path bug: "lib/icomoon.css/fonts/icomoon.woff" → "lib/fonts/icomoon.woff"
     if "lib/icomoon.css/fonts/" in decoded_file_path:
@@ -265,7 +265,220 @@ def proxy_scorm_file(request, file_path):
     except ClientError as e:
         print(f"❌ Error fetching {s3_key} from S3: {e}")
         raise Http404("SCORM file not found")
-        
+"""
+
+"""
+def proxy_scorm_file(request, file_path):
+
+    #Proxy SCORM file from S3 to serve it through the LMS domain.
+    #Resolves both absolute ('scormcontent/...') and relative ('assets/...', 'lib/...', etc.) paths
+    #against the active lesson folder stored in session.
+
+    from urllib.parse import unquote_plus
+
+    decoded_file_path = unquote_plus(file_path or "").strip()
+    print(f"🔍 Incoming SCORM request: {decoded_file_path}")
+
+    # Normalize "index.html" quirks
+    if decoded_file_path.endswith("index.html/"):
+        decoded_file_path = decoded_file_path.rstrip("/")
+        print(f"🧹 Removed trailing slash after index.html → {decoded_file_path}")
+    if "index.html/" in decoded_file_path:
+        decoded_file_path = decoded_file_path.replace("index.html/", "")
+        print(f"🧹 Removed 'index.html/' from path → {decoded_file_path}")
+
+    # Fix nested font path bug produced by some themes
+    if "lib/icomoon.css/fonts/" in decoded_file_path:
+        decoded_file_path = decoded_file_path.replace("lib/icomoon.css/fonts/", "lib/fonts/")
+        print(f"🧼 Normalized font path from CSS: {decoded_file_path}")
+
+    # Drop any accidental leading slash for consistent joining
+    if decoded_file_path.startswith("/"):
+        decoded_file_path = decoded_file_path.lstrip("/")
+
+    # Resolve against the active SCORM folder
+    folder = request.session.get("active_scorm_folder")
+    if not folder:
+        print("❌ No SCORM folder in session")
+        raise Http404("SCORM folder not set")
+
+    # If the path is an absolute SCORM path (begins with scormcontent/), scope it to the folder
+    if decoded_file_path.startswith("scormcontent/"):
+        resolved_path = f"{folder}/{decoded_file_path}"
+
+    else:
+        # Common SCORM subfolders that appear as relative URLs in HTML/CSS/JS
+        RELATIVE_ROOTS = ("assets/", "lib/", "scripts/", "images/", "img/", "css/", "js/", "fonts/")
+
+        if decoded_file_path.startswith(RELATIVE_ROOTS):
+            resolved_path = f"{folder}/scormcontent/{decoded_file_path}"
+        else:
+            # Fallback: treat anything else as relative to scormcontent root
+            # (covers odd theme paths or bare filenames like "index_lesson2.html")
+            resolved_path = f"{folder}/scormcontent/{decoded_file_path}"
+
+    # Build final S3 key under your uploads root
+    s3_key = f"media/default/uploads/{resolved_path}".replace("\\", "/").strip()
+    print(f"📂 Final S3 Key: {s3_key}")
+
+    # Fetch from S3
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        region_name=AWS_S3_REGION_NAME
+    )
+
+    try:
+        s3_response = s3_client.get_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=s3_key)
+        file_body = s3_response["Body"]
+
+        # Prefer S3 metadata; otherwise guess; force-correct for web types
+        content_type = (
+            s3_response.get("ContentType")
+            or mimetypes.guess_type(s3_key)[0]
+            or "application/octet-stream"
+        )
+
+        # Normalize common web types
+        path_lower = s3_key.lower()
+        if path_lower.endswith(".html"):
+            content_type = "text/html"
+        elif path_lower.endswith(".css"):
+            content_type = "text/css"
+        elif path_lower.endswith(".js"):
+            content_type = "application/javascript"
+        elif path_lower.endswith(".svg"):
+            content_type = "image/svg+xml"
+
+        return FileResponse(file_body, content_type=content_type)
+
+    except ClientError as e:
+        print(f"❌ Error fetching {s3_key} from S3: {e}")
+        raise Http404("SCORM file not found")
+"""
+
+def proxy_scorm_file(request, file_path):
+    """
+    Proxy SCORM file from S3 through the LMS domain.
+
+    Handles:
+      - URLs that accidentally include "index.html/" before asset folders
+      - Absolute paths like:  <folder>/scormcontent/...
+      - Relative paths like:  assets/... , lib/... , css/... (resolved under scormcontent/)
+      - Prevents double-prepending the active folder
+    """
+    from urllib.parse import unquote_plus
+
+    decoded = unquote_plus((file_path or "").strip())
+    print(f"🔍 Incoming SCORM request: {decoded}")
+
+    # --- Normalize "index.html/" quirks --------------------------------------
+    if decoded.endswith("index.html/"):
+        decoded = decoded.rstrip("/")
+        print(f"🧹 Trimmed trailing slash after index.html → {decoded}")
+
+    if "index.html/" in decoded:
+        before = decoded
+        decoded = decoded.replace("index.html/", "")
+        print(f"🧹 Removed 'index.html/' segment → {before} → {decoded}")
+
+    # Some packages nest fonts oddly: lib/icomoon.css/fonts/... -> lib/fonts/...
+    if "lib/icomoon.css/fonts/" in decoded:
+        decoded = decoded.replace("lib/icomoon.css/fonts/", "lib/fonts/")
+        print(f"🧼 Normalized font path → {decoded}")
+
+    # Uniform leading slash handling
+    if decoded.startswith("/"):
+        decoded = decoded.lstrip("/")
+
+    # Resolve against the active SCORM folder
+    folder = request.session.get("active_scorm_folder")
+    if not folder:
+        print("❌ No SCORM folder in session")
+        raise Http404("SCORM folder not set")
+
+    # If the incoming path already starts with the dynamic folder, strip it
+    # so we don’t double-prefix below.
+    path_after_folder = decoded
+    folder_prefix = f"{folder}/"
+    if decoded.startswith(folder_prefix):
+        path_after_folder = decoded[len(folder_prefix):]
+        print(f"🔧 Stripped leading folder prefix: {decoded} → {path_after_folder}")
+
+    # Now decide how to join:
+    RELATIVE_ROOTS = ("assets/", "lib/", "scripts/", "images/", "img/", "css/", "js/", "fonts/")
+    if path_after_folder.startswith("scormcontent/"):
+        # Absolute within the package; just prefix the folder once.
+        resolved_path = f"{folder}/{path_after_folder}"
+    elif path_after_folder.startswith(RELATIVE_ROOTS) or path_after_folder == "" or path_after_folder == "index.html":
+        # Relative asset or bare/entry reference → under scormcontent/
+        resolved_path = f"{folder}/scormcontent/{path_after_folder}"
+    else:
+        # Fallback: treat as a relative asset living under scormcontent/
+        resolved_path = f"{folder}/scormcontent/{path_after_folder}"
+
+    s3_key = f"media/default/uploads/{resolved_path}".replace("\\", "/").strip()
+    print(f"📂 Final S3 Key: {s3_key}")
+
+    # --- Fetch from S3 -------------------------------------------------------
+    s3_client = boto3.client(
+        "s3",
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        region_name=AWS_S3_REGION_NAME,
+    )
+
+    try:
+        s3_response = s3_client.get_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=s3_key)
+        file_body = s3_response["Body"]
+
+        # Prefer S3 metadata, else guess, then normalize
+        content_type = (
+            s3_response.get("ContentType")
+            or mimetypes.guess_type(s3_key)[0]
+            or "application/octet-stream"
+        )
+
+        # Normalize common web types
+        lower = s3_key.lower()
+        if lower.endswith(".html"):
+            content_type = "text/html"
+        elif lower.endswith(".css"):
+            content_type = "text/css"
+        elif lower.endswith(".js"):
+            content_type = "application/javascript"
+        elif lower.endswith(".svg"):
+            content_type = "image/svg+xml"
+        elif lower.endswith(".json"):
+            content_type = "application/json"
+        elif lower.endswith(".woff2"):
+            content_type = "font/woff2"
+        elif lower.endswith(".woff"):
+            content_type = "font/woff"
+        elif lower.endswith(".ttf"):
+            content_type = "font/ttf"
+        elif lower.endswith(".otf"):
+            content_type = "font/otf"
+        elif lower.endswith(".map"):
+            content_type = "application/json"
+        elif lower.endswith(".png"):
+            content_type = "image/png"
+        elif lower.endswith(".jpg") or lower.endswith(".jpeg"):
+            content_type = "image/jpeg"
+        elif lower.endswith(".gif"):
+            content_type = "image/gif"
+        elif lower.endswith(".webp"):
+            content_type = "image/webp"
+
+        return FileResponse(file_body, content_type=content_type)
+
+    except ClientError as e:
+        print(f"❌ Error fetching {s3_key} from S3: {e}")
+        raise Http404("SCORM file not found")
+
+
+
 def get_scorm_progress(request, lesson_id):
     user = request.user
     lesson = get_object_or_404(Lesson, pk=lesson_id)
@@ -301,9 +514,6 @@ def get_scorm_progress(request, lesson_id):
 
     print(f"[get_scorm_progress] Error parsing cmi_data: {e}")
     return JsonResponse({"suspend_data": ""}, status=500)
-
-
-
 
 @login_required
 @require_GET
@@ -835,6 +1045,12 @@ def launch_scorm_file(request, lesson_id):
     if lesson_location.endswith("/None"):
         lesson_location = ""
 
+    # Clean broken index.html paths
+    if lesson_location.endswith("index.html/"):
+        lesson_location = lesson_location.rstrip("/")
+    elif "index.html/" in lesson_location:
+        lesson_location = lesson_location.replace("index.html/", "index.html")
+
     scroll_position = saved_progress.scroll_position if saved_progress else 0
 
     lesson_assignment_map = defaultdict(list)
@@ -849,7 +1065,9 @@ def launch_scorm_file(request, lesson_id):
             folder_name = entry_key.split("/")[0]
             request.session["active_scorm_folder"] = folder_name
 
-            proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}"
+            #proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}"
+            proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}".rstrip("/")
+
 
         else:
             return render(request, 'error.html', {'message': 'No valid SCORM entry point found for this lesson.'})
@@ -969,6 +1187,39 @@ def get_s3_file_metadata(bucket_name, key):
     except ClientError as e:
         print(f"Error retrieving metadata for {key}: {e}")
         return {}
+    
+def parse_iso8601_duration(duration_str):
+    """
+    Parse a simplified ISO 8601 duration string (e.g., 'PT1H2M3S') into seconds.
+    """
+    pattern = r'^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$'
+    match = re.match(pattern, duration_str)
+    if not match:
+        return 0
+
+    hours = int(match.group(1)) if match.group(1) else 0
+    minutes = int(match.group(2)) if match.group(2) else 0
+    seconds = int(match.group(3)) if match.group(3) else 0
+
+    return hours * 3600 + minutes * 60 + seconds
+
+def format_iso8601_duration(total_seconds):
+    """
+    Convert total seconds to ISO 8601 duration string (e.g., 3723 → 'PT1H2M3S').
+    """
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+    return f"PT{hours}H{minutes}M{seconds}S"
+
+def accumulate_time(existing, new):
+    try:
+        existing_sec = parse_iso8601_duration(existing or "PT0H0M0S")
+        new_sec = parse_iso8601_duration(new or "PT0H0M0S")
+        return format_iso8601_duration(existing_sec + new_sec)
+    except Exception as e:
+        print("⚠️ Error in accumulate_time:", e)
+        return existing or "PT0H0M0S"
 
 @login_required
 def available_lessons(request):
@@ -1011,6 +1262,15 @@ def track_scorm_data(request):
         score = data.get("score")
         lesson_location = data.get("lesson_location", "")
         scroll_position = data.get("scroll_position", 0)
+
+        # 🧼 Fix broken trailing slash on index.html
+        if lesson_location.endswith("index.html/"):
+            lesson_location = lesson_location.rstrip("/")
+            print(f"🧹 Cleaned lesson_location path → {lesson_location}")
+        elif "index.html/" in lesson_location:
+            lesson_location = lesson_location.replace("index.html/", "index.html")
+            print(f"🧹 Cleaned broken index.html subpath → {lesson_location}")
+
 
         if not profile_id or not lesson_id:
             print("❌ Missing profile_id or lesson_id")
@@ -1167,9 +1427,13 @@ def track_scorm_data(request):
                     fields_to_update["completion_status"] = completion_status
                     updated = True
 
+            if lesson_location != existing_tracking.lesson_location:
+                fields_to_update["lesson_location"] = lesson_location
+                updated = True
+
             if updated:
                 fields_to_update.update({
-                    "session_time": session_time,
+                    "session_time": accumulate_time(existing_tracking.session_time, session_time),
                     "scroll_position": scroll_position,
                     "lesson_location": lesson_location,
                     "score": score,
@@ -1184,6 +1448,19 @@ def track_scorm_data(request):
 
         # 📈 Update course-level progress
         user_course.update_progress()
+        
+
+        session_id = data.get("session_id")
+        print("🔍 Trying to update LessonSession for:", session_id)
+        if session_id:
+            try:
+                session = LessonSession.objects.get(session_id=session_id)
+                session.end_time = timezone.now()
+                session.session_time = session_time
+                session.save()
+                print(f"⏱️ LessonSession updated: {session.session_id} with {session_time}")
+            except LessonSession.DoesNotExist:
+                print(f"⚠️ LessonSession not found for session_id: {session_id}")
 
         return JsonResponse({
             "status": "success" if lesson_marked_complete else "incomplete",
