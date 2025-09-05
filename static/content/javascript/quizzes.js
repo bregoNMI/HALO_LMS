@@ -851,7 +851,7 @@ function renderQuestions(questions) {
     }
 
     questions.forEach((q, index) => {
-        const questionItem = document.createElement('div');
+        const questionItem = document.createElement('button');
         questionItem.classList.add('question-item');
         questionItem.dataset.questionId = q.id;
         let questionIcon;

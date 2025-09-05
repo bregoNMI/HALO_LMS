@@ -116,186 +116,185 @@
     </div>   -->
 </div>
 <script>
-    // window.progressDataString = '{{ lesson_progress_data|default:"[]"|escapejs }}';
-    window.lessonId = {{ lesson.id|default:"0" }};
-    window.userId = {{ profile_id|default:"0" }};
-    window.courseLocked = {{ course_locked|yesno:"true,false" }};
-    window.miniLessonProgress = {{ mini_lesson_progress|default:"[]"|safe }};
-    window.lessonContentType = "{{ lesson.content_type }}";
-    window.lessonLocation = "{{ lesson.lesson_location }}";
-    window.savedProgress = {{ saved_progress|default:0 }};
-    window.lessonSessionId = "{{ request.session.current_lesson_session_id }}";
-    window.nextlessonId = "{{ next_lesson.id }}";
+  // Globals from server
+  window.lessonId         = {{ lesson.id|default:"0" }};
+  window.userId           = {{ profile_id|default:"0" }};
+  window.courseLocked     = {{ course_locked|yesno:"true,false" }};
+  window.miniLessonProgress = {{ mini_lesson_progress|default:"[]"|safe }};
+  window.lessonContentType  = "{{ lesson.content_type }}";
+  window.lessonLocation     = "{{ lesson.lesson_location }}";
+  window.savedProgress      = {{ saved_progress|default:0 }};
+  window.lessonSessionId    = "{{ request.session.current_lesson_session_id }}";
+  window.nextlessonId       = "{{ next_lesson.id }}";
 
-    const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
+  const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
 
-    function launchLessonById(lessonId) {
-        window.location.href = launchScormUrlTemplate + lessonId + "/";
-    }
+  function launchLessonById(lessonId) {
+    window.location.href = launchScormUrlTemplate + lessonId + "/";
+  }
+  function launchNextLesson(nextLessonId) { launchLessonById(nextLessonId); }
+  function launchPrevLesson(prevLessonId) { launchLessonById(prevLessonId); }
 
-    function launchNextLesson(nextLessonId) {
-        launchLessonById(nextLessonId);
-    }
+  document.addEventListener("DOMContentLoaded", function () {
+    try {
+      const rawData   = `{{ lesson_progress_data|escapejs }}`;
+      const parsedData = JSON.parse(rawData);
+      window.lessonData = parsedData;
+      console.log('🧪 parsedData:', parsedData);
 
-    function launchPrevLesson(prevLessonId) {
-        launchLessonById(prevLessonId);
-    }
+      const urlPath = window.location.pathname;
+      const match   = urlPath.match(/\/launch_scorm_file\/(\d+)\//);
+      const currentLessonIdFromUrl = match ? parseInt(match[1], 10) : null;
 
-    document.addEventListener("DOMContentLoaded", function () {
-        try {
-            const rawData = `{{ lesson_progress_data|escapejs }}`;
-            const parsedData = JSON.parse(rawData);
-            window.lessonData = parsedData;
-            console.log('🧪 parsedData:', parsedData);
+      // Walk all sidebar lessons and render status/progress/locks
+      document.querySelectorAll('.lesson-item').forEach(item => {
+        const id = parseInt(item.dataset.lessonId, 10);
+        const lesson = parsedData.find(l => l.id === id);
+        if (!lesson) return;
 
-            const urlPath = window.location.pathname;
-            const match = urlPath.match(/\/launch_scorm_file\/(\d+)\//);
-            const currentLessonIdFromUrl = match ? parseInt(match[1]) : null;
+        const lessonRight    = item.querySelector('.lesson-item-right');
+        const lessonProgress = item.querySelector('.lesson-progress');
 
-            document.querySelectorAll('.lesson-item').forEach(item => {
-                const id = parseInt(item.dataset.lessonId);
-                const lesson = parsedData.find(l => l.id === id);
-                const lessonRight = item.querySelector('.lesson-item-right');
-                const lessonProgress = item.querySelector('.lesson-progress');
-                if (!lesson) return;
+        const isCurrentLesson = id === currentLessonIdFromUrl;
+        const isLocked        = !!(window.courseLocked && lesson.locked);
 
-                const isCurrentLesson = id === currentLessonIdFromUrl;
-                const isLocked = window.courseLocked && lesson.locked;
-                const currentLessonIndex = parsedData.findIndex(l => l.id === currentLessonIdFromUrl);
-                const nextLesson = parsedData[currentLessonIndex + 1];
-
-                // Locking the Next Lesson Btn if the next lesson is locked
-                if (nextLesson && (nextLesson.locked || (window.courseLocked && nextLesson.locked))) {
-                    const nextBtn = document.getElementById('nextLessonBtn');
-                    if (nextBtn) {
-                        nextBtn.classList.add('disabled');
-                        nextBtn.setAttribute('disabled', true);
-                    }
-                } else {
-                    console.log("✅ Next lesson is unlocked or doesn't exist.");
-                }
-                
-                item.setAttribute('data-lesson-progress', lesson.progress);
-
-                if (lesson.completed) {
-                    item.classList.add("lesson-completed");
-
-                    const checkmark = document.createElement("div");
-                    checkmark.classList.add('lesson-complete-icon');
-                    checkmark.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-                    if (lessonRight) lessonRight.appendChild(checkmark);
-                    return;
-                }
-
-                if (lesson.progress != null && !isLocked) {
-                    const progressText = document.createElement('span');
-                    progressText.className = 'lesson-progress';
-                    progressText.textContent = `${lesson.progress}%`;
-                    if (lessonRight) lessonRight.appendChild(progressText);
-                }
-
-                if (isLocked && !isCurrentLesson && !lesson.completed) {
-                    const lockedIcon = document.createElement('div');
-                    lockedIcon.classList.add('lesson-locked-icon');
-                    lockedIcon.innerHTML = '<i class="fas fa-lock"></i>';
-                    if (lessonRight) lessonRight.appendChild(lockedIcon);
-                    item.classList.add('locked');
-                    item.classList.add('disabled');
-                    item.setAttribute('disabled', true);
-                } else {
-                    console.log("🔓 Current lesson remains unlocked:", id);
-                }
-            });
-
-            updateLessonCompletionCounter();
-
-        } catch (e) {
-            console.warn("❌ Failed to update sidebar lesson progress:", e);
-        }             
-
-        const iframe = document.getElementById("scormContentIframe");
-        const fallbackScormUrl = "{{ scorm_index_file_url|escapejs }}";
-        const intendedUrl = "{{ lesson_location|escapejs }}" || fallbackScormUrl;
-    
-        // ✅ Force iframe to exact saved lesson location on load
-        if ("{{ lesson.content_type }}" === "SCORM2004" && iframe) {
-            const urlToLoad = intendedUrl !== "about:blank" ? intendedUrl : fallbackScormUrl;
-            console.log("⏩ Forcing SCORM iframe to load:", urlToLoad);
-            iframe.src = urlToLoad;
+        // Next button lock (based on next lesson lock)
+        const currentIdx = parsedData.findIndex(l => l.id === currentLessonIdFromUrl);
+        const nextLesson = currentIdx >= 0 ? parsedData[currentIdx + 1] : null;
+        if (nextLesson && (nextLesson.locked || (window.courseLocked && nextLesson.locked))) {
+          const nextBtn = document.getElementById('nextLessonBtn');
+          if (nextBtn) {
+            nextBtn.classList.add('disabled');
+            nextBtn.setAttribute('disabled', 'true');
+          }
         }
 
-        // ✅ Highlight current lesson
-        const currentLessonId = parseInt(window.lessonId, 10);
-        document.querySelectorAll('.lesson-item').forEach(item => {
-            item.classList.remove('active-lesson');
-        });
-        const activeLessons = document.querySelectorAll(`.lesson-item[data-lesson-id="${currentLessonId}"]`);
+        // Store progress for later updates
+        item.setAttribute('data-lesson-progress', lesson.progress);
 
-        activeLessons.forEach(activeLesson => {
-            activeLesson.classList.add('active-lesson');
+        // Use explicit completion_status first (server normalized),
+        // then fall back to the legacy "completed" boolean.
+        let status = (lesson.completion_status || '').toLowerCase();
+        if (!status && lesson.completed) status = 'complete';
 
-            const parentCard = activeLesson.closest('.details-info-card');
-            if (!parentCard) return;
+        // Reset right side
+        if (lessonRight) lessonRight.innerHTML = '';
 
-            const cardBody = parentCard.querySelector('.info-card-body');
-            if (cardBody) {
-                cardBody.classList.toggle('hidden'); // assumes 'hidden' = display: none
+        // Lock non-current items when required and not completed
+        if (isLocked && !isCurrentLesson && status !== 'complete') {
+          const lockedIcon = document.createElement('div');
+          lockedIcon.classList.add('lesson-locked-icon');
+          lockedIcon.innerHTML = '<i class="fas fa-lock"></i>';
+          if (lessonRight) lessonRight.appendChild(lockedIcon);
+          item.classList.add('locked', 'disabled');
+          item.setAttribute('disabled', 'true');
+          return;
+        }
+
+        // Render by status
+        if (status === 'complete' || lesson.completed) {
+            item.classList.add('lesson-completed');
+            if (lessonRight) {
+                lessonRight.innerHTML = `<div class="lesson-complete-icon"><i class="fa-solid fa-circle-check"></i></div>`;
             }
-
-            const cardHeaderRight = parentCard.querySelector('.card-header-right');
-            if (cardHeaderRight) {
-                cardHeaderRight.classList.toggle('active');
+          if (lessonProgress) lessonProgress.style.display = 'none';
+        } else if (status === 'pending') {
+            item.classList.remove('lesson-completed');
+            if (lessonRight) {
+                lessonRight.innerHTML = `<div class="lesson-pending-icon"><i class="fa-regular fa-clock"></i></div>`;
             }
-
-            const cardHeader = parentCard.querySelector('.collapsable-header');
-            if (cardHeader) {
-                cardHeader.classList.toggle('active');
+        } else if (status === 'failed') {
+            item.classList.remove('lesson-completed');
+            if (lessonRight) {
+                lessonRight.innerHTML = `<div class="lesson-failed-icon"><i class="fa-regular fa-circle-xmark"></i></div>`;
             }
-
-            const nextEl = activeLesson.nextElementSibling;
-            if (nextEl && nextEl.classList.contains('lesson-assignments-list')) {
-                nextEl.classList.remove('hidden');
-            }
-        });
-
-        // ✅ Set course progress bar
-        const courseProgressBar = document.getElementById("courseProgressBar");
-        const courseProgressText = document.getElementById("courseProgressText");
-        if (courseProgressBar && courseProgressText) {
-            const percentMatch = courseProgressText.textContent.match(/(\d+)%/);
-            if (percentMatch) {
-                const progress = parseInt(percentMatch[1], 10);
-                courseProgressBar.style.width = `${progress}%`;
+        } else {
+            // incomplete (or unknown) — show percentage if available and unlocked
+            item.classList.remove('lesson-completed');
+            if (lesson.progress != null && !isLocked) {
+                const pct = document.createElement('span');
+                pct.className = 'lesson-progress';
+                pct.textContent = `${lesson.progress}%`;
+                if (lessonRight) lessonRight.appendChild(pct);
             }
         }
 
-        // ✅ Show "Finish Course" button
-        // const finishBtn = document.getElementById("finishCourseBtn");
-        // if (finishBtn) {
-        //     finishBtn.style.display = "block";
-        // }
+      });
+
+      updateLessonCompletionCounterSCORM();
+
+    } catch (e) {
+      console.warn("❌ Failed to update sidebar lesson progress:", e);
+    }
+
+    // Force SCORM iframe to saved location on load (if applicable)
+    const iframe = document.getElementById("scormContentIframe");
+    const fallbackScormUrl = "{{ scorm_index_file_url|escapejs }}";
+    const intendedUrl = "{{ lesson_location|escapejs }}" || fallbackScormUrl;
+
+    if ("{{ lesson.content_type }}" === "SCORM2004" && iframe) {
+      const urlToLoad = intendedUrl !== "about:blank" ? intendedUrl : fallbackScormUrl;
+      console.log("⏩ Forcing SCORM iframe to load:", urlToLoad);
+      iframe.src = urlToLoad;
+    }
+
+    // Highlight current lesson
+    const currentLessonId = parseInt(window.lessonId, 10);
+    document.querySelectorAll('.lesson-item').forEach(item => item.classList.remove('active-lesson'));
+    const activeLessons = document.querySelectorAll(`.lesson-item[data-lesson-id="${currentLessonId}"]`);
+
+    activeLessons.forEach(activeLesson => {
+      activeLesson.classList.add('active-lesson');
+
+      const parentCard = activeLesson.closest('.details-info-card');
+      if (!parentCard) return;
+
+      const cardBody = parentCard.querySelector('.info-card-body');
+      if (cardBody) cardBody.classList.toggle('hidden');
+
+      const cardHeaderRight = parentCard.querySelector('.card-header-right');
+      if (cardHeaderRight) cardHeaderRight.classList.toggle('active');
+
+      const cardHeader = parentCard.querySelector('.collapsable-header');
+      if (cardHeader) cardHeader.classList.toggle('active');
+
+      const nextEl = activeLesson.nextElementSibling;
+      if (nextEl && nextEl.classList.contains('lesson-assignments-list')) {
+        nextEl.classList.remove('hidden');
+      }
     });
 
-    function updateLessonCompletionCounter(){
-        document.querySelectorAll('.details-info-card').forEach(moduleCard => {
-            const lessonButtons = moduleCard.querySelectorAll('.lesson-item');
-            const counterEl = moduleCard.querySelector('.lesson-completion-counter span');
-
-            let total = 0;
-            let completed = 0;
-
-            lessonButtons.forEach(button => {
-                const id = parseInt(button.dataset.lessonId);
-                const lesson = window.lessonData.find(l => l.id === id);
-                if (!lesson) return;
-
-                total++;
-                if (lesson.completed) completed++;
-            });
-
-            if (counterEl) {
-                counterEl.textContent = `${completed}/${total}`;
-            }
-        });
+    // Course progress bar
+    const courseProgressBar  = document.getElementById("courseProgressBar");
+    const courseProgressText = document.getElementById("courseProgressText");
+    if (courseProgressBar && courseProgressText) {
+      const percentMatch = courseProgressText.textContent.match(/(\d+)%/);
+      if (percentMatch) {
+        const progress = parseInt(percentMatch[1], 10);
+        courseProgressBar.style.width = `${progress}%`;
+      }
     }
+  });
+  
+//   function updateLessonCompletionCounter() {
+//     document.querySelectorAll('.details-info-card').forEach(moduleCard => {
+//       const lessonButtons = moduleCard.querySelectorAll('.lesson-item');
+//       const counterEl = moduleCard.querySelector('.lesson-completion-counter span');
+
+//       let total = 0;
+//       let completed = 0;
+
+//       lessonButtons.forEach(button => {
+//         const id = parseInt(button.dataset.lessonId, 10);
+//         const lesson = (window.lessonData || []).find(l => l.id === id);
+//         if (!lesson) return;
+
+//         total++;
+//         const status = (lesson.completion_status || '').toLowerCase();
+//         if (status === 'complete' || lesson.completed) completed++;
+//       });
+
+//       if (counterEl) counterEl.textContent = `${completed}/${total}`;
+//     });
+//   }
 </script>

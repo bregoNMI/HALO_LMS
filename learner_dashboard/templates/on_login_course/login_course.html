@@ -305,7 +305,7 @@
                         <a href="{% url 'custom_logout_view' %}" class="popup-btn close-popup-btn">
                             <i class="fa-regular fa-arrow-right-from-bracket"></i>Logout and complete later
                         </a>
-                        <button class="action-button-primary learner-save-btns" onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')"><i class="fa-regular fa-rocket-launch"></i> Begin Course</button>
+                        <button class="action-button-primary learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')"><i class="fa-regular fa-rocket-launch"></i> Begin Course</button>
                     </div> 
                 </div>      
             </div>                            

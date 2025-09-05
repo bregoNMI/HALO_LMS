@@ -1,5 +1,6 @@
 #scormContentIframe{
     border-radius: 8px;
+    background-color: white;
 }.course-player-secondary img{
     width: 100%;
 }
@@ -201,6 +202,7 @@ circle.progress-circle__runner {
     justify-content: space-between;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     width: 343px;
+    min-width: 343px;
     border-radius: 8px;
     /* outline: 1px solid #d7d7d7; */
     box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
@@ -354,6 +356,10 @@ circle.progress-circle__runner {
 
 .lesson-complete-icon{
     color: #4caf50;
+}.lesson-pending-icon{
+    color: var(--text-color7);
+}.lesson-failed-icon{
+    color: #cc0202;
 }
 
 /* Course Sidebar Accordian */
@@ -525,7 +531,7 @@ circle.progress-circle__runner {
     background-color: white;
     right: -0.9rem;
     top: 1rem;
-    z-index: 3;
+    z-index: 5;
     /* box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px; */
     box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
     font-size: 0.95rem;
@@ -625,6 +631,7 @@ circle.progress-circle__runner {
     overflow: hidden;
     transition: all 0.45s ease;
     transform: translateY(0%);
+    z-index: 4;
 }.course-assignments-viewer.hide-assignments{
     transform: translateY(100%);
 }.course-assignments-viewer-inner{
@@ -673,17 +680,6 @@ circle.progress-circle__runner {
     color: #41454d;
     font-weight: 500;
     margin-top: 1rem;
-}.assignment-instructions{
-    display: flex;
-    width: 100%;
-    color: var(--text-color6);
-    font-size: var(--fs-sm);
-    margin-top: 0;
-    line-height: 1.4;
-    justify-content: flex-start;
-    flex-direction: column;
-}.assignment-instructions p{
-    margin: 0;
 }
 
 .assignment-upload-header{

@@ -19,7 +19,7 @@ html, body, button{
 /* Admin Header */
 .admin-header-container{
     /* padding: var(--pad-sm) var(--pad-lg); */
-    padding: var(--pad-xxxs) var(--pad-lg);
+    padding: 0.7rem var(--pad-lg);
     background-color: #1b252d;
     /* background-color: #1a1a1a; */
     /* background-color: #00183b; */
@@ -36,7 +36,7 @@ html, body, button{
 .admin-header-left{}
 
 .admin-header-left .header-logo{
-    max-width: 200px;
+    max-width: 130px;
     max-height: 45px;
 }
 

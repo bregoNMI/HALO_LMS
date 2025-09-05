@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from pydantic import ValidationError
-from content.models import Course, Module, Lesson, EventDate, Upload
-from django.db.models.signals import post_save
+from content.models import Course, Module, Lesson, EventDate, Upload, TemplateQuestion, QuizTemplate
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from storages.backends.s3boto3 import S3Boto3Storage
 from PIL import Image
@@ -20,6 +20,8 @@ from pytz import all_timezones
 from course_player.models import SCORMTrackingData 
 import uuid
 from datetime import timedelta
+from django.db.models.functions import Coalesce
+from django.db.models import Value, FloatField, JSONField
 import re
 import os
 
@@ -109,6 +111,8 @@ def resize_images(sender, instance, **kwargs):
         resize_image(instance.photoid)
     if instance.passportphoto:
         resize_image(instance.passportphoto)
+
+
 
 class EnrollmentKey(models.Model):
     key = models.CharField(max_length=100, unique=True) # This is the key the student will input
@@ -288,18 +292,20 @@ class UserCourse(models.Model):
             self.save()
             return
 
-        lesson_ids = lessons.values_list('id', flat=True)
+        lesson_ids = list(lessons.values_list('id', flat=True))
 
-        # Get highest SCORM progress per lesson
+        # Get highest SCORM progress per lesson (NULL-safe → 0.0)
         scorm_progress = {
-            entry['lesson_id']: entry['max_progress']
-            for entry in SCORMTrackingData.objects
+            row['lesson_id']: row['max_progress']
+            for row in SCORMTrackingData.objects
                 .filter(user=self.user, lesson_id__in=lesson_ids)
                 .values('lesson_id')
-                .annotate(max_progress=models.Max('progress'))
+                .annotate(
+                    max_progress=Coalesce(models.Max('progress'), Value(0.0), output_field=FloatField())
+                )
         }
 
-        # Get completed lesson IDs from UserLessonProgress
+        # Completed lesson IDs from UserLessonProgress
         completed_lesson_ids = set(
             UserLessonProgress.objects
                 .filter(
@@ -311,22 +317,21 @@ class UserCourse(models.Model):
         )
 
         # Calculate combined progress
-        total_progress = 0
+        total_progress = 0.0
         for lesson_id in lesson_ids:
             if lesson_id in scorm_progress:
-                total_progress += min(scorm_progress[lesson_id], 1.0)  # Cap at 1.0
+                val = float(scorm_progress.get(lesson_id) or 0.0)
+                total_progress += min(val, 1.0)  # Cap at 1.0
             elif lesson_id in completed_lesson_ids:
                 total_progress += 1.0  # Fully completed
 
         percentage = int(min((total_progress / total_lessons) * 100, 100))
         self.progress = percentage
 
-        # Mark course complete if necessary
+        # Completion logic unchanged...
+        allowed_statuses = ['completed', 'approved']
         if self.progress >= 100 and not self.is_course_completed:
-            # Assignment completion check
-            allowed_statuses = ['completed', 'approved']
             course_assignments = Upload.objects.filter(lesson__module__course=self.course)
-
             incomplete_assignments = course_assignments.exclude(
                 id__in=UserAssignmentProgress.objects.filter(
                     user=self.user,
@@ -334,12 +339,7 @@ class UserCourse(models.Model):
                     status__in=allowed_statuses
                 ).values_list('assignment_id', flat=True)
             )
-
-            if incomplete_assignments.exists():
-                print(f"🛑 Blocking course completion — incomplete assignments: {list(incomplete_assignments.values_list('id', flat=True))}")
-                # Do NOT mark course as complete
-            else:
-                # All lessons + assignments completed — finalize
+            if not incomplete_assignments.exists():
                 self.is_course_completed = True
                 self.completed_on_date = datetime.now().date()
                 self.completed_on_time = datetime.now().time()
@@ -404,12 +404,57 @@ class UserLessonProgress(models.Model):
     completed_on_date = models.DateField(blank=True, null=True)  # This is the date the learner completed this lesson
     completed_on_time = models.TimeField(blank=True, null=True)  # This is the time the learner completed this lesson
     attempts = models.PositiveIntegerField(default=0) # Total times learner has attempted this lesson
+    completion_status = models.CharField(
+        max_length=50,
+        choices=[
+            ('completed', 'Completed'),
+            ('incomplete', 'Incomplete'),
+            ('failed', 'Failed'),
+            ('passed', 'Passed'),
+            ('pending', 'Pending'),
+        ],
+        default='incomplete',
+    )
 
     class Meta:
         ordering = ['order']
 
     def __str__(self):
         return f"{self.user_module_progress.user_course.user.username} - {self.lesson.title}"
+    
+class QuizAttempt(models.Model):
+    class Status(models.TextChoices):
+        ACTIVE  = 'active',  'Active'
+        PENDING = 'pending', 'Pending'
+        PASSED  = 'passed',  'Passed'
+        FAILED  = 'failed',  'Failed'
+
+    user_lesson_progress = models.ForeignKey('client_admin.UserLessonProgress',
+                                             related_name='quiz_attempts',
+                                             on_delete=models.CASCADE)
+    attempt_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    status = models.CharField(max_length=20,
+                              default=Status.ACTIVE,
+                              choices=Status.choices)
+    started_at = models.DateTimeField(auto_now_add=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    last_position   = models.PositiveIntegerField(default=0)
+    total_questions = models.PositiveIntegerField(default=0)
+
+    score_percent = models.IntegerField(null=True, blank=True)
+    passed        = models.BooleanField(null=True, blank=True)
+    question_order = JSONField(null=True, blank=True, default=list)
+
+    class Meta:
+        ordering = ['-started_at']
+
+    def __str__(self):
+        return f"{self.user_lesson_progress} • {self.attempt_id} • {self.status}"
+
+    @property
+    def is_open(self):
+        return self.status in (self.Status.ACTIVE, self.Status.PENDING)
     
 class UserAssignmentProgress(models.Model):
     STATUS_CHOICES = [
@@ -525,7 +570,7 @@ class OrganizationSettings(models.Model):
     contact_email = models.EmailField(blank=True, null=True)
 
     # Date & Time Preferences
-    date_format = models.CharField(max_length=255, blank=True, null=True)
+    date_format = models.CharField(max_length=255, blank=True, null=True, default='MM/DD/YYYY')
     time_zone = models.CharField(max_length=255, blank=True, null=True, default='(UTC-05:00) Eastern Time (US & Canada)')
     iana_name = models.CharField(max_length=100, unique=True, default='America/New_York')
 

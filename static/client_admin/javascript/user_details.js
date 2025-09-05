@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.tooltip').forEach(function(elem) {
         const tooltipText = elem.getAttribute('data-tooltip');
         const tooltipSpan = elem.querySelector('.tooltiptext');
-        tooltipSpan.textContent = tooltipText;
+        if(tooltipSpan){tooltipSpan.textContent = tooltipText};
     });
 
     // Making the User Enrollments clickable

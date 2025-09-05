@@ -162,7 +162,11 @@
     background-color: var(--bg-color6);
 }
 
-.quiz-builder-question-item{
+.question-item{
+    border: none;
+    padding: 0;
+    background-color: transparent;
+}.quiz-builder-question-item{
     position: relative;
     display: flex;
     align-items: center;
@@ -228,7 +232,7 @@
     width: 0.8rem;
     align-items: center;
     justify-content: center;
-    margin-right: 0.4rem;
+    margin-right: 0.5rem;
 }.question-item-icon.pastel-gray{
     border: 1px solid #e2e2e2;
 }.question-item-text span{
@@ -241,6 +245,7 @@
     max-height: 2.4em;
     font-size: 0.9rem;
     color: var(--text-color7);
+    text-align: left;
 }
 
 .answer-item-checkbox{
@@ -743,6 +748,7 @@
     border: 1px dashed #ccc;
     font-size: 0.9rem;
     border-radius: 8px;
+    box-sizing: border-box;
 }
 
 .embed-fallback a {

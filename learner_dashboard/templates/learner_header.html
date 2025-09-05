@@ -75,7 +75,7 @@
                             <span> Profile </span>
                         </a>
                     </div>
-                    {% if user.is_superuser %}
+                    {% if user.profile.role == 'Admin' %}
                         <div class="dropdown-section">
                             <a class="dropdown-content-option" href="/admin/dashboard/">
                                 <i class="fa-light fa-toolbox"></i>

@@ -12,9 +12,9 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.auth import get_user_model
 from django.core.files.base import File
-from django.db.models import Q, Avg, Count
+from django.db.models import Q, Avg, Count, Prefetch, Max, Min
 from django.test import RequestFactory
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed
 import logging, csv
 from authentication.python.views import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from django.core.files.storage import default_storage
@@ -23,13 +23,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.utils import timezone
-from django.utils.timezone import now
+from django.utils.timezone import now, get_current_timezone
 from django.http import HttpResponseForbidden, HttpRequest
 from learner_dashboard.views import learner_dashboard
 from django.contrib import messages
-from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos, EnrollmentKey, UserAssignmentProgress
-from course_player.models import LessonSession, SCORMTrackingData, LessonProgress
-from content.models import Lesson, Category, Quiz, Question, QuizTemplate
+from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos, EnrollmentKey, UserAssignmentProgress, QuizAttempt
+from course_player.models import LessonSession, SCORMTrackingData, LessonProgress, QuizResponse, EssayPromptGrade 
+from content.models import Lesson, Category, Quiz, Question, QuizTemplate, QuestionOrder, Answer, EssayPrompt, EssayAnswer, QuizReference, QuestionMedia
 from client_admin.forms import OrganizationSettingsForm
 from .forms import UserRegistrationForm, ProfileForm, CSVUploadForm
 from django.contrib.auth import update_session_auth_hash, login
@@ -38,11 +38,24 @@ from django.template.response import TemplateResponse
 import json
 from django.db import IntegrityError, transaction
 from client_admin.models import GeneratedCertificate, EventDate
-from django.db.models.functions import TruncMonth, TruncHour
-from django.db.models import Sum
+from django.db.models.functions import TruncMonth, TruncHour, Coalesce
+from django.db.models import Sum, JSONField
 import isodate
+from collections import defaultdict
 #from models import Profile
 #from authentication.python import views
+
+LOG = logging.getLogger(__name__)
+QUIZ_DEBUG = getattr(settings, 'QUIZ_DEBUG', True)  # flip to False in prod
+
+def qlog(event: str, **kv):
+    """Lightweight structured logger for quiz debugging."""
+    if not QUIZ_DEBUG:
+        return
+    try:
+        LOG.warning("[QUIZDBG] %s %s", event, json.dumps(kv, default=str))
+    except Exception:
+        LOG.warning("[QUIZDBG] %s %r", event, kv)
 
 cognito_client = boto3.client('cognito-idp', region_name=settings.AWS_REGION)
 
@@ -51,47 +64,55 @@ class ImpersonationError(Exception):
     """Custom exception for impersonation errors."""
     pass
 
-def get_total_time_spent_dynamic():
-    now_time = now()
-    one_year_ago = now_time - timedelta(days=365)
-    seven_days_ago = now_time - timedelta(days=7)
+def get_total_time_spent_dynamic(user=None, course=None):
 
-    # Check how much activity happened in the last 7 days
-    recent_activity_count = SCORMTrackingData.objects.filter(last_updated__gte=seven_days_ago).count()
+    qs = LessonSession.objects.all()
+    if user is not None:
+        qs = qs.filter(user=user)
+    if course is not None:
+        qs = qs.filter(lesson__module__course=course)
+
+    now_time = now()
+    seven_days_ago = now_time - timedelta(days=7)
+    one_year_ago = now_time - timedelta(days=365)
+
+    # Use end_time when available, otherwise start_time, for bucketing
+    qs = qs.annotate(ts=Coalesce('end_time', 'start_time'))
+
+    recent_activity_count = qs.filter(ts__gte=seven_days_ago).count()
 
     if recent_activity_count > 20:
-        # Show hour-by-hour for recent activity
-        queryset = SCORMTrackingData.objects.filter(last_updated__gte=seven_days_ago) \
-            .annotate(period=TruncHour('last_updated')) \
-            .values('period', 'session_time') \
-            .order_by('period')
-        group_format = '%b %d %I%p'
+        # Hourly view over last 7 days
+        qs = qs.filter(ts__gte=seven_days_ago).annotate(period=TruncHour('ts'))
+        group_format = '%b %d %I%p'   # e.g. "Aug 15 03PM"
+        granularity = 'hour'
     else:
-        # Show month-by-month for longer-term view
-        queryset = SCORMTrackingData.objects.filter(last_updated__gte=one_year_ago) \
-            .annotate(period=TruncMonth('last_updated')) \
-            .values('period', 'session_time') \
-            .order_by('period')
-        group_format = '%b %Y'
+        # Monthly view over last year
+        qs = qs.filter(ts__gte=one_year_ago).annotate(period=TruncMonth('ts'))
+        group_format = '%b %Y'        # e.g. "Aug 2025"
+        granularity = 'month'
 
-    totals = {}
+    # Only pull what we need
+    rows = qs.values_list('period', 'session_time').order_by('period')
 
-    for entry in queryset:
-        period = entry['period'].strftime(group_format)
-        duration = isodate.parse_duration(entry['session_time'])
-        if period in totals:
-            totals[period] += duration
-        else:
-            totals[period] = duration
+    # Sum ISO 8601 durations per period
+    totals = defaultdict(timedelta)
+    for period, iso in rows:
+        try:
+            d = isodate.parse_duration(iso or "PT0S")
+        except Exception:
+            d = timedelta()
+        # isodate may return isodate.duration.Duration; coerce to timedelta
+        if not isinstance(d, timedelta):
+            d = getattr(d, 'tdelta', timedelta())
+        totals[period] += d
 
-    labels = []
-    seconds = []
+    # Build ordered outputs
+    periods_sorted = sorted(totals.keys())
+    labels = [p.strftime(group_format) for p in periods_sorted]
+    seconds = [int(totals[p].total_seconds()) for p in periods_sorted]
 
-    for period, duration in sorted(totals.items()):
-        labels.append(period)
-        seconds.append(int(duration.total_seconds()))
-
-    return labels, seconds, 'hour' if recent_activity_count > 20 else 'month'
+    return labels, seconds, granularity
 
 
 @login_required
@@ -825,7 +846,7 @@ logger = logging.getLogger(__name__)
 @login_required
 def impersonate_user(request, profile_id):
     # Ensure the user has permission to impersonate
-    if request.user.is_authenticated and request.user.is_superuser:
+    if request.user.is_authenticated:
         try:
             # Retrieve the user associated with the given profile ID
             user_to_impersonate = User.objects.get(profile__id=profile_id)
@@ -1110,18 +1131,40 @@ def delete_allowed_id_photos(request):
 @login_required
 def usercourse_detail_view(request, uuid):
     user_course = get_object_or_404(UserCourse, uuid=uuid)
-    lesson_sessions_map = {}
 
-    # Build the lesson_sessions_map as before
-    for module_progress in user_course.module_progresses.all():
-        for lesson_progress in module_progress.lesson_progresses.all():
+    # Pull module/lesson progresses efficiently and annotate each ULP with its quiz_attempts_count
+    module_progresses = (
+        user_course.module_progresses
+        .select_related('module')
+        .prefetch_related(
+            Prefetch(
+                'lesson_progresses',
+                queryset=UserLessonProgress.objects
+                    .select_related('lesson')
+                    .annotate(quiz_attempts_count=Count('quiz_attempts'))
+                    .order_by('order')
+            )
+        )
+    )
+
+    # Rebuild lesson_sessions_map (unchanged behavior)
+    lesson_sessions_map = {}
+    for module_progress in module_progresses:
+        for lp in module_progress.lesson_progresses.all():
             sessions = LessonSession.objects.filter(
-                lesson=lesson_progress.lesson,
+                lesson=lp.lesson,
                 user=user_course.user
             )
-            lesson_sessions_map[lesson_progress.id] = sessions
+            lesson_sessions_map[lp.id] = sessions
 
-    # ➤ Calculate Total Time Spent for THIS Course from SCORMTrackingData
+    # ➤ Build a fast lookup for quiz attempts count per ULP id
+    quiz_attempts_map = {
+        lp.id: lp.quiz_attempts_count
+        for mp in module_progresses
+        for lp in mp.lesson_progresses.all()
+    }
+
+    # ➤ Total time spent (unchanged)
     scorm_sessions = SCORMTrackingData.objects.filter(
         user=user_course.user,
         lesson__module__course=user_course.course
@@ -1136,7 +1179,6 @@ def usercourse_detail_view(request, uuid):
     else:
         total_hours, remainder = divmod(total_time.total_seconds(), 3600)
         total_minutes, total_seconds = divmod(remainder, 60)
-
         if total_hours > 0:
             formatted_total_time = f"{int(total_hours)}h {int(total_minutes)}m {int(total_seconds)}s"
         else:
@@ -1145,6 +1187,7 @@ def usercourse_detail_view(request, uuid):
     return render(request, 'userCourse/user_course_details.html', {
         'user_course': user_course,
         'lesson_sessions_map': lesson_sessions_map,
+        'quiz_attempts_map': quiz_attempts_map,   # ➤ pass to template
         'total_time_spent': formatted_total_time,
     })
 
@@ -1234,33 +1277,64 @@ def edit_usercourse_detail_view(request, uuid):
 
 @login_required
 def reset_lesson_progress(request, user_lesson_progress_id):
-    data = json.loads(request.body)
-    lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
+    lp = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
+    user = lp.user_module_progress.user_course.user
+    lesson = lp.lesson
+    user_course = lp.user_module_progress.user_course
 
-    lesson_progress.attempts = 0
-    lesson_progress.completed = False
-    lesson_progress.save()
+    # (Optional) authorize: staff or owner
+    if not request.user.is_staff and request.user.id != user.id:
+        return JsonResponse({'success': False, 'error': 'Forbidden'}, status=403)
 
-    lesson = lesson_progress.lesson
-    user = lesson_progress.user_module_progress.user_course.user
+    with transaction.atomic():
+        # Reset the per-lesson progress row
+        lp.attempts = 0
+        lp.completed = False
+        lp.completed_on_date = None
+        lp.completed_on_time = None
+        lp.completion_status = 'incomplete'
+        lp.save()
 
-    # Delete lesson sessions
-    sessions_to_delete = LessonSession.objects.filter(lesson=lesson, user=user)
-    sessions_deleted_count, _ = sessions_to_delete.delete()
+        # Delete all LessonSession rows for this user+lesson
+        sessions_qs = LessonSession.objects.filter(user=user, lesson=lesson)
+        sessions_deleted_count, _ = sessions_qs.delete()
 
-    # Delete SCORM tracking data
-    scorm_data_deleted_count, _ = SCORMTrackingData.objects.filter(lesson=lesson, user=user).delete()
+        # Delete SCORMTrackingData row for this user+lesson
+        scorm_qs = SCORMTrackingData.objects.filter(user=user, lesson=lesson)
+        scorm_deleted_count, _ = scorm_qs.delete()
 
-    # Delete lesson progress entries (for mini-lessons, if used)
-    mini_progress_deleted_count, _ = LessonProgress.objects.filter(lesson=lesson, user=user).delete()
+        # Delete mini-lesson progress rows (LessonProgress)
+        mini_qs = LessonProgress.objects.filter(user=user, lesson=lesson)
+        mini_deleted_count, _ = mini_qs.delete()
+
+        # Delete quiz answers for this user+lesson (so attempts truly reset)
+        qr_qs = QuizResponse.objects.filter(user=user, lesson=lesson)
+        quiz_responses_deleted_count, _ = qr_qs.delete()
+
+        try:
+            current_sid = request.session.get("current_lesson_session_id")
+            if current_sid:
+                # If you need to verify it belongs to this lesson, you could fetch by session_id.
+                # We simply clear it to avoid reusing a deleted session.
+                del request.session["current_lesson_session_id"]
+        except Exception:
+            pass
+
+        # Optional: recompute course progress after reset
+        try:
+            user_course.update_progress()
+        except Exception:
+            # Not fatal for the reset; UI will recompute soon anyway
+            pass
 
     messages.success(request, 'Lesson progress reset.')
     return JsonResponse({
         'success': True,
-        'message': 'Lesson progress reset.',
+        'message': 'Lesson activity reset.',
         'sessions_deleted': sessions_deleted_count,
-        'scorm_data_deleted': scorm_data_deleted_count,
-        'mini_progress_deleted': mini_progress_deleted_count,
+        'scorm_data_deleted': scorm_deleted_count,
+        'mini_progress_deleted': mini_deleted_count,
+        'quiz_responses_deleted': quiz_responses_deleted_count,
     })
 
 def edit_lesson_progress(request, user_lesson_progress_id):
@@ -1309,15 +1383,952 @@ def edit_lesson_progress(request, user_lesson_progress_id):
 
     return JsonResponse({'success': True, 'message': 'Lesson Activity updated successfully.'})
 
+@login_required
 def fetch_lesson_progress(request, user_lesson_progress_id):
-    if request.method == 'POST':
-        lesson_progress = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
+    lp = get_object_or_404(UserLessonProgress, id=user_lesson_progress_id)
 
-        lesson_progress_data = model_to_dict(lesson_progress)
+    # Optional permission guard (owner or staff)
+    owner = lp.user_module_progress.user_course.user
 
-        return JsonResponse({'success': True, 'data': lesson_progress_data})
+    data = model_to_dict(lp)
 
-    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+    # ✅ attempts = number of LessonSession rows for this user + this lesson
+    attempts = LessonSession.objects.filter(
+        user=owner,
+        lesson=lp.lesson
+    ).count()
+    data['attempts'] = attempts
+
+    # If your UI expects these keys, ensure they’re present
+    data.setdefault('completed', bool(lp.completed))
+    if getattr(lp, 'completed_on_date', None):
+        data['completed_on_date'] = lp.completed_on_date.isoformat()
+    else:
+        data['completed_on_date'] = ''
+    if getattr(lp, 'completed_on_time', None):
+        data['completed_on_time'] = lp.completed_on_time.strftime('%H:%M')
+    else:
+        data['completed_on_time'] = ''
+
+    return JsonResponse({'success': True, 'data': data})
+
+@login_required
+def fetch_quiz_attempts_for_lesson(request, ulp_id):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
+    ulp = get_object_or_404(
+        UserLessonProgress.objects.select_related(
+            'user_module_progress__user_course__user',
+            'lesson__module__course__category',
+            'lesson__quiz_config'
+        ),
+        id=ulp_id
+    )
+
+    attempts_qs = QuizAttempt.objects.filter(
+        user_lesson_progress=ulp
+    ).order_by('-started_at')
+
+    # Count new statuses; include legacy strings for safety
+    agg = attempts_qs.aggregate(
+        attempt_count=Count('id'),
+        avg_score=Avg('score_percent', filter=Q(score_percent__isnull=False)),
+        best_score=Max('score_percent', filter=Q(score_percent__isnull=False)),
+        worst_score=Min('score_percent', filter=Q(score_percent__isnull=False)),
+        last_started=Max('started_at'),
+        last_finished=Max('finished_at'),
+
+        active_count = Count('id', filter=Q(status__in=['active'])),
+        pending_count = Count('id', filter=Q(status__in=['pending'])),
+        passed_count  = Count('id', filter=Q(status__in=['passed', 'completed'])),   # legacy -> passed
+        failed_count  = Count('id', filter=Q(status__in=['failed', 'abandoned'])),   # legacy -> failed
+    )
+
+    last_session = agg.get('last_finished') or agg.get('last_started')
+    avg_val = agg.get('avg_score')
+
+    created_from_map = {
+        'create_quiz_from1': 'Quiz Template',
+        'create_quiz_from2': 'Quiz',
+    }
+
+    lesson = ulp.lesson
+    qc = getattr(lesson, 'quiz_config', None)
+    course = lesson.module.course
+    course_type = getattr(course, 'type', None)
+    category_name = getattr(getattr(course, 'category', None), 'name', None)
+
+    data = {
+        'lesson': {
+            'id': lesson.id,
+            'title': lesson.title,
+            'content_type': lesson.content_type,
+            'created_from': created_from_map.get(lesson.create_quiz_from),
+            'selected_quiz_template_name': lesson.selected_quiz_template_name,
+            'selected_quiz_name': lesson.selected_quiz_name,
+            'module_title': lesson.module.title,
+            'course_title': course.title if course else None,
+            'category': category_name,
+        },
+        'quiz_config': {
+            'passing_score': qc.passing_score if qc else None,
+            'quiz_type': qc.quiz_type if qc else None,
+            'require_passing': qc.require_passing if qc else False,
+            'quiz_duration': qc.quiz_duration if qc else None,
+            'quiz_attempts': qc.quiz_attempts if qc else None,
+            'maximum_warnings': qc.maximum_warnings if qc else None,
+            'randomize_order': qc.randomize_order if qc else False,
+            'reveal_answers': qc.reveal_answers if qc else False,
+        },
+        'stats': {
+            'attempt_count': agg.get('attempt_count', 0),
+            'avg_score': round(avg_val) if avg_val is not None else None,
+            'best_score': agg.get('best_score'),
+            'worst_score': agg.get('worst_score'),
+            'active_count': agg.get('active_count', 0),
+            'pending_count': agg.get('pending_count', 0),
+            'passed_count':  agg.get('passed_count', 0),
+            'failed_count':  agg.get('failed_count', 0),
+            'last_session': last_session.isoformat() if last_session else None,
+
+            'completed_count': agg.get('passed_count', 0),
+            'abandoned_count': agg.get('failed_count', 0),
+        },
+        'attempts': [
+            {
+                'id': a.id,
+                'attempt_uuid': str(a.attempt_id),
+                'status': a.status,                          # now 'active'|'pending'|'passed'|'failed'
+                'started_at': a.started_at.isoformat(),
+                'finished_at': a.finished_at.isoformat() if a.finished_at else None,
+                'last_position': a.last_position,
+                'total_questions': a.total_questions,
+                'score_percent': a.score_percent,
+                'passed': a.passed,
+            }
+            for a in attempts_qs
+        ],
+        'course_type': course_type,
+    }
+
+    return JsonResponse({'success': True, 'data': data})
+
+def _safe_json(val):
+    if isinstance(val, (dict, list)):
+        return val
+    try:
+        return json.loads(val or "")
+    except Exception:
+        return val
+
+def _latest_responses_by_qid(attempt):
+    qs = (QuizResponse.objects
+          .filter(quiz_attempt=attempt)
+          .select_related('question')
+          .order_by('question_id', '-submitted_at', '-id'))
+    latest = {}
+    for r in qs:
+        if r.question_id not in latest:
+            latest[r.question_id] = r
+    return latest
+
+def _canonical_question_ids(lesson):
+    if getattr(lesson, 'quiz_id', None):
+        return list(
+            QuestionOrder.objects
+            .filter(quiz_id=lesson.quiz_id)
+            .order_by('order')
+            .values_list('question_id', flat=True)
+        )
+    return []
+
+def _attempt_qids(attempt, lesson):
+    """IDs that should be scored for THIS attempt."""
+    if attempt.question_order:
+        qids = list(attempt.question_order)
+        qlog("attempt_qids:question_order",
+             attempt_id=attempt.id, len=len(qids), sample=qids[:10])
+        return qids
+
+    latest = _latest_responses_by_qid(attempt)
+    answered = sorted(
+        latest.values(),
+        key=lambda r: (
+            999999 if getattr(r, 'seen_index', None) is None else r.seen_index,
+            r.submitted_at, r.id
+        )
+    )
+    qids = [r.question_id for r in answered]
+    total = getattr(attempt, 'total_questions', None)
+
+    if total and len(qids) < total:
+        canon = _canonical_question_ids(lesson)
+        added = []
+        for qid in canon:
+            if len(qids) >= total:
+                break
+            if qid not in qids:
+                qids.append(qid)
+                added.append(qid)
+        qlog("attempt_qids:padded",
+             attempt_id=attempt.id, have=len(answered), total=total,
+             added=added[:10], final_len=len(qids))
+    else:
+        qlog("attempt_qids:derived",
+             attempt_id=attempt.id, len=len(qids), sample=qids[:10], total=total)
+
+    return qids
+
+def _compute_attempt_score_and_status(attempt):
+    lesson = attempt.user_lesson_progress.lesson
+    qids   = _attempt_qids(attempt, lesson)
+    latest = _latest_responses_by_qid(attempt)
+
+    qmap = {q.id: q for q in Question.objects
+                             .filter(id__in=qids)
+                             .select_related('essayquestion')}
+
+    points_scored = 0.0
+    points_possible = 0.0
+    pending_essays = False
+
+    qlog("compute:start", attempt_id=attempt.id, qids_len=len(qids), qids_sample=qids[:10])
+
+    for qid in qids:
+        r = latest.get(qid)
+        q = qmap.get(qid)
+
+        # No response: count as 0/1
+        if not r:
+            points_possible += 1
+            qlog("compute:no_response", qid=qid,
+                 running_scored=points_scored, running_possible=points_possible)
+            continue
+
+        is_essay = hasattr(q, 'essayquestion')
+
+        if is_essay:
+            # === Equal weight for essays: 0/1 by overall correctness ===
+            points_possible += 1
+            if r.is_correct is None:
+                pending_essays = True
+                qlog("compute:essay_pending", qid=qid,
+                     running_scored=points_scored, running_possible=points_possible)
+            else:
+                add = 1 if (r.is_correct is True) else 0
+                points_scored += add
+                qlog("compute:essay_binary", qid=qid, is_correct=r.is_correct,
+                     add_scored=add, add_possible=1,
+                     running_scored=points_scored, running_possible=points_possible)
+        else:
+            # Non-essay: 0/1 unless explicit points exist (and are sane)
+            if r.max_points is not None and r.score_points is not None:
+                maxp = int(r.max_points or 0)
+                scp  = int(r.score_points or 0)
+                if maxp <= 0:
+                    points_possible += 1
+                    add = 1 if (r.is_correct is True) else 0
+                    points_scored += add
+                    qlog("compute:row_zero_max", qid=qid,
+                         is_correct=r.is_correct, add_scored=add, add_possible=1,
+                         running_scored=points_scored, running_possible=points_possible)
+                else:
+                    points_possible += maxp
+                    inc_scored = min(maxp, max(0, scp))
+                    points_scored += inc_scored
+                    qlog("compute:row_points", qid=qid,
+                         is_correct=r.is_correct, score_points=r.score_points,
+                         max_points=r.max_points, add_scored=inc_scored, add_possible=maxp,
+                         running_scored=points_scored, running_possible=points_possible)
+            else:
+                points_possible += 1
+                add = 1 if (r.is_correct is True) else 0
+                points_scored += add
+                qlog("compute:row_binary", qid=qid,
+                     is_correct=r.is_correct, add_scored=add, add_possible=1,
+                     running_scored=points_scored, running_possible=points_possible)
+
+    percent = int(round(100.0 * points_scored / points_possible)) if points_possible > 0 else 0
+
+    # passing threshold logic unchanged...
+    passing = 70
+    qc = getattr(lesson, 'quiz_config', None)
+    if qc and qc.passing_score is not None:
+        passing = int(qc.passing_score)
+    else:
+        quiz = Quiz.objects.filter(id=getattr(lesson, 'quiz_id', None)).first()
+        if quiz and quiz.pass_mark is not None:
+            passing = int(quiz.pass_mark)
+
+    passed_bool = (percent >= passing)
+
+    qlog("compute:end", attempt_id=attempt.id,
+         points_scored=points_scored, points_possible=points_possible,
+         percent=percent, passing_threshold=passing,
+         passed=passed_bool, pending_essays=pending_essays)
+
+    return points_scored, points_possible, pending_essays, percent, passed_bool
+
+def _finalize_attempt_if_ready(attempt):
+    qlog("finalize:start", attempt_id=attempt.id, prev_status=attempt.status,
+         prev_percent=attempt.score_percent, finished_at=attempt.finished_at)
+
+    ps, pp, pending_essays, percent, passed = _compute_attempt_score_and_status(attempt)
+
+    if pending_essays:
+        if attempt.status != QuizAttempt.Status.PENDING:
+            attempt.status = QuizAttempt.Status.PENDING
+            attempt.save(update_fields=['status'])
+        qlog("finalize:pending", attempt_id=attempt.id,
+             ps=ps, pp=pp, percent=percent, status=attempt.status)
+        return False
+
+    attempt.score_percent = percent
+    attempt.passed        = passed
+    attempt.status        = QuizAttempt.Status.PASSED if passed else QuizAttempt.Status.FAILED
+    if not attempt.finished_at:
+        attempt.finished_at = timezone.now()
+    attempt.save(update_fields=['score_percent','passed','status','finished_at'])
+
+    qlog("finalize:done", attempt_id=attempt.id,
+         score_percent=attempt.score_percent, status=attempt.status,
+         passed=attempt.passed, finished_at=attempt.finished_at)
+    return True
+
+def _sync_lesson_status_from_attempt(attempt):
+    """
+    Update the UserLessonProgress based on the current attempt.status.
+    active   -> incomplete
+    pending  -> pending
+    passed   -> passed  (+ completed=True)
+    failed   -> failed  (+ completed=True if require_passing is False)
+    """
+    ulp = attempt.user_lesson_progress
+    lesson = ulp.lesson
+
+    # Default mapping
+    status_map = {
+        QuizAttempt.Status.ACTIVE:  'incomplete',
+        QuizAttempt.Status.PENDING: 'pending',
+        QuizAttempt.Status.PASSED:  'passed',
+        QuizAttempt.Status.FAILED:  'failed',
+    }
+    new_status = status_map.get(attempt.status, 'incomplete')
+
+    # Determine completion semantics
+    require_passing = False
+    qc = getattr(lesson, 'quiz_config', None)
+    if qc is not None:
+        require_passing = bool(getattr(qc, 'require_passing', False))
+
+    mark_completed = False
+    if attempt.status == QuizAttempt.Status.PASSED:
+        mark_completed = True
+    elif attempt.status == QuizAttempt.Status.FAILED and not require_passing:
+        # If passing is not required, "finished" (failed) can still complete the lesson
+        mark_completed = True
+
+    fields = []
+
+    # Update completion_status if changed
+    if ulp.completion_status != new_status:
+        ulp.completion_status = new_status
+        fields.append('completion_status')
+
+    # Mark completed (only upgrade; don't downgrade)
+    if mark_completed and not ulp.completed:
+        ulp.completed = True
+        fields.append('completed')
+        now = timezone.now()
+        if not ulp.completed_on_date:
+            ulp.completed_on_date = now.date()
+            fields.append('completed_on_date')
+        if not ulp.completed_on_time:
+            ulp.completed_on_time = now.time()
+            fields.append('completed_on_time')
+
+    # Persist only when something changed
+    if fields:
+        ulp.save(update_fields=fields)
+
+    # Debug
+    qlog("lesson_sync",
+         attempt_id=attempt.id,
+         attempt_status=attempt.status,
+         ulp_id=ulp.id,
+         new_status=new_status,
+         require_passing=require_passing,
+         marked_completed=mark_completed,
+         saved_fields=fields)
+
+@login_required
+def grade_essay_question(request, attempt_id, question_id):
+    attempt = get_object_or_404(
+        QuizAttempt.objects.select_related(
+            'user_lesson_progress__lesson',
+            'user_lesson_progress__user_module_progress__user_course__user'
+        ),
+        id=attempt_id
+    )
+
+    role = getattr(getattr(request.user, 'profile', None), 'role', None)
+    if role not in ('Admin', 'Instructor'):
+        return JsonResponse({'success': False, 'error': 'Forbidden'}, status=403)
+
+    question = get_object_or_404(
+        Question.objects.select_related('essayquestion'),
+        id=question_id
+    )
+    if not hasattr(question, 'essayquestion'):
+        return JsonResponse({'success': False, 'error': 'Not an Essay question'}, status=400)
+
+    latest = _latest_responses_by_qid(attempt)
+    response = latest.get(question.id)
+    if not response:
+        return JsonResponse({'success': False, 'error': 'No response to grade for this question'}, status=400)
+
+    try:
+        payload = json.loads(request.body or "{}")
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+
+    eq = question.essayquestion
+    prompts_qs = list(eq.prompts.all().order_by('order'))
+    has_prompts = len(prompts_qs) > 0
+
+    qlog("grade:start", attempt_id=attempt.id, question_id=question.id,
+         has_prompts=has_prompts, payload=payload)
+
+    if has_prompts:
+        marks = payload.get('prompt_marks') or []
+        pmap = {str(p.id): p for p in prompts_qs}
+
+        if not isinstance(marks, list) or not marks:
+            return JsonResponse({'success': False, 'error': 'prompt_marks required'}, status=400)
+
+        for m in marks:
+            pid = str(m.get('prompt_id'))
+            if pid not in pmap:
+                return JsonResponse({'success': False, 'error': f'Invalid prompt_id {pid}'}, status=400)
+
+            is_correct = m.get('is_correct', None)
+            score      = int(m.get('score', 0) or 0)
+            maxp       = int(m.get('max', 1) or 1)
+            feedback   = m.get('feedback') or None
+
+            EssayPromptGrade.objects.update_or_create(
+                response=response, prompt_id=pid,
+                defaults={
+                    'is_correct': is_correct,
+                    'score_points': score,
+                    'max_points': maxp,
+                    'feedback': feedback
+                }
+            )
+            qlog("grade:prompt_upsert", attempt_id=attempt.id, question_id=question.id,
+                 prompt_id=pid, is_correct=is_correct, score=score, max=maxp)
+
+        prompt_grades = list(EssayPromptGrade.objects.filter(response=response, prompt__in=prompts_qs))
+
+        if len(prompt_grades) < len(prompts_qs) or any(pg.is_correct is None for pg in prompt_grades):
+            total_score = sum(pg.score_points or 0 for pg in prompt_grades)
+            total_max   = sum(pg.max_points  or 0 for pg in prompt_grades)
+            response.is_correct  = None
+            response.score_points = total_score
+            response.max_points   = total_max
+            response.save(update_fields=['is_correct','score_points','max_points'])
+            qlog("grade:pending_question", question_id=question.id,
+                 score_points=total_score, max_points=total_max)
+        else:
+            all_true   = all(pg.is_correct is True for pg in prompt_grades)
+            total_score = sum(pg.score_points or 0 for pg in prompt_grades)
+            total_max   = sum(pg.max_points  or 0 for pg in prompt_grades)
+            response.is_correct  = True if all_true else False
+            response.score_points = total_score
+            response.max_points   = total_max
+            response.save(update_fields=['is_correct','score_points','max_points'])
+            qlog("grade:final_question", question_id=question.id,
+                 is_correct=response.is_correct,
+                 score_points=total_score, max_points=total_max)
+    else:
+        overall = payload.get('overall') or {}
+        is_correct = overall.get('is_correct', None)
+        score      = int(overall.get('score', 0) or 0)
+        maxp       = int(overall.get('max', 1) or 1)
+        if is_correct is None:
+            return JsonResponse({'success': False, 'error': 'overall.is_correct required'}, status=400)
+
+        response.is_correct  = bool(is_correct)
+        response.score_points = score
+        response.max_points   = maxp
+        response.save(update_fields=['is_correct','score_points','max_points'])
+        qlog("grade:single_saved", question_id=question.id,
+             is_correct=response.is_correct, score_points=score, max_points=maxp)
+
+    finalized = _finalize_attempt_if_ready(attempt)
+    _sync_lesson_status_from_attempt(attempt)
+
+    qlog("grade:finalize_result", attempt_id=attempt.id,
+        finalized=finalized, status=attempt.status, score_percent=attempt.score_percent)
+
+    return JsonResponse({
+        'success': True,
+        'data': {
+            'question_id': question.id,
+            'is_correct': response.is_correct,
+            'score_points': response.score_points,
+            'max_points': response.max_points,
+            'attempt': {
+                'id': attempt.id,
+                'status': attempt.status,
+                'score_percent': attempt.score_percent,
+                'passed': attempt.passed,
+                'finalized': finalized,
+            }
+        }
+    })
+
+def _qtype(q):
+    if hasattr(q, 'tfquestion'):    return 'TF'
+    if hasattr(q, 'fitbquestion'):  return 'FITB'
+    if hasattr(q, 'essayquestion'): return 'ESSAY'
+    if hasattr(q, 'mcquestion'):    return 'MC'  # MR handled by allows_multiple
+    return 'MC'
+
+def _parse_user_answer(user_answer):
+    """
+    Return a normalized representation of the stored answer:
+      - For lists: set of stringified items (IDs) OR the list of dicts for essay prompts
+      - For dicts: FITB {text: "..."} -> {'...'}
+      - For booleans: {'true'} or {'false'}  (lower-case!)
+      - For scalars: {'<string>'}
+    """
+    try:
+        ua = json.loads(user_answer)
+    except Exception:
+        if user_answer is None:
+            return set()
+        s = str(user_answer).strip()
+        if s.lower() in ('true', 'false'):
+            return {s.lower()}
+        return {s}
+
+    if isinstance(ua, bool):
+        # normalize TF to lower-case tokens
+        return {'true' if ua else 'false'}
+
+    if isinstance(ua, list):
+        # essay [{prompt_id,text}, ...] OR list of IDs
+        if ua and isinstance(ua[0], dict) and 'prompt_id' in ua[0]:
+            return ua
+        return {str(x) for x in ua if x is not None}
+
+    if isinstance(ua, dict):
+        # FITB payload
+        if 'text' in ua:
+            return {str(ua.get('text', ''))}
+        return {json.dumps(ua)}
+
+    return {str(ua)}
+
+def _essay_answers_from_response(question, parsed):
+    """
+    Build [{'id','prompt_text','rubric','answer_text'}, ...] from the *parsed*
+    QuizResponse.user_answer. Handles both:
+      • multi-prompt: list of {prompt_id,text}
+      • single-prompt: raw string/one value (stored as a set by _parse_user_answer)
+    We do NOT read EssayAnswer rows to avoid cross-attempt bleed.
+    """
+    eq = getattr(question, 'essayquestion', None)
+    if not eq:
+        return []
+
+    prompts = list(eq.prompts.all().order_by('order'))
+    pmap = {str(p.id): p for p in prompts}
+    out, used = [], set()
+
+    # Case A: multi-prompt payload [{prompt_id, text}, ...]
+    if isinstance(parsed, list):
+        for item in parsed:
+            if not isinstance(item, dict):
+                continue
+            pid = str(item.get('prompt_id', '')).strip()
+            txt = (item.get('text') or '').strip()
+            p = pmap.get(pid)
+            if p:
+                out.append({
+                    'id': pid,
+                    'prompt_text': p.prompt_text,
+                    'rubric': p.rubric,
+                    'answer_text': txt,
+                })
+                used.add(pid)
+
+    # Case B: single-prompt essay where _parse_user_answer returned a set({text})
+    # or a direct string (very defensive)
+    if not out:
+        single_text = None
+        if isinstance(parsed, (set, tuple, list)) and parsed:
+            single_text = str(next(iter(parsed)) or '')
+        elif isinstance(parsed, str):
+            single_text = parsed
+
+        if single_text is not None and len(prompts) == 1:
+            p = prompts[0]
+            out.append({
+                'id': str(p.id),
+                'prompt_text': p.prompt_text,
+                'rubric': p.rubric,
+                'answer_text': single_text.strip(),
+            })
+            used.add(str(p.id))
+
+    # Ensure every prompt appears once
+    for p in prompts:
+        if str(p.id) not in used:
+            out.append({
+                'id': str(p.id),
+                'prompt_text': p.prompt_text,
+                'rubric': p.rubric,
+                'answer_text': '',
+            })
+
+    return out
+
+def _answered_flag(resp, eff_type):
+    """
+    True if the student submitted *something* for this question, else False.
+    eff_type: 'MC'|'MR'|'TF'|'FITB'|'ESSAY'
+    """
+    if not resp:
+        return False
+
+    ua = _parse_user_answer(resp.user_answer)
+
+    # MC/MR/TF → any choice selected counts
+    if eff_type in ('MC', 'MR', 'TF'):
+        if isinstance(ua, (list, tuple, set)):
+            # a non-empty list of choice ids/labels
+            return any(str(x).strip() for x in ua)
+        if isinstance(ua, (bool, int, float)):
+            # a concrete boolean or numeric answer id
+            return True
+        return bool(str(ua).strip())  # e.g. "true", "false", "42"
+
+    # FITB → any non-empty text
+    if eff_type == 'FITB':
+        if isinstance(ua, dict):
+            return bool(str(ua.get('text', '')).strip())
+        return bool(str(ua).strip())
+
+    # ESSAY → at least one non-empty text item
+    if eff_type == 'ESSAY':
+        if isinstance(ua, list):
+            for item in ua:
+                if isinstance(item, dict):
+                    if str(item.get('text', '')).strip():
+                        return True
+                else:
+                    if str(item).strip():
+                        return True
+            return False
+        return bool(str(ua).strip())
+
+    # Fallback
+    return bool(str(ua).strip()) if ua is not None else False
+
+def _has_nonempty_text(parsed):
+    """
+    Return True if 'parsed' contains any non-empty text.
+    Handles str, list/tuple/set (strings or dicts with 'text'), and dict {text:...}.
+    """
+    if parsed is None:
+        return False
+
+    # dict: FITB-style or generic
+    if isinstance(parsed, dict):
+        return bool(str(parsed.get('text', '')).strip())
+
+    # list/tuple/set:
+    if isinstance(parsed, (list, tuple, set)):
+        for x in parsed:
+            if isinstance(x, dict):
+                if str(x.get('text', '')).strip():
+                    return True
+            else:
+                if str(x).strip():
+                    return True
+        return False
+
+    # everything else → str
+    return bool(str(parsed).strip())
+
+@login_required
+def fetch_quiz_attempt_qandas(request, attempt_id):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
+    attempt = get_object_or_404(
+        QuizAttempt.objects.select_related(
+            'user_lesson_progress__lesson',
+            'user_lesson_progress__user_module_progress__user_course__user'
+        ),
+        id=attempt_id
+    )
+
+    owner = attempt.user_lesson_progress.user_module_progress.user_course.user
+    if not (request.user.is_staff or request.user == owner):
+        return JsonResponse({'success': False, 'error': 'Forbidden'}, status=403)
+
+    lesson = attempt.user_lesson_progress.lesson
+
+    # latest response per question
+    responses = (
+        QuizResponse.objects
+        .filter(quiz_attempt=attempt)
+        .select_related('question')
+        .order_by('question_id', '-submitted_at', '-id')
+    )
+
+    latest_by_qid = {}
+    for r in responses:
+        if r.question_id not in latest_by_qid:
+            latest_by_qid[r.question_id] = r
+
+    # preserve order (attempt.question_order first; otherwise by seen_index/submitted)
+    if attempt.question_order:
+        order_ids = list(attempt.question_order)
+    else:
+        answered = sorted(
+            latest_by_qid.values(),
+            key=lambda r: (
+                999999 if getattr(r, 'seen_index', None) is None else r.seen_index,
+                r.submitted_at, r.id
+            )
+        )
+        order_ids = [r.question_id for r in answered]
+        if getattr(lesson, 'quiz_id', None):
+            canonical = list(
+                QuestionOrder.objects
+                .filter(quiz_id=lesson.quiz_id)
+                .order_by('order')
+                .values_list('question_id', flat=True)
+            )
+            for qid in canonical:
+                if qid not in order_ids:
+                    order_ids.append(qid)
+
+    # questions + related
+    qs = (
+        Question.objects
+        .filter(id__in=order_ids)
+        .select_related('tfquestion', 'fitbquestion', 'essayquestion', 'mcquestion')
+        .prefetch_related(
+            'answers',
+            'media_items',
+            'essayquestion__prompts',
+            'fitbquestion__acceptable_answers'
+        )
+    )
+    qmap = {q.id: q for q in qs}
+
+    # quiz metadata
+    quiz = None
+    references, materials = [], []
+    category = None
+    if getattr(lesson, 'quiz_id', None):
+        quiz = (
+            Quiz.objects
+            .select_related('category')
+            .filter(id=lesson.quiz_id)
+            .first()
+        )
+        if quiz:
+            references = list(quiz.references.all().order_by('id'))
+            if quiz.quiz_material:
+                for part in re.split(r'[,;\n]+', quiz.quiz_material):
+                    txt = (part or '').strip()
+                    if txt:
+                        materials.append({'text': txt})
+            category = quiz.category.name if quiz.category_id else None
+
+    items = []
+    for idx, qid in enumerate(order_ids, start=1):
+        q = qmap.get(qid)
+        if not q:
+            continue
+        resp = latest_by_qid.get(qid)
+
+        base_t   = _qtype(q)  # 'TF'|'FITB'|'ESSAY'|'MC'
+        eff_type = 'MR' if (base_t == 'MC' and bool(getattr(q, 'allows_multiple', False))) else base_t
+
+        # --- normalize selection / essay payload consistently ---
+        selected = set()
+        essay_payload = None
+        parsed = None
+
+        if resp:
+            parsed = _parse_user_answer(resp.user_answer)
+
+        if eff_type == 'ESSAY':
+            # If prompts exist, build attempt-isolated answers from parsed
+            eq = getattr(q, 'essayquestion', None)
+            has_prompts = bool(eq and eq.prompts.exists())
+
+            if has_prompts:
+                essay_payload = _essay_answers_from_response(q, parsed)
+
+                # Attach per-prompt grades (prefill for grader UI)
+                if essay_payload:
+                    prompt_ids = [str(p['id']) for p in essay_payload if 'id' in p]
+                    if prompt_ids:
+                        # Ensure EssayPromptGrade is imported in your module
+                        pg_qs = EssayPromptGrade.objects.filter(response=resp, prompt_id__in=prompt_ids)
+                        pg_map = {str(pg.prompt_id): pg for pg in pg_qs}
+                        for p in essay_payload:
+                            pid = str(p.get('id'))
+                            if pid in pg_map:
+                                pg = pg_map[pid]
+                                p['grade_is_correct'] = pg.is_correct
+                                p['grade_score'] = pg.score_points
+                                p['grade_max_points'] = pg.max_points
+                                p['grade_feedback'] = pg.feedback or ''
+            # else: single-prompt essay → answered uses parsed text below
+
+        else:
+            # Non-essay questions keep the original selection logic
+            if isinstance(parsed, set):
+                selected = parsed
+            elif isinstance(parsed, (list, tuple)):
+                selected = {str(x) for x in parsed if x is not None}
+            elif parsed is None:
+                selected = set()
+            else:
+                selected = {str(parsed)}
+
+        # options (MC/MR/TF)
+        options = []
+        if eff_type in ('MC', 'MR'):
+            for a in q.answers.all():
+                options.append({
+                    'id': str(a.id),
+                    'text': a.text,
+                    'selected': str(a.id) in selected,
+                    'is_correct': bool(a.is_correct),
+                })
+        elif eff_type == 'TF':
+            # normalize selected to {'true','false'} strings
+            sel_norm = {str(x).strip().lower() for x in selected}
+            tfc = getattr(getattr(q, 'tfquestion', None), 'correct', None)
+            options = [
+                {'id': 'true',  'text': 'True',  'selected': ('true'  in sel_norm),
+                 'is_correct': (True  if tfc is True  else False if tfc is False else None)},
+                {'id': 'false', 'text': 'False', 'selected': ('false' in sel_norm),
+                 'is_correct': (True  if tfc is False else False if tfc is True  else None)},
+            ]
+        # FITB and ESSAY handled below
+
+        # correctness & answered
+        correct_val = (None if (resp is None or resp.is_correct is None) else bool(resp.is_correct))
+
+        answered = False
+        if resp is not None:
+            if eff_type in ('MC', 'MR', 'TF'):
+                answered = bool(selected)
+            elif eff_type == 'FITB':
+                answered = bool(str(next(iter(selected), '')).strip())
+            elif eff_type == 'ESSAY':
+                # If we built per-prompt payload, use that; otherwise fall back to raw parsed text
+                if essay_payload is not None and len(essay_payload) > 0:
+                    answered = any((p.get('answer_text') or '').strip() for p in essay_payload)
+                else:
+                    answered = _has_nonempty_text(parsed)  # single-prompt essays
+
+        # media
+        media = []
+        for m in q.media_items.all():
+            display_url = ''
+            if m.file and hasattr(m.file, 'url'):
+                display_url = m.file.url
+            elif m.url_from_library:
+                display_url = m.url_from_library
+            media.append({
+                'id': m.id,
+                'title': m.title or '',
+                'source_type': m.source_type,   # 'upload'|'library'|'embed'
+                'display_url': display_url,
+                'embed_code': m.embed_code or ''
+            })
+
+        # FITB specifics
+        fitb_text = ''
+        fitb_acceptable = []
+        fitb_case_sensitive = None
+        fitb_strip_whitespace = None
+        if eff_type == 'FITB':
+            fitb_text = next(iter(selected), '')
+            fq = getattr(q, 'fitbquestion', None)
+            if fq:
+                fitb_acceptable = [a.content for a in fq.acceptable_answers.all()]
+                fitb_case_sensitive = bool(fq.case_sensitive)
+                fitb_strip_whitespace = bool(fq.strip_whitespace)
+
+        items.append({
+            'order': idx,
+            'question_id': q.id,
+            'title': q.content,
+            'prompt': q.content,
+            'type': eff_type,                              # MC/MR/TF/FITB/ESSAY
+            'allows_multiple': bool(getattr(q, 'allows_multiple', False)),
+            'essay_instructions': getattr(getattr(q, 'essayquestion', None), 'instructions', None),
+            'explanation': q.explanation or None,
+
+            'correct': correct_val,
+            'answered': answered,
+            'response': (resp.user_answer if resp is not None else None),
+
+            'score_points': (resp.score_points if resp is not None else None),
+            'max_points':   (resp.max_points   if resp is not None else None),
+
+            'options': options,                   # for MC/MR/TF
+            'essay_prompts': essay_payload or [], # for ESSAY
+            'media': media,
+
+            # FITB extras
+            'fitb_text': fitb_text,
+            'fitb_acceptable': fitb_acceptable,
+            'fitb_case_sensitive': fitb_case_sensitive,
+            'fitb_strip_whitespace': fitb_strip_whitespace,
+        })
+
+    serialized_refs = [
+        {
+            'id': ref.id,
+            'title': (ref.title or 'Reference'),
+            'url': ref.get_file_url(),
+            'source_type': ref.source_type,
+            'type_from_library': (ref.type_from_library or ''),
+        }
+        for ref in references
+    ]
+
+    data = {
+        'attempt': {
+            'id': attempt.id,
+            'attempt_uuid': str(attempt.attempt_id),
+            'status': attempt.status,
+            'score_percent': attempt.score_percent,
+            'started_at': attempt.started_at.isoformat(),
+            'finished_at': attempt.finished_at.isoformat() if attempt.finished_at else None,
+            'lesson_title': lesson.title,
+        },
+        'references': serialized_refs,
+        'materials': materials,
+        'category': category or '',
+        'items': items,
+    }
+    return JsonResponse({'success': True, 'data': data})
 
 def delete_categories(request):
     data = json.loads(request.body)

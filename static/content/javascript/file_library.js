@@ -638,7 +638,9 @@ document.getElementById('fileUploadForm').addEventListener('submit', function(ev
         if (xhr.status === 200 && response.success) {
             displayMessage(response.message, true);
             currentPage = 1;
-            fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+            // console.log('fetch');
+            // fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+            uncheckLibraryFilters();
         } else {
             const message = response.message || 'Upload failed. Please try again.';
             displayMessage(message, false);
@@ -657,7 +659,6 @@ document.getElementById('fileUploadForm').addEventListener('submit', function(ev
 
     assignTableOptionListeners();
     initializeDropdownMenus();
-    uncheckLibraryFilters();
 });
 
 // Adding the loading symbol to file upload popup
@@ -798,6 +799,7 @@ function assignTableOptionListeners() {
                         folderPath.push({ id: parentId, title: fileTitle });
                         currentParentFolderId = parentId;
                         currentPage = 1;
+                        console.log('fetch');
                         fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
 
                         renderBreadcrumbs();
@@ -867,6 +869,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadMoreFiles() {
         if (isLoading || !hasNext || layoutJustSwitched) return;
         isLoading = true;
+        console.log('fetch');
         fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
 
     }
@@ -891,7 +894,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     (parentId ? `&parent=${parentId}` : '') +
                     courseParams;
 
-        console.log('filterParams:', filterParams, 'searchQuery:',searchQuery, 'courseParams:', courseParams, 'courseIds:', courseIds);
+        console.log('page:', page, 'layout:', layout, 'filterParams:', filterParams, 'searchQuery:',searchQuery, 'courseParams:', courseParams, 'courseIds:', courseIds);
 
         fetch(url)
             .then(response => response.json())
@@ -1277,6 +1280,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.success) {
                     displayMessage(response.message, true);
                     uncheckLibraryFilters();
+                    console.log('fetch');
                     fetchFiles(1, currentLayout, currentParentFolderId, selectedFilterCourseIds);
 
                 } else {
@@ -1294,6 +1298,7 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedFilters.clear();
         newFilters.forEach(filter => selectedFilters.add(filter));
         currentPage = 1; // Reset to page 1
+        console.log('fetch');
         fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
 
     }
@@ -1305,12 +1310,13 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedFilters.clear();
         newFilters.forEach(filter => selectedFilters.add(filter));
         currentPage = 1;
-
+        console.log('fetch');
         fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
     }
 
     function handleSearchChange() {
         currentPage = 1; // Reset to page 1
+        console.log('fetch');
         fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
 
     }
@@ -1318,8 +1324,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleCourseFilterChange() {
         const updatedFilterCourseIds = Array.from(document.querySelectorAll('.course-checkbox:checked'))
             .map(cb => cb.value);
-        currentPage = 1;
+        
         selectedFilterCourseIds = updatedFilterCourseIds;
+        currentPage = 1;
+        console.log('fetch');
         fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
     }
 
@@ -1475,6 +1483,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         isSwitchingLayout = true;
         layoutJustSwitched = true;
+        isLoading = true;
 
         const fileLibraryTable = document.getElementById('fileLibraryTable');
         const fileLibraryGrid = document.getElementById('fileLibraryGrid');
@@ -1503,10 +1512,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
             setTimeout(() => {
-            fileLibraryTable.classList.remove('fade-table-up');
-            fileLibraryGrid.classList.remove('fade-table-up');
-            isSwitchingLayout = false;
-            layoutInitialized = true;
+                fileLibraryTable.classList.remove('fade-table-up');
+                fileLibraryGrid.classList.remove('fade-table-up');
+                isSwitchingLayout = false;
+                layoutInitialized = true;
+                isLoading = false;
             }, 50);
         }, 400);
     };

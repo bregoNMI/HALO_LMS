@@ -203,10 +203,14 @@
                     <div class="edit-user-row">
                         {% if profile.terms_accepted_on %}
                             <div class="edit-user-input">
-                                <label class="edit-user-label" for="associate_school">Accepted Terms on</label>
+                                <label class="edit-user-label" for="accepted_terms">Accepted Terms on</label>
                                 <span class="edit-user-text"> {{ profile.terms_accepted_on }} </span>
                             </div>
                         {% endif %}
+                        <div class="edit-user-input">
+                            <label class="edit-user-label" for="date_joined">Date Joined</label>
+                            <span class="edit-user-text"> {{ profile.date_joined }} </span>
+                        </div>
                     </div>  
                 </div>
             </div>

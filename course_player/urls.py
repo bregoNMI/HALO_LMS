@@ -1,5 +1,6 @@
 from django.urls import path, re_path
 from . import views
+from django.http import HttpResponse
 
 urlpatterns = [
     # URL for available lessons
@@ -12,17 +13,14 @@ urlpatterns = [
     path('scorm-content/<path:file_path>/', views.proxy_scorm_file, name='proxy_scorm_file'),
     path("get-scorm-progress/<int:lesson_id>/", views.get_scorm_progress, name="get_scorm_progress"),
 
-    # NEW: fetch one question (JSON) by lesson & position (0-based)
+    # QUIZ Logic
     path("lesson/<int:lesson_id>/q/<int:position>/", views.quiz_question_json, name="quiz_question_json"),
-
-    # Reuse your submit endpoints; keep names
     path("submit_question/", views.submit_question, name="submit_question"),
-
-    # Reuse your score + complete endpoints (names unchanged)
     path("get-quiz-score/", views.get_quiz_score, name="get_quiz_score"),
-    path("mark-lesson-complete/", views.mark_lesson_complete, name="mark_lesson_complete"),
+    path("save-quiz-progress/", views.save_quiz_progress, name="save_quiz_progress"),
 
     path("mark-lesson-complete/", views.mark_lesson_complete, name="mark_lesson_complete"),
+
     path('scormcontent/<path:file_path>/', views.proxy_scorm_absolute, name='proxy_scorm_absolute'),
     re_path(r"^scorm-content/(?P<file_path>.+)/$", views.proxy_scorm_file, name='proxy_scorm_file_slash'),
 

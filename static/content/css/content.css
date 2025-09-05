@@ -243,10 +243,11 @@ input[type="text"], input[type="number"]{
     border-radius: 8px;
 }
 .lesson-container .lesson-card:first-child{
-    border-radius: 8px 8px 0 0;
+    border-radius: 8px !important;
     border-top: none;
 }.lesson-container .lesson-card:first-child .lesson-delete{
     border-radius: 0px 8px 0 0;
+    border-top-right-radius: 8px !important;
 }.lesson-container .lesson-card:last-child .lesson-delete{
     border-radius: 0px 0 8px 0;
 }.lesson-container .lesson-card:last-child{

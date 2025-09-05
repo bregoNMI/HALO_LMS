@@ -3,27 +3,32 @@ import json
 import mimetypes
 import os
 import random
+from django.urls import resolve
 import uuid
+from uuid import uuid4
 from django.utils import timezone
+from django.db.models import Max, Q
 from shlex import quote
 from django.utils.timezone import now
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 import rsa
-import re
+import re, unicodedata
+import random
+from typing import Optional
 from django.utils.encoding import iri_to_uri
 from client_admin.utils import get_formatted_datetime
 from urllib.parse import quote, unquote, unquote_plus
-from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, UserAssignmentProgress
+from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, UserAssignmentProgress, QuizAttempt
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.conf import settings
 from botocore.exceptions import ClientError
 from content.models import Course, Module, Lesson, UploadedFile, Upload
-from content.models import Course, EssayQuestion, FITBQuestion, Module, Lesson, Question, QuestionMedia, QuestionOrder, TFQuestion, UploadedFile, QuizConfig, Quiz, QuizTemplate, TemplateQuestion
+from content.models import Course, EssayQuestion, FITBQuestion, Module, Lesson, Question, QuestionMedia, QuestionOrder, TFQuestion, UploadedFile, QuizConfig, Quiz, QuizTemplate, TemplateQuestion, EssayPrompt, EssayAnswer
 from authentication.python.views import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, get_secret
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 import boto3 
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.decorators import login_required
@@ -132,62 +137,17 @@ def mark_lesson_complete(request):
     )
 
     user_course, _ = UserCourse.objects.get_or_create(user=user, course=course)
+    ump, _ = UserModuleProgress.objects.get_or_create(user_course=user_course, module=lesson.module)
+    ulp, _ = UserLessonProgress.objects.get_or_create(
+        user_module_progress=ump, lesson=lesson,
+        defaults={'order': getattr(lesson, 'order', 0) or 0, 'completion_status': 'incomplete'},
+    )
+    _update_ulp_from_status(ulp, 'completed', require_passing=None)
+
     user_course.update_progress()
 
     return JsonResponse({"status": "success"})
 
-"""
-def proxy_scorm_file(request, file_path):
-
-    # Proxy SCORM file from S3 to serve it through the LMS domain.
-
-    decoded_file_path = unquote_plus(file_path).strip()
-    print(f"🔍 Incoming SCORM request: {decoded_file_path}")
-
-    # Fix cases where "index.html/" is mistakenly inserted in asset URLs
-    if "index.html/" in decoded_file_path:
-        decoded_file_path = decoded_file_path.replace("index.html/", "")
-
-    # Ensure correct S3 key format
-    s3_key = f"media/default/uploads/{decoded_file_path}".replace("\\", "/").strip()
-    print(f"📂 Updated file path for S3 fetch: {s3_key}")
-
-    s3_client = boto3.client(
-        's3',
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        region_name=AWS_S3_REGION_NAME
-    )
-    bucket_name = AWS_STORAGE_BUCKET_NAME
-
-    try:
-        # Fetch the file from S3
-        s3_response = s3_client.get_object(Bucket=bucket_name, Key=s3_key)
-        file_data = s3_response['Body']
-
-        # **Determine the correct Content-Type**
-        content_type = s3_response.get('ContentType', None)
-        if not content_type:
-            content_type, _ = mimetypes.guess_type(s3_key)
-            if not content_type:
-                content_type = "application/octet-stream"  # Default
-
-        # **Force correct MIME types for HTML, JS, and CSS**
-        if s3_key.endswith(".html"):
-            content_type = "text/html"
-        elif s3_key.endswith(".css"):
-            content_type = "text/css"
-        elif s3_key.endswith(".js"):
-            content_type = "application/javascript"
-
-        #print(f"✅ Serving file from S3: {s3_key} with Content-Type: {content_type}")
-
-        return FileResponse(file_data, content_type=content_type)
-
-    except ClientError as e:
-        print(f"❌ Error fetching file {decoded_file_path} from S3: {e}")
-        raise Http404("SCORM file not found")
-"""
 def proxy_scorm_absolute(request, file_path):
     """
     Serves absolute SCORM asset paths like /scormcontent/lib/...
@@ -204,159 +164,6 @@ def proxy_scorm_absolute(request, file_path):
 
     # Reuse the existing proxy logic
     return proxy_scorm_file(request, full_path)
-"""
-def proxy_scorm_file(request, file_path):
-
-    #Proxy SCORM file from S3 to serve it through the LMS domain.
-
-    from urllib.parse import unquote_plus
-
-    decoded_file_path = unquote_plus(file_path).strip()
-    print(f"🔍 Incoming SCORM request: {decoded_file_path}")
-
-    # 🧹 Normalize anything weird about index.html
-    if decoded_file_path.endswith("index.html/"):
-        decoded_file_path = decoded_file_path.rstrip("/")
-        print(f"🧹 Removed trailing slash after index.html → {decoded_file_path}")
-    if "index.html/" in decoded_file_path:
-        decoded_file_path = decoded_file_path.replace("index.html/", "")
-        print(f"🧹 Removed 'index.html/' from path → {decoded_file_path}")
-
-    # 🧼 Fix nested font path bug: "lib/icomoon.css/fonts/icomoon.woff" → "lib/fonts/icomoon.woff"
-    if "lib/icomoon.css/fonts/" in decoded_file_path:
-        decoded_file_path = decoded_file_path.replace("lib/icomoon.css/fonts/", "lib/fonts/")
-        print(f"🧼 Normalized font path from CSS: {decoded_file_path}")
-
-    # Only prepend folder if path is truly absolute (starts with just "scormcontent/...")
-    if "scormcontent/" in decoded_file_path and not decoded_file_path.startswith("gmdss-"):
-        folder = request.session.get("active_scorm_folder")
-        if not folder:
-            print("❌ No SCORM folder in session for absolute path")
-            raise Http404("SCORM folder not set")
-        decoded_file_path = f"{folder}/{decoded_file_path}"
-
-    # Final key
-    s3_key = f"media/default/uploads/{decoded_file_path}".replace("\\", "/").strip()
-    print(f"📂 Final S3 Key: {s3_key}")
-
-    # S3 fetch
-    s3_client = boto3.client(
-        's3',
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        region_name=AWS_S3_REGION_NAME
-    )
-
-    try:
-        s3_response = s3_client.get_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=s3_key)
-        file_data = s3_response['Body']
-        content_type = s3_response.get('ContentType') or mimetypes.guess_type(s3_key)[0] or "application/octet-stream"
-
-        # Normalize common types
-        if s3_key.endswith(".html"):
-            content_type = "text/html"
-        elif s3_key.endswith(".css"):
-            content_type = "text/css"
-        elif s3_key.endswith(".js"):
-            content_type = "application/javascript"
-
-        return FileResponse(file_data, content_type=content_type)
-
-    except ClientError as e:
-        print(f"❌ Error fetching {s3_key} from S3: {e}")
-        raise Http404("SCORM file not found")
-"""
-
-"""
-def proxy_scorm_file(request, file_path):
-
-    #Proxy SCORM file from S3 to serve it through the LMS domain.
-    #Resolves both absolute ('scormcontent/...') and relative ('assets/...', 'lib/...', etc.) paths
-    #against the active lesson folder stored in session.
-
-    from urllib.parse import unquote_plus
-
-    decoded_file_path = unquote_plus(file_path or "").strip()
-    print(f"🔍 Incoming SCORM request: {decoded_file_path}")
-
-    # Normalize "index.html" quirks
-    if decoded_file_path.endswith("index.html/"):
-        decoded_file_path = decoded_file_path.rstrip("/")
-        print(f"🧹 Removed trailing slash after index.html → {decoded_file_path}")
-    if "index.html/" in decoded_file_path:
-        decoded_file_path = decoded_file_path.replace("index.html/", "")
-        print(f"🧹 Removed 'index.html/' from path → {decoded_file_path}")
-
-    # Fix nested font path bug produced by some themes
-    if "lib/icomoon.css/fonts/" in decoded_file_path:
-        decoded_file_path = decoded_file_path.replace("lib/icomoon.css/fonts/", "lib/fonts/")
-        print(f"🧼 Normalized font path from CSS: {decoded_file_path}")
-
-    # Drop any accidental leading slash for consistent joining
-    if decoded_file_path.startswith("/"):
-        decoded_file_path = decoded_file_path.lstrip("/")
-
-    # Resolve against the active SCORM folder
-    folder = request.session.get("active_scorm_folder")
-    if not folder:
-        print("❌ No SCORM folder in session")
-        raise Http404("SCORM folder not set")
-
-    # If the path is an absolute SCORM path (begins with scormcontent/), scope it to the folder
-    if decoded_file_path.startswith("scormcontent/"):
-        resolved_path = f"{folder}/{decoded_file_path}"
-
-    else:
-        # Common SCORM subfolders that appear as relative URLs in HTML/CSS/JS
-        RELATIVE_ROOTS = ("assets/", "lib/", "scripts/", "images/", "img/", "css/", "js/", "fonts/")
-
-        if decoded_file_path.startswith(RELATIVE_ROOTS):
-            resolved_path = f"{folder}/scormcontent/{decoded_file_path}"
-        else:
-            # Fallback: treat anything else as relative to scormcontent root
-            # (covers odd theme paths or bare filenames like "index_lesson2.html")
-            resolved_path = f"{folder}/scormcontent/{decoded_file_path}"
-
-    # Build final S3 key under your uploads root
-    s3_key = f"media/default/uploads/{resolved_path}".replace("\\", "/").strip()
-    print(f"📂 Final S3 Key: {s3_key}")
-
-    # Fetch from S3
-    s3_client = boto3.client(
-        's3',
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        region_name=AWS_S3_REGION_NAME
-    )
-
-    try:
-        s3_response = s3_client.get_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=s3_key)
-        file_body = s3_response["Body"]
-
-        # Prefer S3 metadata; otherwise guess; force-correct for web types
-        content_type = (
-            s3_response.get("ContentType")
-            or mimetypes.guess_type(s3_key)[0]
-            or "application/octet-stream"
-        )
-
-        # Normalize common web types
-        path_lower = s3_key.lower()
-        if path_lower.endswith(".html"):
-            content_type = "text/html"
-        elif path_lower.endswith(".css"):
-            content_type = "text/css"
-        elif path_lower.endswith(".js"):
-            content_type = "application/javascript"
-        elif path_lower.endswith(".svg"):
-            content_type = "image/svg+xml"
-
-        return FileResponse(file_body, content_type=content_type)
-
-    except ClientError as e:
-        print(f"❌ Error fetching {s3_key} from S3: {e}")
-        raise Http404("SCORM file not found")
-"""
 
 def proxy_scorm_file(request, file_path):
     """
@@ -515,34 +322,199 @@ def get_scorm_progress(request, lesson_id):
     print(f"[get_scorm_progress] Error parsing cmi_data: {e}")
     return JsonResponse({"suspend_data": ""}, status=500)
 
+def _get_or_create_ulp(request, lesson):
+    user_course = (UserCourse.objects
+                   .filter(user=request.user, course=lesson.module.course)
+                   .order_by('-id')               # <- pick the most recent enrollment deterministically
+                   .first())
+    module_progress, _ = UserModuleProgress.objects.get_or_create(
+        user_course=user_course,
+        module=lesson.module,
+        defaults={"order": lesson.module.order}
+    )
+    ulp, _ = UserLessonProgress.objects.get_or_create(
+        user_module_progress=module_progress,
+        lesson=lesson,
+        defaults={"order": lesson.order}
+    )
+    return ulp
+
+def _pick_attempt(ulp: UserLessonProgress, *, want_new: bool) -> QuizAttempt:
+    open_attempt = ulp.quiz_attempts.filter(
+        status__in=[QuizAttempt.Status.ACTIVE, QuizAttempt.Status.PENDING]
+    ).first()
+    latest_any   = ulp.quiz_attempts.first()
+    if want_new or not latest_any:
+        attempt = QuizAttempt.objects.create(user_lesson_progress=ulp, status=QuizAttempt.Status.ACTIVE)
+        ulp.attempts = (ulp.attempts or 0) + 1
+        ulp.save(update_fields=['attempts'])
+        return attempt
+    return open_attempt or latest_any
+
+@login_required
+@require_POST
+def save_quiz_progress(request):
+    print("💾 save_quiz_progress hit", request.path)
+    try:
+        data = json.loads(request.body or "{}")
+    except Exception as e:
+        return JsonResponse({"error": "bad_json", "detail": str(e)}, status=400)
+
+    try:
+        match = resolve(request.path_info)
+        print(f"💾 save_quiz_progress hit {request.path} (url_name={match.url_name}) "
+              f"Referer={request.META.get('HTTP_REFERER')} UA={request.META.get('HTTP_USER_AGENT')}")
+    except Exception:
+        print(f"💾 save_quiz_progress hit {request.path} (resolve failed) "
+              f"Referer={request.META.get('HTTP_REFERER')}")
+
+    attempt_id = (data.get("session_id") or request.session.get("current_attempt_id") or "").strip()
+    if not attempt_id:
+        return JsonResponse({"error": "missing_attempt_id"}, status=400)
+
+    pos   = int(data.get("position") or 0)
+    total = int(data.get("total_questions") or 0)
+    done  = bool(data.get("is_finished"))
+
+    # ---- primary: QuizAttempt path
+    attempt = QuizAttempt.objects.filter(
+        attempt_id=attempt_id,
+        user_lesson_progress__user_module_progress__user_course__user=request.user
+    ).first()
+
+    if attempt:
+        updates = []
+        if total and total != (attempt.total_questions or 0):
+            attempt.total_questions = total; updates.append("total_questions")
+        if pos != (attempt.last_position or 0):
+            attempt.last_position = pos; updates.append("last_position")
+        if done and attempt.status != QuizAttempt.Status.PENDING and attempt.status not in (QuizAttempt.Status.PASSED, QuizAttempt.Status.FAILED):
+            attempt.status = QuizAttempt.Status.PENDING
+            attempt.finished_at = timezone.now()
+            updates += ["status", "finished_at"]
+        if updates:
+            attempt.save(update_fields=updates)
+        return JsonResponse({"ok": True, "session_id": attempt.attempt_id, "last_position": attempt.last_position})
+
+    # ---- legacy fallback: LessonSession path (this is your 404 source today)
+    legacy = LessonSession.objects.filter(
+        session_id=attempt_id,
+        user=request.user
+    ).first()
+    if not legacy:
+        return JsonResponse({"error": "attempt_not_found"}, status=404)
+
+    updates = []
+    if total and total != (legacy.total_questions or 0):
+        legacy.total_questions = total; updates.append("total_questions")
+    if pos != (legacy.last_position or 0):
+        legacy.last_position = pos; updates.append("last_position")
+    if done and legacy.status != "pending":
+        legacy.status = "pending"
+        legacy.finished_at = timezone.now()
+        updates += ["status", "finished_at"]
+    if updates:
+        legacy.save(update_fields=updates)
+
+    return JsonResponse({"ok": True, "session_id": legacy.session_id, "last_position": legacy.last_position})
+
 @login_required
 @require_GET
 def get_quiz_score(request):
-    session_id = request.GET.get("session_id")
-    if not session_id:
-        return JsonResponse({"error": "Missing session_id"}, status=400)
+    attempt_id = request.GET.get("attempt_id")
+    session_id = request.GET.get("session_id")  # legacy
+    # If only attempt_id was provided, also try it as a legacy session id
+    legacy_candidate = session_id or attempt_id
 
-    session = LessonSession.objects.filter(session_id=session_id, user=request.user).first()
-    if not session:
-        return JsonResponse({"error": "Session not found"}, status=404)
+    lesson = None
+    responses = None
+    used_mode = None  # for debugging
 
-    lesson = session.lesson
-    quiz, _ = _resolve_question_ids_for_lesson(lesson)
+    # --- Prefer QuizAttempt if present ---
+    attempt = None
+    if attempt_id:
+        attempt = (QuizAttempt.objects
+                   .select_related("user_lesson_progress__user_module_progress__user_course",
+                                   "user_lesson_progress__lesson")
+                   .filter(attempt_id=attempt_id,
+                           user_lesson_progress__user_module_progress__user_course__user=request.user)
+                   .first())
+    if attempt:
+        lesson = attempt.user_lesson_progress.lesson
+        # if you added FK QuizResponse.quiz_attempt, default related name is quizresponse_set
+        responses = getattr(attempt, "quizresponse_set", None) or attempt.responses
+        used_mode = "attempt"
+    else:
+        # --- Legacy fallback: LessonSession by session_id (or attempt_id reused as session_id) ---
+        if not legacy_candidate:
+            return JsonResponse({"error": "Missing attempt_id or session_id"}, status=400)
 
-    responses = session.quizresponse_set.all()
+        session = (LessonSession.objects
+                   .select_related("lesson")
+                   .filter(session_id=legacy_candidate, user=request.user)
+                   .first())
+        if not session:
+            # keep the old error text so your logs remain familiar
+            return JsonResponse({"error": "Attempt not found"}, status=404)
+
+        lesson = session.lesson
+        responses = session.quizresponse_set.all()
+        used_mode = "session"
+
+    # ---- Resolve quiz-like container (unchanged) ----
+    try:
+        quiz_like, _ = _resolve_question_ids_for_lesson(request, lesson)
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"resolve_failed: {e.__class__.__name__}", "detail": str(e)},
+            status=500
+        )
+
     gradable = responses.exclude(is_correct=None)
-
     total_answered = responses.count()
-    total_graded = gradable.count()
-    correct = gradable.filter(is_correct=True).count()
-
-    percent = int((correct / total_graded) * 100) if total_graded > 0 else 0
+    total_graded   = gradable.count()
+    correct        = gradable.filter(is_correct=True).count()
+    percent        = int((correct / total_graded) * 100) if total_graded > 0 else 0
     pending_review = responses.filter(is_correct=None).exists()
 
-    passed = False
-    pass_mark = quiz.pass_mark or 0
-    if not pending_review:
-        passed = percent >= pass_mark
+    cfg = getattr(lesson, "quiz_config", None)
+    pass_mark = int(cfg.passing_score) if (cfg and cfg.passing_score is not None) else int(getattr(quiz_like, "pass_mark", 0) or 0)
+    passed = (not pending_review) and (percent >= pass_mark)
+
+    # ---- Write back to whichever object we used ----
+    if used_mode == "attempt":
+        attempt.status = (QuizAttempt.Status.PENDING if pending_review
+                        else (QuizAttempt.Status.PASSED if passed else QuizAttempt.Status.FAILED))
+        attempt.score_percent = percent
+        attempt.passed = None if pending_review else passed
+        if not attempt.finished_at:
+            attempt.finished_at = timezone.now()
+        attempt.save(update_fields=["status", "score_percent", "passed", "finished_at"])
+        ulp = attempt.user_lesson_progress
+    else:
+        # legacy session parity (optional)
+        session.status = ("pending" if pending_review else ("passed" if passed else "failed"))
+        session.score_percent = percent
+        session.passed = None if pending_review else passed
+        if not session.finished_at:
+            session.finished_at = timezone.now()
+        session.save(update_fields=["status", "score_percent", "passed", "finished_at"])
+        ulp = (UserLessonProgress.objects
+           .select_related('lesson__quiz_config', 'user_module_progress__user_course')
+           .filter(lesson=lesson, user_module_progress__user_course__user=request.user)
+           .first())
+        
+    if ulp:
+        cfg = getattr(lesson, 'quiz_config', None)
+        require_passing = bool(getattr(cfg, 'require_passing', False))
+        # Promote frontend state into a lesson-level status:
+        lesson_status = 'pending' if pending_review else ('passed' if passed else 'failed')
+        _update_ulp_from_status(ulp, lesson_status, require_passing=require_passing)
+
+    # (Keep your SCORMTrackingData/UserLessonProgress no-downgrade updates here)
+
+    success_text = getattr(quiz_like, "success_text", "") or "You passed!"
+    fail_text    = getattr(quiz_like, "fail_text", "") or "Your quiz is under review."
 
     return JsonResponse({
         "total_answered": total_answered,
@@ -551,166 +523,255 @@ def get_quiz_score(request):
         "score_percent": percent,
         "passed": passed,
         "pending_review": pending_review,
-        "success_text": quiz.success_text or "",
-        "fail_text": quiz.fail_text or "Your quiz is under review.",
+        "success_text": success_text,
+        "fail_text": fail_text,
+        "passing_score": pass_mark,
     })
 
-@csrf_exempt
-@login_required
-def submit_question(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "Invalid method"}, status=405)
+def _norm_fitb_text(text, strip_ws=True, case_sensitive=False):
+    s = "" if text is None else str(text)
+    s = unicodedata.normalize("NFKC", s)
+    if strip_ws:
+        s = re.sub(r"\s+", " ", s.strip())
+    return s if case_sensitive else s.casefold()
 
+@login_required
+@require_POST
+def submit_question(request):
     data = json.loads(request.body or "{}")
     user = request.user
     question_id = data.get("question_id")
-    answer = data.get("answer")
-    question_type = data.get("question_type")
-    lesson_id = data.get("lesson_id")
+    lesson_id   = data.get("lesson_id")
+    answer      = data.get("answer")
 
-    # --- look up objects ---
+    question = get_object_or_404(
+        Question.objects.select_related("mcquestion","tfquestion","fitbquestion","essayquestion"),
+        id=question_id
+    )
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+
+    # Prefer attempt; fall back to legacy session
+    attempt = QuizAttempt.objects.filter(
+        attempt_id=request.session.get("current_attempt_id"),
+        user_lesson_progress__lesson=lesson,
+        user_lesson_progress__user_module_progress__user_course__user=user,
+    ).first()
+    lesson_session = None
+    if not attempt:
+        lesson_session = LessonSession.objects.filter(
+            session_id=request.session.get("current_lesson_session_id"),
+            user=user, lesson=lesson
+        ).first()
+
+    seen_index = None
     try:
-        question = Question.objects.get(id=question_id)
-    except Question.DoesNotExist:
-        return JsonResponse({"error": "Invalid question ID"}, status=404)
+        if data.get("position") is not None:
+            seen_index = int(data["position"])
+    except Exception:
+        seen_index = None
 
-    try:
-        lesson = Lesson.objects.get(id=lesson_id)
-    except Lesson.DoesNotExist:
-        return JsonResponse({"error": "Invalid lesson ID"}, status=404)
-
-    # Ensure a LessonSession (you already use this)
-    session_id = request.session.get("current_lesson_session_id")
-    lesson_session = LessonSession.objects.filter(session_id=session_id, user=user).first()
-
-    # --- correctness ---
+    qtype = detect_question_type(question)
     is_correct = False
     correct_answers = []
+    correct_answer_ids = []
 
-    if question_type == "TFQuestion":
-        tf = getattr(question, 'tfquestion', None)
-        if tf:
-            truth = str(answer).lower() in ("true", "1", "t", "yes", "y")
+    if qtype == "TFQuestion":
+        tf = getattr(question, "tfquestion", None)
+        if tf is not None:
+            sval = str(answer).strip().lower()
+            truth = sval in ("true", "1", "t", "yes", "y")
             is_correct = (tf.correct == truth)
             correct_answers = ["True" if tf.correct else "False"]
+            if not question.answers.exists():
+                correct_answer_ids = ["true"] if tf.correct else ["false"]
+            else:
+                want = "true" if tf.correct else "false"
+                ans = question.answers.filter(text__iexact=want).first()
+                if ans:
+                    correct_answer_ids = [str(ans.id)]
 
-    elif question_type == "MCQuestion":
+    elif qtype in ("MCQuestion", "MRQuestion"):
+        submitted = {str(x) for x in (answer if isinstance(answer, list) else [answer])}
         correct_qs = question.answers.filter(is_correct=True)
         correct_ids = {str(a.id) for a in correct_qs}
-        is_correct = str(answer) in correct_ids
+        is_correct = (submitted == correct_ids) if qtype == "MRQuestion" else (next(iter(submitted), None) in correct_ids)
         correct_answers = [a.text for a in correct_qs]
+        correct_answer_ids = [str(i) for i in correct_qs.values_list("id", flat=True)]
 
-    elif question_type == "MRQuestion":
-        # your client sometimes sends lists (the failing row had ['13'])
-        submitted = {str(x) for x in (answer or [])}
-        correct_qs = question.answers.filter(is_correct=True)
-        correct_ids = {str(a.id) for a in correct_qs}
-        is_correct = submitted == correct_ids
-        correct_answers = [a.text for a in correct_qs]
-
-    elif question_type == "EssayQuestion":
-        is_correct = None
-        correct_answers = []
-
-    elif question_type == "FITBQuestion":
-        fitb = getattr(question, 'fitbquestion', None)
-        if fitb:
-            ans = answer or ""
-            if fitb.strip_whitespace:
-                ans = ans.strip()
-            matched = False
-            for acc in fitb.acceptable_answers.all():
-                want = acc.content.strip() if fitb.strip_whitespace else acc.content
-                if fitb.case_sensitive:
-                    if ans == want: matched = True; break
-                else:
-                    if ans.lower() == want.lower(): matched = True; break
+    elif qtype == "FITBQuestion":
+        fitb = getattr(question, "fitbquestion", None)
+        if fitb is not None:
+            val = answer
+            if isinstance(val, dict) and "text" in val:
+                val = val.get("text")
+            elif isinstance(val, (list, tuple)):
+                val = " ".join(str(x) for x in val if x is not None)
+            strip_ws = True if fitb.strip_whitespace is None else bool(fitb.strip_whitespace)
+            case_sens = bool(fitb.case_sensitive)
+            ans_norm = _norm_fitb_text(val, strip_ws, case_sens)
+            matched = any(ans_norm == _norm_fitb_text(a.content, strip_ws, case_sens)
+                          for a in fitb.acceptable_answers.all())
             is_correct = matched
             correct_answers = [a.content for a in fitb.acceptable_answers.all()]
 
-    # --- save response (NOW including sitting) ---
+    elif qtype == "EssayQuestion":
+        is_correct = None
+        correct_answers = []
+        if isinstance(answer, list):
+            for item in answer:
+                pid = str(item.get("prompt_id", "")).strip()
+                text = (item.get("text") or "").strip()
+                if not pid or not text:
+                    continue
+                try:
+                    prompt = EssayPrompt.objects.get(id=pid, question=question.essayquestion)
+                except EssayPrompt.DoesNotExist:
+                    continue
+                EssayAnswer.objects.create(
+                    prompt=prompt, question_id=question.id, answer_text=text, sitting_id=None
+                )
+
+    payload_text = json.dumps(answer) if isinstance(answer, (list, dict)) else str(answer)
+
+    # Use the new FK if you added it to QuizResponse
     QuizResponse.objects.create(
         user=user,
         lesson=lesson,
-        lesson_session=lesson_session,
         question=question,
-        user_answer=json.dumps(answer) if isinstance(answer, (list, dict)) else str(answer),
+        quiz_attempt=attempt,              # may be None
+        lesson_session=lesson_session,     # legacy fallback
+        user_answer=json.dumps(answer) if isinstance(answer,(list,dict)) else str(answer),
         is_correct=is_correct,
+        seen_index=seen_index,
     )
+
+    try:
+        pos = data.get("position", None)
+        if pos is not None:
+            p = int(pos)
+            if attempt and p > (attempt.last_position or 0):
+                attempt.last_position = p
+                attempt.save(update_fields=["last_position"])
+    except Exception:
+        pass
 
     return JsonResponse({
         "status": "success",
         "is_correct": is_correct,
         "correct_answers": correct_answers,
+        "correct_answer_ids": correct_answer_ids,
+        "question_type": qtype,
     })
 
-def _resolve_question_ids_for_lesson(lesson: Lesson) -> (Quiz, List[int]):
+def _deepest_category(selection):
+    return (selection.sub_category3
+            or selection.sub_category2
+            or selection.sub_category1
+            or selection.category)
+
+def _sample_qids_for_template(template, *, unique=True):
+    chosen, chosen_set = [], set()
+    for sel in template.category_selections.all():
+        cat = _deepest_category(sel)
+        n = max(int(sel.num_questions or 0), 0)
+        if not cat or n <= 0:
+            continue
+        qs = Question.objects.filter(category=cat).values_list("id", flat=True)
+        if unique and chosen_set:
+            qs = qs.exclude(id__in=chosen_set)
+        pool = list(qs)
+        if not pool:
+            continue
+        random.shuffle(pool)
+        pick = pool[:min(n, len(pool))]
+        chosen.extend(pick)
+        if unique:
+            chosen_set.update(pick)
+    return chosen
+
+def _ensure_quiz_container_for_template(lesson, template):
+    quiz = Quiz.objects.filter(id=lesson.quiz_id).first()
+    if quiz:
+        return quiz
+    return SimpleNamespace(
+        id=f"template-{template.id}",
+        title=f"Template: {template.title}",
+        category=None,
+        quiz_material="",
+        pass_mark=0,
+        answers_at_end=True,
+        success_text="",
+        fail_text="",
+    )
+
+def _resolve_question_ids_for_lesson(request, lesson):
     """
-    Return (quiz, ordered_question_ids) given a Lesson that may reference
-    either a QuizTemplate or a concrete Quiz.
+    Returns (quiz_like, ordered_qids) and persists order per *attempt*.
     """
-    # Template case
+    attempt_id = request.session.get("current_attempt_id") or str(lesson.id)
+
+    # Template
     if lesson.create_quiz_from == "create_quiz_from1" and lesson.quiz_template_id:
         template = get_object_or_404(QuizTemplate, id=lesson.quiz_template_id)
-        qids = list(
-            TemplateQuestion.objects.filter(template=template)
-            .values_list("question_id", flat=True)
-        )
-        # Use/require a concrete Quiz row to hang metadata off of.
-        # If you already create one for templates, fetch that instead:
-        quiz = Quiz.objects.filter(id=lesson.quiz_id).first() or Quiz.objects.filter(url=f"template-{template.id}").first()
-        if not quiz:
-            # last-resort: pick any quiz-like container; or you can create one
-            # but typically you'd have set lesson.quiz_id when “creating from template”
-            quiz = Quiz.objects.create(
-                title=f"Template: {template.title}",
-                description=f"Derived from template {template.id}",
-                url=f"template-{template.id}"
-            )
-            lesson.quiz_id = quiz.id
-            lesson.save(update_fields=["quiz_id"])
-        return quiz, qids
+        quiz_like = _ensure_quiz_container_for_template(lesson, template)
+        order_key = f"tpl_qids_{attempt_id}"
+        qids = request.session.get(order_key)
+        if not qids:
+            qids = _sample_qids_for_template(template, unique=True)
+            cfg = getattr(lesson, "quiz_config", None)
+            if cfg and getattr(cfg, "randomize_order", False):
+                random.shuffle(qids)
+            request.session[order_key] = qids
+            request.session.modified = True
+        if not qids:
+            raise Http404("No questions available for this template.")
+        return quiz_like, qids
 
-    # Concrete quiz case
+    # Concrete quiz
     if lesson.quiz_id:
         quiz = get_object_or_404(Quiz, id=lesson.quiz_id)
-        qids = list(QuestionOrder.objects.filter(quiz=quiz).order_by("order").values_list("question_id", flat=True))
+        base_ids = list(
+            QuestionOrder.objects.filter(quiz=quiz).order_by("order").values_list("question_id", flat=True)
+        ) or list(
+            quiz.questions.all().order_by("id").values_list("id", flat=True)
+        )
+        order_key = f"quiz_qids_{attempt_id}"
+        qids = request.session.get(order_key)
         if not qids:
-            # fallback to M2M natural ordering
-            qids = list(quiz.questions.all().order_by("id").values_list("id", flat=True))
+            qids = base_ids[:]
+            cfg = getattr(lesson, "quiz_config", None)
+            if cfg and getattr(cfg, "randomize_order", False):
+                random.shuffle(qids)
+            request.session[order_key] = qids
+            request.session.modified = True
         return quiz, qids
 
     raise Http404("Lesson has no quiz or template assigned.")
 
 def _question_to_json(q: Question):
-    # Answers (MC/MR). Provide TF fallback if no Answer rows exist.
     answers = list(q.answers.all().order_by("order").values("id", "text"))
-
-    # ✅ TF fallback
     if hasattr(q, "tfquestion") and not answers:
-        answers = [
-            {"id": "true", "text": "True"},
-            {"id": "false", "text": "False"},
-        ]
+        answers = [{"id": "true", "text": "True"}, {"id": "false", "text": "False"}]
 
-    # Media
-    media_items = []
-    for m in q.media_items.all():
-        media_items.append({
-            "source_type": m.source_type,
-            "title": m.title or "",
-            "file_url": (m.file.url if m.file else None),
-            "url_from_library": m.url_from_library or None,
-            "type_from_library": m.type_from_library or "",
-            "embed_code": m.embed_code or "",
-        })
+    media_items = [{
+        "source_type": m.source_type,
+        "title": m.title or "",
+        "file_url": (m.file.url if m.file else None),
+        "url_from_library": m.url_from_library or None,
+        "type_from_library": m.type_from_library or "",
+        "embed_code": m.embed_code or "",
+    } for m in q.media_items.all()]
 
-    # Essay prompts
+    essay_instructions = None
+    essay_rubric = None
     prompts = []
     if hasattr(q, "essayquestion"):
+        eq = q.essayquestion
+        essay_instructions = eq.instructions
+        essay_rubric = eq.rubric
         prompts = [
             {"id": p.id, "prompt_text": p.prompt_text, "rubric": p.rubric or ""}
-            for p in q.essayquestion.prompts.all().order_by("order")
+            for p in eq.prompts.all().order_by("order")
         ]
 
     fitb = getattr(q, "fitbquestion", None)
@@ -721,14 +782,10 @@ def _question_to_json(q: Question):
             "strip_whitespace": fitb.strip_whitespace
         }
 
-    # Normalize type: if it allows multiple, treat as MR on the client
-    qtype = q.__class__.__name__
-    if getattr(q, "allows_multiple", False) and qtype == "Question":
-        qtype = "MRQuestion"
-
     return {
         "id": q.id,
-        "question_type": qtype,
+        "question_type": detect_question_type(q),
+        "randomize_answer_order": q.randomize_answer_order,
         "content": q.content,
         "allows_multiple": bool(getattr(q, "allows_multiple", False)),
         "answers": answers,
@@ -737,43 +794,104 @@ def _question_to_json(q: Question):
         "has_embed": any(mi["embed_code"] for mi in media_items),
         "essay_prompts": prompts,
         "fitb_meta": fitb_meta,
+        "essay_instructions": essay_instructions,
+        "essay_rubric": essay_rubric,
     }
+
+# utils/questions.py (or near your views)
+def detect_question_type(q):
+    """
+    Return one of: 'MCQuestion', 'MRQuestion', 'TFQuestion',
+                   'FITBQuestion', 'EssayQuestion', or 'Question'.
+    """
+    # MC vs MR (allows_multiple lives on the base Question in your models)
+    if hasattr(q, "mcquestion"):
+        return "MRQuestion" if getattr(q, "allows_multiple", False) else "MCQuestion"
+    if hasattr(q, "tfquestion"):
+        return "TFQuestion"
+    if hasattr(q, "fitbquestion"):
+        return "FITBQuestion"
+    if hasattr(q, "essayquestion"):
+        return "EssayQuestion"
+    # Fallback: if plain Question has allows_multiple, treat as MRQuestion
+    if getattr(q, "allows_multiple", False):
+        return "MRQuestion"
+    return "Question"
 
 # ---------- page shell (kept) ----------
 
-@login_required
-def quiz_player_page(request, lesson_id):
-    lesson = get_object_or_404(Lesson, id=lesson_id)
+def get_or_build_qid_order(request, lesson, quiz):
+    """
+    Returns a stable list of question IDs for the current LessonSession.
+    If randomize_order is enabled, shuffles once and stores in session.
+    """
+    session_id = request.session.get("current_lesson_session_id") or lesson.id
+    order_key = f"quiz_order_{session_id}"
 
-    # set up/ensure a LessonSession
-    session = LessonSession.objects.filter(user=request.user, lesson=lesson).first()
-    if not session:
-        session = LessonSession.objects.create(user=request.user, lesson=lesson)
-    request.session["current_lesson_session_id"] = session.session_id
+    qid_order = request.session.get(order_key)
+    if qid_order:
+        return qid_order
 
-    quiz, qids = _resolve_question_ids_for_lesson(lesson)
+    # Base order from QuestionOrder; fallback to quiz.questions order
+    base_ids = list(
+        QuestionOrder.objects
+        .filter(quiz=quiz)
+        .order_by("order")
+        .values_list("question_id", flat=True)
+    ) or list(
+        quiz.questions.all()
+        .order_by("id")
+        .values_list("id", flat=True)
+    )
 
-    # Reveal answers: prefer QuizConfig if present
-    reveal = False
-    if hasattr(lesson, "quiz_config") and lesson.quiz_config:
-        reveal = bool(lesson.quiz_config.reveal_answers)
-    else:
-        reveal = not bool(quiz.answers_at_end)
+    cfg = getattr(lesson, "quiz_config", None)
+    if cfg and cfg.randomize_order:
+        random.shuffle(base_ids)
 
-    ctx = {
-        "lesson": lesson,
-        "quiz": quiz,
-        "total_questions": len(qids),
-        "reveal_answers": reveal,
-        "lesson_progress_data": "[]",
-        "scorm_index_file_url": getattr(lesson, "scorm_id", ""),
-        "lesson_location": getattr(lesson, "scorm_id", ""),
-        "course_locked": False,
-        "mini_lesson_progress": [],
-        "profile_id": request.user.id,
-        "saved_progress": 0,
+    request.session[order_key] = base_ids
+    request.session.modified = True
+    return base_ids
+
+def _prepare_quiz_attempt_context(request, lesson, *, want_new: bool):
+    """
+    Creates or reuses a QuizAttempt tied to the user's UserLessonProgress,
+    resolves question IDs using the attempt-id as the session key, and
+    returns a ready-to-render context dict for quizzes/quiz_player.html.
+    """
+    # 1) ULP + attempt
+    ulp = _get_or_create_ulp(request, lesson)
+    attempt = _pick_attempt(ulp, want_new=want_new)  # creates row on first visit / explicit retry
+    request.session['current_attempt_id'] = attempt_id_str
+
+    # 2) Resolve questions for this attempt (order is keyed by attempt_id inside the resolver)
+    quiz_like, qids = _resolve_question_ids_for_lesson(request, lesson)
+    total_qs = len(qids)
+    if attempt.total_questions != total_qs:
+        attempt.total_questions = total_qs
+        attempt.save(update_fields=['total_questions'])
+
+    # 3) Reveal answers (same semantics you already used)
+    cfg = getattr(lesson, "quiz_config", None)
+    reveal = bool(getattr(cfg, "reveal_answers", False))
+    if not cfg:
+        reveal = not bool(getattr(quiz_like, "answers_at_end", True))
+
+    # 4) Resume payload consumed by quiz_player.js
+    resume = {
+        "session_id": attempt.attempt_id,       # stable across refresh
+        "status": attempt.status,               # 'active' | 'pending' | 'completed' | 'abandoned'
+        "last_position": attempt.last_position or 0,
+        "total": total_qs,
     }
-    return render(request, "course_player/quiz_player.html", ctx)
+
+    return {
+        "lesson": lesson,
+        "quiz": quiz_like,
+        "total_questions": total_qs,
+        "reveal_answers": reveal,
+        "attempt": attempt,
+        "resume_json": json.dumps(resume),
+    }
 
 # ---------- JSON question fetch ----------
 
@@ -781,7 +899,8 @@ def quiz_player_page(request, lesson_id):
 @require_GET
 def quiz_question_json(request, lesson_id, position):
     lesson = get_object_or_404(Lesson, id=lesson_id)
-    quiz, qids = _resolve_question_ids_for_lesson(lesson)
+    quiz_like, qids = _resolve_question_ids_for_lesson(request, lesson)
+
     total = len(qids)
     if position < 0 or position >= total:
         raise Http404("No such question")
@@ -795,32 +914,29 @@ def quiz_question_json(request, lesson_id, position):
             "display_index": position + 1,
             "total": total,
             "is_last": position == total - 1,
-            "quiz_id": quiz.id,
+            "quiz_id": getattr(quiz_like, "id", None),
         }
     }
     return JsonResponse(payload)
 
+# @login_required
+# def launch_scorm(request, course_id):
+#     course = get_object_or_404(Course, pk=course_id)
+#     user = request.user
 
+#     # Get all lessons ordered across modules
+#     lessons = Lesson.objects.filter(module__course=course).order_by("module__order", "order")
 
+#     for lesson in lessons:
+#         tracking = SCORMTrackingData.objects.filter(user=user, lesson=lesson).first()
+#         if not tracking or tracking.completion_status != "completed":
+#             return redirect("launch_scorm_file", lesson_id=lesson.id)
 
-@login_required
-def launch_scorm(request, course_id):
-    course = get_object_or_404(Course, pk=course_id)
-    user = request.user
+#     # Fallback if all lessons are completed — open last
+#     if lessons.exists():
+#         return redirect("launch_scorm_file", lesson_id=lessons.last().id)
 
-    # Get all lessons ordered across modules
-    lessons = Lesson.objects.filter(module__course=course).order_by("module__order", "order")
-
-    for lesson in lessons:
-        tracking = SCORMTrackingData.objects.filter(user=user, lesson=lesson).first()
-        if not tracking or tracking.completion_status != "completed":
-            return redirect("launch_scorm_file", lesson_id=lesson.id)
-
-    # Fallback if all lessons are completed — open last
-    if lessons.exists():
-        return redirect("launch_scorm_file", lesson_id=lessons.last().id)
-
-    return render(request, "error.html", {"message": "No lessons available in this course."})
+#     return render(request, "error.html", {"message": "No lessons available in this course."})
 
 def get_question_type(ordered_links, randomize_answers=False):
     questions = []
@@ -890,6 +1006,122 @@ def get_question_type(ordered_links, randomize_answers=False):
 
     return questions
 
+def _to_pct(val):
+    """Convert SCORM progress to an int percent, handling None and mixed scales."""
+    try:
+        v = float(val if val is not None else 0.0)
+    except (TypeError, ValueError):
+        v = 0.0
+    # If stored as 0..1 → convert to %
+    if v <= 1.0:
+        return int(round(v * 100))
+    # If already 0..100 → clamp
+    return int(round(max(0.0, min(v, 100.0))))
+
+def _resolve_user_course(user, lesson):
+    from client_admin.models import UserCourse
+    return (UserCourse.objects
+            .filter(user=user, course=lesson.module.course)
+            .order_by('-id')
+            .first())
+
+def _client_ip(request):
+    xff = request.META.get('HTTP_X_FORWARDED_FOR')
+    if xff:
+        return xff.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR', '')
+
+def ensure_lesson_session(request, lesson, *, force_new=False):
+    """
+    Ensure exactly one LessonSession for this page load.
+    - Reuse ID in request.session if valid.
+    - Else reuse an open (active/pending) one unless force_new.
+    - Else create a fresh row with fully-populated fields.
+    """
+    sid = request.session.get('current_lesson_session_id')
+    if sid:
+        s = LessonSession.objects.filter(session_id=sid,
+                                         user=request.user,
+                                         lesson=lesson).first()
+        if s:
+            return s
+
+    if not force_new:
+        s = (LessonSession.objects
+             .filter(user=request.user,
+                     lesson=lesson,
+                     status__in=['active', 'pending'])
+             .order_by('-start_time')
+             .first())
+        if s:
+            request.session['current_lesson_session_id'] = s.session_id
+            return s
+
+    s = LessonSession.objects.create(
+        user=request.user,
+        lesson=lesson,
+        user_course=_resolve_user_course(request.user, lesson),
+        session_id=str(uuid.uuid4()),
+        user_agent=request.META.get('HTTP_USER_AGENT', '')[:1024],
+        ip_address=_client_ip(request),
+        progress=0.0,
+        completion_status="incomplete",
+        session_time="PT0H0M0S",
+        scroll_position=0,
+        score=None,
+        lesson_location="",
+        cmi_data={},
+        status='active',
+        last_position=0,
+        total_questions=0,
+        attempt_index=1,
+        start_time=timezone.now(),     # <-- init
+        end_time=timezone.now(),       # <-- init
+        finished_at=None,
+    )
+    request.session['current_lesson_session_id'] = s.session_id
+    return s
+
+_PT_RE = re.compile(r'^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$')
+
+def _pt_to_seconds(pt: str) -> int:
+    """
+    Parse a minimal ISO-8601 'PT#H#M#S' duration string to whole seconds.
+    Returns 0 on parse failure.
+    """
+    if not pt:
+        return 0
+    m = _PT_RE.match(str(pt).strip().upper())
+    if not m:
+        return 0
+    h = int(m.group(1) or 0)
+    m_ = int(m.group(2) or 0)
+    s = float(m.group(3) or 0)
+    return int(round(h * 3600 + m_ * 60 + s))
+
+def _seconds_to_pt(seconds: int) -> str:
+    """
+    Render whole seconds as ISO-8601 'PT#H#M#S' (no fractional).
+    """
+    seconds = max(int(seconds or 0), 0)
+    h, rem = divmod(seconds, 3600)
+    m, s   = divmod(rem, 60)
+    return f"PT{h}H{m}M{s}S"
+
+def _safe_json_dict(x):
+    if isinstance(x, dict):
+        return x
+    if x in (None, "", "null"):
+        return {}
+    try:
+        return json.loads(x)
+    except Exception:
+        return {}
+    
+def _canon_url(u: str) -> str:
+    if not u: return u
+    return u.replace("index.html/", "index.html")
+
 @login_required
 def launch_scorm_file(request, lesson_id):
     print('Lesson ID:', lesson_id)
@@ -897,16 +1129,21 @@ def launch_scorm_file(request, lesson_id):
     course = lesson.module.course
     profile = get_object_or_404(Profile, user=request.user)
     user_course = UserCourse.objects.filter(user=request.user, course=course).first()
- 
+
+    # ✅ Always create a NEW LessonSession on page load / refresh
+    session = ensure_lesson_session(request, lesson, force_new=True)
+    request.session['current_lesson_session_id'] = session.session_id
+
     # Fetch all modules with their lessons for the course
     modules_with_lessons = Module.objects.filter(course=course).order_by('order').prefetch_related('lessons')
- 
-    # Identify current lesson's module and determine nav context
-    all_lessons = Lesson.objects.filter(
-        module__course=course
-    ).select_related('module').order_by('module__order', 'order')
 
-    all_lessons = list(all_lessons)
+    # Identify current lesson's module and determine nav context
+    all_lessons = list(
+        Lesson.objects.filter(module__course=course)
+        .select_related('module')
+        .order_by('module__order', 'order')
+    )
+
     current_index = all_lessons.index(lesson) if lesson in all_lessons else -1
     next_lesson = all_lessons[current_index + 1] if current_index + 1 < len(all_lessons) else None
     prev_lesson = all_lessons[current_index - 1] if current_index > 0 else None
@@ -924,26 +1161,39 @@ def launch_scorm_file(request, lesson_id):
             lesson=prev_lesson,
             completed=True
         ).exists()
-        if not prev_completed:
-            return render(request, 'error.html', {'message': 'You must complete the previous lesson before proceeding.'})
 
+        prev_scorm = SCORMTrackingData.objects.filter(user=request.user, lesson=prev_lesson).first()
+        prev_status = (prev_scorm.completion_status.lower() if prev_scorm and prev_scorm.completion_status else None)
+
+        prev_has_pending = QuizResponse.objects.filter(
+            user=request.user, lesson=prev_lesson, is_correct=None
+        ).exists()
+
+        allow_unlock = (
+            prev_completed
+            or (prev_status in ("completed", "passed", "pending"))
+            or prev_has_pending
+        )
+
+        if not allow_unlock:
+            return render(request, 'error.html', {
+                'message': 'You must finish or submit the previous lesson (or await review) before proceeding.'
+            })
 
     mini_lesson_progress = list(LessonProgress.objects.filter(
         user=request.user,
         lesson=lesson
     ).values("mini_lesson_index", "progress"))
 
-    # Progress tracking
+    # Progress tracking (sidebar)
     lesson_progress_data = []
     previous_lesson_completed = True
 
     for module in modules_with_lessons:
         for module_lesson in module.lessons.all().order_by("order"):
-            # Get SCORM data for progress % and location
             scorm_entry = SCORMTrackingData.objects.filter(user=request.user, lesson=module_lesson).first()
-            progress_value = scorm_entry.progress if scorm_entry else 0
+            progress_pct = _to_pct(scorm_entry.progress if scorm_entry and scorm_entry.progress is not None else 0)
 
-            # Get actual completion status from UserLessonProgress
             lesson_progress = UserLessonProgress.objects.filter(
                 user_module_progress__user_course=user_course,
                 lesson=module_lesson
@@ -952,28 +1202,34 @@ def launch_scorm_file(request, lesson_id):
             is_completed = lesson_progress.completed if lesson_progress else False
             locked_status = course_locked and not previous_lesson_completed
 
-            # Debug logging (optional)
-            print(f"🧪 Lesson {module_lesson.id} — SCORM progress: {progress_value}, Completed?: {is_completed}")
-
-            # Check if lesson has any ungraded essay responses
             has_pending_review = QuizResponse.objects.filter(
                 user=request.user,
                 lesson=module_lesson,
                 is_correct=None
             ).exists()
-            print(f"[🧪 DEBUG] Lesson {module_lesson.id} pending_review: {has_pending_review}")
+
+            status_str = (scorm_entry.completion_status if scorm_entry else None)
+            raw_status = (status_str.lower() if status_str else None) or ("pending" if has_pending_review else "incomplete")
+            norm_status = "complete" if raw_status in ("passed", "completed") else raw_status
+            if norm_status in ("complete", "pending"):
+                locked_status = False
+
+            print('scorm_entry.completion_status:', status_str)
+
             lesson_progress_data.append({
                 "id": module_lesson.id,
                 "title": module_lesson.title,
                 "completed": is_completed,
                 "locked": locked_status,
-                "progress": int(progress_value * 100),
+                "progress": progress_pct,
                 "module_id": module.id,
                 "module_title": module.title,
-                "pending_review": has_pending_review,  # ✅ inject the flag
+                "pending_review": has_pending_review,
+                "completion_status": norm_status,
+                "status_str": status_str,
             })
- 
-            previous_lesson_completed = is_completed
+
+            previous_lesson_completed = (norm_status in ("complete", "pending"))
 
     lesson_locked_map = {l['id']: l['locked'] for l in lesson_progress_data}
 
@@ -987,13 +1243,9 @@ def launch_scorm_file(request, lesson_id):
     )
 
     assignment_status_map = {}
-
     for progress in progress_qs:
         key = f"{progress.assignment_id}-{progress.lesson_id}" if progress.lesson_id else str(progress.assignment_id)
-        assignment_status_map[key] = {
-            "status": progress.status,
-            "locked": False  # Set this separately below
-        }
+        assignment_status_map[key] = {"status": progress.status, "locked": False}
 
     for assignment in full_course_assignments:
         key = str(assignment.id)
@@ -1002,18 +1254,12 @@ def launch_scorm_file(request, lesson_id):
     for assignment in lesson_assignments:
         for attached_lesson in assignment.lessons.all():
             key = f"{assignment.id}-{attached_lesson.id}"
-
             lesson_locked = lesson_locked_map.get(attached_lesson.id, False)
-
             if key in assignment_status_map:
                 assignment_status_map[key]["locked"] = lesson_locked
             else:
-                assignment_status_map[key] = {
-                    "status": "pending",
-                    "locked": lesson_locked
-                }
+                assignment_status_map[key] = {"status": "pending", "locked": lesson_locked}
 
-    # Build ordered lesson-assignment pairs
     ordered_lessons = Lesson.objects.filter(module__course=course).select_related('module').order_by('module__order', 'order')
     ordered_lesson_assignment_pairs = []
     for lsn in ordered_lessons:
@@ -1027,17 +1273,7 @@ def launch_scorm_file(request, lesson_id):
                 'key': key,
             })
 
-    # Start session
-    session = LessonSession.objects.create(
-        user=request.user,
-        lesson=lesson,
-        session_id=str(uuid.uuid4()),
-        user_agent=request.META.get('HTTP_USER_AGENT', ''),
-        ip_address=request.META.get('REMOTE_ADDR', ''),
-    )
-    request.session['current_lesson_session_id'] = session.session_id
-
-    # SCORM Entry Point
+    # SCORM Entry Point / File Launch
     entry_key = None
     proxy_url = None
     saved_progress = SCORMTrackingData.objects.filter(user=request.user, lesson=lesson).first()
@@ -1045,7 +1281,6 @@ def launch_scorm_file(request, lesson_id):
     if lesson_location.endswith("/None"):
         lesson_location = ""
 
-    # Clean broken index.html paths
     if lesson_location.endswith("index.html/"):
         lesson_location = lesson_location.rstrip("/")
     elif "index.html/" in lesson_location:
@@ -1060,18 +1295,12 @@ def launch_scorm_file(request, lesson_id):
     if lesson.content_type in ['SCORM2004', 'SCORM1.2']:
         if lesson.uploaded_file and lesson.uploaded_file.scorm_entry_point:
             entry_key = lesson.uploaded_file.scorm_entry_point.replace("\\", "/")
-
-            # ✅ Now safe to split
-            folder_name = entry_key.split("/")[0]
-            request.session["active_scorm_folder"] = folder_name
-
-            #proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}"
-            proxy_url = f"/scorm-content/{iri_to_uri(entry_key)}".rstrip("/")
-
-
+            
+            request.session["active_scorm_folder"] = entry_key.split("/")[0]
+            proxy_url = _canon_url(f"/scorm-content/{iri_to_uri(entry_key)}")
         else:
             return render(request, 'error.html', {'message': 'No valid SCORM entry point found for this lesson.'})
- 
+
     elif lesson.file and lesson.file.file:
         file_key = lesson.file.file.name
         if file_key.startswith("tenant/"):
@@ -1080,30 +1309,99 @@ def launch_scorm_file(request, lesson_id):
         proxy_url = generate_presigned_url(entry_key)
 
     elif lesson.content_type == 'quiz':
+        print("[LAUNCH] launch_scorm_file hit for lesson", lesson_id)
+        print('lesson.content_type:', lesson.content_type)
+
         quiz_config = getattr(lesson, 'quiz_config', None)
-        quiz_id = lesson.quiz_id
         if not quiz_config:
             return render(request, 'error.html', {'message': 'No quiz configuration found for this lesson.'})
-        
-        if not quiz_id:
-            return render(request, 'error.html', {'message': 'No quiz ID found for this lesson.'})
-        
-        try:
-            quiz = Quiz.objects.get(pk=quiz_id)
-        except Quiz.DoesNotExist:
-            return render(request, 'error.html', {'message': 'Quiz not found.'})
-        
-        # ✅ Get ordered questions and prefetch their answers
-        ordered_links = QuestionOrder.objects.filter(quiz=quiz).select_related('question').order_by('order')
-        questions = get_question_type(
-            ordered_links,
-            randomize_answers=quiz_config.randomize_order if quiz_config else False
+
+        using_template = (lesson.create_quiz_from == 'create_quiz_from1' and lesson.quiz_template_id)
+        using_quiz     = (lesson.create_quiz_from == 'create_quiz_from2' and lesson.quiz_id)
+
+        # 1) Attempt (QuizAttempt)
+        want_new = request.GET.get('new_attempt') in ('1', 'true', 'yes')
+        ulp = _get_or_create_ulp(request, lesson)
+        attempt = _pick_attempt(ulp, want_new=want_new)
+        attempt_id_str = str(attempt.attempt_id)
+        request.session['current_attempt_id'] = attempt_id_str
+
+        # 2) Resolve question ids / quiz container
+        base_ids = []
+        quiz = None
+
+        if using_quiz:
+            try:
+                quiz = Quiz.objects.get(pk=lesson.quiz_id)
+            except Quiz.DoesNotExist:
+                return render(request, 'error.html', {'message': 'Quiz not found.'})
+            ordered_links = list(
+                QuestionOrder.objects.filter(quiz=quiz).select_related('question').order_by('order')
+            )
+            base_ids = [l.question_id for l in ordered_links]
+
+        elif using_template:
+            template = get_object_or_404(QuizTemplate, id=lesson.quiz_template_id)
+            base_ids = list(TemplateQuestion.objects.filter(template=template).values_list('question_id', flat=True))
+            quiz = (Quiz.objects.filter(id=lesson.quiz_id).first()
+                    or Quiz.objects.filter(url=f"template-{template.id}").first())
+            if not quiz:
+                quiz = Quiz.objects.create(
+                    title=f"Template: {template.title}",
+                    description=f"Derived from template {template.id}",
+                    url=f"template-{template.id}"
+                )
+                lesson.quiz_id = quiz.id
+                lesson.save(update_fields=['quiz_id'])
+        else:
+            if lesson.quiz_id:
+                try:
+                    quiz = Quiz.objects.get(pk=lesson.quiz_id)
+                except Quiz.DoesNotExist:
+                    return render(request, 'error.html', {'message': 'Quiz not found.'})
+                ordered_links = list(
+                    QuestionOrder.objects.filter(quiz=quiz).select_related('question').order_by('order')
+                )
+                base_ids = [l.question_id for l in ordered_links]
+            elif lesson.quiz_template_id:
+                template = get_object_or_404(QuizTemplate, id=lesson.quiz_template_id)
+                quiz = (Quiz.objects.filter(url=f"template-{template.id}").first()
+                        or Quiz.objects.create(
+                            title=f"Template: {template.title}",
+                            description=f"Derived from template {template.id}",
+                            url=f"template-{template.id}"
+                        ))
+                if not lesson.quiz_id:
+                    lesson.quiz_id = quiz.id
+                    lesson.save(update_fields=['quiz_id'])
+                base_ids = list(TemplateQuestion.objects.filter(template=template).values_list('question_id', flat=True))
+            else:
+                return render(request, 'error.html', {'message': 'No quiz or template set for this lesson.'})
+
+        if not base_ids:
+            return render(request, 'error.html', {'message': 'This quiz has no questions yet.'})
+
+        # 3) Per-ATTEMPT order (key by attempt id)
+        order_key = f'quiz_order_{attempt_id_str}'
+        qid_order = request.session.get(order_key)
+        if not qid_order:
+            qid_order = base_ids[:]
+            if quiz_config and quiz_config.randomize_order:
+                import random
+                random.shuffle(qid_order)
+            request.session[order_key] = qid_order
+            request.session.modified = True
+
+        # 4) Prefetch questions
+        questions_qs = Question.objects.filter(id__in=qid_order).select_related(
+            'mcquestion', 'tfquestion', 'fitbquestion', 'essayquestion'
         )
-        
+        questions_map = {q.id: q for q in questions_qs}
+        questions = [questions_map[qid] for qid in qid_order if qid in questions_map]
+
         for q in questions:
             media_items = list(QuestionMedia.objects.filter(question_id=q.id))
             q.media_items_list = media_items
-
             q.has_media = any(
                 m.source_type in ["upload", "library"] and (m.file or m.url_from_library)
                 for m in media_items
@@ -1111,6 +1409,25 @@ def launch_scorm_file(request, lesson_id):
             q.has_embed = any(m.embed_code for m in media_items)
 
         quiz_type = quiz_config.quiz_type or 'standard_quiz'
+        total_qs = len(qid_order)
+        if session.total_questions != total_qs:
+            session.total_questions = total_qs
+            session.save(update_fields=['total_questions'])
+        if attempt.total_questions != total_qs:
+            attempt.total_questions = total_qs
+            attempt.save(update_fields=['total_questions'])
+
+        reveal = bool(getattr(getattr(lesson, "quiz_config", None), "reveal_answers", False))
+        if not getattr(lesson, "quiz_config", None):
+            reveal = not bool(getattr(quiz, "answers_at_end", True))
+
+        resume = {
+            "session_id": attempt_id_str,
+            "status": attempt.status,
+            "last_position": attempt.last_position or 0,
+            "total": total_qs,
+        }
+        resume_json = json.dumps(resume)
 
         return render(request, 'quizzes/quiz_player.html', {
             'lesson': lesson,
@@ -1120,8 +1437,9 @@ def launch_scorm_file(request, lesson_id):
             'quiz_type': quiz_type,
             'quiz_config': quiz_config,
             'quiz': quiz,
-            'questions': questions,  # ✅ pass question list
-            'reveal_answers': quiz_config.reveal_answers if quiz_config else False,
+            'questions': questions,
+            'total_questions': total_qs,
+            'reveal_answers': reveal,
             'user_course': user_course,
             'profile_id': profile.id,
             'lesson_progress_data': json.dumps(lesson_progress_data),
@@ -1135,9 +1453,12 @@ def launch_scorm_file(request, lesson_id):
             'ordered_lesson_assignment_pairs': ordered_lesson_assignment_pairs,
             'assignment_status_map': assignment_status_map,
             'lesson_assignment_map': lesson_assignment_map,
-            'completed_assignment_ids': completed_assignment_ids
+            'completed_assignment_ids': completed_assignment_ids,
+            'lesson_session': session,       # expose for legacy template bits
+            'resume_json': resume_json,
         })
 
+    # Non-quiz launch
     return render(request, 'iplayer.html', {
         'lesson': lesson,
         'course_title': course.title,
@@ -1158,7 +1479,8 @@ def launch_scorm_file(request, lesson_id):
         'ordered_lesson_assignment_pairs': ordered_lesson_assignment_pairs,
         'assignment_status_map': assignment_status_map,
         'lesson_assignment_map': lesson_assignment_map,
-        'completed_assignment_ids': completed_assignment_ids
+        'completed_assignment_ids': completed_assignment_ids,
+        'lesson_session': session,
     })
 
 def get_s3_file_metadata(bucket_name, key):
@@ -1245,232 +1567,310 @@ def available_lessons(request):
         'scorm_files': scorm_files
     })
 
+def _norm_progress_in(p):
+    """Accepts 0..1 or 0..100 or None; returns float 0..1."""
+    try:
+        v = float(p)
+    except (TypeError, ValueError):
+        return 0.0
+    if v > 1.0:     # treat as percent
+        v = v / 100.0
+    return max(0.0, min(v, 1.0))
+
+def _normalize_status(s: str) -> str:
+    if not s:
+        return "incomplete"
+    s = s.lower()
+    return {"complete": "completed"}.get(s, s)
+
+def _status_rank(s: str) -> int:
+    """
+    Lower rank = worse. We disallow downgrades.
+    incomplete(0) < pending(1) < failed(1) < passed(2) == completed(2)
+    """
+    s = _normalize_status(s)
+    table = {
+        "incomplete": 0,
+        "pending":    1,
+        "failed":     1,
+        "passed":     2,
+        "completed":  2,
+    }
+    return table.get(s, 0)
+
+def _update_ulp_from_status(ulp, new_status, *, require_passing: Optional[bool] = None) -> None:
+    """
+    Rank-guarded sync of ULP.completion_status, and set ULP.completed timestamps when appropriate.
+    require_passing:
+      - True  => complete on pending OR passed
+      - False => complete on failed OR completed OR passed
+      - None  => complete on completed OR passed (SCORM default)
+    """
+    new_s = _normalize_status(new_status)
+    old_s = _normalize_status(ulp.completion_status or 'incomplete')
+
+    fields = []
+    if _status_rank(new_s) >= _status_rank(old_s) and new_s != old_s:
+        ulp.completion_status = new_s
+        fields.append('completion_status')
+
+    # Decide whether this should tick the "completed" checkbox
+    should_complete = False
+    if require_passing is True:
+        should_complete = new_s in ('pending', 'passed', 'completed')
+    elif require_passing is False:
+        should_complete = new_s in ('failed', 'passed', 'completed')
+    else:
+        # Default (SCORM, generic): completed on completed/passed only
+        should_complete = new_s in ('passed', 'completed')
+
+    if should_complete and not ulp.completed:
+        now = timezone.now()
+        ulp.completed = True
+        ulp.completed_on_date = now.date()
+        ulp.completed_on_time = now.time().replace(microsecond=0)
+        fields += ['completed', 'completed_on_date', 'completed_on_time']
+
+    if fields:
+        ulp.save(update_fields=fields)
+
 @csrf_exempt
+@require_POST
 def track_scorm_data(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "Invalid request method"}, status=405)
+    """
+    Receives pings from scorm_player.js.
+    - Treats session_time as TOTAL for the current browser session (session_id).
+    - Stores absolute time on LessonSession (no accumulation).
+    - Accumulates time on SCORMTrackingData by adding only the delta for this session_id.
+    - Creates a new LessonSession only on launch; here we upsert by session_id to avoid gaps.
+    """
 
     try:
-        data = json.loads(request.body)
-        print("🧪 Incoming tracking payload:", data)
+        data = json.loads(request.body or "{}")
+    except Exception as e:
+        return JsonResponse({"error": "bad_json", "detail": str(e)}, status=400)
 
-        profile_id = data.get("user_id")
-        lesson_id = data.get("lesson_id")
-        progress = float(data.get("progress", 0))
-        completion_status = data.get("completion_status", "incomplete").lower()
-        session_time = data.get("session_time", "PT0H0M0S")
-        score = data.get("score")
-        lesson_location = data.get("lesson_location", "")
-        scroll_position = data.get("scroll_position", 0)
+    try:
+        print("🧪 Incoming tracking payload: ", data)
 
-        # 🧼 Fix broken trailing slash on index.html
+        # ---- payload ----
+        profile_id        = data.get("user_id")
+        lesson_id         = data.get("lesson_id")
+        raw_progress      = data.get("progress")
+        progress          = _norm_progress_in(raw_progress)  # 0..1 float
+        completion_status = _normalize_status(data.get("completion_status", "incomplete"))
+        session_time_in   = data.get("session_time", "PT0H0M0S")
+        score             = data.get("score")
+        lesson_location   = (data.get("lesson_location", "") or "")
+        scroll_position   = int(data.get("scroll_position") or 0)
+        session_id        = data.get("session_id") or request.session.get("current_lesson_session_id")
+        is_final_ping     = bool(data.get("final"))
+
+        if not lesson_id:
+            return JsonResponse({"error": "missing_lesson_id"}, status=400)
+
+        # ---- identify lesson & user ----
+        lesson = get_object_or_404(Lesson, pk=lesson_id)
+
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            profile = get_object_or_404(Profile, pk=profile_id)
+            user = profile.user
+
+        user_course, _ = UserCourse.objects.get_or_create(user=user, course=lesson.module.course)
+
+        # ---- sanitize lesson_location quirks ----
         if lesson_location.endswith("index.html/"):
             lesson_location = lesson_location.rstrip("/")
             print(f"🧹 Cleaned lesson_location path → {lesson_location}")
         elif "index.html/" in lesson_location:
             lesson_location = lesson_location.replace("index.html/", "index.html")
             print(f"🧹 Cleaned broken index.html subpath → {lesson_location}")
-
-
-        if not profile_id or not lesson_id:
-            print("❌ Missing profile_id or lesson_id")
-            return JsonResponse({"error": "Missing required fields"}, status=400)
-
         if lesson_location.lower().endswith(".pdf") and "X-Amz-Signature" in lesson_location:
             print("🔒 Stripping signed PDF URL from lesson_location")
             lesson_location = ""
 
-        profile = get_object_or_404(Profile, pk=profile_id)
-        lesson = get_object_or_404(Lesson, pk=lesson_id)
-        user = profile.user
-        user_course, _ = UserCourse.objects.get_or_create(user=user, course=lesson.module.course)
+        # =====================================================================
+        # 1) LESSON SESSION: upsert by session_id (created on launch).
+        #     We STORE ABSOLUTE time for this session (no accumulation).
+        # =====================================================================
+        if not session_id:
+            # Safety: mint one if the client forgot to send it (rare).
+            session = ensure_lesson_session(request, lesson, force_new=True)
+            session_id = session.session_id
+        else:
+            session, _created = LessonSession.objects.get_or_create(
+                session_id=session_id,
+                defaults={
+                    "user": user,
+                    "lesson": lesson,
+                    "user_course": user_course,
+                    "user_agent": request.META.get("HTTP_USER_AGENT", ""),
+                    "ip_address": request.META.get("REMOTE_ADDR", ""),
+                    "completion_status": "incomplete",
+                    "progress": 0.0,
+                    "start_time": timezone.now(),   # <-- init
+                    "end_time": timezone.now(),     # <-- init
+                    "finished_at": None,
+                },
+            )
 
-        lesson_marked_complete = False
+        request.session["current_lesson_session_id"] = session_id
 
-        # ✅ Check assignment gating
-        if completion_status == "complete":
-            lesson_assignments = lesson.assignments.all()
-            allowed_statuses = ['completed', 'submitted', 'approved']
-            missing_or_invalid = set()
+        # Rank-guard status on the session
+        old_s = _normalize_status(session.completion_status or "incomplete")
+        new_s = completion_status
+        if _status_rank(new_s) >= _status_rank(old_s) and new_s != old_s:
+            session.completion_status = new_s
 
-            if lesson_assignments.exists():
-                print('lesson_assignments:', lesson_assignments)
-                valid_progress_ids = set(UserAssignmentProgress.objects.filter(
-                    user=user,
-                    lesson=lesson,
-                    assignment__in=lesson_assignments,
-                    status__in=allowed_statuses
-                ).values_list('assignment_id', flat=True))
-                print('valid_progress_ids:', valid_progress_ids)
+        # Map to lesson-session lifecycle
+        if new_s in ("completed", "passed", "failed"):
+            session.status = "completed"
+        elif new_s == "pending":
+            session.status = "pending"
+        else:
+            session.status = "active"
 
-                expected_ids = set(lesson_assignments.values_list('id', flat=True))
-                missing_or_invalid = expected_ids - valid_progress_ids
+        # Progress: monotonic (except explicit 0 while incomplete)
+        if new_s == "incomplete" and (session.progress or 0.0) == 0.0 and (progress is None or progress == 0):
+            session.progress = 0.0
+        elif progress is not None and float(progress) > float(session.progress or 0.0):
+            session.progress = float(progress)
 
-                if missing_or_invalid:
-                    print(f"🛑 Incomplete assignments: {missing_or_invalid}")
-                    SCORMTrackingData.objects.update_or_create(
-                        user=user,
-                        lesson=lesson,
-                        defaults={
-                            "progress": 0.0,
-                            "completion_status": "incomplete",
-                            "session_time": session_time,
-                            "scroll_position": scroll_position,
-                            "lesson_location": lesson_location,
-                            "score": score,
-                            "cmi_data": data.get("cmi_data", "{}"),
-                        }
-                    )
-                    return JsonResponse({
-                        "status": "incomplete",
-                        "message": "Progress saved, but lesson not marked as complete.",
-                        "lesson_completed": False,
-                        "course_progress": user_course.progress
-                    })
+        # Basic fields
+        session.scroll_position = scroll_position
+        session.lesson_location = lesson_location
+        session.user_agent      = request.META.get("HTTP_USER_AGENT", "")
+        session.ip_address      = request.META.get("REMOTE_ADDR", "")
 
-            # ✅ No blockers — mark lesson complete
+        # Score (keep best)
+        if score is not None:
             try:
-                module_progress, _ = UserModuleProgress.objects.get_or_create(
-                    user_course=user_course,
-                    module=lesson.module,
-                    defaults={"order": lesson.module.order}
-                )
+                s = float(score)
+                if session.score is None or s > float(session.score):
+                    session.score = s
+            except (TypeError, ValueError):
+                pass
 
-                lesson_progress_qs = UserLessonProgress.objects.filter(
-                    user_module_progress=module_progress,
-                    lesson=lesson,
-                )
+        # >>> TIME: store absolute per-session total (no addition) <<<
+        curr_sec  = _pt_to_seconds(session_time_in)
+        sess_cmi  = _safe_json_dict(session.cmi_data)
+        last_rep  = int(sess_cmi.get("last_reported_sec", 0))
+        # Clamp to monotonic within this browser session
+        abs_sec   = max(curr_sec, last_rep)
+        session.session_time = _seconds_to_pt(abs_sec)
+        sess_cmi["last_reported_sec"] = abs_sec
+        session.cmi_data = sess_cmi
 
-                if lesson_progress_qs.exists():
-                    lesson_progress = lesson_progress_qs.first()
-                else:
-                    lesson_progress = UserLessonProgress.objects.create(
-                        user_module_progress=module_progress,
-                        lesson=lesson,
-                        order=lesson.order,
-                        completed=True,
-                        completed_on_date=timezone.now().date(),
-                        completed_on_time=timezone.now().time(),
-                        attempts=1,
-                    )
+        # Touch timestamps
+        session.end_time = timezone.now()
+        if is_final_ping or new_s in ("completed", "passed", "failed"):
+            session.finished_at = session.finished_at or timezone.now()
 
-                if not lesson_progress.completed:
-                    lesson_progress.completed = True
-                    lesson_progress.completed_on_date = timezone.now().date()
-                    lesson_progress.completed_on_time = timezone.now().time()
-                    lesson_progress.attempts += 1
-                    lesson_progress.save()
+        session.save()
 
-                lesson_marked_complete = True
-                print(f"✅ Lesson marked complete: {lesson_progress.id}")
-
-            except Exception as e:
-                print(f"⚠️ Error marking lesson complete: {e}")
-
-        # ✅ Ensure SCORMTrackingData is correct (prevent regressions)
-        existing_tracking, created = SCORMTrackingData.objects.get_or_create(
+        # =====================================================================
+        # 2) SCORMTrackingData: accumulate across all sessions by DELTA.
+        #    We keep a per-session ledger in cmi_data["sessions"][session_id].
+        # =====================================================================
+        tracking, created = SCORMTrackingData.objects.get_or_create(
             user=user,
             lesson=lesson,
             defaults={
-                "progress": 1.0 if lesson_marked_complete else progress,
-                "completion_status": "completed" if lesson_marked_complete else completion_status,
-                "session_time": session_time,
+                "progress": 1.0 if new_s in ("completed", "passed") else (progress or 0.0),
+                "completion_status": new_s,
+                # We'll assign session_time below using the accumulator
+                "session_time": "PT0H0M0S",
                 "scroll_position": scroll_position,
                 "lesson_location": lesson_location,
                 "score": score,
-                "cmi_data": data.get("cmi_data", "{}"),
-            }
+                "cmi_data": {},  # seed; we'll merge below
+            },
         )
 
-        if not created:
-            updated = False
-            fields_to_update = {}
+        t_cmi = _safe_json_dict(tracking.cmi_data)
+        incoming_cmi = _safe_json_dict(data.get("cmi_data"))
 
-            if lesson_marked_complete:
-                if existing_tracking.progress < 1.0:
-                    fields_to_update["progress"] = 1.0
-                    updated = True
-                if existing_tracking.completion_status != "completed":
-                    fields_to_update["completion_status"] = "completed"
-                    updated = True
-            else: 
-                if completion_status == "incomplete" and existing_tracking.progress == 0:
-                    fields_to_update["progress"] = 0.0
-                    updated = True
+        # Keep last raw payload (optional)
+        t_cmi["raw"] = incoming_cmi
 
-                    try:
-                        module_progress = UserModuleProgress.objects.get(
-                            user_course=user_course,
-                            module=lesson.module
-                        )
+        sessions_map = _safe_json_dict(t_cmi.get("sessions"))
+        if not isinstance(sessions_map, dict):
+            sessions_map = {}
 
-                        lesson_progress = UserLessonProgress.objects.filter(
-                            user_module_progress=module_progress,
-                            lesson=lesson,
-                        ).first()
+        prev_for_this = int(sessions_map.get(session_id, 0))
+        # How much NEW time did we see for this session id?
+        delta = max(abs_sec - prev_for_this, 0)
 
-                        if lesson_progress and lesson_progress.completed:
-                            lesson_progress.completed = False
-                            lesson_progress.completed_on_date = None
-                            lesson_progress.completed_on_time = None
-                            lesson_progress.save()
-                            print(f"🔄 Lesson progress reset: {lesson_progress.id}")
+        total_prev = int(t_cmi.get("total_accumulated_sec", _pt_to_seconds(tracking.session_time or "PT0H0M0S")))
+        total_new  = total_prev + delta
 
-                    except UserModuleProgress.DoesNotExist:
-                        print("⚠️ Module progress not found — skipping lesson progress reset")
+        # Update the ledger
+        sessions_map[session_id] = abs_sec
+        t_cmi["sessions"] = sessions_map
+        t_cmi["total_accumulated_sec"] = total_new
 
-                elif progress > existing_tracking.progress:
-                    fields_to_update["progress"] = progress
-                    updated = True
+        # Rank-guarded status and progress
+        old_ts = _normalize_status(tracking.completion_status or "incomplete")
+        if _status_rank(new_s) >= _status_rank(old_ts) and new_s != old_ts:
+            tracking.completion_status = new_s
 
-                if completion_status != existing_tracking.completion_status:
-                    fields_to_update["completion_status"] = completion_status
-                    updated = True
+        if new_s in ("completed", "passed"):
+            if (tracking.progress or 0.0) < 1.0:
+                tracking.progress = 1.0
+        elif progress is not None and float(progress) > float(tracking.progress or 0.0):
+            tracking.progress = float(progress)
 
-            if lesson_location != existing_tracking.lesson_location:
-                fields_to_update["lesson_location"] = lesson_location
-                updated = True
+        if tracking.lesson_location != lesson_location:
+            tracking.lesson_location = lesson_location
 
-            if updated:
-                fields_to_update.update({
-                    "session_time": accumulate_time(existing_tracking.session_time, session_time),
-                    "scroll_position": scroll_position,
-                    "lesson_location": lesson_location,
-                    "score": score,
-                    "cmi_data": data.get("cmi_data", "{}"),
-                })
-                for field, value in fields_to_update.items():
-                    setattr(existing_tracking, field, value)
-                existing_tracking.save()
-                print("🔁 SCORMTrackingData updated")
-            else:
-                print("⏩ SCORMTrackingData unchanged")
-
-        # 📈 Update course-level progress
-        user_course.update_progress()
+        # Update misc
+        tracking.scroll_position = scroll_position
+        tracking.score = score
+        tracking.session_time = _seconds_to_pt(total_new)
+        tracking.cmi_data = t_cmi
+        tracking.save()
         
+        try:
+            # Find the ULP for this user/course/lesson
+            ump = (UserModuleProgress.objects
+                   .select_related('user_course')
+                   .get(user_course=user_course, module=lesson.module))
+        except UserModuleProgress.DoesNotExist:
+            # If somehow missing, create one so progress stays consistent
+            ump = UserModuleProgress.objects.create(
+                user_course=user_course,
+                module=lesson.module,
+                order=getattr(lesson.module, 'order', 0) or 0,
+            )
 
-        session_id = data.get("session_id")
-        print("🔍 Trying to update LessonSession for:", session_id)
-        if session_id:
-            try:
-                session = LessonSession.objects.get(session_id=session_id)
-                session.end_time = timezone.now()
-                session.session_time = session_time
-                session.save()
-                print(f"⏱️ LessonSession updated: {session.session_id} with {session_time}")
-            except LessonSession.DoesNotExist:
-                print(f"⚠️ LessonSession not found for session_id: {session_id}")
+        ulp, _ = UserLessonProgress.objects.get_or_create(
+            user_module_progress=ump,
+            lesson=lesson,
+            defaults={'order': getattr(lesson, 'order', 0) or 0, 'completion_status': 'incomplete'},
+        )
+
+        # SCORM lessons usually don't use require_passing; pass None to use default rule:
+        _update_ulp_from_status(ulp, new_s, require_passing=None)
+
+        # Normalize: treat 'complete' like 'completed'
+        mark_complete = new_s in ('complete', 'completed', 'passed')
+        if mark_complete and not ulp.completed:
+            now = timezone.now()
+            ulp.completed = True
+            ulp.completed_on_date = now.date()
+            ulp.completed_on_time = now.time().replace(microsecond=0)
+            ulp.save(update_fields=['completed', 'completed_on_date', 'completed_on_time'])
+
+        # Keep course progress fresh
+        user_course.update_progress()
 
         return JsonResponse({
-            "status": "success" if lesson_marked_complete else "incomplete",
-            "lesson_completed": lesson_marked_complete,
-            "message": (
-                "Lesson marked as complete ✅"
-                if lesson_marked_complete else
-                "Tracking saved, but lesson not marked complete ❌"
-            ),
-            "course_progress": user_course.progress
+            "status": "success" if new_s in ("completed", "passed") else ("pending" if new_s == "pending" else "incomplete"),
+            "lesson_completed": new_s in ("completed", "passed"),
+            "session_id": session_id,
+            "course_progress": user_course.progress,
         })
 
     except Exception as e:

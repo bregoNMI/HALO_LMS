@@ -2217,9 +2217,9 @@ def manage_assignments(request, assignment_id):
     can_approve = False
     if approval_type in [None, 'None', '']:
         can_approve = True
-    elif approval_type == 'instructor' and (user_role == 'instructor' or user.is_superuser):
+    elif approval_type == 'instructor' and (user_role == 'instructor' or user.profile.role == 'Admin'):
         can_approve = True
-    elif approval_type == 'admin' and user.is_superuser:
+    elif approval_type == 'admin' and user.profile.role == 'Admin':
         can_approve = True
     elif approval_type == 'other' and user in upload.approvers.all():
         can_approve = True

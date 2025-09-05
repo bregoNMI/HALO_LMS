@@ -368,6 +368,10 @@
     background-color: #b3ecb3;
     color: #059f48;
     border: 1px solid #9bd79b;
+}.course-type-icon.pastel-yellow i{
+    background-color: #ffd281;
+    color: #a66c01;
+    border: 1px solid #efc16f;
 }
 
 .course-type-icon.course-certificate i{
@@ -399,6 +403,8 @@
     border: 1px solid #9bd79b;
 }.status.pastel-red{
     border: 1px solid #e98e8e;
+}.status.pastel-blue{
+    border: 1px solid #aabce0;
 }
 
 /* User History Tree */

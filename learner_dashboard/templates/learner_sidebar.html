@@ -52,7 +52,7 @@
                     <span> Settings </span>
                 </a> -->
             </div>
-            {% if user.is_superuser %}
+            {% if user.profile.role == 'Admin' %}
                 <h6>Administrator</h6>
                 <div class="learner-sidebar-section">
                     <a class="learner-sidebar-option" href="/admin/dashboard/">

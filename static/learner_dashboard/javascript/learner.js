@@ -2,7 +2,7 @@
 document.querySelectorAll('.tooltip').forEach(function(elem) {
     const tooltipText = elem.getAttribute('data-tooltip');
     const tooltipSpan = elem.querySelector('.tooltiptext');
-    tooltipSpan.textContent = tooltipText;
+    if(tooltipSpan){tooltipSpan.textContent = tooltipText};
 });
 
 function toggleDropdown() {
@@ -344,13 +344,17 @@ function toggleDescription(event) {
     event.preventDefault();
 
     const descriptionWrapper = event.target.previousElementSibling;
+    const fadeOverlay = descriptionWrapper.querySelector('.fade-overlay');
+    console.log(fadeOverlay);
     
     if (descriptionWrapper.classList.contains('expanded')) {
         descriptionWrapper.classList.remove('expanded');
         event.target.textContent = 'Read More';
+        fadeOverlay.classList.remove('hidden');
     } else {
         descriptionWrapper.classList.add('expanded');
         event.target.textContent = 'Read Less';
+        fadeOverlay.classList.add('hidden');
     }
 }
 
@@ -396,6 +400,8 @@ function launchCourse(lessonId, userCourseId, courseId){
         removeDisabledWidgets();
         return;
     }
+
+    console.log('RIGHT HERERERE');
 
     // Sending request to update last_opened_course
     fetch('/requests/opened-course-data/', {

@@ -101,69 +101,77 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    const dateCustomSelects = document.querySelectorAll('.date-custom-select');
+    window.initializeDateSelects = function(){
+        const dateCustomSelects = document.querySelectorAll('.date-custom-select');
 
-    dateCustomSelects.forEach(customSelect => {
-        const selectSelected = customSelect.querySelector('.date-select-selected');
-        const selectItems = customSelect.querySelector('.date-select-items');
-        const selectOptions = selectItems.querySelectorAll('.select-item');
+        dateCustomSelects.forEach(customSelect => {
+            const selectSelected = customSelect.querySelector('.date-select-selected');
+            const selectItems = customSelect.querySelector('.date-select-items');
+            const selectOptions = selectItems.querySelectorAll('.select-item');
 
-        // Toggle the dropdown open/close using your class
-        customSelect.addEventListener('click', function (e) {
-            e.stopPropagation();
+            // Toggle the dropdown open/close using your class
+            customSelect.addEventListener('click', function (e) {
+                e.stopPropagation();
 
-            // Close any other open dropdowns
-            dateCustomSelects.forEach(other => {
-            if (other !== customSelect) {
-                const otherItems = other.querySelector('.date-select-items');
-                otherItems.classList.remove('animate-select-dropdown');
-            }
+                // Close any other open dropdowns
+                dateCustomSelects.forEach(other => {
+                    if (other !== customSelect) {
+                        const otherItems = other.querySelector('.date-select-items');
+                        otherItems.classList.remove('animate-select-dropdown');
+                        otherItems.style.overflow = 'hidden';
+                    }
+                });
+
+                // Toggle this one
+                const isOpen = selectItems.classList.contains('animate-select-dropdown');
+                if (isOpen) {
+                    selectItems.classList.remove('animate-select-dropdown');
+                    selectItems.style.overflow = 'hidden';
+                } else {
+                    selectItems.style.overflow = 'auto';
+                    // (optional) retrigger animation by removing/adding the same class
+                    selectItems.classList.remove('animate-select-dropdown');
+                    // void selectItems.offsetWidth; // force reflow if you need a re-anim
+                    selectItems.classList.add('animate-select-dropdown');
+                }
             });
 
-            // Toggle this one
-            const isOpen = selectItems.classList.contains('animate-select-dropdown');
-            if (isOpen) {
+            // Handle selecting a value
+            selectOptions.forEach(option => {
+                option.addEventListener('click', function (e) {
+                e.stopPropagation();
+
+                const value = this.getAttribute('data-value');
+
+                // Update selected class
+                selectOptions.forEach(opt => opt.classList.remove('same-as-selected'));
+                this.classList.add('same-as-selected');
+
+                // Close dropdown
                 selectItems.classList.remove('animate-select-dropdown');
-            } else {
-                // (optional) retrigger animation by removing/adding the same class
-                selectItems.classList.remove('animate-select-dropdown');
-                // void selectItems.offsetWidth; // force reflow if you need a re-anim
-                selectItems.classList.add('animate-select-dropdown');
-            }
-        });
+                selectItems.style.overflow = 'hidden';
 
-        // Handle selecting a value
-        selectOptions.forEach(option => {
-            option.addEventListener('click', function (e) {
-            e.stopPropagation();
+                // Call function to detect date filter
+                if (option.classList.contains('analytics-select-item')) {
+                    refreshCharts();
+                } else {
+                    updateDateFilter(customSelect, value);
+                    selectSelected.setAttribute('value', value);
+                    selectSelected.textContent = value;
+                }
+                });
+            });
 
-            const value = this.getAttribute('data-value');
-
-            // Update selected class
-            selectOptions.forEach(opt => opt.classList.remove('same-as-selected'));
-            this.classList.add('same-as-selected');
-
-            // Close dropdown
-            selectItems.classList.remove('animate-select-dropdown');
-
-            // Call function to detect date filter
-            if (option.classList.contains('analytics-select-item')) {
-                refreshCharts();
-            } else {
-                updateDateFilter(customSelect, value);
-                selectSelected.setAttribute('value', value);
-                selectSelected.textContent = value;
-            }
+            // Close dropdown if clicked outside
+            document.addEventListener('click', function (e) {
+                if (!customSelect.contains(e.target)) {
+                    selectItems.classList.remove('animate-select-dropdown');
+                    selectItems.style.overflow = 'hidden';
+                }
             });
         });
-
-        // Close dropdown if clicked outside
-        document.addEventListener('click', function (e) {
-            if (!customSelect.contains(e.target)) {
-            selectItems.classList.remove('animate-select-dropdown');
-            }
-        });
-    });
+    }
+    initializeDateSelects();
     
 });
 

@@ -1,0 +1,55 @@
+{% load static %}
+<!-- Two-pane Attempt Detail -->
+<div id="quizAttemptDetail" class="popup-background">
+  <div class="popup-content max-width-extend-2">
+    <div class="popup-header">
+        <div class="popup-header-column">
+            <h3>Attempt Details</h3>
+            <span id="qaDetailHeader" class="popup-header-subtext">Attempt</span>
+        </div>
+        <span class="selected-lesson-type"><span id="qaMetaStatus">—</span></span>
+        <button onclick="closePopup('quizAttemptDetail')" class="close-popup-icon">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <div id="qaDetailLoading" class="popup-body hidden">
+        <div class="loading-symbol-blue-sm">
+            <svg class="loading-symbol-sm-inner" viewBox="25 25 50 50">
+            <circle r="20" cy="50" cx="50"></circle>
+            </svg>
+        </div>
+    </div>
+
+    <div id="qaDetailBody" class="qa2p-body hidden">
+        <aside id="qaSidebar" class="qa2p-sidebar"><!-- JS list --></aside>
+        <main id="qaMain" class="qa2p-main">
+            <div id="qaMainHeader" class="qa2p-main-header hidden">
+                <div class="qa2p-main-header-left">
+                    <h2 id="qaMainOrder"></h2>
+                </div>
+                
+                <div class="qa2p-main-header-right">
+                    <div id="qaCategoryWrap" class="question-editor-label pastel-gray tooltip cursor-auto hidden" data-tooltip="Category">
+                        <div id="qaCategory" class="question-editor-label-text"></div>
+                        <span class="tooltiptext">Category</span>
+                    </div>
+                    <div id="qaMaterials" class="qa2p-refs hidden"></div>
+                    <div id="qaReferences" class="qa2p-refs hidden"></div>
+                </div>
+            </div>
+
+            <div id="qaQuestionPanel" class="qa2p-main-body scrollable-content"><!-- JS question detail --></div>
+        </main>
+    </div>
+
+    <div class="popup-footer">
+        <div class="spacer"></div>
+        <div class="popup-btns">
+            <button type="button" onclick="qaBackToAttempts()" class="popup-btn close-popup-btn">Back</button>
+        </div>
+    </div>
+  </div>
+</div>
+<link rel="stylesheet" href="{% static 'content\css\quizzes.css' %}">
+<link rel="stylesheet" href="{% static 'course_player/javascript/css/quiz_player.css' %}">

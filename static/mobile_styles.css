@@ -14,7 +14,6 @@
     #toggleFooterBtn span{
         display: none;
     }
-
 }
 
 /* Styles for Tablet Devices*/
@@ -25,6 +24,19 @@
         font-size: 1.1rem;
     }.course-footer-container .tab.active i{
         font-weight: 600;
+    }
+
+    .course-body #toggleCourseSidebar.toggle-course-sidebar{
+        display: none;
+    }#courseSidebar.course-sidebar-container{
+        display: none;
+    }.course-body{
+        margin-right: 0.7rem;
+    }
+
+    .lesson-list-option-right{
+        flex-wrap: wrap;
+        padding-top: 0.5rem;
     }
 }
 
@@ -94,14 +106,6 @@
         display: none;
     }.course-button-primary i{
         font-size: 1.1rem;
-    }
-
-    .course-body #toggleCourseSidebar.toggle-course-sidebar{
-        display: none;
-    }#courseSidebar.course-sidebar-container{
-        display: none;
-    }.course-body{
-        margin-right: 0.7rem;
     }
 }
   

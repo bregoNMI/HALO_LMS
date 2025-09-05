@@ -263,15 +263,31 @@
                                                             </div>
                                                             <div class="lesson-list-option-right">
                                                                 <div class="lesson-list-attempts">
-                                                                    <span>Attempts: <b>{{ lesson_progress.attempts }}</b></span>
+                                                                    <!-- <span>Attempts: <b>{{ lesson_progress.attempts }}</b></span> -->
+                                                                    <span>Attempts: <b>{{ lesson_sessions_map|get_item:lesson_progress.id|length }}</b></span>
                                                                 </div>
                                                                 <div class="lesson-list-progress">
                                                                     {% if lesson_progress.completed %}
-                                                                        <span class="status course-active pastel-green"> Completed </span>                                                            
-                                                                    {% else %}
+                                                                        <span class="status course-active pastel-green"> Completed </span>
+                                                                    {% elif lesson_progress.completion_status == 'completed' or lesson_progress.completion_status == 'passed' %}
+                                                                        <span class="status course-active pastel-green"> Completed </span>    
+                                                                    {% elif lesson_progress.completion_status == 'pending' %}
+                                                                        <span class="status course-active pastel-yellow"> Pending </span>       
+                                                                    {% elif lesson_progress.completion_status == 'failed' %}
+                                                                        <span class="status course-active pastel-red"> Failed </span>   
+                                                                    {% else %}                                             
                                                                         <span class="status course-active pastel-gray"> Not Completed </span>
                                                                     {% endif %}
                                                                 </div>
+                                                                {% with qa_count=quiz_attempts_map|get_item:lesson_progress.id|default:0 %}
+                                                                    {% if qa_count|add:0 > 0 %}
+                                                                        <div class="class-action-icon edit-icon has-quiz-attempts"
+                                                                            data-tooltip="Quiz Attempts ({{ qa_count }})"
+                                                                            onclick="openQuizAttempts('{{ lesson_progress.id }}')">
+                                                                            <i class="fa-solid fa-lightbulb"></i>
+                                                                        </div>
+                                                                    {% endif %}
+                                                                {% endwith %}
                                                                 <div onclick="openPopup('editLessonActivity'), inputLessonData('{{ lesson_progress.lesson.title }}', '{{ lesson_progress.id }}', 'edit', '{{ lesson_progress.lesson.content_type }}')" class="class-action-icon edit-icon" data-tooltip="Edit">
                                                                     <i class="fa-solid fa-pen"></i>
                                                                     <!-- <span class="tooltiptext">Edit</span> -->
@@ -337,6 +353,8 @@
     </div>
     {% include 'popups/reset_lesson_activity_popup.html' %}
     {% include 'popups/edit_lesson_activity_popup.html' %}
+    {% include 'popups/quiz_attempts_popup.html' %}
+    {% include 'popups/quiz_attempt_popup.html' %}
     <link rel="stylesheet" href="{% static 'client_admin\css\settings.css' %}">
     <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
     <link rel="stylesheet" href="{% static 'client_admin\css\user_course_details.css' %}">

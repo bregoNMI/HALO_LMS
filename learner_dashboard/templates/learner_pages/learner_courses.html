@@ -135,17 +135,17 @@
                                     {% endif %}
                                     <!-- Button To Start Course -->
                                     {% if user_course.get_status == 'Not Started' %}
-                                        <button class="start-course-btn learner-save-btns" onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
+                                        <button class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
                                             <i class="fa-regular fa-rocket-launch"></i>
                                             <span> Start Course</span>
                                         </button>
                                     {% elif user_course.get_status == 'Started' or user_course.get_status == 'Not Completed' %}
-                                        <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
+                                        <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
                                             <i class="fa-regular fa-circle-play"></i>
                                             <span> Resume Course</span>
                                         </div>
                                     {% elif user_course.get_status == 'Completed' %}
-                                        <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
+                                        <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
                                             <i class="fa-regular fa-glasses"></i>
                                             <span> Review Course</span>
                                         </div>
