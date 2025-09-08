@@ -278,6 +278,17 @@ class Course(models.Model, EventDateMixin):
         
     def get_lesson_count(self):
         return Lesson.objects.filter(module__course=self).count()
+    
+    @property
+    def certificate_title(self):
+        """
+        Return the certificate title for this course, if any.
+        Fallbacks: source_title → "<Course Title> Certificate" → None.
+        """
+        cred = self.credentials.filter(type='certificate').first()
+        if not cred:
+            return None
+        return cred.title or f"{self.title} Certificate"
 
 # New Credential model for managing course credentials like certificates
 class Credential(models.Model, EventDateMixin):

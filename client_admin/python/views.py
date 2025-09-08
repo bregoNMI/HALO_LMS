@@ -42,6 +42,9 @@ from django.db.models.functions import TruncMonth, TruncHour, Coalesce
 from django.db.models import Sum, JSONField
 import isodate
 from collections import defaultdict
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 #from models import Profile
 #from authentication.python import views
 
@@ -425,10 +428,14 @@ def edit_user(request, user_id):
         'associate_school': user.associate_school,
     }
 
+    # Determine template
+    referer = request.META.get('HTTP_REFERER', '')
+    template = 'users/user_transcript.html' if 'transcript' in referer else 'users/user_details.html'
+
     if request.method == 'POST':
         username = request.POST.get('username')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
+        new_password = (request.POST.get('new_password') or '').strip()
+        confirm_password = (request.POST.get('confirm_password') or '').strip()
         email = request.POST.get('email')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
@@ -456,14 +463,21 @@ def edit_user(request, user_id):
             birth_date = None
 
         # Handle password change
-        if password and confirm_password:
-            if password == confirm_password:
-                user.user.set_password(password)
-                user.user.save()
-                update_session_auth_hash(request, user.user)
-                messages.success(request, 'Password updated successfully.')
+        if new_password or confirm_password:
+            if new_password != confirm_password:
+                messages.error(request, 'New passwords do not match.')
+                return render(request, template, {'profile': user})
             else:
-                messages.error(request, 'Passwords do not match.')
+                try:
+                    # Validate against Django’s password validators
+                    validate_password(new_password, user=user.user)
+                except ValidationError as e:
+                    for err in e:
+                        messages.error(request, err)
+                        return render(request, template, {'profile': user})
+                else:
+                    user.user.set_password(new_password)
+                    user.user.save()
 
         # Update user fields
         user.username = username
@@ -518,10 +532,6 @@ def edit_user(request, user_id):
 
         referer = request.META.get('HTTP_REFERER')
         return redirect(referer if referer else 'user_details', user_id=user.id)
-
-    # Determine template
-    referer = request.META.get('HTTP_REFERER', '')
-    template = 'users/user_transcript.html' if 'transcript' in referer else 'users/user_details.html'
     
     return render(request, template, {'profile': user})
 
@@ -1293,7 +1303,25 @@ def reset_lesson_progress(request, user_lesson_progress_id):
         lp.completed_on_date = None
         lp.completed_on_time = None
         lp.completion_status = 'incomplete'
-        lp.save()
+        lp.save(update_fields=[
+            'attempts', 'completed', 'completed_on_date',
+            'completed_on_time', 'completion_status'
+        ])
+
+        # --- NEW: wipe quiz attempts (and related data) for this lesson+user ---
+        attempts_qs = QuizAttempt.objects.filter(user_lesson_progress=lp)
+
+        # Delete essay prompt grades tied to responses in these attempts (defensive;
+        # if your FK is CASCADE from EssayPromptGrade->QuizResponse this is optional)
+        epg_qs = EssayPromptGrade.objects.filter(response__quiz_attempt__in=attempts_qs)
+        epg_deleted_count, _ = epg_qs.delete()
+
+        # Delete responses for these attempts
+        qr_qs = QuizResponse.objects.filter(quiz_attempt__in=attempts_qs)
+        quiz_responses_deleted_count, _ = qr_qs.delete()
+
+        # Finally delete the attempts themselves
+        attempts_deleted_count, _ = attempts_qs.delete()
 
         # Delete all LessonSession rows for this user+lesson
         sessions_qs = LessonSession.objects.filter(user=user, lesson=lesson)
@@ -1307,34 +1335,30 @@ def reset_lesson_progress(request, user_lesson_progress_id):
         mini_qs = LessonProgress.objects.filter(user=user, lesson=lesson)
         mini_deleted_count, _ = mini_qs.delete()
 
-        # Delete quiz answers for this user+lesson (so attempts truly reset)
-        qr_qs = QuizResponse.objects.filter(user=user, lesson=lesson)
-        quiz_responses_deleted_count, _ = qr_qs.delete()
-
+        # Clear any active lesson session id in the user's session
         try:
             current_sid = request.session.get("current_lesson_session_id")
             if current_sid:
-                # If you need to verify it belongs to this lesson, you could fetch by session_id.
-                # We simply clear it to avoid reusing a deleted session.
                 del request.session["current_lesson_session_id"]
         except Exception:
             pass
 
-        # Optional: recompute course progress after reset
         try:
             user_course.update_progress()
         except Exception:
-            # Not fatal for the reset; UI will recompute soon anyway
+            # Not fatal; UI can recompute later
             pass
 
     messages.success(request, 'Lesson progress reset.')
     return JsonResponse({
         'success': True,
         'message': 'Lesson activity reset.',
+        'attempts_deleted': attempts_deleted_count,
+        'quiz_responses_deleted': quiz_responses_deleted_count,
+        'essay_prompt_grades_deleted': epg_deleted_count,
         'sessions_deleted': sessions_deleted_count,
         'scorm_data_deleted': scorm_deleted_count,
         'mini_progress_deleted': mini_deleted_count,
-        'quiz_responses_deleted': quiz_responses_deleted_count,
     })
 
 def edit_lesson_progress(request, user_lesson_progress_id):

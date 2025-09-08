@@ -482,6 +482,8 @@ html, body, button{
     box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
     z-index: 2;
     transition: all 0.2s linear;
+}.course-item-status-item.disabled{
+    opacity: 1 !important;
 }
 
 .purple-status-item{
@@ -753,6 +755,8 @@ html, body, button{
     color: #191c1f;
     justify-content: center;
     box-sizing: border-box;
+}.start-course-btn.disabled{
+    opacity: 1 !important;
 }.start-course-btn span{
     font-size: 0.9rem;
 }.start-course-btn i{
@@ -787,6 +791,8 @@ html, body, button{
     text-align: center;
     transition: color 0.3s ease;
     color: var(--text-color4);
+}.course-item-popup .tab{
+    font-size: 15px;
 }
 
 .tab.active {
@@ -1060,6 +1066,7 @@ html, body, button{
     color: #f34242;
 }.stop-impersonating-btn:hover{
     color: #f34242;
+    background-color: #f8d7da;
 }
 
 .courses-tabs .tab-content{

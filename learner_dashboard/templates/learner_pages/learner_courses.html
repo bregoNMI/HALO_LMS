@@ -55,9 +55,17 @@
                                     <div class="course-item-status-item yellow-status-item">
                                         <i class="fa-regular fa-light-emergency-on"></i>
                                     </div>
-                                {% else %}
+                                {% elif user_course.get_status == 'Scheduled' %}
+                                    <div class="course-item-status-item yellow-status-item">
+                                        <i class="fa-kit fa-regular-calendar-star-lock"></i>
+                                    </div> 
+                                {% elif user_course.get_status == 'Expired' %}
                                     <div class="course-item-status-item red-status-item">
                                         <i class="fa-regular fa-stopwatch"></i>
+                                    </div>
+                                {% elif user_course.get_status == 'Overdue' %}
+                                    <div class="course-item-status-item yellow-status-item">
+                                        <i class="fa-regular fa-calendar-exclamation"></i>
                                     </div>
                                 {% endif %}  
                             </div>
@@ -149,10 +157,20 @@
                                             <i class="fa-regular fa-glasses"></i>
                                             <span> Review Course</span>
                                         </div>
-                                    {% else %}
-                                        <div class="start-course-btn learner-save-btns">
+                                    {% elif user_course.get_status == 'Scheduled' %}
+                                        <div class="start-course-btn learner-save-btns disabled">
+                                            <i class="fa-kit fa-regular-calendar-star-lock"></i>
+                                            <span> Course Scheduled </span>
+                                        </div> 
+                                    {% elif user_course.get_status == 'Expired' %}
+                                        <div class="start-course-btn learner-save-btns disabled">
                                             <i class="fa-regular fa-stopwatch"></i>
                                             <span> Course Expired</span>
+                                        </div>
+                                    {% elif user_course.get_status == 'Overdue' %}
+                                        <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
+                                            <i class="fa-regular fa-calendar-exclamation"></i>
+                                            <span> Course Overdue </span>
                                         </div>
                                     {% endif %}  
                                 </div>
@@ -167,6 +185,9 @@
                                         {% endif %}
                                         {% if user_course.course.uploads.exists and user_course.course.uploadsEnabled %}
                                             <button class="tab" data-target="tab4">Assignments</button>
+                                        {% endif %}
+                                        {% if user_course.certificates.exists %}
+                                            <button class="tab" data-target="tab5">Certificate</button>
                                         {% endif %}
                                         <div class="tab-indicator"></div>
                                     </div>
@@ -384,6 +405,42 @@
                                                         </div>
                                                     {% endif %}
                                                 {% endwith %}
+                                            </div>
+                                        </div>
+                                        <div class="tab-content scrollable-content-inner" id="tab5">
+                                            <div class="certificate-items-container">
+                                                {% for cert in user_course.certificates.all %}
+                                                    <a href="{{ cert.file.url }}" class="certificate-item-wrapper" target="_blank">
+                                                        <div class="certificate-item-left">
+                                                        <i class="fa-light fa-file-certificate pastel-blue"></i>
+                                                        </div>
+                                                        <div class="certificate-item-right">
+                                                        <span class="certificate-item-title">{{ user_course.course.certificate_title }}</span>
+
+                                                        <div class="course-item-footer">
+                                                            <div class="course-item-footer-item">
+                                                            <i class="fa-regular fa-calendar-check"></i>
+                                                            <span><b>Issued On:</b> {{ cert.issued_at|date:"Y-m-d" }}</span>
+                                                            </div>
+
+                                                            {# show expiration if present #}
+                                                            {% with exp=cert.expiration_date %}
+                                                            {% if exp %}
+                                                                <div class="course-item-footer-item">
+                                                                <i class="fa-solid fa-circle-small footer-spacer"></i>
+                                                                </div>
+                                                                <div class="course-item-footer-item">
+                                                                <i class="fa-regular fa-calendar-clock"></i>
+                                                                <span><b>Expires:</b> {{ exp|date:"Y-m-d" }}</span>
+                                                                </div>
+                                                            {% endif %}
+                                                            {% endwith %}
+                                                        </div>
+                                                        </div>
+                                                    </a>
+                                                {% empty %}
+                                                    <span class="card-info-icon">Learner does not have any certificates yet.</span>
+                                                {% endfor %}
                                             </div>
                                         </div>
                                     </div>

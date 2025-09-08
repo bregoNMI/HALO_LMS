@@ -190,38 +190,6 @@
                                 </thead>
                                 <tbody>
                                     
-                                    {% for user_course in user_courses %}
-                                        <tr class="table-select-option clickable-row" data-href="{% url 'usercourse_detail_view' uuid=user_course.uuid %}">
-                                            <td>
-                                                {% if user_course.course.type == 'online' %}
-                                                    <div class="course-type-icon online-course tooltip" data-tooltip="Online Course">
-                                                        <span class="tooltiptext"></span>
-                                                        <i class="fa-solid fa-signal-bars"></i>         
-                                                    </div>         
-                                                {% else %}
-                                                    <div class="course-type-icon inperson-course tooltip" data-tooltip="In Person Course">
-                                                        <span class="tooltiptext"></span>
-                                                        <i class="fa-solid fa-chalkboard-user"></i>                   
-                                                    </div>
-                                                {% endif %}
-                                                <span class="course-name">{{ user_course.course.title }}</span>                                
-                                            </td>
-                                            {% if user_course.get_status == 'Not Started' %}
-                                                <td><span class="status course-active pastel-gray"> Not Started </span></td>
-                                            {% elif user_course.get_status == 'Started' %}
-                                                <td><span class="status course-active pastel-yellow"> In Progress </span></td>
-                                            {% elif user_course.get_status == 'Completed' %}
-                                                <td><span class="status course-active pastel-green"> Completed </span></td>
-                                            {% elif user_course.get_status == 'Not Completed' %}
-                                                <td><span class="status course-active pastel-gray"> Not Completed </span></td>
-                                            {% else %}
-                                                <td><span class="status course-active pastel-red"> Expired </span></td>
-                                            {% endif %}                                                            
-                                            <td>{{ user_course.progress }}%</td>
-                                            <td>{{ user_course.enrollment_date }}</td>
-                                            <td>{{ user_course.get_scorm_total_time }}</td>
-                                        </tr>
-                                    {% endfor %}
                                 </tbody>
                             </table>
                         </div>

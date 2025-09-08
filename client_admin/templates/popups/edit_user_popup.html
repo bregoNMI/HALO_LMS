@@ -2,6 +2,8 @@
     <div class="popup-content max-width-3">
         <form id="editUserForm" method="post" action="{% url 'edit_user' profile.id %}" enctype="multipart/form-data">
             {% csrf_token %}
+            <input type="hidden" name="cognito_username" value="{{ profile.username }}">
+
             <div style="border-bottom: 1px solid var(--bg-color2);" class="popup-header">
                 <h3> Edit User Information </h3>
                 <div onclick="closePopup('editUserPopup')" class="close-popup-icon">
@@ -109,6 +111,24 @@
                                   <div class="toggle-switch-handle"></div>
                                 </div>
                             </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="popup-body">
+                    <div class="edit-user-header">
+                        <div class="edit-user-header-icon">
+                            <i class="fa-light fa-lock"></i>
+                        </div>
+                        <h3> Password </h3>
+                    </div>
+                    <div class="edit-user-row">
+                        <div class="edit-user-input">
+                            <label class="edit-user-label" for="new_password">New Password</label>
+                            <input type="password" id="new_password" name="new_password" autocomplete="new-password">
+                        </div>
+                        <div class="edit-user-input">
+                            <label class="edit-user-label" for="confirm_password">Confirm New Password</label>
+                            <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password">
                         </div>
                     </div>
                 </div>

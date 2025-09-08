@@ -2,9 +2,15 @@
     <div class="learner-sidebar-container-inner">
         <div class="learner-sidebar-top">
             <div class="sidebar-user-information">
-                <div class="dropdown-user-icon">
-                    <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
-                </div>
+                {% if request.is_impersonating %}
+                    <div class="dropdown-user-icon" style="padding: 0.3rem; border-radius: 8px; background-color: #ffd0d0;">
+                        <i class="fa-light fa-masks-theater" style="color: #f34242; font-size: 1.5rem;"></i>
+                    </div>                        
+                {% else %}
+                    <div class="dropdown-user-icon">
+                        <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
+                    </div>
+                {% endif %}
                 <div class="dropdown-user-details">
                     <h4>{{ first_name }} {{ last_name }}</h4>
                     <span>{{ email }}</span>

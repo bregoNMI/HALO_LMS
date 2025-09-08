@@ -426,67 +426,67 @@ function countUpPercent(id, to, { duration = 900 } = {}) {
 }
 
 function openQuizAttempts(ulpId) {
-  window._qaCtx.ulpId = ulpId;
-  window._qaCtx.attemptId = null;
+    window._qaCtx.ulpId = ulpId;
+    window._qaCtx.attemptId = null;
 
-  const listPopup = document.getElementById('quizAttemptsActivity');
-  const loading   = listPopup.querySelector('#quizAttemptsActivityLoading');
-  const loaded    = listPopup.querySelector('#quizAttemptsActivityLoaded');
+    const listPopup = document.getElementById('quizAttemptsActivity');
+    const loading   = listPopup.querySelector('#quizAttemptsActivityLoading');
+    const loaded    = listPopup.querySelector('#quizAttemptsActivityLoaded');
 
-  // Show the LIST popup, ensure DETAIL is closed
-  closePopup('quizAttemptDetail');
-  openPopup('quizAttemptsActivity');
+    // Show the LIST popup, ensure DETAIL is closed
+    closePopup('quizAttemptDetail');
+    openPopup('quizAttemptsActivity');
 
-  loading.classList.remove('hidden');
-  loaded.classList.add('hidden');
+    loading.classList.remove('hidden');
+    loaded.classList.add('hidden');
 
-  fetch(`/admin/course-progress/quiz/${ulpId}/fetch/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-    body: JSON.stringify({}),
-  })
-  .then(r => r.ok ? r.json() : r.text().then(t => { throw new Error(t); }))
-  .then(({ success, data }) => {
-    if (!success) throw new Error('Failed to fetch');
-    window._qaCache[ulpId] = data;
+    fetch(`/admin/course-progress/quiz/${ulpId}/fetch/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify({}),
+    })
+    .then(r => r.ok ? r.json() : r.text().then(t => { throw new Error(t); }))
+    .then(({ success, data }) => {
+        if (!success) throw new Error('Failed to fetch');
+        window._qaCache[ulpId] = data;
 
-    const { stats, lesson, quiz_config } = data;
+        const { stats, lesson, quiz_config } = data;
 
-    // Fill header widgets (scoped to LIST popup)
-    setPercent('quizAvgProgress', stats.avg_score);
-    countUpPercent('qaAvgScore', stats.avg_score);
+        // Fill header widgets (scoped to LIST popup)
+        setPercent('quizAvgProgress', stats.avg_score);
+        countUpPercent('qaAvgScore', stats.avg_score);
 
-    setText('qaPassingScore', quiz_config.passing_score != null ? `${quiz_config.passing_score}%` : '—');
+        setText('qaPassingScore', quiz_config.passing_score != null ? `${quiz_config.passing_score}%` : '—');
 
-    let createdFrom = lesson.created_from || '—';
-    if (lesson.created_from === 'Quiz Template' && lesson.selected_quiz_template_name) {
-      createdFrom += ` — ${lesson.selected_quiz_template_name}`;
-    } else if (lesson.created_from === 'Quiz' && lesson.selected_quiz_name) {
-      createdFrom += ` — ${lesson.selected_quiz_name}`;
-    }
-    setText('qaCreatedFrom', createdFrom);
+        let createdFrom = lesson.created_from || '—';
+        if (lesson.created_from === 'Quiz Template' && lesson.selected_quiz_template_name) {
+            createdFrom += ` — ${lesson.selected_quiz_template_name}`;
+        } else if (lesson.created_from === 'Quiz' && lesson.selected_quiz_name) {
+            createdFrom += ` — ${lesson.selected_quiz_name}`;
+        }
+        setText('qaCreatedFrom', createdFrom);
 
-    const displayTitle = lesson.selected_quiz_name || lesson.selected_quiz_template_name || lesson.title || '—';
-    setText('qaTitle', displayTitle);
+        const displayTitle = lesson.title || '—';
+        setText('qaTitle', displayTitle);
 
-    let formattedQuizType;
-    if (quiz_config.quiz_type === 'standard_quiz') formattedQuizType = 'Standard Quiz';
-    else if (quiz_config.quiz_type === 'monitored_quiz') formattedQuizType = 'AI Monitored Quiz';
-    setText('qaQuizType', formattedQuizType || '—');
+        let formattedQuizType;
+        if (quiz_config.quiz_type === 'standard_quiz') formattedQuizType = 'Standard Quiz';
+        else if (quiz_config.quiz_type === 'monitored_quiz') formattedQuizType = 'AI Monitored Quiz';
+        setText('qaQuizType', formattedQuizType || '—');
 
-    setText('qaLastSession', formatDateHuman(stats.last_session));
+        setText('qaLastSession', formatDateHuman(stats.last_session));
 
-    // Render table (scoped to LIST popup)
-    renderAttemptsTable(listPopup, ulpId, data);
+        // Render table (scoped to LIST popup)
+        renderAttemptsTable(listPopup, ulpId, data);
 
-    loading.classList.add('hidden');
-    loaded.classList.remove('hidden');
-  })
-  .catch(err => {
-    console.error(err);
-    displayValidationMessage('Something went wrong, please contact an administrator', false);
-    loading.classList.add('hidden');
-  });
+        loading.classList.add('hidden');
+        loaded.classList.remove('hidden');
+    })
+    .catch(err => {
+        console.error(err);
+        displayValidationMessage('Something went wrong, please contact an administrator', false);
+        loading.classList.add('hidden');
+    });
 }
 
 function formatScore(pct) {
@@ -720,12 +720,14 @@ function setCategory(cat) {
   }
 }
 
-function openQandAs(attemptId){
+function openQandAs(attemptId, quizId){
     window._qaCtx = window._qaCtx || {};
     window._qaCtx.attemptId = attemptId;
 
     closePopup('quizAttemptsActivity');
     openPopup('quizAttemptDetail');
+
+    document.getElementById('attemptDetailsBackBtn').setAttribute('onclick', `qaBackToAttempts('${quizId}')`);
 
     document.getElementById('qaDetailLoading').classList.remove('hidden');
     document.getElementById('qaDetailBody').classList.add('hidden');
@@ -1504,9 +1506,9 @@ function qaBuildFITBHTML(item){
     `;
 }
 
-function qaBackToAttempts(){
+function qaBackToAttempts(quizId){
   closePopup('quizAttemptDetail');
-  openPopup('quizAttemptsActivity');
+  openQuizAttempts(quizId)
 }
 
 // tiny sanitizer for titles/text we inject

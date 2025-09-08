@@ -1600,36 +1600,46 @@ def _status_rank(s: str) -> int:
 
 def _update_ulp_from_status(ulp, new_status, *, require_passing: Optional[bool] = None) -> None:
     """
-    Rank-guarded sync of ULP.completion_status, and set ULP.completed timestamps when appropriate.
-    require_passing:
-      - True  => complete on pending OR passed
-      - False => complete on failed OR completed OR passed
-      - None  => complete on completed OR passed (SCORM default)
+    require_passing=True  -> complete only on 'passed' (or 'completed')
+    require_passing=False -> complete on 'pending', 'failed', or 'passed' (or 'completed')
+    require_passing=None  -> default: complete on 'passed' or 'completed'
+
+    Special rule: if new_status == 'pending', ALWAYS set status to 'pending' (override rank guard).
     """
     new_s = _normalize_status(new_status)
     old_s = _normalize_status(ulp.completion_status or 'incomplete')
 
     fields = []
-    if _status_rank(new_s) >= _status_rank(old_s) and new_s != old_s:
-        ulp.completion_status = new_s
-        fields.append('completion_status')
 
-    # Decide whether this should tick the "completed" checkbox
-    should_complete = False
-    if require_passing is True:
-        should_complete = new_s in ('pending', 'passed', 'completed')
-    elif require_passing is False:
-        should_complete = new_s in ('failed', 'passed', 'completed')
+    # --- STATUS: allow normal upgrade OR force 'pending' even if it looks like a downgrade ---
+    if new_s == 'pending':
+        if old_s != 'pending':
+            ulp.completion_status = 'pending'
+            fields.append('completion_status')
     else:
-        # Default (SCORM, generic): completed on completed/passed only
+        # Only upgrade; never downgrade for non-pending
+        if _status_rank(new_s) >= _status_rank(old_s) and new_s != old_s:
+            ulp.completion_status = new_s
+            fields.append('completion_status')
+
+    # --- COMPLETION FLAG: per your rules ---
+    if require_passing is True:
+        should_complete = new_s in ('passed', 'completed')
+    elif require_passing is False:
+        should_complete = new_s in ('pending', 'failed', 'passed', 'completed')
+    else:
         should_complete = new_s in ('passed', 'completed')
 
     if should_complete and not ulp.completed:
         now = timezone.now()
         ulp.completed = True
-        ulp.completed_on_date = now.date()
-        ulp.completed_on_time = now.time().replace(microsecond=0)
-        fields += ['completed', 'completed_on_date', 'completed_on_time']
+        if not ulp.completed_on_date:
+            ulp.completed_on_date = now.date()
+            fields.append('completed_on_date')
+        if not ulp.completed_on_time:
+            ulp.completed_on_time = now.time().replace(microsecond=0)
+            fields.append('completed_on_time')
+        fields.append('completed')
 
     if fields:
         ulp.save(update_fields=fields)

@@ -18,9 +18,33 @@
             {% endfor %}
         </div>
     {% endif %}
+    <div id="stickyNavBar">
+        <div class="details-top-row max-width-0">
+            <div class="details-top-row-left">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3> User Transcript </h3>
+            </div>
+            <div class="details-top-row-right">
+                <div class="option-btn-row">
+                    <div class="option-btn" onclick="messageUserBtn()">
+                        <i class="fa-regular fa-messages"></i>
+                        <span> Message user</span>
+                    </div>
+                </div>
+                <div class="option-btn-row">
+                    <div class="option-btn" onclick="enrollUserBtn()">
+                        <i class="fa-regular fa-hand-holding-box"></i>
+                        <span> Enroll user</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="admin-body align-center">
         <div class="max-width-0">
-            <div class="details-top-row">
+            <div id="mainNavBar" class="details-top-row">
                 <div class="details-top-row-left">
                     <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
                         <i class="fa-solid fa-arrow-left"></i>
@@ -77,7 +101,7 @@
                                         <i class="fa-light fa-file-certificate pastel-blue"></i>
                                     </div>
                                     <div class="certificate-item-right">
-                                        <span class="certificate-item-title">{{ cert.user_course.course.title }}</span>
+                                        <span class="certificate-item-title">{{ cert.user_course.course.certificate_title }}</span>
                                         <div class="course-item-footer">
                                             <div class="course-item-footer-item">
                                                 <i class="fa-regular fa-calendar-check"></i>
@@ -189,10 +213,14 @@
                                             {% elif user_course.get_status == 'Completed' %}
                                                 <td><span class="status course-active pastel-green"> Completed </span></td>
                                             {% elif user_course.get_status == 'Not Completed' %}
-                                                <td><span class="status course-active pastel-gray"> Not Completed </span></td>
-                                            {% else %}
+                                                <td><span class="status course-active pastel-gray"> Not Completed </span></td> 
+                                            {% elif user_course.get_status == 'Scheduled' %}
+                                                <td><span class="status course-active pastel-yellow"> Scheduled </span></td>
+                                            {% elif user_course.get_status == 'Expired' %}
                                                 <td><span class="status course-active pastel-red"> Expired </span></td>
-                                            {% endif %}                                                            
+                                            {% elif user_course.get_status == 'Overdue' %}
+                                                <td><span class="status course-active pastel-yellow"> Overdue </span></td>
+                                            {% endif %}                                                          
                                             <td>{{ user_course.progress }}%</td>
                                             <td>{{ user_course.enrollment_date }}</td>
                                             <td>{{ user_course.get_scorm_total_time }}</td>

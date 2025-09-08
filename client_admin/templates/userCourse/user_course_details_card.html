@@ -31,12 +31,22 @@
                     <span class="status course-active pastel-gray"> Not Completed </span>
                     <span class="tooltiptext">Course Status</span>
                 </div>
-            {% else %}
+            {% elif user_course.get_status == 'Scheduled' %}
+                <div class="course-item-footer-item tooltip" data-tooltip="Course Status">          
+                    <span class="status course-active pastel-yellow"> Scheduled </span>
+                    <span class="tooltiptext">Course Status</span>
+                </div>
+            {% elif user_course.get_status == 'Expired' %}
                 <div class="course-item-footer-item tooltip" data-tooltip="Course Status">          
                     <span class="status course-active pastel-red"> Expired </span>
                     <span class="tooltiptext">Course Status</span>
                 </div>
-            {% endif %} 
+            {% elif user_course.get_status == 'Overdue' %}
+                <div class="course-item-footer-item tooltip" data-tooltip="Course Status">          
+                    <span class="status course-active pastel-yellow"> Overdue </span>
+                    <span class="tooltiptext">Course Status</span>
+                </div>
+            {% endif %}  
         </div>
  
         <div class="course-title">

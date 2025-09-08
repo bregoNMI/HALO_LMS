@@ -102,9 +102,17 @@
                                                 <div class="course-item-status-item yellow-status-item" onclick="launchCourse('{{ user_course.lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
                                                     <i class="fa-regular fa-light-emergency-on"></i>
                                                 </div>
-                                            {% else %}
-                                                <div class="course-item-status-item red-status-item">
+                                            {% elif user_course.get_status == 'Scheduled' %}
+                                                <div class="course-item-status-item yellow-status-item disabled">
+                                                    <i class="fa-kit fa-regular-calendar-star-lock"></i>
+                                                </div> 
+                                            {% elif user_course.get_status == 'Expired' %}
+                                                <div class="course-item-status-item red-status-item disabled">
                                                     <i class="fa-regular fa-stopwatch"></i>
+                                                </div>
+                                            {% elif user_course.get_status == 'Overdue' %}
+                                                <div class="course-item-status-item yellow-status-item" onclick="launchCourse('{{ user_course.lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
+                                                    <i class="fa-regular fa-calendar-exclamation"></i>
                                                 </div>
                                             {% endif %}  
                                         </div>
@@ -194,12 +202,22 @@
                                                 <i class="fa-regular fa-glasses"></i>
                                                 <span> Review </span>
                                             </div>
-                                        {% else %}
-                                            <div class="start-course-btn learner-save-btns">
+                                        {% elif user_course.get_status == 'Scheduled' %}
+                                            <div class="start-course-btn learner-save-btns disabled">
+                                                <i class="fa-kit fa-regular-calendar-star-lock"></i>
+                                                <span> Scheduled </span>
+                                            </div> 
+                                        {% elif user_course.get_status == 'Expired' %}
+                                            <div class="start-course-btn learner-save-btns disabled">
                                                 <i class="fa-regular fa-stopwatch"></i>
                                                 <span> Expired </span>
                                             </div>
-                                        {% endif %}
+                                        {% elif user_course.get_status == 'Overdue' %}
+                                            <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
+                                                <i class="fa-regular fa-calendar-exclamation"></i>
+                                                <span> Overdue </span>
+                                            </div>
+                                        {% endif %} 
                                     </div>          
                                 </div>
                             {% empty %}

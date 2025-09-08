@@ -26,6 +26,8 @@ from django.shortcuts import redirect, render
 from botocore.exceptions import ClientError
 from custom_templates.models import Dashboard, Widget, Header, Footer, LoginForm
 from client_admin.models import OrganizationSettings
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 @login_required
 def login(request):
@@ -430,80 +432,97 @@ def addUserCognito(request):
 
 @login_required
 def modifyCognito(request):
-    if request.method == 'POST':
-        # Retrieve user input
-        username = request.POST.get('username')
-        new_password = request.POST.get('new_password')
-        confirm_password = request.POST.get('confirm_password')
-        email = request.POST.get('email')
-        given_name = request.POST.get('first_name')
-        family_name = request.POST.get('last_name')
-        birthdate = request.POST.get('birth_date')
-        id_photo = request.FILES.get('photoid') 
-        reg_photo = request.FILES.get('passportphoto')
+    if request.method != 'POST':
+        return redirect('dashboard/')
 
-        try:
-            # Change Password only if new_password is provided
-            if new_password:
-                if new_password != confirm_password:
-                    messages.error(request, 'New password and confirm password do not match.')
-                    return redirect('dashboard/')
-                
-                # Change the password using Cognito client
-                cognito_client.change_password(
-                    PreviousPassword='',
-                    ProposedPassword=new_password,
-                )
-                messages.success(request, 'Password changed successfully.')
+    # Who are we updating in Cognito?
+    cognito_username = (request.POST.get('cognito_username') or request.POST.get('username') or '').strip()
+    # Actor (the person making this request)
+    actor_username = request.user.username
 
-            # Prepare list of attributes to update if fields are filled
-            user_attributes = []
-            if email:
-                user_attributes.append({'Name': 'email', 'Value': email})
-            if given_name:
-                user_attributes.append({'Name': 'given_name', 'Value': given_name})
-            if family_name:
-                user_attributes.append({'Name': 'family_name', 'Value': family_name})
-            if birthdate:
-                user_attributes.append({'Name': 'birthdate', 'Value': birthdate})
-            else:
-                user_attributes.append({'Name': 'birthdate', 'Value': ''})
-            
-            # Upload photos to S3 if provided
-            s3_bucket = settings.AWS_STORAGE_BUCKET_NAME
-            if id_photo:
-                id_photo_name = id_photo.name
-                s3_key = f"users/{username}/id_photo/{id_photo_name}"  # Use Cognito username
-                s3_client.upload_fileobj(id_photo, s3_bucket, s3_key)
-                id_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_key}"
-                user_attributes.append({'Name': 'custom:id_photo', 'Value': id_photo_url})
+    # Password fields
+    current_password = (request.POST.get('current_password') or '').strip()
+    new_password     = (request.POST.get('new_password') or '').strip()
+    confirm_password = (request.POST.get('confirm_password') or '').strip()
 
-            if reg_photo:
-                reg_photo_name = reg_photo.name
-                s3_key = f"users/{username}/reg_photo/{reg_photo_name}"  # Use Cognito username
-                s3_client.upload_fileobj(reg_photo, s3_bucket, s3_key)
-                reg_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_key}"
-                user_attributes.append({'Name': 'custom:reg_photo', 'Value': reg_photo_url})
+    # Attribute fields
+    email       = request.POST.get('email') or ''
+    given_name  = request.POST.get('first_name') or ''
+    family_name = request.POST.get('last_name') or ''
+    birthdate   = request.POST.get('birth_date') if 'birth_date' in request.POST else None
 
-            # Update User Attributes in Cognito using the correct username
-            if user_attributes:
-                cognito_client.admin_update_user_attributes(
-                    UserPoolId=settings.COGNITO_USER_POOL_ID,
-                    Username=username,  # Use Cognito username from session
-                    UserAttributes=user_attributes
-                )
-                # messages.success(request, 'User details updated successfully.')
-            else:
-                messages.info(request, 'No user details were updated.')
+    id_photo = request.FILES.get('photoid')
+    reg_photo = request.FILES.get('passportphoto')
 
-        except cognito_client.exceptions.UserNotFoundException:
-            messages.error(request, 'User not found in Cognito.')
-        except cognito_client.exceptions.NotAuthorizedException:
-            messages.error(request, 'User is not authorized.')
-        except cognito_client.exceptions.InvalidPasswordException as e:
-            messages.error(request, f'Invalid new password: {e}')
-        except Exception as e:
-            messages.error(request, f'An error occurred: {e}')
+    # Determine if this is self-service (user editing themselves) vs admin editing someone else
+    is_self = (cognito_username == actor_username)
+
+    try:
+        # --- PASSWORD CHANGES ---
+        if new_password or confirm_password:
+            if new_password != confirm_password:
+                messages.error(request, 'New passwords do not match.')
+                return redirect('dashboard/')
+
+            # If self-service, require current password to be correct (Django-side check)
+            if is_self and not request.user.check_password(current_password):
+                messages.error(request, 'Current password is incorrect.')
+                return redirect('dashboard/')
+
+            # Optional: run Django validators (gives better UX feedback than Cognito alone)
+            try:
+                validate_password(new_password, user=request.user if is_self else None)
+            except ValidationError as e:
+                for err in e:
+                    messages.error(request, err)
+                return redirect('dashboard/')
+
+            # Use admin_set_user_password for BOTH flows (no AccessToken needed)
+            cognito_client.admin_set_user_password(
+                UserPoolId=settings.COGNITO_USER_POOL_ID,
+                Username=cognito_username,
+                Password=new_password,
+                Permanent=True,  # don't force change on next sign in
+            )
+
+        # --- ATTRIBUTE UPDATES ---
+        user_attributes = []
+        if email:
+            user_attributes.append({'Name': 'email', 'Value': email})
+        if given_name:
+            user_attributes.append({'Name': 'given_name', 'Value': given_name})
+        if family_name:
+            user_attributes.append({'Name': 'family_name', 'Value': family_name})
+
+        # send/clear birthdate explicitly
+        if birthdate is not None:
+            user_attributes.append({'Name': 'birthdate', 'Value': birthdate or ''})
+
+        # Upload photos → S3 → custom attributes
+        s3_bucket = settings.AWS_STORAGE_BUCKET_NAME
+        if id_photo:
+            s3_key = f"users/{cognito_username}/id_photo/{id_photo.name}"
+            s3_client.upload_fileobj(id_photo, s3_bucket, s3_key)
+            user_attributes.append({'Name': 'custom:id_photo', 'Value': f"https://{s3_bucket}.s3.amazonaws.com/{s3_key}"})
+
+        if reg_photo:
+            s3_key = f"users/{cognito_username}/reg_photo/{reg_photo.name}"
+            s3_client.upload_fileobj(reg_photo, s3_bucket, s3_key)
+            user_attributes.append({'Name': 'custom:reg_photo', 'Value': f"https://{s3_bucket}.s3.amazonaws.com/{s3_key}"})
+
+        if user_attributes:
+            cognito_client.admin_update_user_attributes(
+                UserPoolId=settings.COGNITO_USER_POOL_ID,
+                Username=cognito_username,
+                UserAttributes=user_attributes
+            )
+
+    except cognito_client.exceptions.UserNotFoundException:
+        messages.error(request, 'User not found in Cognito.')
+    except cognito_client.exceptions.InvalidPasswordException as e:
+        messages.error(request, f'Invalid new password: {e}')
+    except Exception as e:
+        messages.error(request, f'An error occurred: {e}')
 
     return redirect('dashboard/')
 

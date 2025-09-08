@@ -262,19 +262,28 @@ class UserCourse(models.Model):
 
 
     def get_status(self):
-        expiration_date = self.course.get_event_date('expiration_date')
-        if expiration_date and expiration_date < datetime.now().date():
+        today = timezone.localdate()
+
+        # Resolve event dates relative to this user's enrollment
+        start_date = self.course.get_event_date('start_date', self.enrollment_date)
+        expiration_date = self.course.get_event_date('expiration_date', self.enrollment_date)
+        due_date = self.course.get_event_date('due_date', self.enrollment_date)
+
+        if start_date and today < start_date:
+            return 'Scheduled'
+
+        if expiration_date and today > expiration_date and not self.is_course_completed:
             return 'Expired'
 
-        if self.progress == 0:
+        if due_date and today > due_date and not self.is_course_completed:
+            return 'Overdue'
+
+        if (self.progress or 0) <= 0:
             return 'Not Started'
 
-        if self.progress == 100:
-            if self.is_course_completed:
-                return 'Completed'
-            else:
-                return 'Not Completed'
-
+        if (self.progress or 0) >= 100:
+            return 'Completed' if self.is_course_completed else 'Not Completed'
+        
         return 'Started'
     
     def update_progress(self):
