@@ -24,6 +24,7 @@ from django.db.models.functions import Coalesce
 from django.db.models import Value, FloatField, JSONField
 import re
 import os
+from django.db.models import Q
 
 no_prefix_storage = S3Boto3Storage()
 no_prefix_storage.location = ''  # Disable tenant prefix
@@ -269,6 +270,9 @@ class UserCourse(models.Model):
         expiration_date = self.course.get_event_date('expiration_date', self.enrollment_date)
         due_date = self.course.get_event_date('due_date', self.enrollment_date)
 
+        if (self.progress or 0) >= 100:
+            return 'Completed' if self.is_course_completed else 'Not Completed'
+
         if start_date and today < start_date:
             return 'Scheduled'
 
@@ -280,9 +284,6 @@ class UserCourse(models.Model):
 
         if (self.progress or 0) <= 0:
             return 'Not Started'
-
-        if (self.progress or 0) >= 100:
-            return 'Completed' if self.is_course_completed else 'Not Completed'
         
         return 'Started'
     
@@ -339,15 +340,24 @@ class UserCourse(models.Model):
 
         # Completion logic unchanged...
         allowed_statuses = ['completed', 'approved']
+        course_assignments = Upload.objects.filter(
+            Q(lessons__module__course=self.course) |              # lesson-scoped
+            Q(course=self.course, lessons__isnull=True)           # full-course
+        ).distinct()
+
+        print(f"[update_progress] uploads total={course_assignments.count()}")
+
+        incomplete_assignments = course_assignments.exclude(
+            id__in=UserAssignmentProgress.objects.filter(
+                user=self.user,
+                assignment__in=course_assignments,
+                status__in=allowed_statuses
+            ).values_list('assignment_id', flat=True)
+        )
+
+        print(f"[update_progress] incomplete_uploads={incomplete_assignments.count()} progress={self.progress}")
+
         if self.progress >= 100 and not self.is_course_completed:
-            course_assignments = Upload.objects.filter(lesson__module__course=self.course)
-            incomplete_assignments = course_assignments.exclude(
-                id__in=UserAssignmentProgress.objects.filter(
-                    user=self.user,
-                    assignment__in=course_assignments,
-                    status__in=allowed_statuses
-                ).values_list('assignment_id', flat=True)
-            )
             if not incomplete_assignments.exists():
                 self.is_course_completed = True
                 self.completed_on_date = datetime.now().date()

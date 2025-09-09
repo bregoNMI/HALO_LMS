@@ -94,6 +94,7 @@
 
 .card-info-icon{
     display: flex;
+    align-items: center;
     gap: 0.3rem;
     color: #6b6b6b;
     font-size: 0.96rem;

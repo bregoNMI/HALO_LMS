@@ -1287,7 +1287,7 @@ tr.selected-option th, tr.selected-option td{
     color: #999;
 }
 
-.selectedCourses {
+.selectedCourses, .selectedQuizzes{
     display: none;
     flex-wrap: wrap;
     gap: 0.5rem;

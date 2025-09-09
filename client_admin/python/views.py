@@ -1720,6 +1720,78 @@ def _finalize_attempt_if_ready(attempt):
          passed=attempt.passed, finished_at=attempt.finished_at)
     return True
 
+def _sync_scorm_from_attempt(attempt):
+    """
+    Keep SCORMTrackingData in sync with attempt + require_passing semantics:
+      - PASSED  -> 'passed'  (progress=1.0)
+      - FAILED  -> 'failed'  (or 'completed' if require_passing=False; progress=1.0 in that case)
+      - PENDING -> 'pending'
+      - ACTIVE  -> 'incomplete'
+    Rank-guards status so we never downgrade. Progress is monotonic to 1.0 only.
+    """
+    ulp = attempt.user_lesson_progress
+    lesson = ulp.lesson
+    user = ulp.user_module_progress.user_course.user
+
+    # require_passing from quiz config (default False)
+    require_passing = False
+    qc = getattr(lesson, 'quiz_config', None)
+    if qc is not None:
+        require_passing = bool(getattr(qc, 'require_passing', False))
+
+    # Map attempt -> SCORM status with coercion when require_passing=False
+    if attempt.status == QuizAttempt.Status.PASSED:
+        scorm_status = 'passed'
+    elif attempt.status == QuizAttempt.Status.FAILED:
+        scorm_status = 'completed' if not require_passing else 'failed'
+    elif attempt.status == QuizAttempt.Status.PENDING:
+        scorm_status = 'pending'
+    else:
+        scorm_status = 'incomplete'
+
+    tracking, created = SCORMTrackingData.objects.get_or_create(
+        user=user,
+        lesson=lesson,
+        defaults={
+            'completion_status': scorm_status,
+            'progress': 1.0 if scorm_status in ('completed', 'passed') else 0.0,
+            'session_time': 'PT0H0M0S',
+            'lesson_location': '',
+            'scroll_position': 0,
+            'score': attempt.score_percent,
+        },
+    )
+
+    rank = {'incomplete': 0, 'pending': 1, 'failed': 2, 'passed': 3, 'completed': 4}
+    fields = []
+
+    # Rank-guard completion_status
+    current = tracking.completion_status or 'incomplete'
+    if rank.get(scorm_status, 0) >= rank.get(current, 0) and scorm_status != current:
+        tracking.completion_status = scorm_status
+        fields.append('completion_status')
+
+    # Ensure progress = 1.0 if 'completed' or 'passed'
+    if scorm_status in ('completed', 'passed') and (tracking.progress or 0.0) < 1.0:
+        tracking.progress = 1.0
+        fields.append('progress')
+
+    # Keep best score (optional)
+    if attempt.score_percent is not None and (tracking.score is None or attempt.score_percent > tracking.score):
+        tracking.score = float(attempt.score_percent)
+        fields.append('score')
+
+    if fields:
+        tracking.save(update_fields=fields)
+
+    qlog("scorm_sync",
+         attempt_id=attempt.id,
+         scorm_status=scorm_status,
+         require_passing=require_passing,
+         updated=fields)
+
+    return tracking
+
 def _sync_lesson_status_from_attempt(attempt):
     """
     Update the UserLessonProgress based on the current attempt.status.
@@ -1892,9 +1964,24 @@ def grade_essay_question(request, attempt_id, question_id):
 
     finalized = _finalize_attempt_if_ready(attempt)
     _sync_lesson_status_from_attempt(attempt)
+    _sync_scorm_from_attempt(attempt)
+
+    user_course = getattr(
+        getattr(getattr(attempt, 'user_lesson_progress', None), 'user_module_progress', None),
+        'user_course',
+        None
+    )
+
+    if user_course:
+        # Wrap to be safe if lots of related updates happen together
+        with transaction.atomic():
+            user_course.update_progress()
+    else:
+        # Optional: log for debugging if relation chain is missing
+        qlog("grade:no_user_course_found", attempt_id=attempt.id)
 
     qlog("grade:finalize_result", attempt_id=attempt.id,
-        finalized=finalized, status=attempt.status, score_percent=attempt.score_percent)
+         finalized=finalized, status=attempt.status, score_percent=attempt.score_percent)
 
     return JsonResponse({
         'success': True,

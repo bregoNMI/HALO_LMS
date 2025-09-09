@@ -777,7 +777,9 @@ def create_or_edit_quiz(request, uuid=None):
 
 @login_required
 def file_upload(request):
+    # -------------------------------
     # Uploading Files
+    # -------------------------------
     if request.method == 'POST':
         try:
             uploaded_file = request.FILES['file']
@@ -785,17 +787,15 @@ def file_upload(request):
             file_name = custom_title if custom_title else uploaded_file.name
             parent_id = request.POST.get('parent_id')
 
-            # Detect file type based on extension
             file_type = detect_file_type(file_name)
 
-            # Create a file instance with detected file type
             file_instance = File(
                 user=request.user,
                 file=uploaded_file,
                 title=file_name,
                 file_type=file_type
             )
-            
+
             if parent_id:
                 folder = Folder.objects.filter(id=parent_id, user=request.user).first()
                 if folder:
@@ -825,7 +825,10 @@ def file_upload(request):
             return JsonResponse({'success': False, 'error': str(ve)})
         except Exception as e:
             return JsonResponse({'success': False, 'message': 'An error occurred: ' + str(e)})
-    # Searching Files
+
+    # -------------------------------
+    # Searching / Listing Files
+    # -------------------------------
     elif request.method == 'GET':
         search_query = request.GET.get('q', '')
         filters_raw = request.GET.get('filters', '')
@@ -834,35 +837,55 @@ def file_upload(request):
         per_page = 20
         layout = request.GET.get('layout', '')
 
-        # Build base filter conditions for current user
+        # Base conditions
         file_filter_conditions = Q(user=request.user)
         folder_filter_conditions = Q(user=request.user)
 
-        # Search filtering
+        # Search filter
         if search_query:
             file_filter_conditions &= Q(title__icontains=search_query)
             folder_filter_conditions &= Q(title__icontains=search_query)
 
-        # Separate regular file type filters and special filters
+        # Parse filters
         filters = [f.strip().lower() for f in filters_raw.split(',') if f.strip()]
         special_keys = {'certificate', 'thumbnail', 'reference'}
         regular_filters = [f for f in filters if f not in special_keys]
         special_filters = [f for f in filters if f in special_keys]
 
-        # Apply regular file_type filter
+        # Regular file_type filter
         if regular_filters:
             file_filter_conditions &= Q(file_type__in=regular_filters)
 
-        # Apply special file filters
+        # Special file filters
         if special_filters:
             file_filter_conditions &= build_special_file_filters(special_filters, request.user)
 
+        # Course filter (collect + apply)
         course_ids = request.GET.getlist('course_ids[]')
+        course_filter_applied = False
         if course_ids:
             course_ids = [int(cid) for cid in course_ids if cid.isdigit()]
-            file_filter_conditions &= build_course_file_filter(course_ids)
+            if course_ids:
+                course_filter_applied = True
+                file_filter_conditions &= build_course_file_filter(course_ids)
+        else:
+            course_ids = []
+
+        # Quiz filter (collect + apply)
+        quiz_ids = request.GET.getlist('quiz_ids[]')
+        quiz_filter_applied = False
+        if quiz_ids:
+            quiz_ids = [int(qid) for qid in quiz_ids if qid.isdigit()]
+            if quiz_ids:
+                quiz_filter_applied = True
+                # IMPORTANT: build_quiz_file_filter should return Q(pk__in=[])
+                # when no linked files exist so the AND produces an empty set.
+                file_filter_conditions &= build_quiz_file_filter(quiz_ids)
+        else:
+            quiz_ids = []
 
         print("Course IDs:", course_ids)
+        print("Quiz IDs:", quiz_ids)
 
         # Root vs nested folder handling
         if parent_id:
@@ -870,15 +893,22 @@ def file_upload(request):
             file_filter_conditions &= Q(folders__id=parent_id)
         else:
             folder_filter_conditions &= Q(parent=None)
-            file_filter_conditions &= Q(folders=None)  # files not attached to any folder
+            file_filter_conditions &= Q(folders=None)
 
         print("Raw filters:", filters_raw)
         print("Parsed filters:", filters)
         print("Final file_filter_conditions:", file_filter_conditions)
 
-        # Fetch data
-        folders = Folder.objects.filter(folder_filter_conditions)
+        # Query files first (so we can decide whether to hide folders)
         files = File.objects.filter(file_filter_conditions).distinct()
+
+        # If ANY of the structured filters (course/quiz) are applied and zero files, hide folders too
+        suppress_folders = bool((course_filter_applied or quiz_filter_applied) and not files.exists())
+        if suppress_folders:
+            print("Folders suppressed: structured filters applied but no files matched.")
+            folders = Folder.objects.none()
+        else:
+            folders = Folder.objects.filter(folder_filter_conditions)
 
         # Merge and sort
         combined_items = list(folders) + list(files)
@@ -910,7 +940,7 @@ def file_upload(request):
                     'title': item.title,
                     'created_at': item.created_at.strftime('%b %d, %Y %I:%M %p')
                 })
-            else:  # it's a File
+            else:  # File
                 uploaded_at_formatted = item.uploaded_at.strftime('%b %d, %Y %I:%M')
                 uploaded_at_formatted += ' ' + ('p.m.' if item.uploaded_at.hour >= 12 else 'a.m.')
                 response_data.append({
@@ -994,6 +1024,59 @@ def build_course_file_filter(course_ids):
 
     if lesson_file_ids:
         q |= Q(id__in=lesson_file_ids)
+
+    return q
+
+def build_quiz_file_filter(quiz_ids, strict_when_empty=True):
+    q = Q()
+    matched_any = False
+    url_sources = []
+
+    from content.models import Question, QuestionMedia, QuizReference  # adjust path if needed
+
+    # A) QuestionMedia -> library URLs
+    qm_urls = list(
+        QuestionMedia.objects
+        .filter(question__quizzes__id__in=quiz_ids, source_type='library')
+        .exclude(url_from_library='')
+        .values_list('url_from_library', flat=True)
+    )
+    if qm_urls:
+        url_sources += qm_urls
+
+    # B) QuizReference -> library URLs
+    qr_urls = list(
+        QuizReference.objects
+        .filter(quiz_id__in=quiz_ids, source_type='library')
+        .exclude(url_from_library='')
+        .values_list('url_from_library', flat=True)
+    )
+    if qr_urls:
+        url_sources += qr_urls
+
+    # C) Optional embedded URLs on the Question itself
+    q_urls = list(
+        Question.objects
+        .filter(quizzes__id__in=quiz_ids)
+        .exclude(urlField__isnull=True)
+        .exclude(urlField='')
+        .values_list('urlField', flat=True)
+    )
+    if q_urls:
+        url_sources += q_urls
+
+    # Deduplicate and convert URLs → filenames → iregex; match against File.file path
+    if url_sources:
+        url_files = get_filenames_from_urls(list(set(url_sources)))  # uses your existing helper
+        if url_files:
+            # Escape to avoid regex injection; case-insensitive path match
+            pattern = r'(' + '|'.join(map(re.escape, url_files)) + r')'
+            q |= Q(file__iregex=pattern)
+            matched_any = True
+
+    if not matched_any and strict_when_empty:
+        print("[build_quiz_file_filter] No linked files; returning empty filter (Q(pk__in=[])).")
+        return Q(pk__in=[])
 
     return q
     

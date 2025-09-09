@@ -760,6 +760,9 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.quiz-dropdown').forEach(dropdown => {
         initializeQuizDropdown(dropdown.id);
     });
+    document.querySelectorAll('.quiz-mutli-dropdown').forEach(dropdown => {
+        initializeQuizMultiDropdown(dropdown.id);
+    });   
     document.querySelectorAll('.quiz-template-dropdown').forEach(dropdown => {
         initializeQuizTemplateDropdown(dropdown.id);
     });
@@ -1529,6 +1532,201 @@ function initializeQuizDropdown(containerId) {
     }
 
     fetchQuizzes();
+}
+
+function initializeQuizMultiDropdown(containerId, initialSelectedQuizIds = []) {
+  const container = document.getElementById(containerId);
+  const searchInput = container.querySelector('.quizSearch');
+  const list = container.querySelector('.quizList');
+  const loading = container.querySelector('.loadingIndicator');
+  const selectedList = container.querySelector('.selectedQuizzes');
+
+  let page = 1;
+  let isLoading = false;
+  let hasMore = true;
+
+  // Normalize to string IDs for consistent comparisons
+  let bootstrapSelected = new Set((initialSelectedQuizIds || []).map(String));
+
+  function getSelectedIdsFromDOM() {
+    return Array.from(selectedList.querySelectorAll('.selected-quiz'))
+      .map(el => el.dataset.quizId);
+  }
+
+  function updateSelectedVisibility() {
+    selectedList.style.display = selectedList.children.length ? 'flex' : 'none';
+  }
+
+  function appendSelectedQuiz(title, quizId) {
+    // Avoid duplicates
+    if (selectedList.querySelector(`[data-quiz-id="${quizId}"]`)) return;
+
+    const pill = document.createElement('div');
+    pill.className = 'selected-quiz';
+    pill.dataset.quizId = String(quizId);
+    pill.innerHTML = `
+      <span class="selected-quiz-details">${title}</span>
+      <div class="remove-quiz">
+        <div class="upload-delete tooltip" data-tooltip="Remove Quiz">
+          <span class="tooltiptext">Remove Quiz</span>
+          <i class="fa-regular fa-trash-can"></i>
+        </div>
+      </div>
+      <input type="hidden" name="quiz_ids[]" value="${quizId}">
+    `;
+
+    pill.querySelector('.remove-quiz').addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeSelectedQuiz(quizId);
+    });
+
+    selectedList.appendChild(pill);
+    updateSelectedVisibility();
+  }
+
+  function removeSelectedQuiz(quizId) {
+    const pill = selectedList.querySelector(`[data-quiz-id="${quizId}"]`);
+    if (pill) pill.remove();
+
+    const row = list.querySelector(`[data-quiz-id="${quizId}"]`);
+    if (row) {
+      row.classList.remove('selected');
+      const cb = row.querySelector('.quiz-checkbox');
+      if (cb) cb.checked = false;
+    }
+    updateSelectedVisibility();
+  }
+
+  function fetchQuizzes(searchTerm = '', reset = false) {
+    if (isLoading || !hasMore) return;
+    isLoading = true;
+    loading.style.display = 'block';
+
+    fetch(`/requests/get-quizzes/?page=${page}&search=${encodeURIComponent(searchTerm)}`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (reset) {
+          list.innerHTML = '';
+          page = 1;
+        }
+
+        const selectedIdsInDOM = new Set(getSelectedIdsFromDOM().map(String));
+        const combinedSelected = new Set([
+          ...bootstrapSelected,
+          ...selectedIdsInDOM
+        ]);
+
+        (data.quizzes || []).forEach(quiz => {
+          const row = document.createElement('div');
+          row.className = 'dropdown-item';
+          row.dataset.quizId = String(quiz.id);
+          row.innerHTML = `
+            <div class="dropdown-item-inner"><h5>${quiz.title}</h5></div>
+          `;
+
+          const checkboxWrap = document.createElement('div');
+          checkboxWrap.innerHTML = `
+            <label class="container">
+              <input value="${quiz.id}" class="quiz-checkbox" type="checkbox">
+              <div class="checkmark"></div>
+            </label>
+          `;
+          row.prepend(checkboxWrap);
+          list.appendChild(row);
+
+          const checkbox = checkboxWrap.querySelector('.quiz-checkbox');
+
+          // Pre-check if already selected
+          if (combinedSelected.has(String(quiz.id))) {
+            checkbox.checked = true;
+            row.classList.add('selected');
+            if (!selectedList.querySelector(`[data-quiz-id="${quiz.id}"]`)) {
+              appendSelectedQuiz(quiz.title, quiz.id);
+            }
+            // drain bootstrapSelected so we don't re-process it
+            bootstrapSelected.delete(String(quiz.id));
+          }
+
+          row.addEventListener('click', () => {
+            const isChecked = checkbox.checked;
+            if (isChecked) {
+              // unselect
+              checkbox.checked = false;
+              row.classList.remove('selected');
+              removeSelectedQuiz(quiz.id);
+            } else {
+              // select
+              checkbox.checked = true;
+              row.classList.add('selected');
+              appendSelectedQuiz(quiz.title, quiz.id);
+            }
+          });
+
+          checkbox.addEventListener('click', (e) => {
+            e.stopPropagation();
+            row.click();
+          });
+        });
+
+        if ((data.quizzes || []).length === 0 && reset) {
+          list.innerHTML = '<div class="no-results">No quizzes found</div>';
+        }
+
+        hasMore = !!data.has_more;
+        isLoading = false;
+        loading.style.display = 'none';
+        page += 1;
+
+        // If we still have unseen bootstrap IDs, keep fetching next page
+        if (bootstrapSelected.size > 0 && hasMore) {
+          fetchQuizzes(searchTerm);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching quizzes:', err);
+        isLoading = false;
+        loading.style.display = 'none';
+      });
+  }
+
+  // Infinite scroll
+  list.addEventListener('scroll', () => {
+    if (list.scrollTop + list.clientHeight >= list.scrollHeight) {
+      fetchQuizzes(searchInput.value);
+    }
+  });
+
+  // Search
+  searchInput.addEventListener('input', () => {
+    page = 1;
+    hasMore = true;
+    fetchQuizzes(searchInput.value, true);
+  });
+
+  // Focus/open
+  searchInput.addEventListener('focus', () => {
+    searchInput.style.borderRadius = '8px 8px 0 0';
+    list.style.display = 'block';
+    searchInput.style.border = '2px solid #c7c7db';
+    page = 1;
+    hasMore = true;
+    fetchQuizzes(searchInput.value, true);
+  });
+
+  // Click outside → close
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) {
+      list.style.display = 'none';
+      searchInput.style.borderRadius = '8px';
+      searchInput.style.border = '1px solid #ececf1';
+    }
+  });
+
+  // Initial load
+  fetchQuizzes();
+  updateSelectedVisibility();
 }
 
 function initializeQuizTemplateDropdown(containerId) {

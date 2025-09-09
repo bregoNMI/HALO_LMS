@@ -599,6 +599,7 @@ let currentLayout = localStorage.getItem('fileLibraryLayout') || 'list';
 let folderPath = [];
 let currentParentFolderId = null;
 let selectedFilterCourseIds = [];
+let selectedFilterQuizIds = [];
 
 document.getElementById('fileUploadForm').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -800,7 +801,7 @@ function assignTableOptionListeners() {
                         currentParentFolderId = parentId;
                         currentPage = 1;
                         console.log('fetch');
-                        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+                        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
                         renderBreadcrumbs();
                         console.log('selectFolderBtn:', 'folderPath:', folderPath);
@@ -870,48 +871,54 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isLoading || !hasNext || layoutJustSwitched) return;
         isLoading = true;
         console.log('fetch');
-        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
     }
 
-    window.fetchFiles = function(page, layout = currentLayout, parentId = currentParentFolderId, courseIds = null) {
+    window.fetchFiles = function(page, layout = currentLayout, parentId = currentParentFolderId, courseIds = [], quizIds = []) {
         if (!parentId) {
             folderPath = [];
         } else {
             const matchIndex = folderPath.findIndex(folder => String(folder.id) === String(parentId));
-            if (matchIndex !== -1) {
-                folderPath = folderPath.slice(0, matchIndex + 1);
-            }
+            if (matchIndex !== -1) folderPath = folderPath.slice(0, matchIndex + 1);
         }
 
         renderBreadcrumbs();
 
         const filterParams = Array.from(selectedFilters).join(',');
         const searchQuery = searchInput.value;
-        const courseParams = courseIds.map(id => `&course_ids[]=${id}`).join('');
 
-        const url = `/requests/file-upload/?filters=${encodeURIComponent(filterParams)}&q=${encodeURIComponent(searchQuery)}&page=${page}&layout=${layout}` +
-                    (parentId ? `&parent=${parentId}` : '') +
-                    courseParams;
+        const courseIdsArr = Array.isArray(courseIds) ? courseIds : [];
+        const quizIdsArr   = Array.isArray(quizIds) ? quizIds : [];
 
-        console.log('page:', page, 'layout:', layout, 'filterParams:', filterParams, 'searchQuery:',searchQuery, 'courseParams:', courseParams, 'courseIds:', courseIds);
+        const courseParams = courseIdsArr.map(id => `&course_ids[]=${encodeURIComponent(id)}`).join('');
+        const quizParams   = quizIdsArr.map(id => `&quiz_ids[]=${encodeURIComponent(id)}`).join('');
+
+        const url = `/requests/file-upload/?filters=${encodeURIComponent(filterParams)}`
+                    + `&q=${encodeURIComponent(searchQuery)}&page=${page}&layout=${layout}`
+                    + (parentId ? `&parent=${parentId}` : '')
+                    + courseParams
+                    + quizParams;
+
+        console.log('page:', page, 'layout:', layout, 'filters:', filterParams,
+                    'q:', searchQuery, 'courseIds:', courseIdsArr, 'quizIds:', quizIdsArr, 'url:', url);
 
         fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateFileList(data.items, data.layout);
-                    hasNext = data.has_next;
-                    currentPage = data.has_next ? page + 1 : page;
-                } else {
-                    console.error('Failed to load files');
-                }
-                isLoading = false;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                isLoading = false;
-            });
+        .then(r => r.json())
+        .then(data => {
+        if (data.success) {
+            updateFileList(data.items, data.layout);
+            hasNext = data.has_next;
+            currentPage = data.has_next ? page + 1 : page;
+        } else {
+            console.error('Failed to load files');
+        }
+            isLoading = false;
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            isLoading = false;
+        });
     };
 
     function updateFileList(files, layout) {
@@ -1075,7 +1082,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     folderPath.push({ id: file.id, title: file.title });
                     currentParentFolderId = file.id;
                     currentPage = 1;
-                    fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+                    fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
                     renderBreadcrumbs();  // ← Important
                     console.log('dbclick:', 'folderPath:', folderPath);
@@ -1202,6 +1209,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeDropdownMenus();
         setupFolderDropzone();
         observeCourseCheckboxes();
+        observeQuizCheckboxes();
         initializeFileDragAndDrop();
         initializeListDragAndDrop();
     }
@@ -1281,7 +1289,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     displayMessage(response.message, true);
                     uncheckLibraryFilters();
                     console.log('fetch');
-                    fetchFiles(1, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+                    fetchFiles(1, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
                 } else {
                     displayMessage(response.message, false);
@@ -1299,7 +1307,7 @@ document.addEventListener('DOMContentLoaded', function() {
         newFilters.forEach(filter => selectedFilters.add(filter));
         currentPage = 1; // Reset to page 1
         console.log('fetch');
-        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
     }
 
@@ -1311,13 +1319,13 @@ document.addEventListener('DOMContentLoaded', function() {
         newFilters.forEach(filter => selectedFilters.add(filter));
         currentPage = 1;
         console.log('fetch');
-        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
     }
 
     function handleSearchChange() {
         currentPage = 1; // Reset to page 1
         console.log('fetch');
-        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
     }
 
@@ -1328,8 +1336,37 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedFilterCourseIds = updatedFilterCourseIds;
         currentPage = 1;
         console.log('fetch');
-        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
     }
+
+    function handleQuizFilterChange() {
+        const updatedFilterQuizIds = Array.from(document.querySelectorAll('.quiz-checkbox:checked'))
+            .map(cb => cb.value);
+
+        selectedFilterQuizIds = updatedFilterQuizIds;
+        currentPage = 1;
+        console.log('fetch (quiz filter)');
+        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
+    }
+
+    function observeQuizCheckboxes() {
+        document.querySelectorAll('.quiz-checkbox').forEach(cb => {
+            cb.removeEventListener('change', handleQuizFilterChange);
+            cb.addEventListener('change', handleQuizFilterChange);
+        });
+    }
+
+    function observeSelectedQuizzesChanges() {
+        const selectedQuizzesContainer = document.querySelector('#quizMultiDropdown .selectedQuizzes');
+        if (!selectedQuizzesContainer) return;
+
+        const observer = new MutationObserver(() => {
+            handleQuizFilterChange(); // run when a quiz is added/removed
+        });
+
+        observer.observe(selectedQuizzesContainer, { childList: true, subtree: false });
+    }
+    observeSelectedQuizzesChanges();
 
     // Setup MutationObserver to detect checkbox state changes
     function observeCourseCheckboxes() {
@@ -1363,7 +1400,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener for search input
     searchInput.addEventListener('input', debounce(() => {
         currentPage = 1;
-        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+        fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
     }, 500));
 
@@ -1421,7 +1458,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 displayMessage(successMessage, true);
                 currentPage = 1;
-                fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+                fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
             } else {
                 displayMessage(`Failed to delete ${type}: ` + (data.message || 'Unknown error.'), false);
@@ -1460,7 +1497,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 displayMessage(successMessage, true);
                 currentPage = 1;
-                fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+                fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
             } else {
                 displayMessage(`Failed to rename ${type}: ` + (data.message || 'Unknown error.'), false);
@@ -1508,7 +1545,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Fetch data
             currentPage = 1;
-            fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+            fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
 
             setTimeout(() => {
@@ -1541,7 +1578,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 displayMessage("Folder created successfully.", true);
                 currentPage = 1;
-                fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+                fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
             } else {
                 displayMessage(data.message || "Failed to create folder.", false);
@@ -1613,7 +1650,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentParentFolderId = null;
             folderPath = [];
             currentPage = 1;
-            fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+            fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
         });
 
@@ -1634,7 +1671,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 folderPath = folderPath.slice(0, index + 1);
                 currentParentFolderId = folder.id;
                 currentPage = 1;
-                fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+                fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
             });
 
@@ -1848,7 +1885,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 displayMessage('Item moved successfully', true);
                 currentPage = 1;
-                fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
+                fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds, selectedFilterQuizIds);
 
             } else {
                 displayMessage(data.message || 'Move failed.', false);

@@ -1601,28 +1601,38 @@ def _status_rank(s: str) -> int:
 def _update_ulp_from_status(ulp, new_status, *, require_passing: Optional[bool] = None) -> None:
     """
     require_passing=True  -> complete only on 'passed' (or 'completed')
-    require_passing=False -> complete on 'pending', 'failed', or 'passed' (or 'completed')
+    require_passing=False -> complete on 'pending', 'failed', 'passed', or 'completed'
+                              AND set completion_status to 'completed'
     require_passing=None  -> default: complete on 'passed' or 'completed'
 
-    Special rule: if new_status == 'pending', ALWAYS set status to 'pending' (override rank guard).
+    Special rule: if new_status == 'pending' and require_passing is not False,
+                  ALWAYS set status to 'pending' (override rank guard).
     """
     new_s = _normalize_status(new_status)
     old_s = _normalize_status(ulp.completion_status or 'incomplete')
 
     fields = []
 
-    # --- STATUS: allow normal upgrade OR force 'pending' even if it looks like a downgrade ---
-    if new_s == 'pending':
+    # Decide what status we actually store on the model
+    if require_passing is False:
+        # When not requiring a pass, any “completing” state becomes 'completed' for status.
+        completing = new_s in ('pending', 'failed', 'passed', 'completed')
+        status_to_store = 'completed' if completing else new_s
+    else:
+        status_to_store = new_s
+
+    # --- STATUS: allow normal upgrade OR force 'pending' (except when require_passing=False) ---
+    if new_s == 'pending' and require_passing is not False:
         if old_s != 'pending':
             ulp.completion_status = 'pending'
             fields.append('completion_status')
     else:
         # Only upgrade; never downgrade for non-pending
-        if _status_rank(new_s) >= _status_rank(old_s) and new_s != old_s:
-            ulp.completion_status = new_s
+        if _status_rank(status_to_store) >= _status_rank(old_s) and status_to_store != old_s:
+            ulp.completion_status = status_to_store
             fields.append('completion_status')
 
-    # --- COMPLETION FLAG: per your rules ---
+    # --- COMPLETION FLAG: per rules ---
     if require_passing is True:
         should_complete = new_s in ('passed', 'completed')
     elif require_passing is False:
@@ -1728,22 +1738,37 @@ def track_scorm_data(request):
 
         request.session["current_lesson_session_id"] = session_id
 
-        # Rank-guard status on the session
+        # ---- require_passing from quiz config (if any) ----
+        require_passing_flag = None
+        qc = getattr(lesson, 'quiz_config', None)
+        if qc is not None and qc.require_passing is not None:
+            require_passing_flag = bool(qc.require_passing)
+
+        # ---------------------------------------------------
+        # 1) SESSION: use a coerced status when require_passing=False
+        # ---------------------------------------------------
+        new_s = completion_status  # already normalized above
+        # Coerce to 'completed' when require_passing is False and we get any completing-like state
+        if require_passing_flag is False and new_s in ('pending', 'failed', 'passed', 'completed', 'complete'):
+            store_s = 'completed'
+        else:
+            store_s = new_s
+
+        # Rank-guard status on the session (use store_s)
         old_s = _normalize_status(session.completion_status or "incomplete")
-        new_s = completion_status
-        if _status_rank(new_s) >= _status_rank(old_s) and new_s != old_s:
-            session.completion_status = new_s
+        if _status_rank(store_s) >= _status_rank(old_s) and store_s != old_s:
+            session.completion_status = store_s
 
         # Map to lesson-session lifecycle
-        if new_s in ("completed", "passed", "failed"):
+        if store_s in ("completed", "passed", "failed"):
             session.status = "completed"
-        elif new_s == "pending":
+        elif store_s == "pending":
             session.status = "pending"
         else:
             session.status = "active"
 
         # Progress: monotonic (except explicit 0 while incomplete)
-        if new_s == "incomplete" and (session.progress or 0.0) == 0.0 and (progress is None or progress == 0):
+        if store_s == "incomplete" and (session.progress or 0.0) == 0.0 and (progress is None or progress == 0):
             session.progress = 0.0
         elif progress is not None and float(progress) > float(session.progress or 0.0):
             session.progress = float(progress)
@@ -1767,31 +1792,28 @@ def track_scorm_data(request):
         curr_sec  = _pt_to_seconds(session_time_in)
         sess_cmi  = _safe_json_dict(session.cmi_data)
         last_rep  = int(sess_cmi.get("last_reported_sec", 0))
-        # Clamp to monotonic within this browser session
-        abs_sec   = max(curr_sec, last_rep)
+        abs_sec   = max(curr_sec, last_rep)  # Clamp to monotonic within this browser session
         session.session_time = _seconds_to_pt(abs_sec)
         sess_cmi["last_reported_sec"] = abs_sec
         session.cmi_data = sess_cmi
 
         # Touch timestamps
         session.end_time = timezone.now()
-        if is_final_ping or new_s in ("completed", "passed", "failed"):
+        if is_final_ping or store_s in ("completed", "passed", "failed"):
             session.finished_at = session.finished_at or timezone.now()
 
         session.save()
 
         # =====================================================================
         # 2) SCORMTrackingData: accumulate across all sessions by DELTA.
-        #    We keep a per-session ledger in cmi_data["sessions"][session_id].
         # =====================================================================
         tracking, created = SCORMTrackingData.objects.get_or_create(
             user=user,
             lesson=lesson,
             defaults={
-                "progress": 1.0 if new_s in ("completed", "passed") else (progress or 0.0),
-                "completion_status": new_s,
-                # We'll assign session_time below using the accumulator
-                "session_time": "PT0H0M0S",
+                "progress": 1.0 if store_s in ("completed", "passed") else (progress or 0.0),
+                "completion_status": store_s,
+                "session_time": "PT0H0M0S",  # we'll set below
                 "scroll_position": scroll_position,
                 "lesson_location": lesson_location,
                 "score": score,
@@ -1801,8 +1823,6 @@ def track_scorm_data(request):
 
         t_cmi = _safe_json_dict(tracking.cmi_data)
         incoming_cmi = _safe_json_dict(data.get("cmi_data"))
-
-        # Keep last raw payload (optional)
         t_cmi["raw"] = incoming_cmi
 
         sessions_map = _safe_json_dict(t_cmi.get("sessions"))
@@ -1810,7 +1830,6 @@ def track_scorm_data(request):
             sessions_map = {}
 
         prev_for_this = int(sessions_map.get(session_id, 0))
-        # How much NEW time did we see for this session id?
         delta = max(abs_sec - prev_for_this, 0)
 
         total_prev = int(t_cmi.get("total_accumulated_sec", _pt_to_seconds(tracking.session_time or "PT0H0M0S")))
@@ -1821,12 +1840,13 @@ def track_scorm_data(request):
         t_cmi["sessions"] = sessions_map
         t_cmi["total_accumulated_sec"] = total_new
 
-        # Rank-guarded status and progress
+        # Rank-guarded status and progress (use store_s)
         old_ts = _normalize_status(tracking.completion_status or "incomplete")
-        if _status_rank(new_s) >= _status_rank(old_ts) and new_s != old_ts:
-            tracking.completion_status = new_s
+        if _status_rank(store_s) >= _status_rank(old_ts) and store_s != old_ts:
+            tracking.completion_status = store_s
 
-        if new_s in ("completed", "passed"):
+        # Ensure progress=1.0 when completed (including require_passing=False coercion)
+        if store_s in ("completed", "passed"):
             if (tracking.progress or 0.0) < 1.0:
                 tracking.progress = 1.0
         elif progress is not None and float(progress) > float(tracking.progress or 0.0):
@@ -1835,20 +1855,20 @@ def track_scorm_data(request):
         if tracking.lesson_location != lesson_location:
             tracking.lesson_location = lesson_location
 
-        # Update misc
         tracking.scroll_position = scroll_position
         tracking.score = score
         tracking.session_time = _seconds_to_pt(total_new)
         tracking.cmi_data = t_cmi
         tracking.save()
-        
+
+        # =====================================================================
+        # 3) ULP update — pass require_passing so it can coerce to completed
+        # =====================================================================
         try:
-            # Find the ULP for this user/course/lesson
             ump = (UserModuleProgress.objects
-                   .select_related('user_course')
-                   .get(user_course=user_course, module=lesson.module))
+                .select_related('user_course')
+                .get(user_course=user_course, module=lesson.module))
         except UserModuleProgress.DoesNotExist:
-            # If somehow missing, create one so progress stays consistent
             ump = UserModuleProgress.objects.create(
                 user_course=user_course,
                 module=lesson.module,
@@ -1861,12 +1881,10 @@ def track_scorm_data(request):
             defaults={'order': getattr(lesson, 'order', 0) or 0, 'completion_status': 'incomplete'},
         )
 
-        # SCORM lessons usually don't use require_passing; pass None to use default rule:
-        _update_ulp_from_status(ulp, new_s, require_passing=None)
+        _update_ulp_from_status(ulp, store_s, require_passing=require_passing_flag)
 
-        # Normalize: treat 'complete' like 'completed'
-        mark_complete = new_s in ('complete', 'completed', 'passed')
-        if mark_complete and not ulp.completed:
+        # If stored status is completed/passed, ensure timestamps
+        if store_s in ('completed', 'passed') and not ulp.completed:
             now = timezone.now()
             ulp.completed = True
             ulp.completed_on_date = now.date()
@@ -1876,9 +1894,19 @@ def track_scorm_data(request):
         # Keep course progress fresh
         user_course.update_progress()
 
+        # =====================================================================
+        # 4) Response: reflect completion semantics back to the client
+        # =====================================================================
+        # Because store_s is already coerced when require_passing=False,
+        # we can compute lesson_completed from it directly:
+        lesson_completed = store_s in ('completed', 'passed')
+        response_status  = "complete" if lesson_completed else ("pending" if store_s == "pending" else "incomplete")
+
         return JsonResponse({
-            "status": "success" if new_s in ("completed", "passed") else ("pending" if new_s == "pending" else "incomplete"),
-            "lesson_completed": new_s in ("completed", "passed"),
+            "status": response_status,           # "complete" / "pending" / "incomplete"
+            "completion_status": store_s,        # what we actually stored
+            "lesson_completed": lesson_completed,
+            "require_passing_used": require_passing_flag,  # handy for debugging
             "session_id": session_id,
             "course_progress": user_course.progress,
         })

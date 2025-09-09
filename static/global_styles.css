@@ -1589,7 +1589,7 @@ h1,h2,h3,h4,h5,h6{
   border-color: #f5c6cb;
 }
 
-.category-dropdown:hover .dropdown-clear-input, .template-category-dropdown:hover .dropdown-clear-input, .quiz-dropdown:hover .dropdown-clear-input, .quiz-template-dropdown:hover .dropdown-clear-input{
+.category-dropdown:hover .dropdown-clear-input, .template-category-dropdown:hover .dropdown-clear-input, .quiz-dropdown:hover .dropdown-clear-input, .quiz-template-dropdown:hover .dropdown-clear-input, .quiz-mutli-dropdown:hover .dropdown-clear-input{
   visibility: visible;
   opacity: 1;
 }
@@ -1722,12 +1722,12 @@ input.disabled{
 }
 
 /*Searchable User dropdown menu */
-.user-dropdown, .timezone-dropdown, .category-dropdown, .template-category-dropdown, .quiz-dropdown, .quiz-template-dropdown, .assignment-dropdown{
+.user-dropdown, .timezone-dropdown, .category-dropdown, .template-category-dropdown, .quiz-dropdown, .quiz-template-dropdown, .assignment-dropdown, .quiz-mutli-dropdown{
   position: relative;
   gap: 1rem;
 }
 
-.user-dropdown .search-icon, .timezone-dropdown .search-icon, .category-dropdown .search-icon, .template-category-dropdown .search-icon, .quiz-dropdown .search-icon, .quiz-template-dropdown .search-icon, .assignment-dropdown .search-icon{
+.user-dropdown .search-icon, .timezone-dropdown .search-icon, .category-dropdown .search-icon, .template-category-dropdown .search-icon, .quiz-dropdown .search-icon, .quiz-mutli-dropdown .search-icon, .quiz-template-dropdown .search-icon, .assignment-dropdown .search-icon{
   position: absolute;
   right: 0.6rem;
   top: 0.65rem;
@@ -1737,12 +1737,12 @@ input.disabled{
   pointer-events: none;
 }
 
-.user-dropdown input, .timezone-dropdown input, .category-dropdown input, .template-category-dropdown input, .quiz-dropdown input, .quiz-template-dropdown input, .assignment-dropdown input{
+.user-dropdown input, .timezone-dropdown input, .category-dropdown input, .template-category-dropdown input, .quiz-dropdown input, .quiz-mutli-dropdown input, .quiz-template-dropdown input, .assignment-dropdown input{
   padding-right: 2rem;
   text-overflow: ellipsis;
 }
 
-.user-dropdown input:focus-visible, .timezone-dropdown input:focus-visible, .category-dropdown input:focus-visible, .template-category-dropdown input:focus-visible, .quiz-dropdown input:focus-visible, .quiz-template-dropdown input:focus-visible, .assignment-dropdown input:focus-visible{
+.user-dropdown input:focus-visible, .timezone-dropdown input:focus-visible, .category-dropdown input:focus-visible, .template-category-dropdown input:focus-visible, .quiz-dropdown input:focus-visible, .quiz-mutli-dropdown input:focus-visible, .quiz-template-dropdown input:focus-visible, .assignment-dropdown input:focus-visible{
   outline: none;
   border-bottom: 2px solid #c7c7db;
 }
@@ -1831,7 +1831,7 @@ input.disabled{
   gap: 0.5rem;
 }
 
-.selectedUsers .selected-user, .selectedTimezones .selected-timezone, .selectedCategories .selected-category, .selectedCourses .selected-course, .selectedAssignments .selected-assignment  {
+.selectedUsers .selected-user, .selectedTimezones .selected-timezone, .selectedCategories .selected-category, .selectedCourses .selected-course, .selectedAssignments .selected-assignment, .selectedQuizzes .selected-quiz{
   display: flex;
   justify-content: space-between;
   padding: 3px 8px;
@@ -1842,7 +1842,7 @@ input.disabled{
   gap: 0.6rem;
 }
 
-.selected-user-details, .selected-timezone-details, .selected-category-details, .selected-course-details, .selected-assignment-details {
+.selected-user-details, .selected-timezone-details, .selected-category-details, .selected-course-details, .selected-assignment-details, .selected-quiz-details{
   font-weight: 500;
   color: #41454d;
   font-size: 0.75rem;
@@ -1967,7 +1967,7 @@ input.disabled{
   /* margin: 20px 0; */
   right: -100rem;
   transition: all 0.5s ease-in-out;
-  z-index: 9999;
+  z-index: 999999999999;
   /* bottom: 2rem; */
   bottom: 4rem;
 }.new-alert-container{
@@ -1975,7 +1975,7 @@ input.disabled{
   /* margin: 20px 0; */
   right: -100rem;
   transition: all 0.5s ease-in-out;
-  z-index: 9999;
+  z-index: 999999999999;
 }
 
 .alert {
