@@ -2580,3 +2580,26 @@ def delete_assignments(request):
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+    
+def delete_user_enrollments(request):
+    data = json.loads(request.body)
+    enrollment_ids = data['ids']
+    try:
+        with transaction.atomic():
+            for enrollment_id in enrollment_ids:
+                enrollment = UserCourse.objects.filter(id=enrollment_id)
+                if not enrollment.exists():
+                    raise ValueError(f"No enrollment found with ID {enrollment_id}")
+                enrollment.delete()
+            messages.success(request, 'All selected enrollments deleted.')
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': '/admin/user-enrollments/',
+                'message': 'All selected enrollments deleted'
+            })
+    except ValueError as e:
+        logger.error(f"Deletion error: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=404)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)

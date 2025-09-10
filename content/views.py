@@ -9,7 +9,7 @@ from django.db.models import Count, Q, F, DateTimeField, Avg
 from django.utils import timezone
 from authentication.python.views import get_secret
 from django.shortcuts import render, get_object_or_404, redirect
-from datetime import datetime
+from datetime import datetime, date
 from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
 from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType, Quiz, Question, QuestionOrder, MCQuestion, Answer, TFQuestion, FITBQuestion, FITBAnswer, EssayQuestion, EssayPrompt, QuestionMedia, QuizReference, QuizTemplate, TemplateCategorySelection, TemplateQuestion, QuizConfig
@@ -2415,6 +2415,235 @@ def edit_enrollment_keys(request, key_id):
     }
 
     return render(request, 'enrollmentKeys/edit_enrollment_key.html', context)
+
+def _try_parse_date(s: str):
+    """Return a date for many common formats or None."""
+    s = s.strip()
+    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y", "%Y/%m/%d"):
+        try:
+            return datetime.strptime(s, fmt).date()
+        except ValueError:
+            pass
+    return None
+
+def _period_from_token(tok: str):
+    """
+    Convert 'YYYY', 'YYYY-MM', or a date string to a (start_date, end_date) period.
+    For a single day, start=end=that day.
+    """
+    tok = tok.strip()
+    # Year
+    m = re.fullmatch(r"(\d{4})", tok)
+    if m:
+        y = int(m.group(1))
+        return date(y, 1, 1), date(y, 12, 31)
+    # Year-Month
+    m = re.fullmatch(r"(\d{4})-(\d{2})", tok)
+    if m:
+        y, mth = int(m.group(1)), int(m.group(2))
+        last = monthrange(y, mth)[1]
+        return date(y, mth, 1), date(y, mth, last)
+    # Exact date
+    d = _try_parse_date(tok)
+    if d:
+        return d, d
+    return None, None
+
+def _build_enrollment_date_q(user_text: str) -> Q:
+    """
+    Accepts flexible patterns and returns a Q for enrollment_date:
+      - '2025-09-01' (exact day)
+      - '2025-09' (month)
+      - '2025' (year)
+      - '2025-09-01 to 2025-09-15' or '2025-09-01 - 2025-09-15' (range)
+      - '>=2025-09-01' or '<=2025-09-30' (bounds)
+    """
+    s = (user_text or "").strip()
+    if not s:
+        return Q()
+
+    # Range: "X to Y" or "X - Y"
+    parts = re.split(r"\s*(?:to|-|–|—|\.\.)\s*", s)
+    if len(parts) == 2 and parts[0] and parts[1]:
+        a1, a2 = _period_from_token(parts[0])
+        b1, b2 = _period_from_token(parts[1])
+        q = Q()
+        if a1:
+            q &= Q(enrollment_date__gte=a1)
+        if b2:
+            q &= Q(enrollment_date__lte=b2)
+        return q
+
+    # Bounds: >=, <=, >, <
+    for op in (">=", "<=", ">", "<"):
+        if s.startswith(op):
+            rest = s[len(op):].strip()
+            p1, p2 = _period_from_token(rest)
+            if not p1 and not p2:
+                return Q()  # nothing parsable
+            if op == ">=":
+                return Q(enrollment_date__gte=p1 or p2)
+            if op == "<=":
+                return Q(enrollment_date__lte=p2 or p1)
+            if op == ">":
+                return Q(enrollment_date__gt=p2 or p1)
+            if op == "<":
+                return Q(enrollment_date__lt=p1 or p2)
+
+    # Single token: day/month/year
+    p1, p2 = _period_from_token(s)
+    if p1 and p2:
+        if p1 == p2:
+            return Q(enrollment_date=p1)
+        return Q(enrollment_date__gte=p1, enrollment_date__lte=p2)
+
+    # Fallback: no-op
+    return Q()
+
+INMEMORY_SORT_KEYS = {'status_asc', 'status_desc', 'time_asc', 'time_desc'}
+INMEMORY_SCAN_CAP = 10000  # safety cap for list materialization
+
+def _time_to_seconds(s: str) -> int:
+    if not s or s == "No Activity":
+        return 0
+    total = 0
+    for part in s.split():
+        try:
+            if part.endswith('h'): total += int(part[:-1]) * 3600
+            elif part.endswith('m'): total += int(part[:-1]) * 60
+            elif part.endswith('s'): total += int(part[:-1])
+        except ValueError:
+            pass
+    return total
+
+@login_required
+def admin_user_enrollments(request):
+    sort_by = request.GET.get('sort_by', 'enrollment_date_desc')
+    order_by_field = '-enrollment_date'
+    query_string = request.GET.get('query')
+
+    query = Q()
+    active_filters = {}
+
+    # Global search
+    if query_string:
+        query &= (
+            Q(course__title__icontains=query_string) |
+            Q(user__username__icontains=query_string) |
+            Q(user__email__icontains=query_string) |
+            Q(user__first_name__icontains=query_string) |
+            Q(user__last_name__icontains=query_string)
+        )
+        active_filters['query'] = query_string
+
+    enroll_text = (request.GET.get('filter_enrollment_date') or '').strip()
+    if enroll_text:
+        query &= _build_enrollment_date_q(enroll_text)
+        active_filters['enrollment_date'] = enroll_text
+    
+    status_contains = (request.GET.get('filter_get_status') or '').strip()
+    if status_contains:
+        active_filters['get_status'] = status_contains  # keep your chips UI consistent
+
+    # Generic DB filters (skip get_status, it's not a DB field)
+    for key, value in request.GET.items():
+        if not value:
+            continue
+        if key == 'filter_get_status':
+            continue
+        if key.startswith('filter_'):
+            field_name = key[len('filter_'):]  # e.g., "course__title"
+            query &= Q(**{f"{field_name}__icontains": value})
+            active_filters[field_name] = value
+
+    sort_options = {
+        'course__title_asc':   'Course Title (A-Z)',
+        'course__title_desc':  'Course Title (Z-A)',
+        'user__last_name_asc': 'Last Name (A-Z)',
+        'user__last_name_desc':'Last Name (Z-A)',
+        'user__first_name_asc':'First Name (A-Z)',
+        'user__first_name_desc':'First Name (Z-A)',
+        'enrollment_date_asc': 'Enrollment Date (Oldest)',
+        'enrollment_date_desc':'Enrollment Date (Newest)',
+        'status_asc':          'Status (Low → High)',
+        'status_desc':         'Status (High → Low)',
+        'time_asc':            'Time Spent (Low → High)',
+        'time_desc':           'Time Spent (High → Low)',
+    }
+
+    # DB-orderable fields
+    if sort_by == 'course__title_asc':
+        order_by_field = 'course__title'
+    elif sort_by == 'course__title_desc':
+        order_by_field = '-course__title'
+    elif sort_by == 'user__last_name_asc':
+        order_by_field = 'user__last_name'
+    elif sort_by == 'user__last_name_desc':
+        order_by_field = '-user__last_name'
+    elif sort_by == 'user__first_name_asc':
+        order_by_field = 'user__first_name'
+    elif sort_by == 'user__first_name_desc':
+        order_by_field = '-user__first_name'
+    elif sort_by == 'enrollment_date_asc':
+        order_by_field = 'enrollment_date'
+    elif sort_by == 'enrollment_date_desc':
+        order_by_field = '-enrollment_date'
+
+    if 'sort_by' in request.GET and sort_by:
+        active_filters['sort_by'] = sort_options.get(sort_by, 'Enrollment Date (Newest)')
+
+    base_qs = (
+        UserCourse.objects
+        .select_related('user', 'course')
+        .filter(query)
+    )
+
+    if status_contains:
+        needle = status_contains.lower()
+        items = [uc for uc in list(base_qs[:INMEMORY_SCAN_CAP])
+                 if needle in (uc.get_status() or '').lower()]
+
+        reverse = sort_by.endswith('_desc')
+        if sort_by in ('course__title_asc', 'course__title_desc'):
+            items.sort(key=lambda uc: (uc.course.title or '').lower(), reverse=reverse)
+        elif sort_by in ('user__last_name_asc', 'user__last_name_desc'):
+            items.sort(key=lambda uc: (uc.user.last_name or '').lower(), reverse=reverse)
+        elif sort_by in ('user__first_name_asc', 'user__first_name_desc'):
+            items.sort(key=lambda uc: (uc.user.first_name or '').lower(), reverse=reverse)
+        elif sort_by in ('enrollment_date_asc', 'enrollment_date_desc'):
+            items.sort(key=lambda uc: uc.enrollment_date or date.min, reverse=reverse)
+        elif sort_by.startswith('status'):
+            items.sort(key=lambda uc: (uc.get_status() or '').lower(), reverse=reverse)
+        elif sort_by.startswith('time'):
+            items.sort(key=lambda uc: _time_to_seconds(uc.get_scorm_total_time()), reverse=reverse)
+
+        paginator = Paginator(items, 20)
+        page_obj = paginator.get_page(request.GET.get('page'))
+
+        return render(request, 'userEnrollments/user_enrollments.html', {
+            'page_obj': page_obj,
+            'active_filters': active_filters,
+            'sort_by': sort_by,
+        })
+
+    if sort_by in INMEMORY_SORT_KEYS:
+        items = list(base_qs[:INMEMORY_SCAN_CAP])
+        if sort_by.startswith('status'):
+            items.sort(key=lambda uc: (uc.get_status() or '').lower(), reverse=sort_by.endswith('_desc'))
+        elif sort_by.startswith('time'):
+            items.sort(key=lambda uc: _time_to_seconds(uc.get_scorm_total_time()), reverse=sort_by.endswith('_desc'))
+        paginator = Paginator(items, 20)
+        page_obj = paginator.get_page(request.GET.get('page'))
+    else:
+        user_enrollment_list = base_qs.order_by(order_by_field)
+        paginator = Paginator(user_enrollment_list, 20)
+        page_obj = paginator.get_page(request.GET.get('page'))
+
+    return render(request, 'userEnrollments/user_enrollments.html', {
+        'page_obj': page_obj,
+        'active_filters': active_filters,
+        'sort_by': sort_by,
+    })
 
 @require_POST
 def learner_login_data(request):

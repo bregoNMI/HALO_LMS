@@ -485,7 +485,7 @@ function initializeSingularCourseDropdown(containerId) {
     function appendSelectedCourse(name, courseId) {
         selectedCoursesList.innerHTML = ''; // Clear previous selections
         
-        // Update the course name in the search input (visible to the user)
+        // Update the course title in the search input (visible to the user)
         courseSearchInput.value = name;
     
         // Update the hidden input with the selected course ID

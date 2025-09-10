@@ -69,6 +69,10 @@ urlpatterns = [
     path('enrollment-keys/edit/<int:key_id>/', content_views.edit_enrollment_keys, name='edit_enrollment_keys'),
     path('enrollment-keys/delete-keys/', views.delete_enrollment_keys, name='delete_enrollment_keys'),
 
+    # User Enrollments
+    path('user-enrollments/', content_views.admin_user_enrollments, name='admin_user_enrollments'),
+    path('user-enrollments/delete-enrollments/', views.delete_user_enrollments, name='delete_user_enrollments'),
+
     # Analytics
     path('analytics/facial-verification/', content_views.admin_facial_verification_analytics, name='admin_facial_verification_analytics'),
     path('analytics/api/facial_verification/timeseries', content_views.facial_verification_timeseries_api, name='facial_verification_timeseries_api'),

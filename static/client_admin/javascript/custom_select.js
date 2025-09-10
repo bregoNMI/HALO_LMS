@@ -43,8 +43,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 item.addEventListener('click', function() {
                     // Get the field name and value from data attributes
                     var fieldName = this.getAttribute('data-name');
-                    var fieldValue = this.getAttribute('data-value');
-                    console.log('fieldName:', fieldName, 'fieldValue:', fieldValue, 'this:', this, 'selectSelected.textContent:', selectSelected.textContent, 'this.textContent:', this.textContent);
 
                     // Update the select box text and field value input
                     selectSelected.textContent = this.textContent;
@@ -55,10 +53,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     selectItems.style.display = 'none';
 
                     // Update the field name and value in the input
-                    var fieldValueInput = document.getElementById(fieldName);
-                    if (fieldName && fieldValueInput) {
-                        fieldValueInput.name = fieldName;
-                        fieldValueInput.value = fieldValue;
+                    var fieldValueInput = document.getElementById('fieldValue');
+                    if (fieldValueInput && fieldName) {
+                        fieldValueInput.name = fieldName; // e.g., "filter_course__title"
+                        // If the option had a prefilled value, use it; otherwise keep whatever the user typed
+                        var preset = this.getAttribute('data-value');
+                        if (preset != null && preset !== '') {
+                            fieldValueInput.value = preset;
+                        }
+                    }
+                    if(this.classList.contains('date-select-item')){
+                        fieldValueInput.setAttribute('placeholder', 'YYYY-M-D');
+                    }else{
+                        fieldValueInput.setAttribute('placeholder', 'Field Value');
                     }
                 });
             }
