@@ -1,0 +1,72 @@
+version: "3.8"
+
+services:
+    django:
+        build: .
+        container_name: django
+        command: python manage.py runserver 0.0.0.0:8000
+        volumes:
+            - .:/usr/src/app/
+        ports:
+            - "8000:8000"
+        environment:
+            - DEBUG=1
+            - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+            - CELERY_BROKER=redis://redis:6379/0
+            - CELERY_BACKEND=redis://redis:6379/0
+        depends_on:
+            - pgdb
+            - redis
+    redis:
+      image: redis:7-alpine
+      healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        interval: 5s
+        timeout: 3s
+        retries: 20
+    celery:
+        build: .
+        command: celery -A core worker -l INFO
+        volumes:
+            - .:/usr/src/app
+        environment:
+            - DEBUG=1
+            - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+            - CELERY_BROKER=redis://redis:6379/0
+            - CELERY_BACKEND=redis://redis:6379/0
+        depends_on:
+            - django
+            - redis
+    pgdb:
+        image: postgres
+        container_name: pgdb
+        environment:
+            - POSTGRES_DB=halotestdbfrombackup
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        volumes:
+            - pgdata:/var/lib/postgresql/data/
+    celerybeat:
+      build: .
+      env_file: .env
+      command: ["celery","-A","HALOLMS","beat","-l","INFO"]     # <-- replace 'core' if needed
+      volumes:
+        - .:/app
+      depends_on:
+        pgdb:
+          condition: service_healthy
+        redis:
+          condition: service_healthy
+      restart: always
+    flower:
+      image: mher/flower
+      env_file: .env
+      environment:
+        CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      ports:
+        - "5555:5555"
+      depends_on:
+        redis:
+          condition: service_healthy
+volumes:
+    pgdata:

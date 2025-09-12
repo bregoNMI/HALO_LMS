@@ -150,7 +150,7 @@ const nextBtn = document.getElementById('nextBtn');
 const prevBtn = document.getElementById('prevBtn');
 const submitFormBtn = document.getElementById('registerButton');
 const javascriptErrorContainer = document.getElementById('javascriptErrorContainer');
-const javascriptErrorMessage = javascriptErrorContainer.querySelector('.lesson-alert-message');
+// const javascriptErrorMessage = javascriptErrorContainer.querySelector('.lesson-alert-message');
 let currentErrorStep = 0;
 
 const updateSteps = (e) => {
@@ -445,8 +445,8 @@ function detectBrowser(errorContainer) {
     }
 }
 
-submitFormBtn.addEventListener("click", addLoadingSymbol);
-document.getElementById('registerForm').addEventListener('keydown', function(event) {
+// submitFormBtn.addEventListener("click", addLoadingSymbol);
+/*document.getElementById('registerForm').addEventListener('keydown', function(event) {
     if ((event.key === 'Enter' || event.keyCode === 13) &&
         !submitFormBtn.classList.contains('hidden') &&
         !submitFormBtn.disabled) {
@@ -454,6 +454,7 @@ document.getElementById('registerForm').addEventListener('keydown', function(eve
         addLoadingSymbol();
     }
 });
+*/
 
 function addLoadingSymbol() {
     const password = document.getElementById('id_password').value;
@@ -732,3 +733,144 @@ function animateEllipses(dotSpanId, intervalSpeed = 500) {
 
     return interval;
 }
+
+// --- AJAX submit for Add User ---
+(function () {
+  const form = document.getElementById('addUserForm');
+  if (!form) return;
+
+  // Helper: get CSRF token from the hidden input Django renders
+  function getCsrfToken() {
+    const el = form.querySelector('input[name="csrfmiddlewaretoken"]');
+    return el ? el.value : '';
+  }
+  console.log('in')
+  // Intercept submit
+  // Intercept submit
+    // Intercept submit
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        console.log('inside function')
+        // Optional: honor native required/type validation
+        if (!form.reportValidity()) return;
+
+        const submitBtn = form.querySelector('.submit-form-button');
+        const originalBtnHTML = submitBtn ? submitBtn.innerHTML : null;
+        if (submitBtn) submitBtn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin"></i>`;
+
+        const formData = new FormData(form);
+
+        try {
+            const res = await fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin', // ensure cookies/CSRF cookie are sent
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken(),
+            },
+            });
+
+            // Read body even on non-OK to surface messages/errors
+            const text = await res.text();
+            let data = {};
+            try { data = JSON.parse(text); } catch (_) { /* non-JSON (e.g., CSRF HTML) */ }
+
+            if (res.ok && data.success) {
+                window.location.href = data.redirect_url || '/admin/users/';
+                return;
+            }
+
+            // Show a friendly message if face/validation failed
+            if (data.message) {
+            showInlineAlert('error', data.message);
+            }
+
+            // Then render field-level errors to keep step progress
+            if (data.errors) {
+                handleAddUserErrors(data.errors, res.status);
+            } else if (!data.message) {
+            // Fallback if server returned HTML or no JSON
+                console.error('Server response (non-JSON):', text);
+                showInlineAlert('error', 'Submission failed. Please review the form and try again.');
+            }
+
+        } catch (err) {
+            showInlineAlert('error', 'Unexpected error submitting the form. Please try again.');
+            console.error(err);
+        } finally {
+            if (submitBtn && originalBtnHTML) submitBtn.innerHTML = originalBtnHTML;
+        }
+    });
+
+
+
+  // Render errors (keeps your step progress and inline alert area)
+  function handleAddUserErrors(errors, status) {
+    // Try to surface face-detection errors first (these come as field errors)
+    const passportErr = errors?.passportphoto?.[0] ||
+                        errors?.profile_form?.passportphoto?.[0];
+    const idErr = errors?.photoid?.[0] ||
+                  errors?.profile_form?.photoid?.[0];
+
+    if (passportErr || idErr) {
+      // jump to your images step (Step 2)
+      if (typeof updateSteps === 'function') {
+        currentStep = 2;
+        currentErrorStep = 2;
+        updateSteps();
+      }
+      const msgs = [passportErr, idErr].filter(Boolean).join(' ');
+      showInlineAlert('error', msgs || 'Photo validation failed.');
+      return;
+    }
+
+    // Generic form errors (user_form / profile_form from Django)
+    const flatMsgs = [];
+    const packs = [errors.user_form, errors.profile_form, errors];
+    packs.forEach(pack => {
+      if (!pack) return;
+      Object.entries(pack).forEach(([field, msgs]) => {
+        (Array.isArray(msgs) ? msgs : Object.values(msgs || {})).forEach(m => {
+          flatMsgs.push(typeof m === 'string' ? m : JSON.stringify(m));
+        });
+      });
+    });
+
+    if (flatMsgs.length) {
+      // heuristics: if it looks like credential fields, jump to step 1; otherwise step 3
+      const joined = flatMsgs.join(' ');
+      if (/username|password|email/i.test(joined)) {
+        if (typeof updateSteps === 'function') {
+          currentStep = 1;
+          currentErrorStep = 1;
+          updateSteps();
+        }
+      } else {
+        if (typeof updateSteps === 'function') {
+          currentStep = 3;
+          currentErrorStep = 3;
+          updateSteps();
+        }
+      }
+      showInlineAlert('error', joined);
+    } else {
+      showInlineAlert('error', 'Please review the form and try again.');
+    }
+  }
+
+  // Minimal inline alert helper (uses your #inlineAlerts container in add_user.html)
+  function showInlineAlert(type, text) {
+    const container = document.getElementById('inlineAlerts') || document.querySelector('.alert-container');
+    if (!container) {
+      alert(text);
+      return;
+    }
+    container.innerHTML = `
+      <div class="alert alert-${type}">
+        <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
+        ${text}
+      </div>
+    `;
+  }
+})();

@@ -105,6 +105,7 @@ urlpatterns = [
 
     path('import-users/', views.import_user, name='import_user'),
 
+    path('ajax/check-faces/', views.ajax_check_faces, name='ajax_check_faces'),
 
 
 
