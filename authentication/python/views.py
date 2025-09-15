@@ -10,6 +10,7 @@ from django.utils.dateparse import parse_date
 from django.contrib import messages
 from client_admin.models import Profile
 import boto3
+import os
 from django.contrib import messages
 import hmac
 import hashlib
@@ -20,58 +21,92 @@ from jose import jwt, JWTError
 import json
 from django.conf import settings
 from django.http import JsonResponse
-from django.conf import settings
 import logging
-from django.shortcuts import redirect, render
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, BotoCoreError, NoCredentialsError
 from custom_templates.models import Dashboard, Widget, Header, Footer, LoginForm
 from client_admin.models import OrganizationSettings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from functools import lru_cache
+
+# ------------------------------------------------------------------------------------
+# NEW: Helpers to load secrets/clients lazily and safely (NO import-time AWS calls)
+# ------------------------------------------------------------------------------------
+
+@lru_cache
+def get_region() -> str:
+    return getattr(settings, "AWS_REGION", None) or os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION") or "us-east-1"
+
+@lru_cache
+def get_secret(secret_name: str):
+    """
+    Lazy secret loader:
+    1) Env override (raw or JSON)
+    2) AWS Secrets Manager (requires IAM role or access keys)
+    3) {} fallback on errors
+    """
+    # 1) Env override (e.g., export COGNITO_SECRET='{"AWS_ACCESS_KEY_ID":"..."}')
+    env_val = os.getenv(secret_name)
+    if env_val:
+        try:
+            return json.loads(env_val)
+        except json.JSONDecodeError:
+            # allow plain string secrets too
+            return env_val
+
+    # 2) Secrets Manager (only when we really need it)
+    region = get_region()
+    try:
+        client = boto3.client("secretsmanager", region_name=region)
+        resp = client.get_secret_value(SecretId=secret_name)
+        val = resp.get("SecretString") or resp.get("SecretBinary")
+        try:
+            return json.loads(val)
+        except Exception:
+            return val
+    except (NoCredentialsError, ClientError, BotoCoreError) as e:
+        logging.getLogger(__name__).warning(f"Secret '{secret_name}' not available: {e}")
+        return {}
+
+@lru_cache
+def get_cognito_client():
+    """Lazy cached Cognito IDP client; uses instance role if present."""
+    return boto3.client("cognito-idp", region_name=get_region())
+
+@lru_cache
+def get_s3_client():
+    """Lazy cached S3 client; uses creds from secret if present, else role."""
+    secret = get_secret("COGNITO_SECRET") or {}
+    # These keys were pulled from your top-level block
+    key_id = secret.get("AWS_ACCESS_KEY_ID") or os.getenv("AWS_ACCESS_KEY_ID")
+    key_secret = secret.get("AWS_SECRET_ACCESS_KEY") or os.getenv("AWS_SECRET_ACCESS_KEY")
+
+    if key_id and key_secret:
+        return boto3.client(
+            "s3",
+            aws_access_key_id=key_id,
+            aws_secret_access_key=key_secret,
+            region_name=get_region(),
+        )
+    # Fall back to role/ambient creds
+    return boto3.client("s3", region_name=get_region())
+
+def get_cognito_client_secret() -> str:
+    """Find the app client secret (from env or secret)."""
+    secret = get_secret("COGNITO_SECRET") or {}
+    return os.getenv("COGNITO_CLIENT_SECRET") or secret.get("COGNITO_CLIENT_SECRET") or ""
+
+# ------------------------------------------------------------------------------------
+# Views & auth helpers
+# ------------------------------------------------------------------------------------
 
 @login_required
 def login(request):
     return render(request, 'login.html')
 
-def get_secret(secret_name):
-    region_name = settings.AWS_REGION  # Ensure this is set in your Django settings
-
-    client = boto3.client('secretsmanager', region_name=region_name)
-
-    try:
-        response = client.get_secret_value(SecretId=secret_name)
-        secret = json.loads(response['SecretString'])
-        return secret
-    except ClientError as e:
-        # Print the error for debugging
-        print(f"Error retrieving secret: {e}")
-        return None
-
-# Define your secret name
-secret_name = "COGNITO_SECRET"
-
-# Retrieve the secret
-secrets = get_secret(secret_name)
-
-# Extract multiple values from the secrets
-if secrets:
-    AWS_ACCESS_KEY_ID = secrets.get('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = secrets.get('AWS_SECRET_ACCESS_KEY')
-    COGNITO_CLIENT_SECRET = secrets.get('COGNITO_CLIENT_SECRET')
-
-    # Handle missing secrets
-    if AWS_ACCESS_KEY_ID is None:
-        print("AWS_ACCESS_KEY_ID not found in the secrets.")
-    if AWS_SECRET_ACCESS_KEY is None:
-        print("AWS_SECRET_ACCESS_KEY not found in the secrets.")
-    if COGNITO_CLIENT_SECRET is None:
-        print("COGNITO_CLIENT_SECRET not found in the secrets.")
-else:
-    print("Failed to retrieve secrets.")
-
 def get_cognito_public_keys(region, user_pool_id):
     keys_url = f'https://cognito-idp.{region}.amazonaws.com/{user_pool_id}/.well-known/jwks.json'
-    response = requests.get(keys_url)
+    response = requests.get(keys_url, timeout=10)
     response.raise_for_status()
     keys = response.json()
     return {key['kid']: key for key in keys['keys']}
@@ -85,7 +120,6 @@ def decode_jwt_with_public_key(id_token, public_keys, expected_issuer, expected_
         raise Exception(f'Public key not found for key ID: {kid}')
     
     try:
-        # Decode and verify the JWT using the public key
         claims = jwt.decode(
             id_token,
             key,
@@ -93,7 +127,6 @@ def decode_jwt_with_public_key(id_token, public_keys, expected_issuer, expected_
             audience=expected_audience,
             issuer=expected_issuer
         )
-        print("Token claims:", claims)
         return claims
     except jwt.ExpiredSignatureError:
         raise Exception('Token has expired')
@@ -104,59 +137,48 @@ def decode_jwt_with_public_key(id_token, public_keys, expected_issuer, expected_
 
 def generate_secret_hash(client_id, client_secret, username):
     message = username + client_id
-    dig = hmac.new(
-        client_secret.encode('utf-8'),
-        message.encode('utf-8'),
-        hashlib.sha256
-    ).digest()
+    dig = hmac.new(client_secret.encode('utf-8'), message.encode('utf-8'), hashlib.sha256).digest()
     return base64.b64encode(dig).decode()
 
-
 def authenticate_user(username_or_email, password):
-    client = boto3.client('cognito-idp', region_name='us-east-1')
+    client = get_cognito_client()
     client_id = settings.COGNITO_CLIENT_ID
-    client_secret = COGNITO_CLIENT_SECRET
-    
-    # Generate SECRET_HASH
-    secret_hash = generate_secret_hash(client_id, client_secret, username_or_email)
+    client_secret = get_cognito_client_secret()
+
+    # SECRET_HASH is required when the app client has a secret
+    secret_hash = generate_secret_hash(client_id, client_secret, username_or_email) if client_secret else None
+    auth_params = {'USERNAME': username_or_email, 'PASSWORD': password}
+    if secret_hash:
+        auth_params['SECRET_HASH'] = secret_hash
+
     try:
         response = client.initiate_auth(
             AuthFlow='USER_PASSWORD_AUTH',
-            AuthParameters={
-                'USERNAME': username_or_email,
-                'PASSWORD': password,
-                'SECRET_HASH': secret_hash
-            },
-            ClientId=settings.COGNITO_CLIENT_ID,
+            AuthParameters=auth_params,
+            ClientId=client_id,
         )
         id_token = response['AuthenticationResult']['IdToken']
         access_token = response['AuthenticationResult']['AccessToken']
-        refresh_token = response['AuthenticationResult'].get('RefreshToken')  # Optional       
-        
-        public_keys = get_cognito_public_keys(settings.AWS_REGION, settings.COGNITO_USER_POOL_ID)
-        
-        # Expected issuer and audience
-        expected_issuer = f'https://cognito-idp.{settings.AWS_REGION}.amazonaws.com/{settings.COGNITO_USER_POOL_ID}'
-        expected_audience = settings.COGNITO_CLIENT_ID
+        refresh_token = response['AuthenticationResult'].get('RefreshToken')
+
+        public_keys = get_cognito_public_keys(get_region(), settings.COGNITO_USER_POOL_ID)
+        expected_issuer = f'https://cognito-idp.{get_region()}.amazonaws.com/{settings.COGNITO_USER_POOL_ID}'
+        expected_audience = client_id
         
         claims = decode_jwt_with_public_key(id_token, public_keys, expected_issuer, expected_audience)
-
         return {
             'IdToken': id_token,
             'AccessToken': access_token,
             'RefreshToken': refresh_token,
-            'Username': claims.get('cognito:username'),  # Extract the Cognito username from claims
-            'Claims': claims  # Include the claims for further use if needed
+            'Username': claims.get('cognito:username'),
+            'Claims': claims
         }
-    
     except client.exceptions.UserNotFoundException:
-        print("User does not exist.")
         return None
     except client.exceptions.NotAuthorizedException:
-        print("Invalid credentials.")
         return None
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        logging.getLogger(__name__).exception(f"authenticate_user error: {e}")
         return None
 
 def login_view(request):
@@ -165,48 +187,30 @@ def login_view(request):
         username_or_email = request.POST.get('username_or_email')
         password = request.POST.get('password')
 
-        # Check if data is being submitted
         if not username_or_email or not password:
             messages.error(request, 'Please provide both username and password.')
             return render(request, 'main/login.html', {'login_form': login_form})
-        # Step 1: Authenticate with AWS Cognito
-        response = authenticate_user(username_or_email, password)
-        print('Response: ', response)
-        if response:
-            # Valid credentials, log the user into Django
-            user, created = User.objects.get_or_create(username=username_or_email)
 
+        response = authenticate_user(username_or_email, password)
+        if response:
+            user, created = User.objects.get_or_create(username=username_or_email)
             if created:
                 user.set_password(password)
                 user.save()
-
             django_login(request, user)
             return redirect('learner_dashboard')
-        
-        # Add debug print to see if this line is hit
-        print('Invalid credentials')  # You can remove this later
+
         messages.error(request, 'Invalid username or password')
         return render(request, 'main/login.html', {'login_form': login_form})
 
     return render(request, 'main/login.html', {'login_form': login_form})
 
-cognito_client = boto3.client('cognito-idp', region_name=settings.AWS_REGION)
 logger = logging.getLogger(__name__)
-
-s3_client = boto3.client(
-    's3',
-    aws_access_key_id=AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-    region_name=settings.AWS_REGION  # e.g., 'us-east-1'
-)
 
 def register_view(request):
     login_form = LoginForm.objects.first()
     org_settings = OrganizationSettings.objects.first()
-    if org_settings:
-        allowed_photos = org_settings.allowed_id_photos.order_by('id')
-    else:
-        allowed_photos = None
+    allowed_photos = org_settings.allowed_id_photos.order_by('id') if org_settings else None
 
     if request.method == 'POST':
         username = request.POST.get('id_username')
@@ -231,37 +235,24 @@ def register_view(request):
         try:
             birthdate = datetime.strptime(birthdate_raw, '%Y-%m-%d').date()
 
-            # Read and buffer file contents
-            id_photo_content = id_photo.read()
-            reg_photo_content = reg_photo.read()
-
-            # Rewind file pointer for S3 upload
-            id_photo.seek(0)
-            reg_photo.seek(0)
-
             # Upload to S3
             s3_bucket = settings.AWS_STORAGE_BUCKET_NAME
-            s3_client = boto3.client(
-                's3',
-                aws_access_key_id=AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-                region_name=settings.AWS_S3_REGION_NAME
-            )
+            s3 = get_s3_client()
 
             id_photo_key = f"users/{username}/id_photo/{id_photo.name}"
             reg_photo_key = f"users/{username}/reg_photo/{reg_photo.name}"
-
-            s3_client.upload_fileobj(id_photo, s3_bucket, id_photo_key)
-            s3_client.upload_fileobj(reg_photo, s3_bucket, reg_photo_key)
-
+            id_photo.seek(0); reg_photo.seek(0)
+            s3.upload_fileobj(id_photo, s3_bucket, id_photo_key)
+            s3.upload_fileobj(reg_photo, s3_bucket, reg_photo_key)
             id_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{id_photo_key}"
             reg_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{reg_photo_key}"
 
             client_id = settings.COGNITO_CLIENT_ID
-            client_secret = COGNITO_CLIENT_SECRET
-            secret_hash = generate_secret_hash(client_id, client_secret, username)
+            client_secret = get_cognito_client_secret()
+            secret_hash = generate_secret_hash(client_id, client_secret, username) if client_secret else None
 
-            response = cognito_client.sign_up(
+            cognito = get_cognito_client()
+            kwargs = dict(
                 ClientId=client_id,
                 Username=username,
                 Password=password,
@@ -271,30 +262,32 @@ def register_view(request):
                     {'Name': 'family_name', 'Value': family_name},
                     {'Name': 'birthdate', 'Value': birthdate_raw},
                     {'Name': 'custom:id_photo', 'Value': id_photo_url},
-                    {'Name': 'custom:reg_photo', 'Value': reg_photo_url}
+                    {'Name': 'custom:reg_photo', 'Value': reg_photo_url},
                 ],
-                SecretHash=secret_hash
             )
+            if secret_hash:
+                kwargs["SecretHash"] = secret_hash
+
+            response = cognito.sign_up(**kwargs)
 
             user = User.objects.create_user(
-                username=username,
-                password=password,
-                email=email,
-                first_name=given_name,
-                last_name=family_name,
+                username=username, password=password, email=email,
+                first_name=given_name, last_name=family_name
             )
 
+            # If you still want to store originals in Django:
+            id_photo.seek(0); reg_photo.seek(0)
             Profile.objects.create(
                 user=user,
                 username=username,
                 email=email,
                 first_name=given_name,
                 last_name=family_name,
-                photoid=ContentFile(id_photo_content, name=id_photo.name),
-                passportphoto=ContentFile(reg_photo_content, name=reg_photo.name)
+                photoid=ContentFile(id_photo.read(), name=id_photo.name),
+                passportphoto=ContentFile(reg_photo.read(), name=reg_photo.name)
             )
 
-            cognito_client.admin_add_user_to_group(
+            cognito.admin_add_user_to_group(
                 UserPoolId=settings.COGNITO_USER_POOL_ID,
                 Username=username,
                 GroupName='Test'
@@ -303,11 +296,9 @@ def register_view(request):
             messages.success(request, 'Registration successful. Please check your email to confirm your account.')
             return render(request, 'main/login.html', {'login_form': login_form})
 
-        except cognito_client.exceptions.UsernameExistsException:
+        except get_cognito_client().exceptions.UsernameExistsException:
             messages.error(request, 'Username already exists.')
-        except cognito_client.exceptions.EmailExistsException:
-            messages.error(request, 'Email already exists.')
-        except cognito_client.exceptions.InvalidParameterException as e:
+        except get_cognito_client().exceptions.InvalidParameterException as e:
             messages.error(request, f'Invalid parameters provided: {e}')
         except Exception as e:
             messages.error(request, f'An error occurred: {e}')
@@ -321,28 +312,25 @@ def verify_account(request):
     if not code or not username:
         return render(request, 'verification_status.html', {'message': 'Invalid verification request.'})
 
-    cognito_client = boto3.client('cognito-idp', region_name='us-east-1')
-
+    cognito = get_cognito_client()
     try:
-        response = cognito_client.confirm_sign_up(
+        cognito.confirm_sign_up(
             ClientId=settings.COGNITO_CLIENT_ID,
             Username=username,
             ConfirmationCode=code
         )
         return render(request, 'verification_status.html', {'message': 'Your account has been verified successfully.'})
-    except cognito_client.exceptions.CodeMismatchException:
+    except cognito.exceptions.CodeMismatchException:
         return render(request, 'verification_status.html', {'message': 'Invalid verification code.'})
-    except cognito_client.exceptions.UserNotFoundException:
+    except cognito.exceptions.UserNotFoundException:
         return render(request, 'verification_status.html', {'message': 'User not found.'})
     except Exception as e:
         return render(request, 'verification_status.html', {'message': f'An error occurred: {e}'})
-    
+
 def verification_success(request):
-    # Add any logic you need for after verification
     return render(request, 'verification_status.html')
 
 def login_success_view(request):
-    # Add any logic you need for after verification
     return redirect('dashboard')
 
 def addUserCognito(request):
@@ -357,62 +345,52 @@ def addUserCognito(request):
         reg_photo = request.FILES.get('passportphoto')
 
         try:
-            # Define S3 bucket and folder paths
             s3_bucket = settings.AWS_STORAGE_BUCKET_NAME
+            s3 = get_s3_client()
 
-            # Initialize photo URLs as empty strings
             id_photo_url = ''
             reg_photo_url = ''
 
-            # Upload the ID photo to S3 if present
             if id_photo:
-                id_photo_name = id_photo.name
-                s3_key_id_photo = f"users/{username}/id_photo/{id_photo_name}"
-                id_photo.seek(0)  # Reset pointer to the beginning of the file
-                s3_client.upload_fileobj(id_photo, s3_bucket, s3_key_id_photo)
+                s3_key_id_photo = f"users/{username}/id_photo/{id_photo.name}"
+                id_photo.seek(0)
+                s3.upload_fileobj(id_photo, s3_bucket, s3_key_id_photo)
                 id_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_key_id_photo}"
 
-            # Upload the registration photo to S3 if present
             if reg_photo:
-                reg_photo_name = reg_photo.name
-                s3_key_reg_photo = f"users/{username}/reg_photo/{reg_photo_name}"
-                reg_photo.seek(0)  # Reset pointer to the beginning of the file
-                s3_client.upload_fileobj(reg_photo, s3_bucket, s3_key_reg_photo)
+                s3_key_reg_photo = f"users/{username}/reg_photo/{reg_photo.name}"
+                reg_photo.seek(0)
+                s3.upload_fileobj(reg_photo, s3_bucket, s3_key_reg_photo)
                 reg_photo_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_key_reg_photo}"
 
-            # Generate SECRET_HASH
             client_id = settings.COGNITO_CLIENT_ID
-            client_secret = COGNITO_CLIENT_SECRET
-            secret_hash = generate_secret_hash(client_id, client_secret, username)
-            
-            try:
-                # Create user attributes dynamically, excluding empty photo URLs
-                user_attributes = [
-                    {'Name': 'email', 'Value': email},
-                    {'Name': 'given_name', 'Value': given_name},
-                    {'Name': 'family_name', 'Value': family_name},
-                ]
-                if id_photo_url:
-                    user_attributes.append({'Name': 'custom:id_photo', 'Value': id_photo_url})
-                if reg_photo_url:
-                    user_attributes.append({'Name': 'custom:reg_photo', 'Value': reg_photo_url})
+            client_secret = get_cognito_client_secret()
+            secret_hash = generate_secret_hash(client_id, client_secret, username) if client_secret else None
 
-                # Sign up the user in Cognito
-                response = cognito_client.sign_up(
-                    ClientId=settings.COGNITO_CLIENT_ID,
-                    Username=username,
-                    Password=password,
-                    UserAttributes=user_attributes,
-                    SecretHash=secret_hash
-                )
-                print(f"Cognito sign_up response: {response}")
+            cognito = get_cognito_client()
+            user_attributes = [
+                {'Name': 'email', 'Value': email},
+                {'Name': 'given_name', 'Value': given_name},
+                {'Name': 'family_name', 'Value': family_name},
+            ]
+            if id_photo_url:
+                user_attributes.append({'Name': 'custom:id_photo', 'Value': id_photo_url})
+            if reg_photo_url:
+                user_attributes.append({'Name': 'custom:reg_photo', 'Value': reg_photo_url})
 
-            except cognito_client.exceptions.ClientError as error:
-                print(f"Error: {error.response['Error']['Message']}")
+            kwargs = dict(
+                ClientId=client_id,
+                Username=username,
+                Password=password,
+                UserAttributes=user_attributes,
+            )
+            if secret_hash:
+                kwargs["SecretHash"] = secret_hash
 
-            # Add the user to a group
-            group_name = 'Test'  # Replace with your desired group name
-            cognito_client.admin_add_user_to_group(
+            cognito.sign_up(**kwargs)
+
+            group_name = 'Test'
+            cognito.admin_add_user_to_group(
                 UserPoolId=settings.COGNITO_USER_POOL_ID,
                 Username=username,
                 GroupName=group_name
@@ -421,9 +399,9 @@ def addUserCognito(request):
             messages.success(request, 'Registration successful. Please check your email to confirm your account.')
             return redirect('dashboard/')
 
-        except cognito_client.exceptions.UsernameExistsException:
+        except cognito.exceptions.UsernameExistsException:
             messages.error(request, 'Username already exists.')
-        except cognito_client.exceptions.InvalidParameterException as e:
+        except cognito.exceptions.InvalidParameterException as e:
             messages.error(request, f'Invalid parameters provided: {e}')
         except Exception as e:
             messages.error(request, f'An error occurred: {e}')
@@ -435,17 +413,13 @@ def modifyCognito(request):
     if request.method != 'POST':
         return redirect('dashboard/')
 
-    # Who are we updating in Cognito?
     cognito_username = (request.POST.get('cognito_username') or request.POST.get('username') or '').strip()
-    # Actor (the person making this request)
     actor_username = request.user.username
 
-    # Password fields
     current_password = (request.POST.get('current_password') or '').strip()
     new_password     = (request.POST.get('new_password') or '').strip()
     confirm_password = (request.POST.get('confirm_password') or '').strip()
 
-    # Attribute fields
     email       = request.POST.get('email') or ''
     given_name  = request.POST.get('first_name') or ''
     family_name = request.POST.get('last_name') or ''
@@ -454,22 +428,20 @@ def modifyCognito(request):
     id_photo = request.FILES.get('photoid')
     reg_photo = request.FILES.get('passportphoto')
 
-    # Determine if this is self-service (user editing themselves) vs admin editing someone else
     is_self = (cognito_username == actor_username)
 
     try:
-        # --- PASSWORD CHANGES ---
+        cognito = get_cognito_client()
+
         if new_password or confirm_password:
             if new_password != confirm_password:
                 messages.error(request, 'New passwords do not match.')
                 return redirect('dashboard/')
 
-            # If self-service, require current password to be correct (Django-side check)
             if is_self and not request.user.check_password(current_password):
                 messages.error(request, 'Current password is incorrect.')
                 return redirect('dashboard/')
 
-            # Optional: run Django validators (gives better UX feedback than Cognito alone)
             try:
                 validate_password(new_password, user=request.user if is_self else None)
             except ValidationError as e:
@@ -477,15 +449,13 @@ def modifyCognito(request):
                     messages.error(request, err)
                 return redirect('dashboard/')
 
-            # Use admin_set_user_password for BOTH flows (no AccessToken needed)
-            cognito_client.admin_set_user_password(
+            cognito.admin_set_user_password(
                 UserPoolId=settings.COGNITO_USER_POOL_ID,
                 Username=cognito_username,
                 Password=new_password,
-                Permanent=True,  # don't force change on next sign in
+                Permanent=True,
             )
 
-        # --- ATTRIBUTE UPDATES ---
         user_attributes = []
         if email:
             user_attributes.append({'Name': 'email', 'Value': email})
@@ -494,32 +464,31 @@ def modifyCognito(request):
         if family_name:
             user_attributes.append({'Name': 'family_name', 'Value': family_name})
 
-        # send/clear birthdate explicitly
         if birthdate is not None:
             user_attributes.append({'Name': 'birthdate', 'Value': birthdate or ''})
 
-        # Upload photos → S3 → custom attributes
         s3_bucket = settings.AWS_STORAGE_BUCKET_NAME
+        s3 = get_s3_client()
         if id_photo:
             s3_key = f"users/{cognito_username}/id_photo/{id_photo.name}"
-            s3_client.upload_fileobj(id_photo, s3_bucket, s3_key)
+            s3.upload_fileobj(id_photo, s3_bucket, s3_key)
             user_attributes.append({'Name': 'custom:id_photo', 'Value': f"https://{s3_bucket}.s3.amazonaws.com/{s3_key}"})
 
         if reg_photo:
             s3_key = f"users/{cognito_username}/reg_photo/{reg_photo.name}"
-            s3_client.upload_fileobj(reg_photo, s3_bucket, s3_key)
+            s3.upload_fileobj(reg_photo, s3_bucket, s3_key)
             user_attributes.append({'Name': 'custom:reg_photo', 'Value': f"https://{s3_bucket}.s3.amazonaws.com/{s3_key}"})
 
         if user_attributes:
-            cognito_client.admin_update_user_attributes(
+            cognito.admin_update_user_attributes(
                 UserPoolId=settings.COGNITO_USER_POOL_ID,
                 Username=cognito_username,
                 UserAttributes=user_attributes
             )
 
-    except cognito_client.exceptions.UserNotFoundException:
+    except cognito.exceptions.UserNotFoundException:
         messages.error(request, 'User not found in Cognito.')
-    except cognito_client.exceptions.InvalidPasswordException as e:
+    except cognito.exceptions.InvalidPasswordException as e:
         messages.error(request, f'Invalid new password: {e}')
     except Exception as e:
         messages.error(request, f'An error occurred: {e}')
@@ -530,16 +499,21 @@ def password_reset(request):
     login_form = LoginForm.objects.first()
     if request.method == 'POST':
         email = request.POST.get('email')
-        request.session['reset_email'] = email  # Store for convenience
+        request.session['reset_email'] = email
 
-        client = boto3.client('cognito-idp', region_name=settings.AWS_REGION)
-
+        client = get_cognito_client()
         try:
-            response = client.forgot_password(
+            client_secret = get_cognito_client_secret()
+            secret_hash = generate_secret_hash(settings.COGNITO_CLIENT_ID, client_secret, email) if client_secret else None
+
+            kwargs = dict(
                 ClientId=settings.COGNITO_CLIENT_ID,
                 Username=email,
-                SecretHash=generate_secret_hash(settings.COGNITO_CLIENT_ID, COGNITO_CLIENT_SECRET, email)
             )
+            if secret_hash:
+                kwargs["SecretHash"] = secret_hash
+
+            client.forgot_password(**kwargs)
             messages.success(request, "Password reset email sent.")
             return redirect(reverse('confirm_password_reset'))
         except ClientError as e:
@@ -560,19 +534,22 @@ def confirm_password_reset(request):
         code = request.POST.get('code')
         new_password = request.POST.get('new_password')
 
-        client = boto3.client('cognito-idp', region_name=settings.AWS_REGION)
-
+        client = get_cognito_client()
         try:
-            # Reset password in Cognito
-            response = client.confirm_forgot_password(
+            client_secret = get_cognito_client_secret()
+            secret_hash = generate_secret_hash(settings.COGNITO_CLIENT_ID, client_secret, email) if client_secret else None
+
+            kwargs = dict(
                 ClientId=settings.COGNITO_CLIENT_ID,
                 Username=email,
                 ConfirmationCode=code,
                 Password=new_password,
-                SecretHash=generate_secret_hash(settings.COGNITO_CLIENT_ID, COGNITO_CLIENT_SECRET, email)
             )
+            if secret_hash:
+                kwargs["SecretHash"] = secret_hash
 
-            # Also update password in Django if the user exists
+            client.confirm_forgot_password(**kwargs)
+
             try:
                 user = User.objects.get(username=email)
                 user.set_password(new_password)
