@@ -16,7 +16,7 @@ from django.db.models import Q, Avg, Count, Prefetch, Max, Min
 from django.test import RequestFactory
 from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed
 import logging, csv
-from authentication.python.views import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+from authentication.python.views import get_s3_client
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.shortcuts import render, get_object_or_404, redirect
@@ -768,12 +768,7 @@ def add_user(request):
             )
             profile = profile_form.save(commit=False)
             profile.user = user  # Link profile to user
-            s3_client = boto3.client(
-                's3',
-                aws_access_key_id=AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-                region_name=settings.AWS_S3_REGION_NAME
-            )
+            s3_client = get_s3_client()
 
             # >>> START FILE UPLOAD TO S3 <<<
             id_photo = request.FILES.get('photoid')
