@@ -27,7 +27,7 @@ from django.conf import settings
 from botocore.exceptions import ClientError
 from content.models import Course, Module, Lesson, UploadedFile, Upload
 from content.models import Course, EssayQuestion, FITBQuestion, Module, Lesson, Question, QuestionMedia, QuestionOrder, TFQuestion, UploadedFile, QuizConfig, Quiz, QuizTemplate, TemplateQuestion, EssayPrompt, EssayAnswer
-from authentication.python.views import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, get_secret
+from authentication.python.views import get_s3_client, get_secret
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 import boto3 
 from django.views.decorators.http import require_GET, require_POST
@@ -84,12 +84,7 @@ def generate_presigned_url(key, expiration=86400):
     key = key.replace("\\", "/")
 
     # Create the boto3 S3 client using the credentials
-    s3_client = boto3.client(
-        's3',
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
-        region_name=AWS_S3_REGION_NAME
-    )
+    s3_client = get_s3_client
 
     content_type, _ = mimetypes.guess_type(key)
     if not content_type:
@@ -229,12 +224,7 @@ def proxy_scorm_file(request, file_path):
     print(f"📂 Final S3 Key: {s3_key}")
 
     # --- Fetch from S3 -------------------------------------------------------
-    s3_client = boto3.client(
-        "s3",
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        region_name=AWS_S3_REGION_NAME,
-    )
+    s3_client = get_s3_client()
 
     try:
         s3_response = s3_client.get_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=s3_key)
