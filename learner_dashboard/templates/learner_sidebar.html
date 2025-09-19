@@ -42,10 +42,15 @@
                     <i class="fa-light fa-bell"></i>
                     <span> Notifications </span>
                 </a>
-                <!-- <a class="learner-sidebar-option" href="/activity/">
-                    <i class="fa-light fa-chart-line"></i>
-                    <span> Activity </span>
-                </a> -->
+                {% if settings.enable_gamification %}
+                    <a class="learner-sidebar-option" href="/achievements/">
+                        <i class="fa-light fa-trophy-star"></i>
+                        <span> Achievements </span>
+                        {% if unclaimed_badge_count %}
+                            <span id="unclaimedBadgeCount" class="sidebar-notification-pill">{{ unclaimed_badge_count }}</span>
+                        {% endif %}
+                    </a>
+                {% endif %}
             </div>
             <h6>Other</h6>
             <div class="learner-sidebar-section">

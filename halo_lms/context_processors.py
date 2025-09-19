@@ -3,7 +3,8 @@ from client_admin.models import Profile, Message, OrganizationSettings
 from client_admin.utils import get_strftime_format, get_flatpickr_format
 
 from django.contrib.auth import get_user_model
-from client_admin.models import OrganizationSettings
+from client_admin.models import OrganizationSettings, OrgBadge, UserBadge
+from learner_dashboard.services.achievements import compute_progress
 
 def user_info(request):
     if request.user.is_authenticated:
@@ -24,14 +25,40 @@ def learner_base_data(request):
     footer = Footer.objects.first()
 
     profile = None
+    unclaimed_badge_count = 0
+
     if request.user.is_authenticated:
         profile = Profile.objects.filter(user=request.user).first()
+
+        org = OrganizationSettings.get_instance()
+        if org.enable_gamification:
+            # active org badges
+            org_badges = (OrgBadge.objects
+                          .filter(organization=org, active=True)
+                          .only("id", "template_slug", "criteria", "name")  # keep it light
+                          .order_by("display_order", "name"))
+
+            # which of those are already awarded to this user?
+            already_awarded_ids = set(
+                UserBadge.objects
+                         .filter(user=request.user, org_badge__in=org_badges)
+                         .values_list("org_badge_id", flat=True)
+            )
+
+            # compute whether each badge is claimable
+            c = 0
+            for ob in org_badges:
+                progress = compute_progress(request.user, ob, ob.id in already_awarded_ids)
+                if progress.claimable:
+                    c += 1
+            unclaimed_badge_count = c
 
     return {
         'dashboard': dashboard,
         'header': header,
         'footer': footer,
         'profile': profile,
+        'unclaimed_badge_count': unclaimed_badge_count,
     }
 
 def unread_messages_processor(request):
@@ -80,8 +107,7 @@ def user_impersonation(request):
 
 def date_format_context(request):
     settings = OrganizationSettings.get_instance()
-    date_format = get_strftime_format(settings.date_format)
-    return {'org_date_format': date_format}
+    return {'org_date_format': get_strftime_format(settings.date_format)}
 
 def flatpickr_format_context(request):
     settings = OrganizationSettings.get_instance()

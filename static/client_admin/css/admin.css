@@ -258,7 +258,7 @@ html, body, button{
     justify-content: space-between;
     min-width: 145px;
 }.create-sidebar-options .action-item-right span{
-    font-weight: 500;
+    font-weight: 400;
     text-wrap: nowrap;
 }
 
@@ -554,7 +554,7 @@ html, body, button{
     background-color: #17a34a;
     padding: var(--pad-xxxs) var(--pad-xs);
     border-radius: 0 10px 10px 0;
-    font-size: var(--fs-sm);
+    font-size: 0.7rem;
     align-self: stretch;
     display: flex;
     align-items: center;

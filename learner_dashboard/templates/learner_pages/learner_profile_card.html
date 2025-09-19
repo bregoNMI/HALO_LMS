@@ -1,0 +1,57 @@
+<!-- user_profile_card -->
+<div class="details-user-card margin-top-0">
+    <div class="top-section"></div>
+    <div class="bottom-section">
+        <div class="bottom-left">
+            {% if profile.photoid %}
+                <img class="profile-image" src="{{ profile.photoid.url }}" alt="Profile Image" />
+            {% else %}
+                <div class="profile-image">
+                    <i class="fa-regular fa-user-graduate"></i>
+                </div>
+            {% endif %}
+            <div class="user-card-info">
+                <h3>{{ profile.first_name }} {{ profile.last_name }}</h3>
+                <div class="course-item-footer">
+                    {% if settings.enable_gamification %}                       
+                        <div class="course-item-footer-item profile-card-item credits-total">
+                            {% if credits_icon_url %}
+                                <img src="{{ credits_icon_url }}" alt="" class="credits-icon">
+                            {% endif %}
+                            <span>{{ credits_total }} {{ credits_name }}</span>
+                        </div>
+                        {% if badges_earned %}
+                            <div class="course-item-footer-item">
+                                <i class="fa-solid fa-circle-small footer-spacer"></i>
+                            </div>
+                            <div class="course-item-footer-item profile-card-item badges-total">
+                                <!-- <i class="fa-duotone fa-solid fa-trophy-star" style="--fa-primary-color: gold; --fa-secondary-color: #fb9a0f; --fa-primary-opacity: 1.0; --fa-secondary-opacity: 1.0;"></i> -->
+                                <i class="fa-solid fa-trophy-star" style="color: #fbba17;"></i>
+                                <span> {{ badges_earned  }} badges</span>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    {% if streak %}
+                        {% if settings.enable_gamification %}
+                            <div class="course-item-footer-item">
+                                <i class="fa-solid fa-circle-small footer-spacer"></i>
+                            </div>
+                        {% endif %}
+                        <div class="course-item-footer-item profile-card-item login-streak">
+                            <i class="fa-duotone fa-solid fa-fire" style="--fa-primary-color: #fff144; --fa-secondary-color: #ff8100; --fa-primary-opacity: 1.0; --fa-secondary-opacity: 1.0;"></i>
+                            <div class="login-streak">                              
+                                <span>{{ streak }} day streak</span>
+                                <!-- day{{ streak|pluralize }} -->
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="bottom-right">
+            <!-- <div onclick="openPopup('editUserPopup')" class="learner-primary-button">
+                <span> Edit user</span>
+            </div> -->
+        </div>
+    </div>
+</div>

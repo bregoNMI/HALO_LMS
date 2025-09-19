@@ -263,6 +263,106 @@
                                             </div>                 
                                         </div>
                                     </div>
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-trophy-star"></i>
+                                                <span> Gamification </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="settings-card-wrapper"> 
+                                                <div class="edit-settings-column">
+                                                    <div class="edit-settings-input">
+                                                        <label class="edit-settings-label" for="enable_gamification">Enable Gamification</label>
+                                                        <label class="toggle-switch">
+                                                            <input class="toggle-hidden-settings-input" type="checkbox" id="enable_gamification" name="enable_gamification" {% if form.enable_gamification.value %}checked{% endif %}>
+                                                            <div class="toggle-switch-background">
+                                                            <div class="toggle-switch-handle"></div>
+                                                            </div>
+                                                        </label>
+                                                        <span class="settings-input-subtext"> Allow Learners to earn badges and learning credits.</span>
+                                                    </div>
+                                                    <div class="edit-settings-input hidden-settings-input toggle-option-details show-toggle-option-details">
+                                                        <div class="edit-settings-row">
+                                                            <div class="edit-settings-input">
+                                                                <label for="learning_credits_name">Learning Credits Name</label>
+                                                                <input type="text" id="learning_credits_name" name="learning_credits_name" value="{{ form.learning_credits_name.value|default:'' }}" placeholder="Learning Credits Name" maxlength="255">
+                                                                <span class="settings-input-subtext"> Create a custom name for your learning credits.</span>
+                                                            </div>                         
+                                                        </div>
+                                                        <div class="edit-settings-row">
+                                                            <div class="edit-settings-input">
+                                                                <label class="edit-settings-label" for="learning_credits_icon">Learning Credits Icon</label>
+                                                                <label for="learning_credits_icon" class="custom-file-upload-container">
+                                                                    <div class="custom-file-upload">
+                                                                        <input type="file" id="learning_credits_icon" name="learning_credits_icon" accept="image/*" style="display: none;">
+                                                                        <i class="fa-solid fa-arrow-up-from-bracket"></i> Choose File
+                                                                    </div>
+                                                                    <div class="custom-file-title">
+                                                                        {% if form.learning_credits_icon.value %}
+                                                                            <span id="creditsIconImageDisplay" class="file-name-display">{{ form.learning_credits_icon.value.name|filename }}</span>
+                                                                        {% else %}
+                                                                            <span id="creditsIconImageDisplay" class="file-name-display">No file selected</span>
+                                                                        {% endif %}                                
+                                                                    </div>
+                                                                </label>
+                                                                <span class="settings-input-subtext">Upload a custom icon that will represent your Learning Credits (Suggested size 16 x 16 px). Save settings to see reflected icon changes.</span> 
+                                                            </div>
+                                                            <div class="edit-settings-input">
+                                                                <div class="favicon-preview">
+                                                                    <img id="creditsIconPreview"
+                                                                    src="{% if form.learning_credits_icon.value %}{{ form.learning_credits_icon.value.url }}{% endif %}"
+                                                                    alt="Learning Credits Icon"
+                                                                    style="{% if not form.learning_credits_icon.value %}display:none{% endif %}">
+                                                                </div>
+                                                            </div>                                                   
+                                                        </div>
+
+                                                        <div class="edit-settings-row">
+                                                            <div class="edit-settings-input">
+                                                                <div class="settings-header-row">
+                                                                    <label class="edit-settings-label">Badges</label>
+                                                                    <button type="button" class="action-button-primary" onclick="openPopup('selectBadgeOptions'), renderBadges('selectBadgeOptions')">
+                                                                        <i class="fa-regular fa-badge-check"></i>
+                                                                        <span>Edit Badges</span>
+                                                                    </button>
+                                                                </div>
+
+                                                                <div id="enabledBadgeList" class="badges-list-container">
+                                                                    {% for ob in enabled_org_badges %}
+                                                                        <div class="badge-chip">
+                                                                            <div class="badge-credits-total pastel-purple">
+                                                                                <i class="fa-light fa-coin"></i>
+                                                                                <span>100</span>
+                                                                            </div>
+                                                                            <div class="badge-icon">
+                                                                                <img src="{% if ob.icon %}{{ ob.icon.url }}{% else %}{% static ob.icon_static %}{% endif %}" alt="Badge Icon">
+                                                                            </div>
+                                                                            <div class="badge-chip-text">
+                                                                                <div class="name">{{ ob.name }}</div>
+                                                                                <div class="desc">{{ ob.description }}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    {% empty %}
+                                                                        <div class="custom-list-options-container">
+                                                                            <div class="custom-list-option">
+                                                                                <span class="no-disapprovals"> No badges selected yet. </span>
+                                                                            </div>
+                                                                        </div>                                                                       
+                                                                    {% endfor %}
+                                                                </div>
+                                                                <input type="hidden" id="selected_badges" name="selected_badges" value="[]">
+                                                            </div>
+                                                        </div>                                                                                                         
+                                                    </div> 
+                                                </div>                                        
+                                            </div>                 
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <!-- Courses -->
@@ -438,11 +538,12 @@
                                                         <span class="settings-input-subtext">Upload a Favicon that will apear at the top of your browser tabs (Suggested size 16 x 16 px).</span> 
                                                     </div>
                                                     <div class="edit-settings-input">
-                                                        {% if form.portal_favicon.value %}
                                                         <div class="favicon-preview">
-                                                            <img id="faviconPreview" src="{{ form.portal_favicon.value.url }}" alt="Favicon">
+                                                            <img id="faviconPreview"
+                                                            src="{% if form.portal_favicon.value %}{{ form.portal_favicon.value.url }}{% endif %}"
+                                                            alt="Favicon"
+                                                            style="{% if not form.portal_favicon.value %}display:none{% endif %}">
                                                         </div>
-                                                        {% endif %}
                                                     </div>                                                   
                                                 </div>                                             
                                             </div>                 
@@ -550,8 +651,14 @@
             </form>
         </div>   
     </div>
+    {{ catalog|json_script:"badge-catalog-json" }}
+    {{ enabled_slugs|json_script:"enabled-slugs-json" }}
+    {{ learning_icon_url|default_if_none:""|json_script:"learning-credits-icon" }}
+
+
     {% include 'popups/create_allowed_id_photo.html' %}
     {% include 'popups/edit_allowed_id_photo.html' %}
+    {% include 'popups/select_badge_options.html' %}
     <link rel="stylesheet" href="{% static 'client_admin\css\settings.css' %}">
     <script src="{% static 'client_admin\javascript\settings.js' %}"></script>
     <script src="{% static 'client_admin\javascript\ajax_search_options.js' %}"></script>

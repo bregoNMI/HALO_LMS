@@ -45,7 +45,7 @@ body{
     width: 20rem;
     z-index: 3;
     transition: all 0.4s ease-out;
-    height: calc(100dvh - 48.97px);
+    height: calc(100dvh - 52.97px);
     box-sizing: border-box;
     overflow-y: auto;
 }

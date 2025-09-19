@@ -1,0 +1,157 @@
+.badge-grid { 
+    display: grid; 
+}
+
+.badge-card {
+    padding: 0.8rem;
+    background-color: white;
+    /* border-radius: 8px; */
+    border-radius: 12px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    /* height: 17.375rem; */
+    overflow: hidden;
+    position: relative;
+    /* width: 14.5rem; */
+    transition: all 0.2s ease-in-out;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+    text-decoration: none;
+    margin-top: 0.5rem;
+    gap: 1.2rem;
+}
+.badge-card-left .badge-icon { 
+    width: 64px; 
+    height: 64px; 
+    object-fit: contain; 
+    padding: 0;
+}
+.badge-card-main { 
+    flex: 1; 
+}
+.badge-title { 
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 0;
+    color: var(--text-color7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
+.badge-desc { 
+    color: #798292;
+    font-size: 0.76rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.badge-progress{
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+    margin-top: 0.8rem;
+    max-width: 20rem;
+}.badge-progress .course-item-progress-bar{
+    height: 9px;
+    background: linear-gradient(135deg, #cec2fb 0%, #a977e4 100%);
+}
+
+.badge-awarded-icon {
+    color: #4caf50;
+    font-size: 1.6rem;
+}
+
+.badge-credits-amount {
+    display: flex;
+    align-items: center;
+    margin-top: 0.4rem;
+    gap: 0.3rem;
+    font-size: 0.95rem;
+    color: var(--text-color6);
+}.badge-credits-amount img, .badge-credits-amount svg {
+    width: 24px;
+    height: 24px;
+}
+
+.progress-text {     
+    color: var(--text-color4);
+    font-size: 0.8rem;
+    /* font-weight: 600; */
+    margin-top: 0.15rem; }
+.badge-card-right { 
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    margin-right: 1rem;
+}
+.badge-status.awarded { color:#16a34a; font-weight:600; }
+.badge-status.locked { color:#9ca3af; }
+
+
+.claimed-reward-popup-header{
+    display: flex;
+    justify-content: center;
+}
+
+.claimed-reward-title{
+    position: absolute;
+    top: -0.75rem;
+    padding: 0.25rem var(--pad-med);
+    border-radius: 99px;
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-wrap: nowrap;
+    box-shadow: rgb(254 190 10) 0px 1px 1px 2px;
+}.claimed-reward-credits{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}.claimed-reward-credits span{
+    color: var(--text-color7);
+    font-size: 1.1rem;
+    /* margin-left: 0.1rem; */
+}.claimed-rewards-credits-plus{
+    display: flex;
+    margin-right: 0.2rem;
+    font-size: 0.6rem;
+    color: var(--text-color6);
+    align-items: center;
+    justify-content: center;
+}
+
+.credits-icon{
+    width: 34px;
+    height: 34px;
+}
+
+.claimed-reward-popup-body{
+    height: 23rem;
+}
+
+.claimed-reward-column{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}.claimed-reward-column img{
+    width: 100%;
+    max-width: 15rem;
+}
+
+.claimed-reward-text{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}.claimed-reward-name {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 0;
+    color: var(--text-color7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}.claimed-reward-desc {
+    color: #798292;
+    font-size: 0.84rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

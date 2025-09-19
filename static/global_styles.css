@@ -397,6 +397,7 @@ h1,h2,h3,h4,h5,h6{
 }
 
 .edit-user-label{
+  position: relative;
   font-size: 0.85rem;
   margin-top: 0;
   color: var(--text-color7);
@@ -688,6 +689,11 @@ h1,h2,h3,h4,h5,h6{
   color: gray;
 }
 
+.pastel-gold{
+  background: linear-gradient(135deg, #ffbc00 0%, #fbd881 100%);
+  color: #7c5b1e;
+}
+
 /* Max Width */
 .max-width-none{
   width: 100%;
@@ -898,6 +904,11 @@ h1,h2,h3,h4,h5,h6{
   padding-bottom: 1.5rem !important;
 }.padding-bottom-2{
   padding-bottom: 2rem !important;
+}
+
+/* Border Radius */
+.border-radius-plus{
+  border-radius: 24px;
 }
 
 .hidden {
@@ -1459,7 +1470,7 @@ h1,h2,h3,h4,h5,h6{
   bottom: 4rem;
   flex-direction: column-reverse;
   transition: all 0.3s linear;
-  z-index: 11;
+  z-index: 9999999999;
 }.new-validation-message-container .alert{
   position: relative;
   margin: 0;
@@ -1489,7 +1500,7 @@ h1,h2,h3,h4,h5,h6{
 }
 
 .validation-text-success {
-  color: #155724;
+  color: #4caf50;
 }
 
 /* Class to be added to details-top-row when not visible */
@@ -2548,4 +2559,172 @@ input.disabled{
   flex-direction: column;
 }.assignment-instructions p{
   margin: 0;
+}
+
+.badges-list-container{
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}.badge-chip{
+  background-color: white;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  width: 100%;
+  max-width: 11rem;
+  transition: all 0.2s ease-in-out;
+  outline: 2px solid transparent;
+  box-shadow: rgb(0 0 0 / 8%) 0px 1px 1px 2px;
+  text-decoration: none;
+  padding: var(--pad-med);
+  align-items: center;
+}.badge-chip .checkmark{
+  position: absolute;
+  left: 0.6rem;
+  top: 0.6rem;
+}.select-badge-chip:hover{
+  outline: 2px solid var(--primary-blue);
+}.select-badge-chip:hover .checkmark{
+  border-color: var(--primary-blue);
+}
+
+.badge-icon{
+  padding: 0.5rem;
+  width: 6rem;
+  height: 6rem;
+}.badge-icon img{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: unset;
+  height: 100%;
+  /* height: 3.5rem; */
+  width: 100%;
+  min-width: 4rem;
+  max-width: 8rem;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
+}.badge-chip-text{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}.badge-chip-text .name{
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-top: 0;
+  color: var(--text-color7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}.badge-chip-text .desc{
+  color: #798292;
+  font-size: 0.76rem;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-credits-total{
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  position: absolute;
+  top: -1rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 8px;
+  box-shadow: rgb(173 87 253 / 30%) 0px 1px 1px 2px;
+  background-color: #f3e6ff;
+}.badge-credits-total img, .badge-credits-total svg{
+  width: 24px;
+  height: 24px;
+}.badge-credits-total span{
+  font-size: 0.95rem;
+}
+
+
+.profile-card-item img{
+  height: 26px;
+  width: 26px;
+}.profile-card-item i{
+  font-size: 1.2rem;
+}
+
+.credits-total span{
+  font-weight: 600 !important;
+  color: blueviolet !important;
+  font-size: var(--fs-sm) !important;
+}.badges-total span{
+  font-weight: 600 !important;
+  color: #fbba17 !important;
+  font-size: var(--fs-sm) !important;
+}.login-streak span{
+  font-weight: 600 !important;
+  color: orange !important;
+  font-size: var(--fs-sm) !important;
+}
+
+.earned-badges-grid {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.1rem;
+  width: 100%;
+}.earned-badge-card{
+  background-color: white;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  width: 100%;
+  max-width: 15rem;
+  transition: all 0.2s ease-in-out;
+  outline: 2px solid transparent;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+  text-decoration: none;
+  align-items: center;
+}
+
+.earned-badge-top{
+  display: flex;
+  padding: var(--pad-med);
+  flex-direction: column;
+  align-items: center;
+}
+
+.earned-badge-bottom{
+  display: flex;
+  justify-content: center;
+  padding: var(--pad-xs) var(--pad-med);
+  border-top: 1px solid #d7d7d7;
+  background-color: #fbfbfb;
+  border-radius: 0px 0px 8px 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+.course-item-footer{
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.course-item-footer-item{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--text-color6);
+  font-size: var(--fs-sm);
+}
+
+.footer-spacer{
+  font-size: 0.45rem;
 }

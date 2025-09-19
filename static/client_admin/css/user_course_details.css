@@ -39,25 +39,6 @@
     text-overflow: ellipsis;
 }
 
-.course-item-footer{
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.course-item-footer-item{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.2rem;
-    color: var(--text-color6);
-    font-size: var(--fs-sm);
-}
-
-.footer-spacer{
-    font-size: 0.45rem;
-}
-
 .course-card-bottom-row{
     display: flex;
     margin-top: 1.5rem;
@@ -140,6 +121,7 @@
     margin: 2rem var(--pad-xs) var(--pad-xs) var(--pad-xs);
     padding: 0;
 }.tab{
+    position: relative;
     display: flex;
     gap: 0.4rem;
     color: var(--text-color4);

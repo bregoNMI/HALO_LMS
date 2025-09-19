@@ -1,0 +1,238 @@
+{% extends 'learner_base.html' %}
+{% load static %}
+{% block content %}
+{% include 'learner_sidebar.html' %}
+{% include 'popups/change_password.html' %}
+<div class="learner-body align-center scrollable-content">
+    {% include 'messageContainer/message_container.html' %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Display Impersonation Error if it exists -->
+    {% if impersonation_error %}
+        <div class="alert alert-error">
+            <i class="fa-solid fa-circle-xmark"></i>
+            {{ impersonation_error }}
+        </div>
+    {% endif %}
+
+    
+    <div class="max-width-0">
+        <div id="stickyNavBar">
+            <div class="learner-top-row max-width-0">
+                <div class="learner-top-row-left">
+                    <h2>Achievements</h2>
+                </div>              
+            </div>
+        </div>
+        <div id="mainNavBar" class="learner-top-row">
+            <div class="learner-top-row-left">
+                <h2>Achievements</h2>
+                <span>View your learning achievements</span>
+            </div>
+        </div>
+        <div class="learner-body-inner">
+            {% if settings.enable_gamification %}
+                <div class="badge-grid">
+                    {% for b in badges %}
+                        <div class="badge-card" data-badge-id="{{ b.id }}">
+                            <div class="badge-card-left">
+                                <img class="badge-icon" src="{% if b.icon_url %}{{ b.icon_url }}{% else %}{% static b.icon_static %}{% endif %}" alt="">
+                            </div>
+
+                            <div class="badge-card-main">
+                                <div class="badge-title">{{ b.name }}</div>
+                                <div class="badge-desc">{{ b.description }}</div>
+
+                                <div class="badge-progress">
+                                    <div class="course-item-progress-bar-container">
+                                        <div class="course-item-progress-bar" style="width: {{ b.percent }}%"></div>
+                                    </div>
+                                    <div class="progress-text" {% if b.awarded %} style="color: #ffc32e;" {% endif %}>{{ b.progress_current }}/{{ b.progress_target }}</div>
+                                </div>
+                            </div>
+
+                            <div class="badge-card-right">
+                                {% if b.awarded %}
+                                    <div class="badge-awarded-icon">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                    </div>
+                                {% elif b.claimable %}
+                                    <button class="course-button-primary claim-btn" data-credits="{{ b.credits }}">Claim  Reward</button>
+                                    <div class="badge-credits-amount hidden">
+                                        {% if settings.learning_credits_icon %}
+                                            <img class="credits-icon" src="{{ settings.learning_credits_icon.url }}" alt="Credits Icon">
+                                        {% else %}
+                                            <img class="credits-icon" src="/static/images/gamification/credits/LMS_Credit.png" alt="Credits Icon">
+                                        {% endif %}
+                                        <span>{{ b.credits }}</span></div>
+                                {% else %}
+                                    <!-- <span class="badge-status locked">In Progress</span> -->
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p>No badges available yet.</p>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="display: flex;" class="no-widgets-found">
+                    <img src="/static/client_admin/images/HALO LMS No Graphic Test-27.png" alt="No Widgets Image">    
+                    <h4>Uh oh, how'd you get here?</h4>
+                    <span class="no-widgets-subtext"> Gamification is currently not enabled within the admin settings </span>        
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+    function getCookie(name) {
+        const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return m ? m.pop() : '';
+    }
+
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.claim-btn');
+        if (!btn) return;
+
+        const card = btn.closest('.badge-card');
+        const badgeId = card.dataset.badgeId;
+        const progressText = card.querySelector('.progress-text');
+
+        btn.disabled = true;
+
+        try {
+            const r = await fetch(`/learner/achievements/claim/${badgeId}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+            });
+            if (!r.ok) {
+            const txt = await r.text();
+            throw new Error(txt || 'Claim failed');
+            }
+            const data = await r.json();
+
+            // Update the card UI regardless
+            if (data.claimed) {
+                btn.remove();
+                const status = document.createElement('div');
+                status.className = 'badge-awarded-icon';
+                status.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+                card.querySelector('.badge-card-right').appendChild(status);
+                progressText.style.color = '#ffc32e';
+            } else {
+                btn.textContent = 'Already claimed';
+            }
+
+            if (data.badge) {
+                const b = data.badge;
+                document.getElementById('claimedRewardName').textContent = b.name || '';
+                document.getElementById('claimedRewardDesc').textContent = b.description || '';
+                fadeIn('claimedRewardsCredits');
+
+                const iconEl = document.getElementById('claimedRewardIcon');
+                if (b.icon_url) {
+                    iconEl.src = b.icon_url;
+                    iconEl.style.display = '';
+                } else {
+                    iconEl.removeAttribute('src');
+                    iconEl.style.display = 'none';
+                }
+
+                const credits = (typeof b.credits === 'number') ? b.credits : (data.credits || 0);
+                if (credits) {
+                    const iconHtml = b.credits_icon
+                        ? `<img src="${b.credits_icon}" alt="Credits Icon" class="credits-icon">`
+                        : `<img class="credits-icon" src="/static/images/gamification/credits/LMS_Credit.png" alt="Credits Icon">`;
+
+                    document.getElementById('claimedRewardCredits').innerHTML =
+                        `<div class='claimed-rewards-credits-plus'><i class="fa-regular fa-plus"></i></div>${iconHtml}<span>${credits}</span>`;
+
+                    setTimeout(() => {
+                        fadeIn('claimedRewardsColumn');
+                    }, 300);
+                } else {
+                    document.getElementById('claimedRewardCredits').textContent = '';
+                }
+
+                openPopup('claimedRewardPopup');
+            }
+
+            const unclaimedBadgeCount = document.getElementById('unclaimedBadgeCount');
+
+            if (typeof data.unclaimed_count === 'number') {
+                if (data.unclaimed_count > 0) {
+                    unclaimedBadgeCount.innerText = data.unclaimed_count;
+                    unclaimedBadgeCount.style.display = '';
+                } else {
+                    unclaimedBadgeCount.style.display = 'none';
+                }
+            }
+
+        } catch (err) {
+            console.error(err);
+            btn.disabled = false;
+            btn.textContent = 'Claim Reward';
+            alert('Could not claim this badge yet.');
+        }
+    });
+
+    function resetRewardPopup(){
+        setTimeout(() => {
+            document.getElementById('claimedRewardsColumn').classList.add('hidden');
+        }, 300);
+    }
+
+    function fadeOut(container) {
+        if (typeof container === 'string') container = document.getElementById(container);
+        if (!container) return;
+        container.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        container.style.opacity = '0';
+        container.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+            container.classList.add('hidden');
+            container.style.opacity = '';
+            container.style.transform = '';
+            container.style.transition = '';
+        }, 500);
+    }
+
+    function fadeIn(container) {
+        if (typeof container === 'string') container = document.getElementById(container);
+        if (!container) return;
+        container.classList.remove('hidden');
+        container.style.opacity = '0';
+        container.style.transform = 'scale(0.9)';
+        container.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        requestAnimationFrame(() => {
+            container.style.opacity = '1';
+            container.style.transform = 'scale(1)';
+        });
+        setTimeout(() => {
+            container.style.opacity = '';
+            container.style.transform = '';
+            container.style.transition = '';
+        }, 500);
+    }
+</script>
+{% include 'popups/claimed_reward_popup.html' %}
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'learner_dashboard/css/achievements.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+{% endblock %}

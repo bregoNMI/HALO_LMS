@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.core.files.base import ContentFile
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
 from datetime import datetime
 from django.urls import reverse
 from django.utils.dateparse import parse_date
@@ -25,7 +26,7 @@ import logging
 from django.shortcuts import redirect, render
 from botocore.exceptions import ClientError
 from custom_templates.models import Dashboard, Widget, Header, Footer, LoginForm
-from client_admin.models import OrganizationSettings
+from client_admin.models import OrganizationSettings, ActivityLog
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
@@ -181,6 +182,7 @@ def login_view(request):
                 user.save()
 
             django_login(request, user)
+            record_login_activity(user)
             return redirect('learner_dashboard')
         
         # Add debug print to see if this line is hit
@@ -189,6 +191,28 @@ def login_view(request):
         return render(request, 'main/login.html', {'login_form': login_form})
 
     return render(request, 'main/login.html', {'login_form': login_form})
+
+def record_login_activity(user):
+    """
+    Write one ActivityLog row per user per *local* calendar day.
+    Safe to call multiple times; no-ops if today's row already exists.
+    """
+    today = timezone.localdate()
+    already = ActivityLog.objects.filter(
+        user=user,
+        action_type='user_login',
+        timestamp__date=today,   # <-- use your field name
+    ).exists()
+
+    if not already:
+        ActivityLog.objects.create(
+            user=user,
+            action_performer=user.username,
+            action_target=user.username,
+            action_type='user_login',
+            action='user logged in',
+            user_groups=', '.join(g.name for g in user.groups.all()),
+        )
 
 cognito_client = boto3.client('cognito-idp', region_name=settings.AWS_REGION)
 logger = logging.getLogger(__name__)

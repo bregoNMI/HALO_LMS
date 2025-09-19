@@ -19,7 +19,7 @@ from typing import Optional
 from django.utils.encoding import iri_to_uri
 from client_admin.utils import get_formatted_datetime
 from urllib.parse import quote, unquote, unquote_plus
-from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, UserAssignmentProgress, QuizAttempt
+from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, UserAssignmentProgress, QuizAttempt, ActivityLog
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -1124,7 +1124,6 @@ def _canon_url(u: str) -> str:
 
 @login_required
 def launch_scorm_file(request, lesson_id):
-    print('Lesson ID:', lesson_id)
     lesson = get_object_or_404(Lesson, pk=lesson_id)
     course = lesson.module.course
     profile = get_object_or_404(Profile, user=request.user)
@@ -1429,6 +1428,23 @@ def launch_scorm_file(request, lesson_id):
         }
         resume_json = json.dumps(resume)
 
+        today = timezone.localdate()
+        already = ActivityLog.objects.filter(
+            user=request.user,
+            action_type='user_login',
+            timestamp__date=today,
+        ).exists()
+
+        if not already:
+            ActivityLog.objects.create(
+                user=request.user,
+                action_performer=request.user.username,
+                action_target=request.user.username,
+                action_type='user_login',
+                action='user logged in',
+                user_groups=', '.join(g.name for g in request.user.groups.all()),
+            )
+
         return render(request, 'quizzes/quiz_player.html', {
             'lesson': lesson,
             'course_title': course.title,
@@ -1457,6 +1473,23 @@ def launch_scorm_file(request, lesson_id):
             'lesson_session': session,       # expose for legacy template bits
             'resume_json': resume_json,
         })
+    
+    today = timezone.localdate()
+    already = ActivityLog.objects.filter(
+        user=request.user,
+        action_type='user_login',
+        timestamp__date=today,
+    ).exists()
+
+    if not already:
+        ActivityLog.objects.create(
+            user=request.user,
+            action_performer=request.user.username,
+            action_target=request.user.username,
+            action_type='user_login',
+            action='user logged in',
+            user_groups=', '.join(g.name for g in request.user.groups.all()),
+        )
 
     # Non-quiz launch
     return render(request, 'iplayer.html', {

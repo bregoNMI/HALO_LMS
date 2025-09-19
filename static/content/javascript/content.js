@@ -659,21 +659,22 @@ async function createLesson(lessonType) {
         fileInput = document.getElementById('fileURLInput').value; // This is a a URL from the File Library
         fileName = document.getElementById('lessonFileDisplay').innerText;  
         popupToClose = 'lessonCreationPopup';
+        lessonAssignmentsToggle = document.getElementById('lessonAssignmentsToggle').checked;
     } else if (lessonType === 'SCORM1.2' && window.closestLessonContainer) {
         title = document.getElementById('SCORM1.2lessonTitle').value;
         description = getEditorContent('SCORM12lessonDescription');
         fileInput = document.getElementById('SCORM1.2fileInput').files[0];
         fileName = document.getElementById('SCORM1.2fileNameDisplay').innerText;
         popupToClose = 'scorm1.2Popup';
+        lessonAssignmentsToggle = document.getElementById('SCORM1.2assignmentsToggle').checked;
     } else if (lessonType === 'SCORM2004' && window.closestLessonContainer) {
         title = document.getElementById('SCORM2004lessonTitle').value;
         description = getEditorContent('SCORM2004lessonDescription');
         fileInput = document.getElementById('SCORM2004fileInput').files[0];
         fileName = document.getElementById('SCORM2004fileNameDisplay').innerText;
         popupToClose = 'scorm2004Popup';
+        lessonAssignmentsToggle = document.getElementById('SCORM2004assignmentsToggle').checked;
     }
-
-    lessonAssignmentsToggle = document.getElementById('lessonAssignmentsToggle').checked;
        
 
     if (window.closestLessonContainer) {
@@ -853,6 +854,8 @@ function clearFileLessonInputs(){
     document.querySelector('#lessonDescription .ql-editor p').innerHTML = '';
     document.getElementById('fileURLInput').value = '';
     document.getElementById('lessonFileDisplay').innerText = 'No file selected';
+    const lessonAssignmentsToggle = document.getElementById('lessonAssignmentsToggle');
+    if(lessonAssignmentsToggle.checked == true){ lessonAssignmentsToggle.click();}
     // Resetting Create BTN
     createFileLessonBtn.classList.add('disabled');
     createFileLessonBtn.setAttribute('disabled', true);
@@ -863,6 +866,8 @@ function clearSCORM12LessonInputs(){
     document.querySelector('#SCORM12lessonDescription .ql-editor p').innerHTML = '';
     document.getElementById('SCORM1.2fileInput').value = '';
     document.getElementById('SCORM1.2fileNameDisplay').innerText = 'No file selected';
+    const lessonAssignmentsToggle = document.getElementById('SCORM1.2assignmentsToggle');
+    if(lessonAssignmentsToggle.checked == true){ lessonAssignmentsToggle.click();}
     // Resetting Create BTN
     createFileLessonBtn.classList.add('disabled');
     createFileLessonBtn.setAttribute('disabled', true);
@@ -873,6 +878,8 @@ function clearSCORM2004LessonInputs(){
     document.querySelector('#SCORM2004lessonDescription .ql-editor p').innerHTML = '';
     document.getElementById('SCORM2004fileInput').value = '';
     document.getElementById('SCORM2004fileNameDisplay').innerText = 'No file selected';
+    const lessonAssignmentsToggle = document.getElementById('SCORM2004assignmentsToggle');
+    if(lessonAssignmentsToggle.checked == true){ lessonAssignmentsToggle.click();}
     // Resetting Create BTN
     createFileLessonBtn.classList.add('disabled');
     createFileLessonBtn.setAttribute('disabled', true);
@@ -964,12 +971,15 @@ function createAndAppendLessonCard(index, title, description, fileURL, fileName,
         <input class="lesson-description" type="hidden" value="${description}">
         <input class="lesson-assignments-toggle" type="hidden" value="${lessonAssignmentsToggle}">
     `;
+    console.log('lessonAssignmentsToggle:', lessonAssignmentsToggle, 'window.activeLessonPopup:', window.activeLessonPopup);
 
     if (lessonAssignmentsToggle && window.activeLessonPopup) {
         const assignmentDropdown = window.activeLessonPopup.querySelector('.assignment-dropdown');
+        console.log('assignmentDropdown:', assignmentDropdown);
     
         if (assignmentDropdown) {
             const selectedAssignments = assignmentDropdown.querySelectorAll('.selected-assignment');
+            console.log('selectedAssignments:', selectedAssignments);
     
             selectedAssignments.forEach((assignmentEl, index) => {
                 const assignmentId = assignmentEl.getAttribute('data-assignment-id');
@@ -1689,16 +1699,21 @@ function observeAttributeChange(targetId, callback) {
     observer.observe(target, { attributes: true });
 }
 
-document.getElementById('SCORM1.2lessonTitle').addEventListener('keyup', function() {
-    const createFileLessonBtn = document.getElementById('create12LessonBtn');
-    if(this.value.length >= 1){
-        createFileLessonBtn.classList.remove('disabled');
-        createFileLessonBtn.removeAttribute('disabled');
+document.getElementById('SCORM1.2lessonTitle').addEventListener('keyup', check12FileFields);
+document.getElementById('SCORM1.2fileInput').addEventListener('change', check12FileFields);
+
+function check12FileFields(){
+    const create12LessonBtn = document.getElementById('create12LessonBtn');
+    const fileInput = document.getElementById('SCORM1.2fileInput');
+    if(this.value.length >= 1 && fileInput.files.length > 0){
+        create12LessonBtn.classList.remove('disabled');
+        create12LessonBtn.removeAttribute('disabled');
     }else{
-        createFileLessonBtn.classList.add('disabled');
-        createFileLessonBtn.setAttribute('disabled', true);
+        create12LessonBtn.classList.add('disabled');
+        create12LessonBtn.setAttribute('disabled', true);
     }
-});
+}
+
 document.getElementById('editLessonTitle').addEventListener('keyup', function() {
     const editLessonBtn = document.getElementById('editLessonBtn');
     if(this.value.length >= 1){

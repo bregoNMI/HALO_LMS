@@ -26,7 +26,6 @@ window.onclick = function(event) {
 document.addEventListener('DOMContentLoaded', function() {
     initializeHeaderVariables();
     initializeCurrentURL();
-    initializeCardListeners();
     initializeAlertMessages();
     initializeProfileInputListeners();
     initializeEnrollmentTextListener();
@@ -196,27 +195,6 @@ function initializeCurrentURL(){
         if (option.getAttribute("href") === currentPath) {
             option.classList.add("active");
         }
-    });
-}
-
-function initializeCardListeners(){
-    // Hiding / Showing User Card
-    const cardHeaders = document.querySelectorAll('.card-header-right');
-
-    cardHeaders.forEach(header => {
-        header.addEventListener('click', function() {
-
-            // Toggle 'active' class on the clicked element
-            header.classList.toggle('active');
-
-            console.log('yurrr');
-
-            // Find the nearest .info-card-body and toggle its visibility
-            const cardBody = header.closest('.details-info-card').querySelector('.info-card-body');
-            if (cardBody) {
-                cardBody.classList.toggle('hidden'); // 'hidden' class should be styled with display: none;
-            }
-        });
     });
 }
 

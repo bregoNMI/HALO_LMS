@@ -60,26 +60,35 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('certificateImageDisplay').textContent = fileName;
         });
     }
+
     const portal_favicon = document.getElementById('portal_favicon');
     const faviconPreview = document.getElementById('faviconPreview');
+    const learning_credits_icon = document.getElementById('learning_credits_icon');
+    const creditsIconPreview = document.getElementById('creditsIconPreview');
 
-    if (portal_favicon) {
-        portal_favicon.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const fileName = file.name;
-                document.getElementById('faviconImageDisplay').textContent = fileName;
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    faviconPreview.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            } else {
-                document.getElementById('faviconImageDisplay').textContent = 'No file selected';
-                faviconPreview.src = '';
-            }
+    function previewFile(inputEl, imgEl, labelId) {
+        inputEl?.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        const labelEl = document.getElementById(labelId);
+        if (file) {
+            if (labelEl) labelEl.textContent = file.name;
+            const objectUrl = URL.createObjectURL(file);
+            imgEl.src = objectUrl;
+            imgEl.style.display = '';
+            imgEl.onload = () => URL.revokeObjectURL(objectUrl);
+        } else {
+            if (labelEl) labelEl.textContent = 'No file selected';
+            imgEl.src = '';
+            imgEl.style.display = 'none';
+        }
         });
+    }
+
+    if (portal_favicon && faviconPreview) {
+        previewFile(portal_favicon, faviconPreview, 'faviconImageDisplay');
+    }
+    if (learning_credits_icon && creditsIconPreview) {
+        previewFile(learning_credits_icon, creditsIconPreview, 'creditsIconImageDisplay');
     }
 
     testCreateField();
@@ -134,8 +143,128 @@ function submitSettingsForm() {
         }
     }
 
+    const pickerChecks = document.querySelectorAll('#badgePickerGrid .badge-toggle');
+    if (pickerChecks.length > 0) {
+        const chosen = [...pickerChecks]
+        .filter(el => el.checked)
+        .map(el => el.dataset.slug);
+        document.getElementById('selected_badges').value = JSON.stringify(chosen);
+    }
+
     form.submit();
 }
+
+const catalog = JSON.parse(document.getElementById('badge-catalog-json').textContent);
+const enabledFromServer = JSON.parse(document.getElementById('enabled-slugs-json').textContent || '[]');
+const selectedHidden = document.getElementById('selected_badges');
+
+// --- helpers: read/write the selection from the hidden field (single source of truth) ---
+function getSelectedSlugsSet() {
+  try { return new Set(JSON.parse(selectedHidden.value || '[]')); }
+  catch { return new Set(); }
+}
+function setSelectedSlugs(slugsArray) {
+  selectedHidden.value = JSON.stringify(slugsArray);
+}
+
+// --- render the inline “enabled badges” chip list from the current hidden value ---
+function renderEnabledList() {
+    const list = document.getElementById('enabledBadgeList');
+    const selected = getSelectedSlugsSet();
+    list.innerHTML = '';
+    if (selected.size === 0) {
+        list.innerHTML = `<div class="custom-list-options-container" style="width: 100%; margin-top: 0;">
+            <div class="custom-list-option">
+                <span class="no-disapprovals"> No badges selected yet. </span>
+            </div>
+        </div>`;
+        return;
+    }
+    const learning_credits_icon = JSON.parse(
+        document.getElementById('learning-credits-icon').textContent
+        );
+    const bySlug = Object.fromEntries(catalog.map(c => [c.slug, c]));
+    selected.forEach(slug => {
+        const item = bySlug[slug];
+        if (!item) return;
+        const credits = (item?.criteria?.reward?.credits ?? 0);
+        const chip = document.createElement('div');
+        chip.className = 'badge-chip';
+        chip.innerHTML = `
+            <div class="badge-credits-total pastel-purple">
+                ${
+                learning_credits_icon
+                    ? `<img src="${learning_credits_icon}" alt="Credits Icon" class="credits-icon">`
+                    : `<img src="/static/images/gamification/credits/LMS_Credit.png" alt="Credits Icon" class="credits-icon">`
+                }
+                <span>${credits}</span>
+            </div>
+            <div class="badge-icon">
+                <img src="${'/static/' + item.icon_static}" alt="Badge Icon">
+            </div>
+            <div class="badge-chip-text">
+                <div class="name">${item.name}</div>
+                <div class="desc">${item.description}</div>
+            </div>
+            `;
+        list.appendChild(chip);
+    });
+}
+
+// --- render the popup picker based on the current hidden value (NOT the initial server set) ---
+function renderPicker() {
+    const grid = document.getElementById('badgePickerGrid');
+    const current = getSelectedSlugsSet(); // ← live selection
+    const learning_credits_icon = JSON.parse(
+        document.getElementById('learning-credits-icon').textContent
+    );
+    grid.innerHTML = '';
+    catalog.forEach(item => {
+        const checked = current.has(item.slug);
+        const el = document.createElement('label');
+        const credits = (item?.criteria?.reward?.credits ?? 0);
+        el.className = 'badge-chip select-badge-chip container';
+        el.innerHTML = `
+        <input class="badge-toggle"
+         type="checkbox"
+         id="badge-${item.slug}"
+         name="${item.slug}"
+         data-slug="${item.slug}"
+         ${checked ? 'checked' : ''}><div class="checkmark" aria-hidden="true"></div>
+        <div class="badge-credits-total pastel-purple">
+            ${
+            learning_credits_icon
+                ? `<img src="${learning_credits_icon}" alt="Credits Icon" class="credits-icon">`
+                : `<img class="credits-icon" src="/static/images/gamification/credits/LMS_Credit.png" alt="Credits Icon">`
+            }
+            <span>${credits}</span>
+        </div>
+        <div class="badge-icon">
+            <img src="${'/static/' + item.icon_static}" alt="Badge Icon">
+        </div>
+        <div class="badge-chip-text">
+            <div class="name">${item.name}</div>
+            <div class="desc">${item.description}</div>
+        </div>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+// Called by your popup open hook
+window.renderBadges = (id) => {
+    console.log(id);
+    if (id === 'selectBadgeOptions') {
+      renderPicker();
+    }
+};
+
+window.selectBadgeOptions = () => {
+    const chosen = [...document.querySelectorAll('#badgePickerGrid .badge-toggle:checked')].map(el => el.dataset.slug);
+    setSelectedSlugs(chosen);
+    renderEnabledList();
+    closePopup('selectBadgeOptions');
+};
 
 function testEditField(){
     const editIdPhotoName = document.getElementById('editIdPhotoName');
@@ -150,6 +279,11 @@ function testEditField(){
         }
     })
 }
+
+if (!(selectedHidden.value && selectedHidden.value.length > 2)) {
+    setSelectedSlugs(enabledFromServer);
+}
+renderEnabledList();
 
 function createAllowedIdPhoto() {
     const name = document.getElementById('newIdPhotoName');

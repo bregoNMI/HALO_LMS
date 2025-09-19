@@ -27,7 +27,7 @@ from django.utils.timezone import now, get_current_timezone
 from django.http import HttpResponseForbidden, HttpRequest
 from learner_dashboard.views import learner_dashboard
 from django.contrib import messages
-from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos, EnrollmentKey, UserAssignmentProgress, QuizAttempt
+from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos, EnrollmentKey, UserAssignmentProgress, QuizAttempt, OrgBadge, UserBadge, CurrencyTransaction
 from course_player.models import LessonSession, SCORMTrackingData, LessonProgress, QuizResponse, EssayPromptGrade 
 from content.models import Lesson, Category, Quiz, Question, QuizTemplate, QuestionOrder, Answer, EssayPrompt, EssayAnswer, QuizReference, QuestionMedia
 from client_admin.forms import OrganizationSettingsForm
@@ -45,6 +45,10 @@ from collections import defaultdict
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from client_admin.python.badges_catalog import BADGE_CATALOG
+from typing import List ,Iterable
+from django.templatetags.static import static
+from learner_dashboard.services.achievements import compute_progress, login_streak_days
 #from models import Profile
 #from authentication.python import views
 
@@ -144,63 +148,108 @@ def admin_dashboard(request):
         'top_course_data': top_course_data,
     }
 
-    print(f"Labels: {labels}")
-    print(f"Values: {values}")
-    print(f"Granularity: {granularity}")
-
-
     return render(request, 'dashboard.html', context)
+
+CATALOG_BY_SLUG = {b["slug"]: b for b in BADGE_CATALOG}
+
+def sync_org_badges(settings, selected_slugs: Iterable[str]):
+    existing = {ob.template_slug: ob for ob in OrgBadge.objects.filter(organization=settings)}
+    selected = set(selected_slugs)
+
+    # upsert selected
+    for slug in selected:
+        cat = CATALOG_BY_SLUG.get(slug)
+        if not cat:
+            continue
+        ob = existing.get(slug)
+        if ob:
+            # keep definition in sync (unless you want per-org overrides)
+            updates = []
+            if not ob.active:
+                ob.active = True; updates.append("active")
+            if ob.name != cat["name"]:
+                ob.name = cat["name"]; updates.append("name")
+            if ob.description != cat["description"]:
+                ob.description = cat["description"]; updates.append("description")
+            if ob.criteria != cat["criteria"]:
+                ob.criteria = cat["criteria"]; updates.append("criteria")
+            if ob.icon_static != cat.get("icon_static"):
+                ob.icon_static = cat.get("icon_static"); updates.append("icon_static")
+            if updates:
+                ob.save(update_fields=updates)
+        else:
+            OrgBadge.objects.create(
+                organization=settings,
+                template_slug=slug,
+                name=cat["name"],
+                description=cat["description"],
+                criteria=cat["criteria"],
+                icon_static=cat.get("icon_static"),
+                active=True,
+            )
+
+    # deactivate unselected
+    to_deactivate = set(existing.keys()) - selected
+    if to_deactivate:
+        OrgBadge.objects.filter(
+            organization=settings,
+            template_slug__in=to_deactivate,
+            active=True
+        ).update(active=False)
 
 @login_required
 def admin_settings(request):
-    settings = OrganizationSettings.objects.first()
-
-    # Create a new instance if none exists
-    if settings is None:
-        settings = OrganizationSettings()
-        settings.save()
+    settings = OrganizationSettings.get_instance()
 
     if request.method == 'POST':
+        selected_badges_raw = request.POST.get('selected_badges', '[]')
+        try:
+            selected_slugs = json.loads(selected_badges_raw) if selected_badges_raw else []
+            # validate slugs
+            selected_slugs = [s for s in selected_slugs if s in CATALOG_BY_SLUG]
+        except json.JSONDecodeError:
+            selected_slugs = []
+
+        # apply badge updates first (so the page reflects them after save)
+        sync_org_badges(settings, selected_slugs)
+
         existing_text = (settings.terms_and_conditions_text or '').strip()
         previously_modified = settings.terms_last_modified
 
         form = OrganizationSettingsForm(request.POST, request.FILES, instance=settings)
-
         if form.is_valid():
-            # Handle boolean fields
-            settings.on_login_course = request.POST.get('on_login_course') == 'on'
-            settings.profile_customization = request.POST.get('profile_customization') == 'on'
-            settings.default_course_thumbnail = request.POST.get('default_course_thumbnail') == 'on' 
-            settings.default_certificate = request.POST.get('default_certificate') == 'on' 
-            settings.terms_and_conditions = request.POST.get('terms_and_conditions') == 'on'
+            # checkboxes
+            settings.on_login_course         = request.POST.get('on_login_course') == 'on'
+            settings.profile_customization   = request.POST.get('profile_customization') == 'on'
+            settings.default_course_thumbnail= request.POST.get('default_course_thumbnail') == 'on'
+            settings.default_certificate     = request.POST.get('default_certificate') == 'on'
+            settings.terms_and_conditions    = request.POST.get('terms_and_conditions') == 'on'
             settings.course_launch_verification = request.POST.get('course_launch_verification') == 'on'
-            settings.in_session_checks = request.POST.get('in_session_checks') == 'on'
+            settings.in_session_checks       = request.POST.get('in_session_checks') == 'on'
+            settings.enable_gamification     = request.POST.get('enable_gamification') == 'on'
 
-            # Check for course ID if on_login_course is enabled
+            # required course if enabled
             course_id = request.POST.get('on_login_course_id')
             if settings.on_login_course and not course_id:
                 messages.error(request, 'Please select a course for the One-time Course setting.')
                 return redirect('admin_settings')
 
-            # Handle Text Fields
+            # terms text & modified timestamp
             new_terms_text = (request.POST.get('terms_and_conditions_text') or '').strip()
-            if existing_text != new_terms_text:
-                settings.terms_last_modified = timezone.now()
-            else:
-                settings.terms_last_modified = previously_modified
-
-            # Save cleaned text and course ID if present
+            settings.terms_last_modified = timezone.now() if existing_text != new_terms_text else previously_modified
             settings.terms_and_conditions_text = new_terms_text
+
             if course_id:
                 settings.on_login_course_id = int(course_id)
 
-            # Clear favicon if not present in FILES
+            # clearing files when not provided
             if 'portal_favicon' not in request.FILES and not request.POST.get('portal_favicon'):
                 settings.portal_favicon = None
+            if 'learning_credits_icon' not in request.FILES and not request.POST.get('learning_credits_icon'):
+                settings.learning_credits_icon = None
 
-            hours = safe_int(request.POST.get('check_frequency_hours'))
-            minutes = safe_int(request.POST.get('check_frequency_minutes'))
-
+            hours  = safe_int(request.POST.get('check_frequency_hours'))
+            minutes= safe_int(request.POST.get('check_frequency_minutes'))
             settings.check_frequency_time = timedelta(hours=hours, minutes=minutes)
 
             settings.save()
@@ -208,31 +257,33 @@ def admin_settings(request):
 
             messages.success(request, 'Settings updated')
             return redirect('admin_settings')
-
         else:
             messages.error(request, form.errors)
-            print(form.errors)
 
     else:
         form = OrganizationSettingsForm(instance=settings)
 
+    enabled_org_badges = (OrgBadge.objects
+    .filter(organization=settings, active=True)
+    .order_by('display_order', 'name'))
+
+    enabled_slugs = list(enabled_org_badges.values_list('template_slug', flat=True))
+
     selected_course_name = ''
     if settings.on_login_course_id:
         try:
-            selected_course = Course.objects.get(id=settings.on_login_course_id)
-            selected_course_name = selected_course.title
+            selected_course_name = Course.objects.get(id=settings.on_login_course_id).title
         except Course.DoesNotExist:
             pass
 
     allowed_photos = settings.allowed_id_photos.order_by('id')
 
-    check_frequency = settings.check_frequency_time
-    hours = minutes = 0
-    if check_frequency:
-        total_seconds = check_frequency.total_seconds()
-        hours = int(total_seconds // 3600)
-        minutes = int((total_seconds % 3600) // 60)
+    check_frequency = settings.check_frequency_time or timedelta()
+    total_seconds = int(check_frequency.total_seconds())
+    hours   = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
 
+    learning_icon_url = settings.learning_credits_icon.url if settings.learning_credits_icon else None
 
     return render(request, 'settings.html', {
         'form': form,
@@ -240,6 +291,9 @@ def admin_settings(request):
         'allowed_photos': allowed_photos,
         'hours': hours,
         'minutes': minutes,
+        'catalog': BADGE_CATALOG,          # <-- pass the catalog
+        'enabled_slugs': enabled_slugs,
+        "learning_icon_url": learning_icon_url,
     })
 
 def safe_int(value):
@@ -615,6 +669,12 @@ def enroll_users_request(request):
     else:
         response_data['message'] = 'All users are already enrolled in the selected courses.'
         return JsonResponse(response_data, status=200)
+    
+def _credits_from_criteria(criteria: dict) -> int:
+    try:
+        return int((criteria or {}).get("reward", {}).get("credits", 0))
+    except (TypeError, ValueError):
+        return 0
 
 @login_required
 def user_details(request, user_id):
@@ -623,6 +683,8 @@ def user_details(request, user_id):
         .select_related('course') \
         .prefetch_related('module_progresses__module__lessons') \
         .order_by('course__title')
+    
+    org = OrganizationSettings.get_instance()
 
     # Enrollment Progress
     total_enrollments = user_courses.count()
@@ -663,6 +725,52 @@ def user_details(request, user_id):
 
     total_certificates = GeneratedCertificate.objects.filter(user=profile.user).count()
 
+    streak = login_streak_days(profile.user)
+
+    # totals (as you already set up)
+    badges_earned_count = (
+        UserBadge.objects
+        .filter(user=profile.user, org_badge__organization=org)
+        .count()
+    )
+    credits_total = (
+        CurrencyTransaction.objects
+        .filter(user=profile.user)
+        .aggregate(total=Coalesce(Sum('amount'), 0))['total']
+    )
+
+    # earned badges list
+    earned_qs = (
+        UserBadge.objects
+        .filter(user=profile.user, org_badge__organization=org)
+        .select_related('org_badge')
+        .order_by('-earned_at')
+    )
+
+    earned_badges = []
+    for ub in earned_qs:
+        ob = ub.org_badge
+        # resolve icon
+        icon_url = None
+        if ob.icon:
+            try:
+                icon_url = ob.icon.url
+            except Exception:
+                icon_url = None
+        if not icon_url and ob.icon_static:
+            icon_url = static(ob.icon_static)
+
+        earned_badges.append({
+            "name": ob.name,
+            "description": ob.description,
+            "icon_url": icon_url,
+            "credits": _credits_from_criteria(ob.criteria),
+            "earned_at": ub.earned_at,
+        })
+
+    credits_name = org.learning_credits_name or "Credits"
+    credits_icon_url = org.learning_credits_icon.url if org.learning_credits_icon else '/static/images/gamification/credits/LMS_Credit.png'
+
     context = {
         'profile': profile,
         'user_courses': user_courses,
@@ -674,6 +782,12 @@ def user_details(request, user_id):
         'last_active': last_active,
         'total_time_spent': formatted_total_time,
         'total_certificates': total_certificates,
+        'earned_badges': earned_badges,
+        'credits_name': credits_name,
+        'credits_icon_url': credits_icon_url,
+        'badges_earned': badges_earned_count,
+        'credits_total': credits_total,
+        'streak': streak,
     }
 
     return render(request, 'users/user_details.html', context)
@@ -1142,44 +1256,48 @@ def delete_allowed_id_photos(request):
 def usercourse_detail_view(request, uuid):
     user_course = get_object_or_404(UserCourse, uuid=uuid)
 
-    # Pull module/lesson progresses efficiently and annotate each ULP with its quiz_attempts_count
-    module_progresses = (
+    # Ordered module progresses → ordered lesson progresses
+    ordered_module_progresses = (
         user_course.module_progresses
         .select_related('module')
+        .order_by('module__order')                                 # ← order modules
         .prefetch_related(
             Prefetch(
                 'lesson_progresses',
-                queryset=UserLessonProgress.objects
+                queryset=(
+                    UserLessonProgress.objects
                     .select_related('lesson')
                     .annotate(quiz_attempts_count=Count('quiz_attempts'))
-                    .order_by('order')
+                    .order_by('lesson__order')                     # ← order lessons within module
+                ),
+                to_attr='ordered_lesson_progresses'                # attach as a list
             )
         )
     )
 
-    # Rebuild lesson_sessions_map (unchanged behavior)
+    # Build lesson_sessions_map using the ordered lists
     lesson_sessions_map = {}
-    for module_progress in module_progresses:
-        for lp in module_progress.lesson_progresses.all():
-            sessions = LessonSession.objects.filter(
-                lesson=lp.lesson,
-                user=user_course.user
+    for mp in ordered_module_progresses:
+        for lp in mp.ordered_lesson_progresses:
+            sessions = (
+                LessonSession.objects
+                .filter(lesson=lp.lesson, user=user_course.user)
+                .order_by('end_time')                              # optional but nice
             )
             lesson_sessions_map[lp.id] = sessions
 
-    # ➤ Build a fast lookup for quiz attempts count per ULP id
+    # Quiz attempts map from the same ordered lists
     quiz_attempts_map = {
         lp.id: lp.quiz_attempts_count
-        for mp in module_progresses
-        for lp in mp.lesson_progresses.all()
+        for mp in ordered_module_progresses
+        for lp in mp.ordered_lesson_progresses
     }
 
-    # ➤ Total time spent (unchanged)
+    # Total time (unchanged)
     scorm_sessions = SCORMTrackingData.objects.filter(
         user=user_course.user,
         lesson__module__course=user_course.course
     )
-
     total_time = timedelta()
     for session in scorm_sessions:
         total_time += parse_iso_duration(session.session_time)
@@ -1187,17 +1305,15 @@ def usercourse_detail_view(request, uuid):
     if total_time.total_seconds() == 0:
         formatted_total_time = "No Activity"
     else:
-        total_hours, remainder = divmod(total_time.total_seconds(), 3600)
-        total_minutes, total_seconds = divmod(remainder, 60)
-        if total_hours > 0:
-            formatted_total_time = f"{int(total_hours)}h {int(total_minutes)}m {int(total_seconds)}s"
-        else:
-            formatted_total_time = f"{int(total_minutes)}m {int(total_seconds)}s"
+        h, r = divmod(total_time.total_seconds(), 3600)
+        m, s = divmod(r, 60)
+        formatted_total_time = f"{int(h)}h {int(m)}m {int(s)}s" if h else f"{int(m)}m {int(s)}s"
 
     return render(request, 'userCourse/user_course_details.html', {
         'user_course': user_course,
+        'ordered_module_progresses': ordered_module_progresses,     # ← pass ordered modules
         'lesson_sessions_map': lesson_sessions_map,
-        'quiz_attempts_map': quiz_attempts_map,   # ➤ pass to template
+        'quiz_attempts_map': quiz_attempts_map,
         'total_time_spent': formatted_total_time,
     })
 

@@ -593,10 +593,13 @@ class OrganizationSettings(models.Model):
     time_zone = models.CharField(max_length=255, blank=True, null=True, default='(UTC-05:00) Eastern Time (US & Canada)')
     iana_name = models.CharField(max_length=100, unique=True, default='America/New_York')
 
-    # User settings
+    # Learner Settings
     on_login_course = models.BooleanField(default=False, blank=True, null=True)
     on_login_course_id = models.PositiveIntegerField(blank=True, null=True)
     profile_customization = models.BooleanField(default=False, blank=True, null=True)
+    enable_gamification = models.BooleanField(default=False, blank=True, null=True)
+    learning_credits_name = models.CharField(max_length=255, default='HELMS° Credits', blank=True, null=True)
+    learning_credits_icon = models.ImageField(upload_to='logos/', blank=True, null=True)
 
     # Course Settings 
     default_course_thumbnail = models.BooleanField(default=False, blank=True, null=True)
@@ -627,6 +630,48 @@ class OrganizationSettings(models.Model):
 
     def __str__(self):
         return self.lms_name
+    
+class OrgBadge(models.Model):
+    organization = models.ForeignKey(OrganizationSettings, on_delete=models.CASCADE, related_name="org_badges")
+    template_slug = models.SlugField(max_length=80)  # stable link to the code catalog
+    name = models.CharField(max_length=120)
+    description = models.TextField(blank=True)
+    criteria = models.JSONField(default=dict)
+    icon = models.ImageField(upload_to="badges/org/", blank=True, null=True)
+    icon_static = models.CharField(max_length=255, blank=True, null=True)
+
+    active = models.BooleanField(default=True)
+    display_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = (("organization", "template_slug"),)
+
+class UserBadge(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_badges")
+    org_badge = models.ForeignKey(OrgBadge, on_delete=models.CASCADE, related_name="awards")
+    earned_at = models.DateTimeField(auto_now_add=True)
+    evidence = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        unique_together = (("user", "org_badge"),)
+
+class CurrencyTransaction(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="credit_txns")
+    amount = models.IntegerField()  # use PositiveIntegerField if you never subtract
+    reason = models.CharField(max_length=255, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # Optional: keep per-tenant accounting
+    organization = models.ForeignKey(OrganizationSettings, on_delete=models.CASCADE, related_name="credit_txns", null=True, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["user", "-created_at"]),
+        ]
+
+    def __str__(self):
+        sign = "+" if self.amount >= 0 else "−"
+        return f"{self.user_id} {sign}{abs(self.amount)} ({self.reason})"
     
 class TimeZone(models.Model):
     name = models.CharField(max_length=100, unique=True)

@@ -220,130 +220,109 @@
                         </div>
                         <!-- Lessons -->
                         <div class="tab-content" id="tab2">
-                            {% for module_progress in user_course.module_progresses.all %}
+                            {% for module_progress in ordered_module_progresses %}
                                 <div class="details-info-section">
                                     <div class="details-info-card">
                                         <div class="info-card-header collapsable-header">
                                             <div class="card-header-left">
-                                                <span>{{ forloop.counter }}.</span>
-                                                <span class="selected-module-title">{{ module_progress.module.title }} </span>
-                                                {% if module_progress.lesson_progresses.all|length > 1 %}
-                                                    <span class="status course-active pastel-gray"> {{ module_progress.lesson_progresses.all|length }} Lessons </span>
-                                                {% else %}
-                                                    <span class="status course-active pastel-gray"> {{ module_progress.lesson_progresses.all|length }} Lesson</span>
-                                                {% endif %}
+                                            <span>{{ forloop.counter }}.</span>
+                                            <span class="selected-module-title">{{ module_progress.module.title }}</span>
+
+                                            {# lessons counted from the ordered list #}
+                                            {% with n=module_progress.ordered_lesson_progresses|length %}
+                                                <span class="status course-active pastel-gray">
+                                                {{ n }} Lesson{{ n|pluralize }}
+                                                </span>
+                                            {% endwith %}
                                             </div>
-                                            <div class="card-header-right">
-                                                <i class="fa-regular fa-angle-down"></i>
-                                            </div>
+                                            <div class="card-header-right"><i class="fa-regular fa-angle-down"></i></div>
                                         </div>
+
                                         <div class="info-card-body">
                                             <div class="lesson-list-options-container">
-                                                {% for lesson_progress in module_progress.lesson_progresses.all %}
-                                                    <div class="lesson-details-info-card">
-                                                        <div class="lesson-list-option lesson-list-option-{{ forloop.counter }}">
-                                                            <div class="lesson-list-option-left">
-                                                                <div class="lesson-list-counter">
-                                                                    <span>{{ forloop.counter }}</span>
-                                                                </div>
-                                                                <div class="lesson-list-type">
-                                                                    <span class="selected-lesson-type pastel-blue">
-                                                                        {% if lesson_progress.lesson.content_type == 'SCORM2004' %}
-                                                                            SCORM 2004
-                                                                        {% elif lesson_progress.lesson.content_type == 'SCORM1.2' %}
-                                                                            SCORM 1.2
-                                                                        {% elif lesson_progress.lesson.content_type == 'file' %}
-                                                                            File
-                                                                        {% elif lesson_progress.lesson.content_type == 'quiz' %}
-                                                                            Quiz
-                                                                        {% endif%}
-                                                                    </span>
-                                                                    <span class="selected-lesson-title">{{ lesson_progress.lesson.title }}</span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="lesson-list-option-right">
-                                                                <div class="lesson-list-attempts">
-                                                                    <!-- <span>Attempts: <b>{{ lesson_progress.attempts }}</b></span> -->
-                                                                    <span>Attempts: <b>{{ lesson_sessions_map|get_item:lesson_progress.id|length }}</b></span>
-                                                                </div>
-                                                                <div class="lesson-list-progress">
-                                                                    {% if lesson_progress.completed %}
-                                                                        <span class="status course-active pastel-green"> Completed </span>
-                                                                    {% elif lesson_progress.completion_status == 'completed' or lesson_progress.completion_status == 'passed' %}
-                                                                        <span class="status course-active pastel-green"> Completed </span>    
-                                                                    {% elif lesson_progress.completion_status == 'pending' %}
-                                                                        <span class="status course-active pastel-yellow"> Pending </span>       
-                                                                    {% elif lesson_progress.completion_status == 'failed' %}
-                                                                        <span class="status course-active pastel-red"> Failed </span>   
-                                                                    {% else %}                                             
-                                                                        <span class="status course-active pastel-gray"> Not Completed </span>
-                                                                    {% endif %}
-                                                                </div>
-                                                                {% with qa_count=quiz_attempts_map|get_item:lesson_progress.id|default:0 %}
-                                                                    {% if qa_count|add:0 > 0 %}
-                                                                        <div class="class-action-icon edit-icon has-quiz-attempts"
-                                                                            data-tooltip="Quiz Attempts ({{ qa_count }})"
-                                                                            onclick="openQuizAttempts('{{ lesson_progress.id }}')">
-                                                                            <i class="fa-solid fa-lightbulb"></i>
-                                                                        </div>
-                                                                    {% endif %}
-                                                                {% endwith %}
-                                                                <div onclick="openPopup('editLessonActivity'), inputLessonData('{{ lesson_progress.lesson.title }}', '{{ lesson_progress.id }}', 'edit', '{{ lesson_progress.lesson.content_type }}')" class="class-action-icon edit-icon" data-tooltip="Edit">
-                                                                    <i class="fa-solid fa-pen"></i>
-                                                                    <!-- <span class="tooltiptext">Edit</span> -->
-                                                                </div>
-                                                                <div onclick="openPopup('resetLessonActivity'), inputLessonData('{{ lesson_progress.lesson.title }}', '{{ lesson_progress.id }}', 'reset')" class="class-action-icon edit-icon" data-tooltip="Reset Activity">
-                                                                    <i class="fa-solid fa-arrows-rotate"></i>
-                                                                    <!-- <span class="tooltiptext">Reset Activity</span> -->
-                                                                </div>
-                                                                <div class="class-action-icon edit-icon lesson-card-header-right" data-tooltip="Expand">
-                                                                    <i class="fa-solid fa-angle-right"></i>
-                                                                    <!-- <span class="tooltiptext">Expand</span> -->
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="lesson-info-card-body hidden">
-                                                            {% if lesson_sessions_map|get_item:lesson_progress.id %}
-                                                                <div class="scrollable-content">
-                                                                    <table>
-                                                                        <thead>      
-                                                                            <tr>
-                                                                                <th>#</th>
-                                                                                <th>Date</th>
-                                                                                <th>Duration</th>
-                                                                                <th>Status</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            {% for session in lesson_sessions_map|get_item:lesson_progress.id %}
-                                                                                <tr class="table-select-option">
-                                                                                    <td>{{ forloop.counter }}</td>                                                          
-                                                                                    <td>{{ session.end_time }}</td>
-                                                                                    <td>{{ session.session_time|format_session_time }}</td>
-                                                                                    {% if session.completion_status == 'incomplete' %}
-                                                                                        <td>In Progress </td>
-                                                                                    {% else %}
-                                                                                        <td> Completed </td>
-                                                                                    {% endif %} 
-                                                                                </tr>
-                                                                            {% empty %}
-                                                                                <tr><td>No sessions available.</td></tr>
-                                                                            {% endfor %}
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            {% else %}
-                                                                <span class="no-sessions-found"> No sessions available.</span>
+                                            {# lessons in lesson.order #}
+                                            {% for lesson_progress in module_progress.ordered_lesson_progresses %}
+                                                <div class="lesson-details-info-card">
+                                                    <div class="lesson-list-option lesson-list-option-{{ forloop.counter }}">
+                                                        <div class="lesson-list-option-left">
+                                                        <div class="lesson-list-counter"><span>{{ forloop.counter }}</span></div>
+                                                        <div class="lesson-list-type">
+                                                            <span class="selected-lesson-type pastel-blue">
+                                                            {% if lesson_progress.lesson.content_type == 'SCORM2004' %}SCORM 2004
+                                                            {% elif lesson_progress.lesson.content_type == 'SCORM1.2' %}SCORM 1.2
+                                                            {% elif lesson_progress.lesson.content_type == 'file' %}File
+                                                            {% elif lesson_progress.lesson.content_type == 'quiz' %}Quiz
                                                             {% endif %}
+                                                            </span>
+                                                            <span class="selected-lesson-title">{{ lesson_progress.lesson.title }}</span>
+                                                        </div>
+                                                        </div>
+
+                                                        <div class="lesson-list-option-right">
+                                                            <div class="lesson-list-attempts">
+                                                                <span>Attempts: <b>{{ lesson_sessions_map|get_item:lesson_progress.id|length }}</b></span>
+                                                            </div>
+                                                            <div class="lesson-list-progress">
+                                                                {% if lesson_progress.completed or lesson_progress.completion_status in 'completed,passed' %}
+                                                                <span class="status course-active pastel-green">Completed</span>
+                                                                {% elif lesson_progress.completion_status == 'pending' %}
+                                                                <span class="status course-active pastel-yellow">Pending</span>
+                                                                {% elif lesson_progress.completion_status == 'failed' %}
+                                                                <span class="status course-active pastel-red">Failed</span>
+                                                                {% else %}
+                                                                <span class="status course-active pastel-gray">Not Completed</span>
+                                                                {% endif %}
+                                                            </div>
+
+                                                            {% with qa_count=quiz_attempts_map|get_item:lesson_progress.id|default:0 %}
+                                                                {% if qa_count|add:0 > 0 %}
+                                                                <div class="class-action-icon edit-icon has-quiz-attempts"
+                                                                    data-tooltip="Quiz Attempts ({{ qa_count }})"
+                                                                    onclick="openQuizAttempts('{{ lesson_progress.id }}')">
+                                                                    <i class="fa-solid fa-lightbulb"></i>
+                                                                </div>
+                                                                {% endif %}
+                                                            {% endwith %}
+
+                                                            <div onclick="openPopup('editLessonActivity'), inputLessonData('{{ lesson_progress.lesson.title }}', '{{ lesson_progress.id }}', 'edit', '{{ lesson_progress.lesson.content_type }}')" class="class-action-icon edit-icon" data-tooltip="Edit"><i class="fa-solid fa-pen"></i></div>
+                                                            <div onclick="openPopup('resetLessonActivity'), inputLessonData('{{ lesson_progress.lesson.title }}', '{{ lesson_progress.id }}', 'reset')" class="class-action-icon edit-icon" data-tooltip="Reset Activity"><i class="fa-solid fa-arrows-rotate"></i></div>
+                                                            <div class="class-action-icon edit-icon lesson-card-header-right" data-tooltip="Expand"><i class="fa-solid fa-angle-right"></i></div>
                                                         </div>
                                                     </div>
-                                                {% empty %}
-                                                    <span>No lessons available.</span>
-                                                {% endfor %}                                                                                                                                                                                                                                                                                      
-                                            </div>       
+
+                                                    <div class="lesson-info-card-body hidden">
+                                                        {% if lesson_sessions_map|get_item:lesson_progress.id %}
+                                                            <div class="scrollable-content">
+                                                                <table>
+                                                                <thead><tr><th>#</th><th>Date</th><th>Duration</th><th>Status</th></tr></thead>
+                                                                <tbody>
+                                                                    {% for session in lesson_sessions_map|get_item:lesson_progress.id %}
+                                                                    <tr class="table-select-option">
+                                                                        <td>{{ forloop.counter }}</td>
+                                                                        <td>{{ session.end_time }}</td>
+                                                                        <td>{{ session.session_time|format_session_time }}</td>
+                                                                        <td>{% if session.completion_status == 'incomplete' %}In Progress{% else %}Completed{% endif %}</td>
+                                                                    </tr>
+                                                                    {% empty %}
+                                                                    <tr><td>No sessions available.</td></tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                                </table>
+                                                            </div>
+                                                        {% else %}
+                                                            <span class="no-sessions-found">No sessions available.</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% empty %}
+                                                <span>No lessons available.</span>
+                                            {% endfor %}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                            {% empty %}
+                                <span>No modules available.</span>
                             {% endfor %}
                         </div>                                           
                     </div>

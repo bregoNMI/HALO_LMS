@@ -1,15 +1,21 @@
 from django.contrib.auth.decorators import login_required
 from custom_templates.models import Dashboard, Widget, Header, Footer
-from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, GeneratedCertificate, Profile, User, Message, OrganizationSettings, UserAssignmentProgress, Lesson
+from client_admin.models import Profile, UserCourse, UserModuleProgress, UserLessonProgress, GeneratedCertificate, Profile, User, Message, OrganizationSettings, UserAssignmentProgress, Lesson, OrgBadge, UserBadge, CurrencyTransaction
+from learner_dashboard.services.achievements import compute_progress, login_streak_days
 from content.models import Upload
+from django.db.models.functions import Coalesce
+from django.db.models import Sum, Value, IntegerField, Prefetch
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import update_session_auth_hash, logout
 from django.contrib import messages
 from django.utils.dateparse import parse_date
 from django.utils import timezone
-from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.db import transaction, IntegrityError
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, Http404, HttpResponseForbidden
+from django.views.decorators.http import require_POST
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+from django.templatetags.static import static
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from svglib.svglib import svg2rlg
@@ -70,9 +76,35 @@ def learner_dashboard(request):
 def learner_courses(request):
     user = request.user
 
-    user_courses = UserCourse.objects.filter(user=user)\
-        .select_related('course')\
-        .prefetch_related('module_progresses__module__lessons')
+    module_progress_qs = (
+        UserModuleProgress.objects
+        .select_related('module')
+        .order_by('module__order')  # modules ordered within the course
+        .prefetch_related(
+            Prefetch(
+                'lesson_progresses',
+                queryset=(
+                    UserLessonProgress.objects
+                    .select_related('lesson')
+                    .order_by('lesson__order')  # lessons ordered within the module
+                ),
+                to_attr='ordered_lesson_progresses'
+            )
+        )
+    )
+
+    user_courses = (
+        UserCourse.objects
+        .filter(user=user)
+        .select_related('course')
+        .prefetch_related(
+            Prefetch(
+                'module_progresses',
+                queryset=module_progress_qs,
+                to_attr='ordered_module_progresses'
+            )
+        )
+    )
 
     all_courses = [uc.course for uc in user_courses]
 
@@ -402,12 +434,73 @@ class SVGImage(Flowable):
         renderPDF.draw(self.drawing, self.canv, 0, 0)
         self.canv.restoreState()
 
+def _credits_from_criteria(criteria: dict) -> int:
+    try:
+        return int((criteria or {}).get("reward", {}).get("credits", 0))
+    except (TypeError, ValueError):
+        return 0
 
 @login_required
 def learner_profile(request):
-    profile = get_object_or_404(Profile, user=request.user)
-    
-    return render(request, 'learner_pages/learner_profile.html', {'profile': profile})
+    user = request.user
+    profile = get_object_or_404(Profile, user=user)
+    org = OrganizationSettings.get_instance()
+
+    streak = login_streak_days(user)
+
+    # totals (as you already set up)
+    badges_earned_count = (
+        UserBadge.objects
+        .filter(user=user, org_badge__organization=org)
+        .count()
+    )
+    credits_total = (
+        CurrencyTransaction.objects
+        .filter(user=user)
+        .aggregate(total=Coalesce(Sum('amount'), 0))['total']
+    )
+
+    # earned badges list
+    earned_qs = (
+        UserBadge.objects
+        .filter(user=user, org_badge__organization=org)
+        .select_related('org_badge')
+        .order_by('-earned_at')
+    )
+
+    earned_badges = []
+    for ub in earned_qs:
+        ob = ub.org_badge
+        # resolve icon
+        icon_url = None
+        if ob.icon:
+            try:
+                icon_url = ob.icon.url
+            except Exception:
+                icon_url = None
+        if not icon_url and ob.icon_static:
+            icon_url = static(ob.icon_static)
+
+        earned_badges.append({
+            "name": ob.name,
+            "description": ob.description,
+            "icon_url": icon_url,
+            "credits": _credits_from_criteria(ob.criteria),
+            "earned_at": ub.earned_at,
+        })
+
+    credits_name = org.learning_credits_name or "Credits"
+    credits_icon_url = org.learning_credits_icon.url if org.learning_credits_icon else '/static/images/gamification/credits/LMS_Credit.png'
+
+    return render(request, 'learner_pages/learner_profile.html', {
+        'profile': profile,
+        'streak': streak,
+        'badges_earned': badges_earned_count,
+        'credits_total': credits_total,
+        'earned_badges': earned_badges,          # <<< pass to template
+        'credits_name': credits_name,
+        'credits_icon_url': credits_icon_url,
+    })
 
 @login_required
 def terms_and_conditions(request):
@@ -671,6 +764,148 @@ def learner_notifications(request):
     }
     
     return render(request, 'learner_pages/learner_notifications.html', context)
+
+@login_required
+def learner_achievements(request):
+    org = OrganizationSettings.get_instance()
+    user = request.user
+
+    org_badges = (OrgBadge.objects
+                  .filter(organization=org, active=True)
+                  .order_by('display_order', 'name'))
+
+    already_awarded_map = set(UserBadge.objects
+                              .filter(user=user, org_badge__in=org_badges)
+                              .values_list("org_badge_id", flat=True))
+
+    items = []
+    for ob in org_badges:
+        progress = compute_progress(user, ob, ob.id in already_awarded_map)
+        items.append({
+            "id": ob.id,
+            "slug": ob.template_slug,
+            "name": ob.name,
+            "description": ob.description,
+            "icon_url": (ob.icon.url if ob.icon else None),
+            "icon_static": ob.icon_static,
+            "progress_current": progress.current,
+            "progress_target": progress.target,
+            "percent": progress.percent,
+            "achieved": progress.achieved,
+            "awarded": progress.awarded,
+            "claimable": progress.claimable,
+            "credits": progress.credits,
+        })
+
+    if not org.enable_gamification:
+        return render(request, "learner_pages/learner_achievements.html", {"badges": [], "settings": org})
+
+    return render(request, "learner_pages/learner_achievements.html", {
+        "badges": items,
+        "settings": org,
+    })
+
+def _badge_payload(ob, progress, org):
+    icon_url = None
+    if ob.icon:
+        try:
+            icon_url = ob.icon.url
+        except Exception:
+            pass
+    if not icon_url and ob.icon_static:
+        icon_url = static(ob.icon_static)
+
+    org_icon = None
+    if org.learning_credits_icon:
+        org_icon = org.learning_credits_icon.url
+
+    return {
+        "id": ob.id,
+        "slug": ob.template_slug,
+        "name": ob.name,
+        "description": ob.description,
+        "icon_url": icon_url,
+        "credits": int(progress.credits or 0),
+        "credits_icon": org_icon,
+    }
+
+@require_POST
+@login_required
+def claim_badge(request, org_badge_id: int):
+    org = OrganizationSettings.get_instance()
+    user = request.user
+
+    with transaction.atomic():
+        try:
+            ob = (OrgBadge.objects
+                  .select_for_update()
+                  .get(id=org_badge_id, organization=org, active=True))
+        except OrgBadge.DoesNotExist:
+            raise Http404("Badge not found")
+
+        already = (UserBadge.objects
+                   .select_for_update()
+                   .filter(user=user, org_badge=ob)
+                   .exists())
+
+        progress = compute_progress(user, ob, already_awarded=already)
+        if not progress.achieved:
+            return HttpResponseForbidden("Badge not yet achieved.")
+
+        if already:
+            # compute unclaimed count anyway
+            unclaimed_count = _unclaimed_badge_count(user, org)
+            return JsonResponse({
+                "ok": True,
+                "claimed": False,
+                "message": "Badge already claimed.",
+                "badge": _badge_payload(ob, progress, org),
+                "unclaimed_count": unclaimed_count,
+            })
+
+        try:
+            UserBadge.objects.create(user=user, org_badge=ob, evidence={})
+        except IntegrityError:
+            unclaimed_count = _unclaimed_badge_count(user, org)
+            return JsonResponse({
+                "ok": True,
+                "claimed": False,
+                "message": "Badge already claimed.",
+                "badge": _badge_payload(ob, progress, org),
+                "unclaimed_count": unclaimed_count,
+            })
+
+        if progress.credits:
+            CurrencyTransaction.objects.create(
+                user=user,
+                amount=progress.credits,
+                reason=f"Badge: {ob.name}",
+            )
+
+    # recompute after successful claim
+    unclaimed_count = _unclaimed_badge_count(user, org)
+
+    return JsonResponse({
+        "ok": True,
+        "claimed": True,
+        "credits": progress.credits,
+        "badge": _badge_payload(ob, progress, org),
+        "unclaimed_count": unclaimed_count,
+    })
+
+
+def _unclaimed_badge_count(user, org):
+    org_badges = OrgBadge.objects.filter(organization=org, active=True)
+    awarded_ids = set(
+        UserBadge.objects.filter(user=user, org_badge__in=org_badges)
+        .values_list("org_badge_id", flat=True)
+    )
+    count = 0
+    for ob in org_badges:
+        progress = compute_progress(user, ob, ob.id in awarded_ids)
+        if progress.claimable:
+            count += 1
+    return count
 
 @login_required
 def mark_message_as_read(request, message_id):

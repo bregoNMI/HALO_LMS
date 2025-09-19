@@ -96,43 +96,45 @@
                         </div>
                         <div class="user-history-container info-card-body scrollable-content-inner">
                             <div class="user-history-wrapper">
-                                {% for log in activity_logs %}                      
-                                    <div class="user-history-item">
-                                        <div class="user-history-header">
-                                            <div class="user-history-left">
-                                                {% if log.action_type == 'course_completed' %}
-                                                    <div class="user-history-icon">
-                                                        <i class="fa-light fa-badge-check"></i>
+                                {% for log in activity_logs %}      
+                                    {% if log.action_type != 'user_login' %}                
+                                        <div class="user-history-item">
+                                            <div class="user-history-header">
+                                                <div class="user-history-left">
+                                                    {% if log.action_type == 'course_completed' %}
+                                                        <div class="user-history-icon">
+                                                            <i class="fa-light fa-badge-check"></i>
+                                                        </div>
+                                                    {% elif log.action_type == 'user_updated' %}
+                                                        <div class="user-history-icon">
+                                                            <i class="fa-light fa-pencil"></i>
+                                                        </div>
+                                                    {% elif log.action_type == 'user_enrolled' %}
+                                                        <div class="user-history-icon">
+                                                            <i class="fa-light fa-hand-holding-box"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div class="user-history-action">
+                                                        <span><b>{{ log.action_performer }}</b> {{ log.action }}</span>
                                                     </div>
-                                                {% elif log.action_type == 'user_updated' %}
-                                                    <div class="user-history-icon">
-                                                        <i class="fa-light fa-pencil"></i>
+                                                </div>
+                                                <div class="user-history-right">
+                                                    <div class="user-history-date">
+                                                        <span> {{ log.timestamp|date:"M d" }}</span>
                                                     </div>
-                                                {% elif log.action_type == 'user_enrolled' %}
-                                                    <div class="user-history-icon">
-                                                        <i class="fa-light fa-hand-holding-box"></i>
-                                                    </div>
-                                                {% endif %}
-                                                <div class="user-history-action">
-                                                    <span><b>{{ log.action_performer }}</b> {{ log.action }}</span>
                                                 </div>
                                             </div>
-                                            <div class="user-history-right">
-                                                <div class="user-history-date">
-                                                    <span> {{ log.timestamp|date:"M d" }}</span>
-                                                </div>
+                                            <div class="user-history-body">
+                                                {% with log.action|split:"," as action_parts %}
+                                                    {% for part in action_parts %}
+                                                        <div class="user-history-body-item">
+                                                            <span>{{ part }}</span>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endwith %}
                                             </div>
-                                        </div>
-                                        <div class="user-history-body">
-                                            {% with log.action|split:"," as action_parts %}
-                                                {% for part in action_parts %}
-                                                    <div class="user-history-body-item">
-                                                        <span>{{ part }}</span>
-                                                    </div>
-                                                {% endfor %}
-                                            {% endwith %}
-                                        </div>
-                                    </div>   
+                                        </div>  
+                                    {% endif %} 
                                 {% endfor %}    
                             </div>
                         </div>

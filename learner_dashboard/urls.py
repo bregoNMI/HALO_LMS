@@ -9,8 +9,9 @@ urlpatterns = [
     path('courses/', views.learner_courses, name='learner_courses'),
     path('transcript/', views.learner_transcript, name='learner_transcript'),
     path('download-transcript/', views.download_transcript, name='download_transcript'),
-    path('notifications/', views.learner_notifications, name='learner_notifications'), 
-    path('logout/', views.custom_logout_view, name='custom_logout_view'),  # URL for logout
+    path('notifications/', views.learner_notifications, name='learner_notifications'),
+    path('achievements/', views.learner_achievements, name='learner_achievements'),  
+    path('logout/', views.custom_logout_view, name='custom_logout_view'),
 
     # Terms and Conditions
     path('terms/', views.terms_and_conditions, name='terms_and_conditions'),
@@ -25,5 +26,6 @@ urlpatterns = [
     path('scorm-content/<path:file_path>/', proxy_scorm_file, name='proxy_scorm_file'),
     path('track-scorm-data/', track_scorm_data, name='track_scorm_data'),
     path('track-scorm-data/', track_mini_lesson_progress, name='track_mini_lesson_progress'),
-    path('launch_scorm_file/<int:lesson_id>/', launch_scorm_file, name='launch_scorm_file')
+    path('launch_scorm_file/<int:lesson_id>/', launch_scorm_file, name='launch_scorm_file'),
+    path("learner/achievements/claim/<int:org_badge_id>/", views.claim_badge, name="claim_badge"),
 ]

@@ -307,6 +307,7 @@ html, body, button{
 }
 
 .learner-sidebar-option{
+    position: relative;
     display: flex;
     flex-direction: row;
     gap: 0.4rem;
@@ -341,6 +342,20 @@ html, body, button{
     background-color: #efefef;
 }
 
+.sidebar-notification-pill{
+    display: flex;
+    padding: 0.4rem;
+    border-radius: 50%;
+    background-color: red;
+    color: white;
+    height: 7px;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 0.6rem;
+    font-size: 0.7rem;
+}
+
 .learner-top-row {
     display: flex;
     justify-content: space-between;
@@ -352,8 +367,14 @@ html, body, button{
     padding: 0;
 }
 
+.learner-top-row-right {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
 .learner-top-row h2{
-    color: var(--text-color5);
+    color: var(--text-color2);
     margin: 0;
     font-size: 1.3rem;
     font-weight: 500;
@@ -421,6 +442,7 @@ html, body, button{
     cursor: pointer;
     text-decoration: none;
     transition: all 0.2s linear;
+    border: none;
 }
 
 .learner-primary-button {
@@ -618,7 +640,7 @@ html, body, button{
 .course-item-progress-container span{
     color: var(--text-color4);
     font-size: 0.8rem;
-    font-weight: 600;
+    /* font-weight: 600; */
     margin-top: 0.15rem;
 }
 
@@ -1082,7 +1104,8 @@ html, body, button{
 .row-course-item{
     padding: 0.6rem;
     background-color: white;
-    border-radius: 8px;
+    /* border-radius: 8px; */
+    border-radius: 12px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;

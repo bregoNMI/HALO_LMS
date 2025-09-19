@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, Message, UserCourse, UserModuleProgress, UserLessonProgress, OrganizationSettings, TimeZone, ActivityLog, GeneratedCertificate, EnrollmentKey, UserAssignmentProgress, FacialVerificationLog
+from .models import Profile, Message, UserCourse, UserModuleProgress, UserLessonProgress, OrganizationSettings, TimeZone, ActivityLog, GeneratedCertificate, EnrollmentKey, UserAssignmentProgress, FacialVerificationLog, OrgBadge, UserBadge, CurrencyTransaction
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'first_name', 'last_name', 'email', 'photoid', 'passportphoto')
@@ -19,6 +19,9 @@ admin.site.register(TimeZone)
 admin.site.register(ActivityLog)
 admin.site.register(EnrollmentKey)
 admin.site.register(FacialVerificationLog)
+admin.site.register(OrgBadge)
+admin.site.register(UserBadge)
+admin.site.register(CurrencyTransaction)
 
 @admin.register(GeneratedCertificate)
 class GeneratedCertificateAdmin(admin.ModelAdmin):

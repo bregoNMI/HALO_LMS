@@ -46,6 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     // Update the select box text and field value input
                     selectSelected.textContent = this.textContent;
+                    selectSelected.value = this.textContent;
                     selectItems.querySelectorAll('div').forEach(function(el) {
                         el.classList.remove('same-as-selected');
                     });
@@ -62,9 +63,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             fieldValueInput.value = preset;
                         }
                     }
-                    if(this.classList.contains('date-select-item')){
-                        fieldValueInput.setAttribute('placeholder', 'YYYY-M-D');
-                    }else{
+                    if(this.classList.contains('date-select-item') && fieldValueInput){
+                        fieldValueInput.setAttribute('placeholder', 'YYYY-MM-DD');
+                    }else if(this.classList.contains('select-item') && fieldValueInput){
                         fieldValueInput.setAttribute('placeholder', 'Field Value');
                     }
                 });

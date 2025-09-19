@@ -131,20 +131,38 @@ def enroll_user_with_key(user, key_str):
 
     return True, f"Successfully enrolled in {course.title}."
 
-def get_formatted_datetime(dt, date_format=None):
+def get_formatted_datetime(dt, date_format=None, include_time=False, time_24h=False):
     if not dt:
         return ""
     from .models import OrganizationSettings
     settings = OrganizationSettings.get_instance()
-    fmt = get_strftime_format(date_format or settings.date_format)
-    return localtime(dt).strftime(fmt)
+    fmt = get_date_strftime_format(date_format or settings.date_format)
 
-def get_strftime_format(date_format):
+    if include_time:
+        time_fmt = "%H:%M" if time_24h else "%I:%M%p"  # e.g., 14:05 or 02:05PM
+        fmt = f"{fmt} {time_fmt}"
+
+    s = localtime(dt).strftime(fmt)
+    # optional: make AM/PM lowercase if you like
+    # if not time_24h: s = s.replace("AM", "am").replace("PM", "pm")
+    return s
+
+def get_date_strftime_format(date_format):
     mapping = {
         "MM/DD/YYYY": "%m/%d/%Y",
         "DD/MM/YYYY": "%d/%m/%Y",
         "YYYY-MM-DD": "%Y-%m-%d",
-        "Month DD, YYYY": "%B %d, %Y",
-        # Add others as needed
+        # (optional extras)
+        "MM/DD/YY": "%m/%d/%y",
+        "DD/MM/YY": "%d/%m/%y",
     }
+    # default to a sane 4-digit year if unknown
     return mapping.get(date_format, "%m/%d/%Y")
+
+def get_strftime_format(date_format):
+    mapping = {
+        "MM/DD/YYYY": "m/d/y",   # 09/17/25
+        "DD/MM/YYYY": "d/m/y",   # 17/09/25
+        "YYYY-MM-DD": "Y-m-d",   # 2025-09-17
+    }
+    return mapping.get(date_format, "m/d/y")

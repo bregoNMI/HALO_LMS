@@ -1266,7 +1266,7 @@ function bindEssayGraderEvents(item){
         // collect only prompts the grader actually marked (partial grading allowed)
         const marks = collectPromptMarks(root, questionId);
         if (!marks.length) {
-          alert('Select Correct/Incorrect on at least one prompt.');
+          displayValidationMessage('Select Correct/Incorrect on at least one prompt.', false);
           btn.disabled = false;
           return;
         }
@@ -1274,7 +1274,7 @@ function bindEssayGraderEvents(item){
       } else {
         const overall = collectOverallMark(root, questionId);
         if (!overall) {
-          alert('Select Correct or Incorrect.');
+          displayValidationMessage('Select Correct or Incorrect.', false);
           btn.disabled = false;
           return;
         }

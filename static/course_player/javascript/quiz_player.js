@@ -1063,7 +1063,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   })();
 
-  // small fade helpers you already use
   function fadeOut(container) {
     if (typeof container === 'string') container = document.getElementById(container);
     if (!container) return;
