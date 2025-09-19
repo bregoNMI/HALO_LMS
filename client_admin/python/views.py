@@ -1051,7 +1051,6 @@ def impersonate_user(request, profile_id):
     print("Unauthorized access attempt.")
     return redirect('/login')
 
-
 @login_required
 def stop_impersonating(request):
     # Print session data before any operations

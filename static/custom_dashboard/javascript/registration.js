@@ -445,8 +445,8 @@ function detectBrowser(errorContainer) {
     }
 }
 
-// submitFormBtn.addEventListener("click", addLoadingSymbol);
-/*document.getElementById('registerForm').addEventListener('keydown', function(event) {
+submitFormBtn.addEventListener("click", addLoadingSymbol);
+document.getElementById('registerForm').addEventListener('keydown', function(event) {
     if ((event.key === 'Enter' || event.keyCode === 13) &&
         !submitFormBtn.classList.contains('hidden') &&
         !submitFormBtn.disabled) {
@@ -454,7 +454,6 @@ function detectBrowser(errorContainer) {
         addLoadingSymbol();
     }
 });
-*/
 
 function addLoadingSymbol() {
     const password = document.getElementById('id_password').value;
