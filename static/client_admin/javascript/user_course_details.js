@@ -1515,3 +1515,161 @@ function qaBackToAttempts(quizId){
 function escapeHtml(s){
   return (s||'').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;' }[c]));
 }
+
+const POPUP_ID = 'lessonAssignmentsPopup';
+const titleEl = document.getElementById('AssignmentLessonTitle');   // subtitle
+const typeEl  = document.getElementById('AssignmentLessonType');          // badge on right
+
+const loadingWrap = document.getElementById('lessonAssignmentsLoading');
+const loadedWrap  = document.getElementById('lessonAssignmentsLoaded');
+const listEl      = document.getElementById('assignmentListContainer');
+const errEl       = document.getElementById('assignmentListError');
+
+// Expose a helper since your close button calls it
+window.resetlessonAssignmentsLoading = function(){
+  // clear any previous content/error and restore loading state
+  listEl.innerHTML = '';
+  errEl.textContent = '';
+  errEl.classList.add('hidden');
+  loadingWrap.classList.remove('hidden');
+  loadedWrap.classList.add('hidden');
+  titleEl.textContent = '';
+  if (typeEl) typeEl.textContent = '—';
+};
+
+function showLoaded(){
+  loadingWrap.classList.add('hidden');
+  loadedWrap.classList.remove('hidden');
+}
+
+function showError(msg){
+  errEl.textContent = msg || 'Could not load assignments. Please try again.';
+  errEl.classList.remove('hidden');
+}
+
+function cap(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+function buildRow(item, index){
+  // wrapper
+  const row = document.createElement('div');
+  row.className = 'lesson-list-option';
+  if(index == 0){row.classList.add('lesson-list-option-1');}
+
+  // LEFT
+  const left = document.createElement('div');
+  left.className = 'lesson-list-option-left';
+
+  // counter
+  const counterWrap = document.createElement('div');
+  counterWrap.className = 'lesson-list-counter';
+  const counter = document.createElement('span');
+  counter.textContent = index + 1;  // 1-based index
+  counterWrap.appendChild(counter);
+
+  // title
+  const typeWrap = document.createElement('div');
+  typeWrap.className = 'lesson-list-type';
+  const title = document.createElement('span');
+  title.className = 'selected-lesson-title';
+  title.textContent = item.title;
+  typeWrap.appendChild(title);
+
+  left.appendChild(counterWrap);
+  left.appendChild(typeWrap);
+
+  // RIGHT
+  const right = document.createElement('div');
+  right.className = 'lesson-list-option-right';
+
+  // status badge
+  const statusWrap = document.createElement('div');
+  statusWrap.className = 'lesson-list-progress';
+  const statusSpan = document.createElement('span');
+  statusSpan.className = `status course-active ${statusToPastel(item.status)}`;
+  let statusText;
+  if(item.status == 'pending'){statusText='Not Completed'}else{statusText = item.status};
+  statusSpan.textContent = capitalize(statusText);
+  statusWrap.appendChild(statusSpan);
+  right.appendChild(statusWrap);
+
+  // eye icon
+  if (item.progress_id && item.manage_url) {
+    const viewBtn = document.createElement('div');
+    viewBtn.className = 'class-action-icon edit-icon';
+    viewBtn.setAttribute('data-tooltip', 'View Submission');
+    viewBtn.innerHTML = '<i class="fa-regular fa-eye"></i>';
+    viewBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.location.href = item.manage_url;
+    });
+    right.appendChild(viewBtn);
+  }
+
+  row.appendChild(left);
+  row.appendChild(right);
+
+  return row;
+}
+
+
+function statusToPastel(status){
+  // map your statuses to the pastel classes used in your template
+  switch ((status || '').toLowerCase()) {
+    case 'approved':
+    case 'completed':
+    case 'passed':
+      return 'pastel-green';
+    case 'pending':
+      return 'pastel-gray';
+    case 'failed':
+    case 'rejected':
+      return 'pastel-red';
+    // treat submitted / incomplete / anything else as gray
+    default:
+      return 'pastel-yellow';
+  }
+}
+
+function capitalize(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+
+  async function fetchLessonAssignments(lessonId){
+    const url = `/admin/course-progress/lesson/lesson-assignment/?lesson_id=${encodeURIComponent(lessonId)}`;
+    const res = await fetch(url, { credentials: 'same-origin' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // Called by your flag icon
+  window.openAssignmentListPopup = async function(el, lessonType){
+    const lessonId = el.getAttribute('data-lesson-id');
+    if (!lessonId) return;
+
+    resetlessonAssignmentsLoading();
+    openPopup(POPUP_ID);
+
+    try {
+      const data = await fetchLessonAssignments(lessonId);
+
+      titleEl.textContent = data.lesson?.title || '';
+      if(lessonType == 'SCORM2004'){typeEl.textContent = 'SCORM 2004'}else if(lessonType == 'SCORM1.2'){typeEl.textContent = 'SCORM 1.2'}else if(lessonType == 'file'){typeEl.textContent = 'File'}else if(lessonType == 'quiz'){typeEl.textContent = 'Quiz'}
+
+      listEl.innerHTML = '';
+      if (!data.assignments || data.assignments.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'hint';
+        empty.textContent = 'No assignments for this lesson.';
+        listEl.appendChild(empty);
+      } else {
+        data.assignments.forEach((item, i) => {
+          listEl.appendChild(buildRow(item, i));
+        });
+      }
+
+      showLoaded();
+    } catch (e) {
+      showLoaded();           // reveal body so error is visible
+      showError('Could not load assignments. Please try again.');
+      // console.error(e);
+    }
+  };

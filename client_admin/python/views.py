@@ -25,11 +25,13 @@ from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.utils.timezone import now, get_current_timezone
 from django.http import HttpResponseForbidden, HttpRequest
+from django.views.decorators.http import require_GET
 from learner_dashboard.views import learner_dashboard
+from django.urls import reverse
 from django.contrib import messages
 from client_admin.models import Profile, User, Profile, Course, User, UserCourse, UserModuleProgress, UserLessonProgress, Message, OrganizationSettings, ActivityLog, AllowedIdPhotos, EnrollmentKey, UserAssignmentProgress, QuizAttempt, OrgBadge, UserBadge, CurrencyTransaction
 from course_player.models import LessonSession, SCORMTrackingData, LessonProgress, QuizResponse, EssayPromptGrade 
-from content.models import Lesson, Category, Quiz, Question, QuizTemplate, QuestionOrder, Answer, EssayPrompt, EssayAnswer, QuizReference, QuestionMedia
+from content.models import Lesson, Category, Quiz, Question, QuizTemplate, QuestionOrder, Answer, EssayPrompt, EssayAnswer, QuizReference, QuestionMedia, Upload
 from client_admin.forms import OrganizationSettingsForm
 from .forms import UserRegistrationForm, ProfileForm, CSVUploadForm
 from django.contrib.auth import update_session_auth_hash, login
@@ -1256,11 +1258,11 @@ def delete_allowed_id_photos(request):
 def usercourse_detail_view(request, uuid):
     user_course = get_object_or_404(UserCourse, uuid=uuid)
 
-    # Ordered module progresses → ordered lesson progresses
+    # modules ordered → lessons ordered (+ prefetch lesson.assignments onto Lesson objects)
     ordered_module_progresses = (
         user_course.module_progresses
         .select_related('module')
-        .order_by('module__order')                                 # ← order modules
+        .order_by('module__order')
         .prefetch_related(
             Prefetch(
                 'lesson_progresses',
@@ -1268,52 +1270,132 @@ def usercourse_detail_view(request, uuid):
                     UserLessonProgress.objects
                     .select_related('lesson')
                     .annotate(quiz_attempts_count=Count('quiz_attempts'))
-                    .order_by('lesson__order')                     # ← order lessons within module
+                    .order_by('lesson__order')
+                    .prefetch_related(
+                        Prefetch(
+                            'lesson__assignments',
+                            queryset=Upload.objects.only('id', 'title', 'file_type'),
+                            to_attr='attached_assignments'  # <-- lives on lp.lesson
+                        )
+                    )
                 ),
-                to_attr='ordered_lesson_progresses'                # attach as a list
+                to_attr='ordered_lesson_progresses'
             )
         )
     )
 
-    # Build lesson_sessions_map using the ordered lists
+    # Build sessions map, as you already do
     lesson_sessions_map = {}
     for mp in ordered_module_progresses:
         for lp in mp.ordered_lesson_progresses:
-            sessions = (
-                LessonSession.objects
-                .filter(lesson=lp.lesson, user=user_course.user)
-                .order_by('end_time')                              # optional but nice
-            )
+            sessions = (LessonSession.objects
+                        .filter(lesson=lp.lesson, user=user_course.user)
+                        .order_by('end_time'))
             lesson_sessions_map[lp.id] = sessions
 
-    # Quiz attempts map from the same ordered lists
-    quiz_attempts_map = {
-        lp.id: lp.quiz_attempts_count
-        for mp in ordered_module_progresses
-        for lp in mp.ordered_lesson_progresses
+    # === Assignment status badges per ULP ===
+    # Collect all lesson ids we need progress for
+    all_lps = [lp for mp in ordered_module_progresses for lp in mp.ordered_lesson_progresses]
+    lesson_ids = [lp.lesson_id for lp in all_lps]
+
+    # Pull any UserAssignmentProgress rows for this user + these lessons
+    progress_rows = (
+        UserAssignmentProgress.objects
+        .filter(
+            user=user_course.user,
+            course=user_course.course,
+            lesson_id__in=lesson_ids,
+        )
+        .values('id', 'lesson_id', 'assignment_id', 'status', 'file')
+    )
+    progress_index = {
+        (p['lesson_id'], p['assignment_id']): p
+        for p in progress_rows
     }
 
-    # Total time (unchanged)
+    # Build a dict: ULP.id -> [ {assignment_id,title,status,has_file,detail_url} ... ]
+    assignment_badges_by_lp = {}
+
+    for lp in all_lps:
+        attached = getattr(lp.lesson, 'attached_assignments', []) or []
+        items = []
+        for a in attached:
+            prog = progress_index.get((lp.lesson_id, a.id))
+            status = prog['status'] if prog else 'pending'
+            progress_id = prog['id'] if prog else None
+            has_file = bool(prog and prog['file'])
+
+            items.append({
+                "assignment_id": a.id,       # still useful for upload fallback
+                "progress_id": progress_id,  # <-- the row you need for manage/details
+                "title": a.title,
+                "status": status,
+                "has_file": has_file,
+            })
+        if items:
+            assignment_badges_by_lp[lp.id] = items
+
+    full_assignments_qs = (
+        Upload.objects
+        .filter(course=user_course.course, lessons__isnull=True)
+        .only('id', 'title', 'file_type')
+        .order_by('title')  # or 'id'
+    )
+    course_a_ids = list(full_assignments_qs.values_list('id', flat=True))
+
+    course_prog_rows = (
+        UserAssignmentProgress.objects
+        .filter(
+            user=user_course.user,
+            course=user_course.course,
+            lesson__isnull=True,
+            assignment_id__in=course_a_ids,
+        )
+        .values('id', 'assignment_id', 'status', 'file')
+    )
+    course_prog_index = {p['assignment_id']: p for p in course_prog_rows}
+
+    course_assignments = []
+    for a in full_assignments_qs:
+        p = course_prog_index.get(a.id)
+        status = p['status'] if p else 'pending'
+        progress_id = p['id'] if p else None
+        has_file = bool(p and p['file'])
+        course_assignments.append({
+            "assignment_id": a.id,
+            "title": a.title,
+            "status": status,                  # pending/submitted/approved/rejected/completed
+            "progress_id": progress_id,        # if submitted
+            "has_file": has_file,
+            "manage_url": f"/admin/assignments/manage/{progress_id}/" if progress_id else None,
+            "upload_url": f"/admin/assignments/upload/{a.id}/",       # no lesson_id for course-level
+        })
+
+    quiz_attempts_map = {lp.id: lp.quiz_attempts_count for lp in all_lps}
+
     scorm_sessions = SCORMTrackingData.objects.filter(
         user=user_course.user,
         lesson__module__course=user_course.course
     )
-    total_time = timedelta()
-    for session in scorm_sessions:
-        total_time += parse_iso_duration(session.session_time)
 
-    if total_time.total_seconds() == 0:
+    total_seconds = 0
+    for session in scorm_sessions:
+        total_seconds += int(parse_iso_duration(session.session_time).total_seconds())
+
+    if total_seconds == 0:
         formatted_total_time = "No Activity"
     else:
-        h, r = divmod(total_time.total_seconds(), 3600)
-        m, s = divmod(r, 60)
-        formatted_total_time = f"{int(h)}h {int(m)}m {int(s)}s" if h else f"{int(m)}m {int(s)}s"
+        hours, rem = divmod(total_seconds, 3600)
+        minutes, seconds = divmod(rem, 60)
+        formatted_total_time = f"{hours}h {minutes}m {seconds}s" if hours else f"{minutes}m {seconds}s"
 
     return render(request, 'userCourse/user_course_details.html', {
         'user_course': user_course,
-        'ordered_module_progresses': ordered_module_progresses,     # ← pass ordered modules
+        'ordered_module_progresses': ordered_module_progresses,
         'lesson_sessions_map': lesson_sessions_map,
         'quiz_attempts_map': quiz_attempts_map,
+        'assignment_badges_by_lp': assignment_badges_by_lp,
+        'course_assignments': course_assignments,
         'total_time_spent': formatted_total_time,
     })
 
@@ -1551,6 +1633,68 @@ def fetch_lesson_progress(request, user_lesson_progress_id):
         data['completed_on_time'] = ''
 
     return JsonResponse({'success': True, 'data': data})
+
+@login_required
+@require_GET
+def get_lesson_assignments(request):
+    """
+    GET /admin/api/lesson-assignments/?lesson_id=123
+    Returns all assignments attached to the given lesson for the current user,
+    including the user's submission status (if any).
+    """
+    lesson_id = request.GET.get('lesson_id')
+    if not lesson_id:
+        return JsonResponse({"error": "lesson_id required"}, status=400)
+
+    lesson = get_object_or_404(Lesson.objects.select_related('module__course'), id=lesson_id)
+
+    # (Optional) Guard that user is enrolled in the course
+    # If you have UserCourse, enforce it:
+    is_enrolled = UserCourse.objects.filter(user=request.user, course=lesson.module.course).exists()
+    if not is_enrolled:
+        return JsonResponse({"error": "Not enrolled in this course"}, status=403)
+
+    # Pull all assignments attached to the lesson
+    attached_assignments = list(
+        lesson.assignments.only('id', 'title', 'file_type').order_by('id')  # order however you like
+    )
+    a_ids = [a.id for a in attached_assignments]
+
+    # Get user's progress rows for these assignments (scoped to lesson)
+    progress_rows = (
+        UserAssignmentProgress.objects
+        .filter(user=request.user, lesson_id=lesson.id, assignment_id__in=a_ids)
+        .values('id', 'assignment_id', 'status', 'file')
+    )
+    p_index = {p['assignment_id']: p for p in progress_rows}
+
+    # Build payload
+    items = []
+    for a in attached_assignments:
+        p = p_index.get(a.id)
+        progress_id = p['id'] if p else None
+        status = p['status'] if p else 'pending'
+        has_file = bool(p and p['file'])
+
+        items.append({
+            "assignment_id": a.id,
+            "title": a.title,
+            "status": status,             # pending/submitted/approved/rejected/completed
+            "progress_id": progress_id,   # only present if user uploaded/submitted
+            "has_file": has_file,
+            # optional convenience URLs if you want:
+            "manage_url": f"/admin/assignments/manage/{progress_id}/" if progress_id else None,
+            "upload_url": f"/admin/assignments/upload/{a.id}/?lesson_id={lesson.id}",
+        })
+
+    return JsonResponse({
+        "lesson": {
+            "id": lesson.id,
+            "title": lesson.title,
+            "course_id": lesson.module.course_id,
+        },
+        "assignments": items,
+    })
 
 @login_required
 def fetch_quiz_attempts_for_lesson(request, ulp_id):

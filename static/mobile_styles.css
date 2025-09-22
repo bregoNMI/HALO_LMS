@@ -14,6 +14,9 @@
     #toggleFooterBtn span{
         display: none;
     }
+    .lesson-list-option{
+        flex-wrap: wrap;
+    }
 }
 
 /* Styles for Tablet Devices*/

@@ -42,6 +42,7 @@
 .course-card-bottom-row{
     display: flex;
     margin-top: 1.5rem;
+    flex-wrap: wrap;
 }.bottom-row-item h4{
     /* color: var(--text-color6); */
     font-weight: 400;
@@ -269,6 +270,7 @@ circle-progress::part(text) {
     display: flex;
     align-items: center;
     gap: 1rem;
+    padding: 0.6rem 0;
 }.lesson-list-counter{
     font-size: 1rem;
     padding: 0 0.8rem;
@@ -333,7 +335,7 @@ circle-progress::part(text) {
     font-size: var(--btn-font);
 }
 
-#editLessonActivityLoading .loading-symbol-blue-sm, #quizAttemptsActivityLoading .loading-symbol-blue-sm{
+#editLessonActivityLoading .loading-symbol-blue-sm, #quizAttemptsActivityLoading .loading-symbol-blue-sm, #lessonAssignmentsLoading .loading-symbol-blue-sm{
     display: flex;
     justify-content: center;
 }
@@ -556,4 +558,21 @@ circle-progress::part(text) {
     display: flex;
     width: 100%;
     justify-content: center;
+}
+
+.flag-count-badge{
+    display: flex;
+    padding: 0.3rem;
+    border-radius: 50%;
+    /* background-color: #fe3a3a; */
+    background-color: dodgerblue;
+    color: white;
+    height: 7px;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 0.6rem;
+    font-size: 0.7rem;
+    top: 0.3rem;
+    right: 0.3rem;
 }

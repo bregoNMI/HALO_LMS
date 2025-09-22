@@ -346,7 +346,7 @@ html, body, button{
     display: flex;
     padding: 0.4rem;
     border-radius: 50%;
-    background-color: red;
+    background-color: #fe3a3a;
     color: white;
     height: 7px;
     align-items: center;
@@ -1019,7 +1019,7 @@ html, body, button{
     right: 0.35rem;
     /* bottom: 0.45rem; */
     padding: 0.15rem;
-    color: red;
+    color: #fe3a3a;
     font-size: 0.6rem;
     height: 0.3rem;
     width: 0.3rem;

@@ -33,7 +33,7 @@ BADGE_CATALOG = [
     {
         "slug": "dedicated_learner",
         "name": "Dedicated Learner",
-        "description": "Log in for 7 days in a row.",
+        "description": "Go on a 7 day streak.",
         "criteria": {"event": "user_login", "streak_days": 7, "reward": {"credits": 200}},
         "icon_static": "client_admin\Images\HALO LMS No Graphic Test-27.png",
     },

@@ -27,6 +27,7 @@ urlpatterns = [
     path('course-progress/quiz/<int:ulp_id>/fetch/', views.fetch_quiz_attempts_for_lesson, name='fetch_quiz_attempts_for_lesson'),
     path('course-progress/quiz/attempt/<int:attempt_id>/qandas/',views.fetch_quiz_attempt_qandas,name='fetch_quiz_attempt_qandas'),
     path('course-progress/quiz/attempt/<int:attempt_id>/grade-essay/<int:question_id>/', views.grade_essay_question, name='grade_essay_question'),
+    path('course-progress/lesson/lesson-assignment/', views.get_lesson_assignments, name='get_lesson_assignments'),
     
     path('add/', views.add_user, name='add_user'),
     path('users/add/', views.add_user_page, name='add_user_page'),
