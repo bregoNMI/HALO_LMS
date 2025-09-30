@@ -2,10 +2,11 @@ import os
 import uuid
 import zipfile
 import boto3
-import re
+import csv, io, itertools, re
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Count, Q, F, DateTimeField, Avg
+from django.db import transaction
 from django.utils import timezone
 from authentication.python.views import get_secret
 from django.shortcuts import render, get_object_or_404, redirect
@@ -14,6 +15,7 @@ from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
 from content.models import File, Course, Module, Lesson, Category, Credential, EventDate, Media, Resources, Upload, UploadedFile, ContentType, Quiz, Question, QuestionOrder, MCQuestion, Answer, TFQuestion, FITBQuestion, FITBAnswer, EssayQuestion, EssayPrompt, QuestionMedia, QuizReference, QuizTemplate, TemplateCategorySelection, TemplateQuestion, QuizConfig
 from client_admin.models import TimeZone, UserModuleProgress, UserLessonProgress, UserCourse, EnrollmentKey, ActivityLog, Profile, UserAssignmentProgress, Message, FacialVerificationLog
+from client_admin.python.views import add_user_to_cognito
 from django.http import JsonResponse, HttpResponseBadRequest, Http404
 import uuid as uuid_lib
 from halo_lms import settings
@@ -775,11 +777,453 @@ def create_or_edit_quiz(request, uuid=None):
     # Render your edit template
     return render(request, 'quizzes/edit_quiz.html', {'quiz': quiz})
 
+CSV_EXT_RE = re.compile(r'\.csv$', re.IGNORECASE)
+
+def _is_csv_upload(f):
+  # Extension check; browser also enforces accept=".csv"
+  return bool(CSV_EXT_RE.search(getattr(f, 'name', '')))
+
+def _decode_bytes_to_text(uploaded_file):
+  # Try utf-8, fallback latin-1. Handle UTF-8 BOM.
+  raw = uploaded_file.read()
+  try:
+    text = raw.decode('utf-8-sig')
+    enc = 'utf-8'
+  except UnicodeDecodeError:
+    text = raw.decode('latin-1')
+    enc = 'latin-1'
+  return text, enc
+
+@login_required
+@require_POST
+def user_import_preview(request):
+    f = request.FILES.get('file')
+    if not f:
+        return JsonResponse({'success': False, 'message': 'No file provided.'}, status=400)
+
+    if not _is_csv_upload(f):
+        return JsonResponse({'success': False, 'message': 'Please upload a .csv file.'}, status=400)
+
+    # Important: read once then wrap in StringIO
+    text, encoding = _decode_bytes_to_text(f)
+
+    # Sniff dialect (supports comma/semicolon/tab)
+    try:
+        dialect = csv.Sniffer().sniff(text[:4096], delimiters=[',',';','\t','|'])
+        delimiter = dialect.delimiter
+    except Exception:
+        dialect = csv.excel
+        delimiter = ','
+
+    reader = csv.reader(io.StringIO(text), dialect=dialect)
+    try:
+        headers = next(reader)
+    except StopIteration:
+        return JsonResponse({'success': False, 'message': 'Empty CSV.'}, status=400)
+
+    # Normalize headers (strip, remove BOM residue)
+    headers = [h.strip().replace('\ufeff','') for h in headers]
+
+    # Preview first N rows
+    rows_preview = list(itertools.islice(reader, 25))
+
+    return JsonResponse({
+        'success': True,
+        'headers': headers,
+        'rows_preview': rows_preview,
+        'delimiter': delimiter,
+        'encoding': encoding,
+    })
+
+def _to_bool(v):
+    if isinstance(v, bool): return v
+    s = str(v).strip().lower()
+    return s in {'1','true','t','yes','y','on'}
+
+_FIELD_GETTERS = {
+    'profile.email':           lambda user, profile: getattr(profile, 'email', ''),
+    'profile.first_name':      lambda user, profile: getattr(profile, 'first_name', ''),
+    'profile.last_name':       lambda user, profile: getattr(profile, 'last_name', ''),
+    'profile.name_on_cert':    lambda user, profile: getattr(profile, 'name_on_cert', ''),
+    'profile.associate_school':lambda user, profile: getattr(profile, 'associate_school', ''),
+    'profile.role':            lambda user, profile: getattr(profile, 'role', ''),
+    'profile.birth_date':      lambda user, profile: getattr(profile, 'birth_date', None),
+    'profile.address_1':       lambda user, profile: getattr(profile, 'address_1', ''),
+    'profile.address_2':       lambda user, profile: getattr(profile, 'address_2', ''),
+    'profile.city':            lambda user, profile: getattr(profile, 'city', ''),
+    'profile.state':           lambda user, profile: getattr(profile, 'state', ''),
+    'profile.code':            lambda user, profile: getattr(profile, 'code', ''),
+    'profile.country':         lambda user, profile: getattr(profile, 'country', ''),
+    'profile.citizenship':     lambda user, profile: getattr(profile, 'citizenship', ''),
+    'profile.phone':           lambda user, profile: getattr(profile, 'phone', ''),
+    'profile.sex':             lambda user, profile: getattr(profile, 'sex', ''),
+    'profile.delivery_method': lambda user, profile: getattr(profile, 'delivery_method', ''),
+    'profile.referral':        lambda user, profile: getattr(profile, 'referral', ''),
+    'profile.initials':        lambda user, profile: getattr(profile, 'initials', ''),
+    'profile.archived':       lambda user, profile: bool(getattr(profile, 'archived', False)),
+}
+
+def _is_empty(val):
+    if val is None:
+        return True
+    if isinstance(val, str):
+        return val.strip() == ''
+    return False  # birth_date etc. treat None as empty; any date is not empty
+
+_FIELD_SETTERS = {
+    'profile.email':           lambda user, profile, v: setattr(profile, 'email', v or ''),
+    'profile.first_name':      lambda user, profile, v: setattr(profile, 'first_name', v or ''),
+    'profile.last_name':       lambda user, profile, v: setattr(profile, 'last_name', v or ''),
+    'profile.name_on_cert':    lambda user, profile, v: setattr(profile, 'name_on_cert', v or ''),
+    'profile.associate_school':lambda user, profile, v: setattr(profile, 'associate_school', v or ''),
+    'profile.role':            lambda user, profile, v: setattr(profile, 'role', v or ''),
+    'profile.birth_date':      lambda user, profile, v: setattr(profile, 'birth_date', _parse_date_or_none(v)),
+    'profile.address_1':       lambda user, profile, v: setattr(profile, 'address_1', v or ''),
+    'profile.address_2':       lambda user, profile, v: setattr(profile, 'address_2', v or ''),
+    'profile.city':            lambda user, profile, v: setattr(profile, 'city', v or ''),
+    'profile.state':           lambda user, profile, v: setattr(profile, 'state', v or ''),
+    'profile.code':            lambda user, profile, v: setattr(profile, 'code', v or ''),
+    'profile.country':         lambda user, profile, v: setattr(profile, 'country', v or ''),
+    'profile.citizenship':     lambda user, profile, v: setattr(profile, 'citizenship', v or ''),
+    'profile.phone':           lambda user, profile, v: setattr(profile, 'phone', v or ''),
+    'profile.sex':             lambda user, profile, v: setattr(profile, 'sex', v or ''),
+    'profile.delivery_method': lambda user, profile, v: setattr(profile, 'delivery_method', v or ''),
+    'profile.referral':        lambda user, profile, v: setattr(profile, 'referral', v or ''),
+    'profile.initials':        lambda user, profile, v: setattr(profile, 'initials', v or ''),
+    'profile.archived':       lambda user, profile, v: setattr(profile, 'archived', _to_bool(v)),
+}
+
+def _parse_date_or_none(v):
+    if not v:
+        return None
+    v = str(v).strip()
+    # extend these as needed
+    for fmt in ('%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y'):
+        try:
+            return datetime.strptime(v, fmt).date()
+        except ValueError:
+            continue
+    return None
+
+def _blankify_text_fields(profile, fields):
+    for f in fields:
+        if getattr(profile, f, None) is None:
+            setattr(profile, f, '')
+
+FRIENDLY_ERROR_MAP = [
+    ("value too long for type character varying", 
+     "One of the fields has text that is too long. Please shorten it to 30 characters or fewer."),
+    ("current transaction is aborted", 
+     "Import stopped after an earlier error. Please fix the first reported error and try again."),
+    ("duplicate key value violates unique constraint", 
+     "A username or email in this row already exists in the system."),
+]
+
+def friendly_error_message(raw_msg: str) -> str:
+    for needle, friendly in FRIENDLY_ERROR_MAP:
+        if needle in raw_msg.lower():
+            return friendly
+    return raw_msg
+
+FIRST_LAST_TOKEN = '__FIRST_LAST__'
+
+@login_required
+@require_POST
+def user_import_commit(request):
+    f = request.FILES.get('file')
+    mapping_json   = request.POST.get('mapping')
+    username_mode  = (request.POST.get('username_column') or '').strip()  # header name or FIRST_LAST_TOKEN
+    default_password = (request.POST.get('default_password') or '').strip()
+
+    if not f or not mapping_json or not username_mode:
+        return JsonResponse({'success': False, 'message': 'File, mapping, and username choice are required.'}, status=400)
+
+    if not _is_csv_upload(f):
+        return JsonResponse({'success': False, 'message': 'Please upload a .csv file.'}, status=400)
+
+    try:
+        mapping = json.loads(mapping_json)
+    except Exception:
+        return JsonResponse({'success': False, 'message': 'Invalid mapping payload.'}, status=400)
+    
+    policies_json = request.POST.get('additional_policies') or '{}'
+    try:
+        additional_policies = json.loads(policies_json)
+    except Exception:
+        additional_policies = {}
+
+    text, _encoding = _decode_bytes_to_text(f)
+    try:
+        dialect = csv.Sniffer().sniff(text[:4096], delimiters=[',',';','\t','|'])
+    except Exception:
+        dialect = csv.excel
+
+    reader = csv.reader(io.StringIO(text), dialect=dialect)
+    try:
+        headers = next(reader)
+    except StopIteration:
+        return JsonResponse({'success': False, 'message': 'Empty CSV.'}, status=400)
+
+    headers = [h.strip().replace('\ufeff', '') for h in headers]
+    col_index = {h: i for i, h in enumerate(headers)}
+
+    debug = {
+        'headers': headers,
+        'row_count': 0,
+        'username_mode': username_mode,
+        'first_header': None,
+        'last_header': None,
+        'usernames_preview': [],
+    }
+
+    # If FirstName.LastName mode, ensure first/last are mapped
+    if username_mode == FIRST_LAST_TOKEN:
+        first_header = next((csv_col for csv_col, tgt in mapping.items() if tgt == 'profile.first_name'), None)
+        last_header  = next((csv_col for csv_col, tgt in mapping.items() if tgt == 'profile.last_name'),  None)
+        debug['first_header'] = first_header
+        debug['last_header']  = last_header
+
+        if not first_header or not last_header:
+            return JsonResponse({
+                'success': False,
+                'message': 'To use FirstName.LastName usernames, map both "Profile → First Name" and "Profile → Last Name".'
+            }, status=400)
+    else:
+        # Username picked from a real CSV column header
+        if username_mode not in col_index:
+            return JsonResponse({'success': False, 'message': f'Username column "{username_mode}" not found in CSV headers.'}, status=400)
+
+    stats   = {'created': 0, 'updated': 0, 'skipped': 0, 'errors': 0}
+    errors  = []
+    report  = {'created': [], 'updated': [], 'skipped': []}
+    notices = []
+    audit   = []
+
+    def _get(row, header):
+        if not header:
+            return ''
+        i = col_index.get(header)
+        return (row[i] if i is not None and i < len(row) else '').strip()
+
+    def _username_from_first_last(first_name, last_name):
+        first = (first_name or '').strip()
+        last  = (last_name  or '').strip()
+        if not first and not last:
+            return ''
+        base = '.'.join(filter(None, [first, last])).lower().replace(' ', '')
+        return re.sub(r'[^a-z0-9._-]', '', base)
+
+    def _unique_username(base):
+        base = base or 'user'
+        candidate = base
+        n = 1
+        while User.objects.filter(username=candidate).exists():
+            n += 1
+            candidate = f'{base}{n}'
+        return candidate
+
+    with transaction.atomic():
+        for row_num, row in enumerate(reader, start=2):
+            try:
+                debug['row_count'] += 1
+
+                target_values = {}
+                for csv_col, target in mapping.items():
+                    if not target:
+                        continue
+                    target_values[target] = _get(row, csv_col)
+
+                if username_mode == FIRST_LAST_TOKEN:
+                    first_val = _get(row, debug['first_header'])
+                    last_val  = _get(row, debug['last_header'])
+                    raw_uname = _username_from_first_last(first_val, last_val)
+                    username  = _unique_username(raw_uname) if raw_uname else ''
+                else:
+                    username = _get(row, username_mode)
+
+                if len(debug['usernames_preview']) < 5:
+                    debug['usernames_preview'].append(username or '(blank)')
+
+                if not username:
+                    stats['skipped'] += 1
+                    reason = 'blank username'
+                    report['skipped'].append({'row': row_num, 'reason': reason})
+                    audit.append({'row': row_num, 'username': '', 'result': 'skipped', 'why': reason})
+                    continue
+
+                csv_password = (target_values.get('user.password') or '').strip()
+
+                user = User.objects.filter(username=username).first()
+                created = False
+                if not user:
+                    user = User(username=username)
+                    created = True
+                    if csv_password:
+                        user.set_password(csv_password)
+                    elif default_password:
+                        user.set_password(default_password)
+                    else:
+                        user.set_unusable_password()
+                user.save()
+
+                profile, _ = Profile.objects.get_or_create(user=user)
+                if getattr(profile, 'username', '') != user.username:
+                    profile.username = user.username
+
+                for csv_col, target in mapping.items():
+                    if not target or target == 'user.password':
+                        continue
+                    val = target_values.get(target, None)
+                    setter = _FIELD_SETTERS.get(target)
+                    if setter and not _is_empty(val):
+                        setter(user, profile, val)
+
+                all_targets = set(_FIELD_SETTERS.keys())
+
+                for target in all_targets:
+                    csv_val = target_values.get(target, None)
+                    policy  = (additional_policies or {}).get(target, {})
+                    overwrite = bool(policy.get('overwrite'))
+
+                    # Important: detect whether a default was explicitly provided,
+                    # and keep its value even if it's False/0.
+                    default_is_set = 'default' in policy
+                    default_val    = policy.get('default', None)
+
+                    # Current value on the model
+                    current = _FIELD_GETTERS.get(target, lambda u, p: None)(user, profile)
+
+                    # Decide what to set
+                    chosen = None
+                    if created:
+                        if not _is_empty(csv_val):
+                            chosen = csv_val
+                        elif default_is_set:
+                            chosen = default_val
+                    else:
+                        if overwrite:
+                            if not _is_empty(csv_val):
+                                chosen = csv_val
+                            elif default_is_set:
+                                chosen = default_val
+                        else:
+                            # Only fill blanks on existing users
+                            if _is_empty(current):
+                                if not _is_empty(csv_val):
+                                    chosen = csv_val
+                                elif default_is_set:
+                                    chosen = default_val
+
+                    if chosen is not None:
+                        setter = _FIELD_SETTERS.get(target)
+                        if setter:
+                            setter(user, profile, chosen)
+
+                _blankify_text_fields(profile, [
+                    'username',
+                    'email',
+                    'first_name',
+                    'last_name',
+                    'name_on_cert',
+                    'associate_school',
+                    'address_1',
+                    'address_2',
+                    'city',
+                    'state',
+                    'code',
+                    'country',
+                    'citizenship',
+                    'phone',
+                    'sex',
+                    'delivery_method',
+                    'referral',
+                    'initials',
+                    'role',
+                ])
+                
+                profile.save()
+
+                if created:
+                    changed = []
+                    if getattr(profile, 'email', None) and user.email != profile.email:
+                        user.email = profile.email; changed.append('email')
+                    if getattr(profile, 'first_name', None) and user.first_name != profile.first_name:
+                        user.first_name = profile.first_name; changed.append('first_name')
+                    if getattr(profile, 'last_name', None) and user.last_name != profile.last_name:
+                        user.last_name = profile.last_name; changed.append('last_name')
+                    if changed:
+                        user.save(update_fields=changed)
+
+                    try:
+                        add_user_to_cognito(
+                            request,
+                            username=user.username,
+                            password=default_password or None,
+                            email=user.email or '',
+                            first_name=user.first_name or '',
+                            last_name=user.last_name or '',
+                        )
+                        audit.append({'row': row_num, 'username': username, 'result': 'created', 'cognito': 'ok'})
+                    except Exception as e:
+                        stats['errors'] += 1
+                        raw = str(e)
+                        why = friendly_error_message(raw)
+                        if len(errors) < 10:
+                            errors.append(f"Row {row_num}: {why}")
+                        break
+
+                if created:
+                    stats['created'] += 1
+                    if len(report['created']) < 10: report['created'].append(username)
+                else:
+                    stats['updated'] += 1
+                    if len(report['updated']) < 10: report['updated'].append(username)
+                    audit.append({'row': row_num, 'username': username, 'result': 'updated'})
+
+            except Exception as e:
+                stats['errors'] += 1
+                raw = str(e)
+                why = friendly_error_message(raw)
+                if len(errors) < 10:
+                    errors.append(f"Row {row_num}: {why}")
+                break
+
+    if stats['created'] > 0:
+        if default_password:
+            notices.append(
+                f'{stats["created"]} new user(s) created with the default password you provided. '
+                'They will need to check their email to confirm their account.'
+            )
+        else:
+            notices.append(
+                f'{stats["created"]} new user(s) created without a password. '
+                'They must use the “Forgot password?” link on the login page to set one, '
+                'and check their email to confirm their account.'
+            )
+
+    if stats['updated'] > 0:
+        notices.append(
+            f'{stats["updated"]} existing user(s) updated (passwords were not changed).'
+        )
+
+    if stats['skipped'] > 0:
+        notices.append(
+            f'{stats["skipped"]} row(s) skipped (see reasons).'
+        )
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Import complete.',
+        'stats': stats,
+        'errors': errors,
+        'report': report,
+        'notices': notices,
+        'debug': debug,
+        'audit': audit,
+    })
+
 @login_required
 def file_upload(request):
-    # -------------------------------
-    # Uploading Files
-    # -------------------------------
     if request.method == 'POST':
         try:
             uploaded_file = request.FILES['file']
@@ -826,9 +1270,6 @@ def file_upload(request):
         except Exception as e:
             return JsonResponse({'success': False, 'message': 'An error occurred: ' + str(e)})
 
-    # -------------------------------
-    # Searching / Listing Files
-    # -------------------------------
     elif request.method == 'GET':
         search_query = request.GET.get('q', '')
         filters_raw = request.GET.get('filters', '')
@@ -838,8 +1279,8 @@ def file_upload(request):
         layout = request.GET.get('layout', '')
 
         # Base conditions
-        file_filter_conditions = Q(user=request.user)
-        folder_filter_conditions = Q(user=request.user)
+        file_filter_conditions = Q()
+        folder_filter_conditions = Q()
 
         # Search filter
         if search_query:
@@ -878,16 +1319,10 @@ def file_upload(request):
             quiz_ids = [int(qid) for qid in quiz_ids if qid.isdigit()]
             if quiz_ids:
                 quiz_filter_applied = True
-                # IMPORTANT: build_quiz_file_filter should return Q(pk__in=[])
-                # when no linked files exist so the AND produces an empty set.
                 file_filter_conditions &= build_quiz_file_filter(quiz_ids)
         else:
             quiz_ids = []
 
-        print("Course IDs:", course_ids)
-        print("Quiz IDs:", quiz_ids)
-
-        # Root vs nested folder handling
         if parent_id:
             folder_filter_conditions &= Q(parent_id=parent_id)
             file_filter_conditions &= Q(folders__id=parent_id)
@@ -895,14 +1330,8 @@ def file_upload(request):
             folder_filter_conditions &= Q(parent=None)
             file_filter_conditions &= Q(folders=None)
 
-        print("Raw filters:", filters_raw)
-        print("Parsed filters:", filters)
-        print("Final file_filter_conditions:", file_filter_conditions)
-
-        # Query files first (so we can decide whether to hide folders)
         files = File.objects.filter(file_filter_conditions).distinct()
 
-        # If ANY of the structured filters (course/quiz) are applied and zero files, hide folders too
         suppress_folders = bool((course_filter_applied or quiz_filter_applied) and not files.exists())
         if suppress_folders:
             print("Folders suppressed: structured filters applied but no files matched.")
@@ -910,14 +1339,12 @@ def file_upload(request):
         else:
             folders = Folder.objects.filter(folder_filter_conditions)
 
-        # Merge and sort
         combined_items = list(folders) + list(files)
         combined_items.sort(
             key=lambda x: x.created_at if hasattr(x, 'created_at') else x.uploaded_at,
             reverse=True
         )
 
-        # Paginate
         paginator = Paginator(combined_items, per_page)
         try:
             page_items = paginator.page(page)
@@ -930,7 +1357,6 @@ def file_upload(request):
                 'layout': layout
             })
 
-        # Serialize
         response_data = []
         for item in page_items:
             if isinstance(item, Folder):

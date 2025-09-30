@@ -1,0 +1,47 @@
+<div id="userImportCSV" class="popup-background">
+    <div class="popup-content max-width-6">
+        <div class="popup-header">
+            <h3>Import Users</h3>
+            <button type="button" onclick="closePopup('userImportCSV')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <!-- <form method="post" enctype="multipart/form-data" action="{% url 'import_user' %}" id="importForm">
+            {% csrf_token %}
+            <input type="file" name="csv_file" accept=".csv" id="csvFileInput" style="display: none;" required>
+            <button type="button" class="action-button-secondary" onclick="document.getElementById('csvFileInput').click();">
+                <i class="fa-regular fa-arrow-down-to-bracket"></i>
+                <span>Import Users</span>
+            </button>
+            <button type="submit" id="submitForm" style="display: none;">Submit</button>
+        </form> -->
+        <form id="userImportForm" enctype="multipart/form-data">
+            <div class="popup-body">
+                <div class="file-upload-inner">
+                    <h5>Choose CSV File<span class="required-asterisk">*</span></h5>
+
+                    <div class="dropzone" id="userImportCSVDropzone">
+                        <i id="dropzoneIcon" class="fa-light fa-cloud-arrow-up"></i>
+                        <p id="dropzoneText">Drag & drop your csv file here or <u>click to browse</u></p>
+                        <input type="file" name="file" id="userImportCSVFile" accept=".csv" required>
+                    </div>
+                    <span class="course-content-input-subtext">Please make sure that your table headers do not contain any special characters.</span>
+                    <div class="assignment-upload-file" id="userImportCSVFileDisplayContainer"></div>                
+                </div>
+                <div class="loading-symbol-blue-sm">
+                    <svg class="loading-symbol-sm-inner" viewBox="25 25 50 50">
+                        <circle r="20" cy="50" cx="50"></circle>
+                    </svg>
+                    <span>Unpacking CSV File, please wait...</span>
+                </div>
+            </div>
+            <div class="popup-footer">
+                <div class="spacer"></div>
+                <div class="popup-btns">
+                    <button type="button" onclick="closePopup('userImportCSV')" class="popup-btn close-popup-btn">Back</button>
+                    <button id="userImportSubmit" type="submit" class="popup-btn disabled" disabled>Import</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

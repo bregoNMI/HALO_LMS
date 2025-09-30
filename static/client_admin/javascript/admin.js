@@ -290,7 +290,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const deleteUserConfirmation = document.getElementById('deleteUserConfirmation');
     if(deleteUserConfirmation){
         deleteUserConfirmation.addEventListener('click', () => {
-            console.log(selectedIds);
+            setDisabledDeleteBtns();
             const url = '/admin/users/delete-users/';  // Change this to your actual endpoint
     
             fetch(url, {
@@ -329,7 +329,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const deleteCourseConfirmation = document.getElementById('deleteCourseConfirmation');
     if(deleteCourseConfirmation){
         deleteCourseConfirmation.addEventListener('click', () => {
-            console.log(selectedCourseIds);
+            setDisabledDeleteBtns();
             const url = '/admin/courses/delete-courses/';
     
             fetch(url, {
@@ -367,7 +367,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const deleteCategoryConfirmation = document.getElementById('deleteCategoryConfirmation');
     if(deleteCategoryConfirmation){
         deleteCategoryConfirmation.addEventListener('click', () => {
-            console.log(selectedIds);
+            setDisabledDeleteBtns();
             const url = '/admin/categories/delete-categories/';
     
             fetch(url, {
@@ -405,7 +405,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const deleteEnrollmentKeyConfirmation = document.getElementById('deleteEnrollmentKeyConfirmation');
     if(deleteEnrollmentKeyConfirmation){
         deleteEnrollmentKeyConfirmation.addEventListener('click', () => {
-            console.log(selectedIds);
+            setDisabledDeleteBtns();
             const url = '/admin/enrollment-keys/delete-keys/';
     
             fetch(url, {
@@ -443,7 +443,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const deleteQuizConfirmation = document.getElementById('deleteQuizConfirmation');
     if(deleteQuizConfirmation){
         deleteQuizConfirmation.addEventListener('click', () => {
-            console.log(selectedIds);
+            setDisabledDeleteBtns();
             const url = '/admin/quizzes/delete-quizzes/';
     
             fetch(url, {
@@ -481,7 +481,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const deleteQuestionConfirmation = document.getElementById('deleteQuestionConfirmation');
     if(deleteQuestionConfirmation){
         deleteQuestionConfirmation.addEventListener('click', () => {
-            console.log(selectedIds);
+            setDisabledDeleteBtns();
             const url = '/admin/questions/delete-questions/';
     
             fetch(url, {
@@ -519,7 +519,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const deleteQuizTemplateConfirmation = document.getElementById('deleteQuizTemplateConfirmation');
     if(deleteQuizTemplateConfirmation){
         deleteQuizTemplateConfirmation.addEventListener('click', () => {
-            console.log(selectedIds);
+            setDisabledDeleteBtns();
             const url = '/admin/quiz-templates/delete-quiz-templates/';
     
             fetch(url, {
@@ -557,7 +557,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const deleteAssignmentConfirmation = document.getElementById('deleteAssignmentConfirmation');
     if(deleteAssignmentConfirmation){
         deleteAssignmentConfirmation.addEventListener('click', () => {
-            console.log(selectedIds);
+            setDisabledDeleteBtns();
             const url = '/admin/assignments/delete-assignments/';
     
             fetch(url, {
@@ -595,7 +595,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const unenrollUserConfirmation = document.getElementById('unenrollUserConfirmation');
     if(unenrollUserConfirmation){
         unenrollUserConfirmation.addEventListener('click', () => {
-            console.log(selectedIds);
+            setDisabledDeleteBtns();
             const url = '/admin/user-enrollments/delete-enrollments/';
     
             fetch(url, {
@@ -644,10 +644,11 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Dynamically Opening Popups
-function openPopup(popup){
+function openPopup(popup){   
     const currentPopup = document.getElementById(popup);
     const popupContent = currentPopup.querySelector('.popup-content');
     currentPopup.style.display = "flex";
+    console.log(popup,currentPopup, popupContent);
     setTimeout(() => {
         popupContent.classList.add('animate-popup-content');
     }, 100);
@@ -660,4 +661,45 @@ function closePopup(popup){
     setTimeout(() => {
         currentPopup.style.display = "none";
     }, 200);
+}
+
+function setDisabledDeleteBtns() {
+    const courseSaveBtns = document.querySelectorAll('.delete-confirm-btn');
+    for (const btn of courseSaveBtns) {
+        setTimeout(() => {
+            btn.setAttribute('disabled', true);
+        }, 100);
+        btn.classList.add('disabled');
+
+        if (!btn.dataset.originalHtml) {
+            btn.dataset.originalHtml = btn.innerHTML;
+        }
+
+        const savedWidth = btn.offsetWidth + "px";
+        const savedHeight = btn.offsetHeight + "px";
+
+        btn.style.width = savedWidth;
+        btn.style.height = savedHeight;
+        btn.style.backgroundColor = '#d53e3e !important';
+
+        btn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
+    }
+}
+
+function removeDisabledDeleteBtns() {
+    setTimeout(() => {
+        const courseSaveBtns = document.querySelectorAll('.delete-confirm-btn');
+        for (const btn of courseSaveBtns) {
+            btn.classList.remove('disabled');
+            btn.removeAttribute('disabled');
+
+            if (btn.dataset.originalHtml) {
+                btn.innerHTML = btn.dataset.originalHtml;
+                delete btn.dataset.originalHtml;
+            }
+
+            btn.style.width = "";
+            btn.style.height = "";
+        }
+    }, 400);
 }

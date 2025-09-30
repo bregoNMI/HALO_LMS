@@ -107,8 +107,9 @@
     align-items: center;
     justify-content: center;
 }.claimed-reward-credits span{
-    color: var(--text-color7);
     font-size: 1.1rem;
+    font-weight: 600;
+    color: blueviolet;
     /* margin-left: 0.1rem; */
 }.claimed-rewards-credits-plus{
     display: flex;

@@ -7,7 +7,7 @@
             </div>
         </div>
         <div class="popup-body scrollable-content">
-            <div id="assignmentReferenceImage" class="media-preview media-modal-content">
+            <div id="assignmentReferenceImage" class="media-preview media-modal-content" style="max-height: unset;">
                 {% if assignment.assignment.file_type == 'image' %}
                     <img src="{{ assignment.assignment.url }}" alt="Reference Preview" style="max-width: 100%; height: auto;">
                 

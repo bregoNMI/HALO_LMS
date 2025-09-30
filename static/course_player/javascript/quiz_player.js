@@ -1078,20 +1078,24 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function fadeIn(container) {
-    if (typeof container === 'string') container = document.getElementById(container);
-    if (!container) return;
-    container.classList.remove('hidden');
-    container.style.opacity = '0';
-    container.style.transform = 'scale(0.9)';
-    container.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-    requestAnimationFrame(() => {
-      container.style.opacity = '1';
-      container.style.transform = 'scale(1)';
-    });
-    setTimeout(() => {
-      container.style.opacity = '';
-      container.style.transform = '';
-      container.style.transition = '';
-    }, 500);
+      if (typeof container === 'string') container = document.getElementById(container);
+      if (!container) return;
+      container.classList.remove('hidden');
+      container.style.opacity = '0';
+      container.style.transform = 'scale(0.9)';
+      container.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
+      setTimeout(() => {
+          requestAnimationFrame(() => {
+              container.style.opacity = '1';
+              container.style.transform = 'scale(1)';
+          });
+      }, 100);
+
+      setTimeout(() => {
+        container.style.opacity = '';
+        container.style.transform = '';
+        container.style.transition = '';
+      }, 500);
   }
 });

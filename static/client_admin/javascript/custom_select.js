@@ -1,6 +1,8 @@
 // Custom Select Box
 document.addEventListener("DOMContentLoaded", function () {
-    var customSelects = document.querySelectorAll('.custom-select');
+    const IMPORT_SCOPE = document.getElementById('userImportMap');
+    const customSelects = Array.from(document.querySelectorAll('.custom-select'))
+    .filter(el => !IMPORT_SCOPE || !IMPORT_SCOPE.contains(el));
     var sortButton = document.getElementById('sortButton');
     var sortForm = document.getElementById('sortForm');
     var sortByInput = document.getElementById('sort_by');

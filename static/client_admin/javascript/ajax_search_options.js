@@ -1396,142 +1396,142 @@ function deleteAssignment(assignmentId){
 }
 
 function initializeQuizDropdown(containerId) {
-    const container = document.getElementById(containerId);
-    const clearBtn = container.querySelector('.dropdown-clear-input');
-    const searchInput = container.querySelector('.quizSearch');
-    const dropdownList = container.querySelector('.quizList');
-    const loading = container.querySelector('.loadingIndicator');
-    let page = 1, isLoading = false, hasMore = true;
+  const container = document.getElementById(containerId);
+  const clearBtn = container.querySelector('.dropdown-clear-input');
+  const searchInput = container.querySelector('.quizSearch');
+  const dropdownList = container.querySelector('.quizList');
+  const loading = container.querySelector('.loadingIndicator');
 
-    function fetchQuizzes(searchTerm = '', reset = false) {
-        if (isLoading || !hasMore) return;
-        isLoading = true;
-        loading.style.display = 'block';
+  let page = 1, isLoading = false, hasMore = true;
 
-        fetch(`/requests/get-quizzes/?page=${page}&search=${encodeURIComponent(searchTerm)}`, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (reset) {
-                dropdownList.innerHTML = '';
-                page = 1;
-            }
-
-            if (data.quizzes.length === 0) {
-                dropdownList.innerHTML = '<div class="no-results">No quizzes found</div>';
-                hasMore = false;
-                loading.style.display = 'none';
-                return;
-            }
-
-            data.quizzes.forEach(quiz => {
-                const item = document.createElement('div');
-                item.classList.add('dropdown-item');
-                item.innerHTML = `<div class="dropdown-item-inner"><h5>${quiz.title}</h5></div>`;
-                item.dataset.quizId = quiz.id;
-            
-                const checkboxWrap = document.createElement('div');
-                checkboxWrap.innerHTML = `
-                    <label class="container">
-                        <input value="${quiz.id}" class="quiz-checkbox" type="checkbox">
-                        <div class="checkmark"></div>
-                    </label>
-                `;
-                const checkbox = checkboxWrap.querySelector('.quiz-checkbox');
-                item.prepend(checkboxWrap);
-                dropdownList.appendChild(item);
-            
-                const selectedId = searchInput.getAttribute('data-id');
-                const isSelected = selectedId && String(quiz.id) === selectedId;
-            
-                if (isSelected) {
-                    checkbox.checked = true;
-                    item.classList.add('selected');
-                }
-            
-                item.addEventListener('click', function () {
-                    const checkboxes = dropdownList.querySelectorAll('.quiz-checkbox');
-                    checkboxes.forEach(cb => {
-                        if (cb !== checkbox) {
-                            cb.checked = false;
-                            cb.closest('.dropdown-item').classList.remove('selected');
-                        }
-                    });
-            
-                    if (!checkbox.checked) {
-                        searchInput.value = quiz.title;
-                        searchInput.setAttribute('data-id', quiz.id);
-                        checkbox.checked = true;
-                        item.classList.add('selected');
-                    } else {
-                        searchInput.value = '';
-                        searchInput.removeAttribute('data-id');
-                        checkbox.checked = false;
-                        item.classList.remove('selected');
-                    }
-                });
-            
-                checkbox.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    item.click();
-                });
-            });            
-
-            hasMore = data.has_more;
-            isLoading = false;
-            loading.style.display = 'none';
-            page += 1;
-        })
-        .catch(err => {
-            console.error('Error fetching quizzes:', err);
-            isLoading = false;
-            loading.style.display = 'none';
-        });
+  function fetchQuizzes(searchTerm = '', reset = false) {
+    if (reset) {
+      page = 1;
+      hasMore = true;
     }
+    if (isLoading || !hasMore) return;
 
-    dropdownList.addEventListener('scroll', function () {
-        if (dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight) {
-            fetchQuizzes(searchInput.value);
+    isLoading = true;
+    loading.style.display = 'block';
+
+    fetch(`/requests/get-quizzes/?page=${page}&search=${encodeURIComponent(searchTerm)}`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin' // ✅ ensure session cookies are sent
+    })
+    .then(res => res.json())
+    .then(data => {
+      const items = data.quizzes || [];
+      if (items.length === 0) {
+        if (page === 1) {
+          dropdownList.innerHTML = '<div class="no-results">No quizzes found</div>';
         }
-    });
+        hasMore = false;
+      } else {
+        dropdownList.innerHTML = '';
+        items.forEach(quiz => {
+          const item = document.createElement('div');
+          item.classList.add('dropdown-item');
+          item.dataset.quizId = quiz.id;
+          item.innerHTML = `<div class="dropdown-item-inner"><h5>${quiz.title}</h5></div>`;
 
-    searchInput.addEventListener('input', () => {
-        page = 1;
-        hasMore = true;
-        fetchQuizzes(searchInput.value, true);
-    });
+          const checkboxWrap = document.createElement('div');
+          checkboxWrap.innerHTML = `
+            <label class="container">
+              <input value="${quiz.id}" class="quiz-checkbox" type="checkbox">
+              <div class="checkmark"></div>
+            </label>
+          `;
+          const checkbox = checkboxWrap.querySelector('.quiz-checkbox');
+          item.prepend(checkboxWrap);
+          dropdownList.appendChild(item);
 
-    searchInput.addEventListener('focus', () => {
-        searchInput.style.borderRadius = '8px 8px 0 0';
-        dropdownList.style.display = 'block';
-        searchInput.style.border = '2px solid #c7c7db';
-        page = 1;
-        hasMore = true;
-        fetchQuizzes(searchInput.value, true);
-    });
+          const selectedId = searchInput.getAttribute('data-id');
+          const isSelected = selectedId && String(quiz.id) === selectedId;
+          if (isSelected) {
+            checkbox.checked = true;
+            item.classList.add('selected');
+          }
 
-    document.addEventListener('click', (e) => {
-        if (!container.contains(e.target)) {
-            dropdownList.style.display = 'none';
-            searchInput.style.borderRadius = '8px';
-            searchInput.style.border = '1px solid #ececf1';
-        }
-    });
+          item.addEventListener('click', function () {
+            dropdownList.querySelectorAll('.quiz-checkbox').forEach(cb => {
+              if (cb !== checkbox) {
+                cb.checked = false;
+                cb.closest('.dropdown-item').classList.remove('selected');
+              }
+            });
 
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            searchInput.removeAttribute('data-id');
-            const selected = dropdownList.querySelector('.dropdown-item.selected');
-            if (selected) {
-                selected.classList.remove('selected');
-                selected.querySelector('.quiz-checkbox').checked = false;
+            if (!checkbox.checked) {
+              searchInput.value = quiz.title;
+              searchInput.setAttribute('data-id', quiz.id);
+              checkbox.checked = true;
+              item.classList.add('selected');
+            } else {
+              searchInput.value = '';
+              searchInput.removeAttribute('data-id');
+              checkbox.checked = false;
+              item.classList.remove('selected');
             }
-        });
-    }
+          });
 
-    fetchQuizzes();
+          checkbox.addEventListener('click', function (e) {
+            e.stopPropagation();
+            item.click();
+          });
+        });
+
+        hasMore = !!data.has_more;
+        page += 1;
+      }
+
+      isLoading = false;
+      loading.style.display = 'none';
+    })
+    .catch(err => {
+      console.error('Error fetching quizzes:', err);
+      isLoading = false;
+      loading.style.display = 'none';
+    });
+  }
+
+  dropdownList.addEventListener('scroll', function () {
+    if (dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight) {
+      fetchQuizzes(searchInput.value);
+    }
+  });
+
+  searchInput.addEventListener('input', () => {
+    fetchQuizzes(searchInput.value, true);
+  });
+
+  searchInput.addEventListener('focus', () => {
+    searchInput.style.borderRadius = '8px 8px 0 0';
+    dropdownList.style.display = 'block';
+    searchInput.style.border = '2px solid #c7c7db';
+    fetchQuizzes(searchInput.value, true);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) {
+      dropdownList.style.display = 'none';
+      searchInput.style.borderRadius = '8px';
+      searchInput.style.border = '1px solid #ececf1';
+    }
+  });
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchInput.removeAttribute('data-id');
+      dropdownList.querySelectorAll('.dropdown-item.selected').forEach(el => {
+        el.classList.remove('selected');
+        const cb = el.querySelector('.quiz-checkbox');
+        if (cb) cb.checked = false;
+      });
+      fetchQuizzes('', true); // 🔁 refetch initial page
+    });
+  }
+
+  fetchQuizzes(); // initial load
 }
 
 function initializeQuizMultiDropdown(containerId, initialSelectedQuizIds = []) {
@@ -1730,143 +1730,143 @@ function initializeQuizMultiDropdown(containerId, initialSelectedQuizIds = []) {
 }
 
 function initializeQuizTemplateDropdown(containerId) {
-    const container = document.getElementById(containerId);
-    const clearBtn = container.querySelector('.dropdown-clear-input');
-    const searchInput = container.querySelector('.quizTemplateSearch');
-    const dropdownList = container.querySelector('.quizTemplateList');
-    const loading = container.querySelector('.loadingIndicator');
-    let page = 1, isLoading = false, hasMore = true;
+  const container = document.getElementById(containerId);
+  const clearBtn = container.querySelector('.dropdown-clear-input');
+  const searchInput = container.querySelector('.quizTemplateSearch');
+  const dropdownList = container.querySelector('.quizTemplateList');
+  const loading = container.querySelector('.loadingIndicator');
 
-    function fetchTemplates(searchTerm = '', reset = false) {
-        if (isLoading || !hasMore) return;
-        isLoading = true;
-        loading.style.display = 'block';
+  let page = 1, isLoading = false, hasMore = true;
 
-        fetch(`/requests/get-quiz-templates/?page=${page}&search=${encodeURIComponent(searchTerm)}`, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (reset) {
-                dropdownList.innerHTML = '';
-                page = 1;
-            }
-
-            if (data.templates.length === 0) {
-                dropdownList.innerHTML = '<div class="no-results">No quiz templates found</div>';
-                hasMore = false;
-                loading.style.display = 'none';
-                return;
-            }
-
-            data.templates.forEach(template => {
-                const item = document.createElement('div');
-                item.classList.add('dropdown-item');
-                item.innerHTML = `<div class="dropdown-item-inner"><h5>${template.title}</h5></div>`;
-                item.dataset.templateId = template.id;
-            
-                const checkboxWrap = document.createElement('div');
-                checkboxWrap.innerHTML = `
-                    <label class="container">
-                        <input value="${template.id}" class="template-checkbox" type="checkbox">
-                        <div class="checkmark"></div>
-                    </label>
-                `;
-                const checkbox = checkboxWrap.querySelector('.template-checkbox');
-                item.prepend(checkboxWrap);
-                dropdownList.appendChild(item);
-            
-                // 🧠 Check for previously selected ID
-                const selectedId = searchInput.getAttribute('data-id');
-                const isSelected = selectedId && String(template.id) === selectedId;
-            
-                if (isSelected) {
-                    checkbox.checked = true;
-                    item.classList.add('selected');
-                }
-            
-                item.addEventListener('click', function () {
-                    const checkboxes = dropdownList.querySelectorAll('.template-checkbox');
-                    checkboxes.forEach(cb => {
-                        if (cb !== checkbox) {
-                            cb.checked = false;
-                            cb.closest('.dropdown-item').classList.remove('selected');
-                        }
-                    });
-            
-                    if (!checkbox.checked) {
-                        searchInput.value = template.title;
-                        searchInput.setAttribute('data-id', template.id);
-                        checkbox.checked = true;
-                        item.classList.add('selected');
-                    } else {
-                        searchInput.value = '';
-                        searchInput.removeAttribute('data-id');
-                        checkbox.checked = false;
-                        item.classList.remove('selected');
-                    }
-                });
-            
-                checkbox.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    item.click();
-                });
-            });            
-
-            hasMore = data.has_more;
-            isLoading = false;
-            loading.style.display = 'none';
-            page += 1;
-        })
-        .catch(err => {
-            console.error('Error fetching quiz templates:', err);
-            isLoading = false;
-            loading.style.display = 'none';
-        });
+  function fetchTemplates(searchTerm = '', reset = false) {
+    if (reset) {
+      page = 1;
+      hasMore = true;
     }
 
-    dropdownList.addEventListener('scroll', function () {
-        if (dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight) {
-            fetchTemplates(searchInput.value);
+    if (isLoading || !hasMore) return;
+
+    isLoading = true;
+    loading.style.display = 'block';
+
+    fetch(`/requests/get-quiz-templates/?page=${page}&search=${encodeURIComponent(searchTerm)}`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin' // ✅ ensure session cookies are sent
+    })
+    .then(res => res.json())
+    .then(data => {
+      if ((data.templates || []).length === 0) {
+        if (page === 1) {
+          dropdownList.innerHTML = '<div class="no-results">No quiz templates found</div>';
         }
-    });
+        hasMore = false;
+      } else {
+        dropdownList.innerHTML = '';
+        data.templates.forEach(template => {
+          const item = document.createElement('div');
+          item.classList.add('dropdown-item');
+          item.dataset.templateId = template.id;
+          item.innerHTML = `<div class="dropdown-item-inner"><h5>${template.title}</h5></div>`;
 
-    searchInput.addEventListener('input', () => {
-        page = 1;
-        hasMore = true;
-        fetchTemplates(searchInput.value, true);
-    });
+          const checkboxWrap = document.createElement('div');
+          checkboxWrap.innerHTML = `
+            <label class="container">
+              <input value="${template.id}" class="template-checkbox" type="checkbox">
+              <div class="checkmark"></div>
+            </label>
+          `;
+          const checkbox = checkboxWrap.querySelector('.template-checkbox');
+          item.prepend(checkboxWrap);
+          dropdownList.appendChild(item);
 
-    searchInput.addEventListener('focus', () => {
-        searchInput.style.borderRadius = '8px 8px 0 0';
-        dropdownList.style.display = 'block';
-        searchInput.style.border = '2px solid #c7c7db';
-        page = 1;
-        hasMore = true;
-        fetchTemplates(searchInput.value, true);
-    });
+          const selectedId = searchInput.getAttribute('data-id');
+          const isSelected = selectedId && String(template.id) === selectedId;
+          if (isSelected) {
+            checkbox.checked = true;
+            item.classList.add('selected');
+          }
 
-    document.addEventListener('click', (e) => {
-        if (!container.contains(e.target)) {
-            dropdownList.style.display = 'none';
-            searchInput.style.borderRadius = '8px';
-            searchInput.style.border = '1px solid #ececf1';
-        }
-    });
+          item.addEventListener('click', function () {
+            dropdownList.querySelectorAll('.template-checkbox').forEach(cb => {
+              if (cb !== checkbox) {
+                cb.checked = false;
+                cb.closest('.dropdown-item').classList.remove('selected');
+              }
+            });
 
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            searchInput.removeAttribute('data-id');
-            const selected = dropdownList.querySelector('.dropdown-item.selected');
-            if (selected) {
-                selected.classList.remove('selected');
-                selected.querySelector('.template-checkbox').checked = false;
+            if (!checkbox.checked) {
+              searchInput.value = template.title;
+              searchInput.setAttribute('data-id', template.id);
+              checkbox.checked = true;
+              item.classList.add('selected');
+            } else {
+              searchInput.value = '';
+              searchInput.removeAttribute('data-id');
+              checkbox.checked = false;
+              item.classList.remove('selected');
             }
-        });
-    }
+          });
 
-    fetchTemplates();
+          checkbox.addEventListener('click', function (e) {
+            e.stopPropagation();
+            item.click();
+          });
+        });
+
+        hasMore = !!data.has_more;
+        page += 1;
+      }
+
+      isLoading = false;
+      loading.style.display = 'none';
+    })
+    .catch(err => {
+      console.error('Error fetching quiz templates:', err);
+      isLoading = false;
+      loading.style.display = 'none';
+    });
+  }
+
+  dropdownList.addEventListener('scroll', function () {
+    if (dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight) {
+      fetchTemplates(searchInput.value);
+    }
+  });
+
+  searchInput.addEventListener('input', () => {
+    fetchTemplates(searchInput.value, true); // reset handled inside
+  });
+
+  searchInput.addEventListener('focus', () => {
+    searchInput.style.borderRadius = '8px 8px 0 0';
+    dropdownList.style.display = 'block';
+    searchInput.style.border = '2px solid #c7c7db';
+    fetchTemplates(searchInput.value, true);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) {
+      dropdownList.style.display = 'none';
+      searchInput.style.borderRadius = '8px';
+      searchInput.style.border = '1px solid #ececf1';
+    }
+  });
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      // ✅ Programmatic clear: also reset paging and refetch
+      searchInput.value = '';
+      searchInput.removeAttribute('data-id');
+      dropdownList.querySelectorAll('.dropdown-item.selected').forEach(el => {
+        el.classList.remove('selected');
+        const cb = el.querySelector('.template-checkbox');
+        if (cb) cb.checked = false;
+      });
+      fetchTemplates('', true); // 🔁 refetch initial page
+    });
+  }
+
+  fetchTemplates(); // initial load
 }
 
 function initializeAssignmentDropdown(dropdownId) {

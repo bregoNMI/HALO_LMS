@@ -639,9 +639,8 @@ document.getElementById('fileUploadForm').addEventListener('submit', function(ev
         if (xhr.status === 200 && response.success) {
             displayMessage(response.message, true);
             currentPage = 1;
-            // console.log('fetch');
-            // fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
             uncheckLibraryFilters();
+            fetchFiles(currentPage, currentLayout, currentParentFolderId, selectedFilterCourseIds);
         } else {
             const message = response.message || 'Upload failed. Please try again.';
             displayMessage(message, false);

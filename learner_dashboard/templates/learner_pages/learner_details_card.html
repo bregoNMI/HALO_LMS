@@ -4,7 +4,7 @@
     <div class="bottom-section">
         <div class="bottom-left">
             {% if profile.photoid %}
-                <img class="profile-image" src="{{ profile.photoid.url }}" alt="Profile Image" />
+                <img class="profile-image" src="{{ profile.passportphoto.url }}" alt="Profile Image" />
             {% else %}
                 <div class="profile-image">
                     <i class="fa-regular fa-user-graduate"></i>
@@ -14,28 +14,28 @@
                 <h3>{{ profile.first_name }} {{ profile.last_name }}</h3>
                 <div class="course-item-footer">
                     {% if total_time_spent %}
-                    <div class="course-item-footer-item">
-                        <i class="fa-regular fa-calendar"></i>
-                        <span><b>Time Spent:</b> {{ total_time_spent }}</span>
-                    </div>
+                        <div class="course-item-footer-item">
+                            <i class="fa-regular fa-calendar"></i>
+                            <span><b>Time Spent:</b> {{ total_time_spent }}</span>
+                        </div>
                     {% endif %}
                     {% if total_completed %}
-                    <div class="course-item-footer-item">
-                        <i class="fa-solid fa-circle-small footer-spacer"></i>
-                    </div>
-                    <div class="course-item-footer-item">
-                        <i class="fa-regular fa-box-open-full"></i>
-                        <span><b>Courses Completed:</b> {{ total_completed }}</span>
-                    </div>
+                        <div class="course-item-footer-item">
+                            <i class="fa-solid fa-circle-small footer-spacer"></i>
+                        </div>
+                        <div class="course-item-footer-item">
+                            <i class="fa-regular fa-box-open-full"></i>
+                            <span><b>Courses Completed:</b> {{ total_completed }}</span>
+                        </div>
                     {% endif %}
                     {% if total_enrollments %}
-                    <div class="course-item-footer-item">
-                        <i class="fa-solid fa-circle-small footer-spacer"></i>
-                    </div>
-                    <div class="course-item-footer-item">
-                        <i class="fa-regular fa-boxes-stacked"></i>
-                        <span><b>Total Courses:</b> {{ total_enrollments }}</span>
-                    </div>
+                        <div class="course-item-footer-item">
+                            <i class="fa-solid fa-circle-small footer-spacer"></i>
+                        </div>
+                        <div class="course-item-footer-item">
+                            <i class="fa-regular fa-boxes-stacked"></i>
+                            <span><b>Total Courses:</b> {{ total_enrollments }}</span>
+                        </div>
                     {% endif %}
                 </div>
             </div>

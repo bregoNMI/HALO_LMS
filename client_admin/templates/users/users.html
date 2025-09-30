@@ -25,27 +25,11 @@
             <div class="admin-top-row-left">
                 <h2>Users</h2>
             </div>
-            <div class="admin-top-row-right">
-                <!-- <div class="action-button-secondary">
-                    <span>Import</span>
-                </div> -->
-                <form method="post" enctype="multipart/form-data" action="{% url 'import_user' %}" id="importForm">
-                    {% csrf_token %}
-                    <input type="file" name="csv_file" accept=".csv" id="csvFileInput" style="display: none;" required>
-                    <button type="button" class="action-button-secondary" onclick="document.getElementById('csvFileInput').click();">
-                        <i class="fa-regular fa-arrow-down-to-bracket"></i>
-                        <span>Import Users</span>
-                    </button>
-                    <button type="submit" id="submitForm" style="display: none;">Submit</button>
-                </form>
-                
-                <script>
-                    // Trigger the file input and submit the form when a file is selected
-                    document.getElementById('csvFileInput').addEventListener('change', function() {
-                        document.getElementById('submitForm').click();
-                    });
-                </script>                
-                
+            <div class="admin-top-row-right">                
+                <button type="button" class="action-button-secondary" onclick="openPopup('userImportCSV')">
+                    <i class="fa-regular fa-arrow-down-to-bracket"></i>
+                    <span>Import Users</span>
+                </button>
                 <a href="/admin/users/add/" class="action-button-primary">
                     <i class="fa-regular fa-plus"></i>
                     <span>Add User</span>
@@ -277,5 +261,10 @@
     {% include 'optionsSidebar/user_options_sidebar.html' %}
     {% include 'popups/filters_popup.html' %}
     {% include 'popups/delete_user_popup.html' %}
+    {% include 'popups/user_import_csv.html' %}
+    {% include 'popups/user_import_mapping.html' %}
+    {% include 'popups/user_import_summary.html' %}
+    <link rel="stylesheet" href="{% static 'content\css\file_library.css' %}">
+    <script src="{% static 'client_admin\javascript\user_import.js' %}"></script>
     <script src="{% static 'client_admin\javascript\admin.js' %}"></script>
 {% endblock content %}

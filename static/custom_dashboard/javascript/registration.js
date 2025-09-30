@@ -708,10 +708,12 @@ function fadeIn(container) {
     container.style.transform = 'scale(0.95)';
     container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
 
-    requestAnimationFrame(() => {
-        container.style.opacity = '1';
-        container.style.transform = 'scale(1)';
-    });
+    setTimeout(() => {
+        requestAnimationFrame(() => {
+            container.style.opacity = '1';
+            container.style.transform = 'scale(1)';
+        });
+    }, 100);
 
     setTimeout(() => {
         container.style.opacity = '';

@@ -28,6 +28,8 @@ urlpatterns = [
     path('edit-enrollment-key/', views.edit_enrollment_key, name='edit_enrollment_key'),
     path('submit-enrollment-key/', views.submit_enrollment_key, name='submit_enrollment_key'),
     path('manage-assignment/', views.manage_assignment, name='manage_assignment'),
+    path('user-import/preview/', views.user_import_preview, name='user_import_preview'),
+    path('user-import/commit/', views.user_import_commit, name='user_import_commit'),
 
     path('opened-course-data/', views.opened_course_data, name='opened_course_data'),
     path('learner-login-data/', views.learner_login_data, name='learner_login_data'),
