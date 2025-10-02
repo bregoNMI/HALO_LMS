@@ -220,7 +220,6 @@ function initializeProfileInputListeners() {
     const inputs = document.querySelectorAll('.edit-user-input input:not([readonly]):not(.password-field), .select-selected');
     
     inputs.forEach(input => {
-        // For input elements (text fields, etc.)
         if (input.tagName === 'INPUT') {
             input.addEventListener('input', function () {
                 showsaveButtonPlatform();
@@ -233,7 +232,6 @@ function initializeProfileInputListeners() {
         // For custom select boxes (dropdowns)
         if (input.classList.contains('select-selected')) {
             input.addEventListener('click', function () {
-                // Add listener for when user selects an option from the dropdown
                 input.closest('.custom-select').querySelectorAll('.select-item').forEach(item => {
                     item.addEventListener('click', function() {
                         showsaveButtonPlatform();
@@ -244,9 +242,195 @@ function initializeProfileInputListeners() {
     });
 }
 
+let headshotCheckAbort = null;
+let lastHeadshotObjectURL = null;
+
+const _previewState = {};
+
+function previewImage(inputId, previewId) {
+    fadeIn('verifyHeadshotLoading');
+    fadeOut('reUploadHeadshotBtn');
+    fadeOut('closeVerifyHeadshotFace');
+    fadeOut('saveVerifyHeadshotFace');
+    fadeOut('verifyHeadshotFailed');
+    fadeOut('verifyHeadshotSuccess');
+    fadeOut('verifyHeadshotHeading');
+    const verifyHeadshotDesc = document.getElementById('verifyHeadshotDesc');
+    verifyHeadshotDesc.innerText = 'Analyzing your Headshot Photo...';
+    
+    let input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const nameDisplay = document.getElementById(inputId + "NameDisplay");
+    if (!(input && input.files && input.files[0])) return;
+
+    const container = input.closest('.edit-image');
+    const placeholder = container ? container.querySelector('.profile-image') : null;
+
+    const st = _previewState[inputId] || (_previewState[inputId] = {
+        prevSrc: (preview && preview.getAttribute('src')) || null,
+        prevName: nameDisplay ? nameDisplay.textContent : 'No file selected',
+        hadImage: !!(preview && preview.getAttribute('src')),
+        currentURL: null,
+
+        committedFile: null,
+        committedName: null,
+        committedURL: null
+    });
+
+    const file = input.files[0];
+    const newURL = URL.createObjectURL(file);
+
+    const commitNewAsPrevious = () => {
+        if (st.currentURL && st.currentURL !== st.committedURL) {
+            try { URL.revokeObjectURL(st.currentURL); } catch(_) {}
+        }
+        st.prevSrc = newURL;
+        st.prevName = file.name;
+        st.hadImage = true;
+        st.currentURL = newURL;
+    };
+
+    const revertToPrevious = () => {
+        if (st.committedFile) {
+            try {
+                const dt = new DataTransfer();
+                dt.items.add(st.committedFile);
+                input.files = dt.files;
+            } catch (_) {
+                const clone = input.cloneNode(true);
+                input.parentNode.replaceChild(clone, input);
+                input = clone;
+            }
+
+            if (nameDisplay) nameDisplay.textContent = st.committedName || 'No file selected';
+
+            let committedURL = st.committedURL;
+            if (!committedURL && st.committedFile) {
+                committedURL = URL.createObjectURL(st.committedFile);
+                st.committedURL = committedURL;
+            }
+            if (preview) {
+                if (committedURL) { preview.src = committedURL; preview.style.display = 'block'; }
+                else { preview.removeAttribute('src'); preview.style.display = 'none'; }
+            }
+            if (placeholder) placeholder.style.display = committedURL ? 'none' : '';
+        } else {
+            try {
+                const dt = new DataTransfer();
+                input.files = dt.files;
+                input.value = ''; 
+            } catch (_) {
+                const clone = input.cloneNode(true);
+                input.parentNode.replaceChild(clone, input);
+                input = clone;
+            }
+            if (nameDisplay) nameDisplay.textContent = st.prevName || 'No file selected';
+            if (st.prevSrc) { if (preview) { preview.src = st.prevSrc; preview.style.display='block'; } if (placeholder) placeholder.style.display='none'; }
+            else { if (preview) { preview.removeAttribute('src'); preview.style.display='none'; } if (placeholder) placeholder.style.display=''; }
+        }
+
+        try { URL.revokeObjectURL(newURL); } catch(_) {}
+    };
+
+    if (inputId === 'passportphoto') {
+        setTimeout(() => { openPopup('verifyHeadshotFacePopup'); }, 200);
+
+        verifyHeadshotFace(file)
+        .then(result => {
+            if (!result.success) throw new Error(result.message || 'We could not verify your headshot.');
+
+            st.committedFile = file;
+            st.committedName = file.name;
+            st.committedURL  = newURL;
+
+            try {
+                const dt = new DataTransfer();
+                dt.items.add(st.committedFile);
+                input.files = dt.files;
+            } catch(_) {}
+
+            commitNewAsPrevious();
+            displayHeadShotFaceResults(result, result.message, preview, placeholder, nameDisplay, file, newURL);
+        })
+        .catch(err => {
+            revertToPrevious();
+            // hidesaveButtonPlatform();
+            displayHeadShotFaceResults('failure', err.message, preview, placeholder, nameDisplay, file, newURL);
+        });
+    } else {
+        commitNewAsPrevious();
+        showsaveButtonPlatform();
+        if (preview) { preview.src = newURL; preview.style.display = 'block'; }
+        if (placeholder) placeholder.style.display = 'none';
+        if (nameDisplay) nameDisplay.textContent = file.name;
+    }
+}
+
+function displayHeadShotFaceResults(result, message, preview, placeholder, nameDisplay, file, newURL){
+    const verifyHeadshotHeading = document.getElementById('verifyHeadshotHeading');
+    const verifyHeadshotDesc = document.getElementById('verifyHeadshotDesc');
+    const verifyHeadshotLoading = document.getElementById('verifyHeadshotLoading');  
+
+    setTimeout(() => {
+        if(result == 'failure'){
+            verifyHeadshotHeading.innerText = 'Invalid Headshot Photo';
+            verifyHeadshotDesc.innerText = `${message}`;
+            fadeIn('reUploadHeadshotBtn');
+            fadeIn('verifyHeadshotFailed');
+        }else{
+            verifyHeadshotHeading.innerText = 'Headshot Photo Verified!';
+            verifyHeadshotDesc.innerText = `${message}`;
+            if (preview) {
+                preview.src = newURL;
+                preview.style.display = 'block';
+            }
+            if (placeholder) placeholder.style.display = 'none';
+            if (nameDisplay) nameDisplay.textContent = file.name;
+            fadeIn('closeVerifyHeadshotFace');
+            fadeIn('saveVerifyHeadshotFace');
+            fadeIn('verifyHeadshotSuccess');
+            showsaveButtonPlatform();
+        }
+        verifyHeadshotLoading.classList.add('hidden');
+        fadeIn('verifyHeadshotHeading');
+        fadeIn('verifyHeadshotDesc');
+    }, 1200);
+}
+
+async function verifyHeadshotFace(file) {
+    if (headshotCheckAbort) headshotCheckAbort.abort();
+    headshotCheckAbort = new AbortController();
+
+    const formData = new FormData();
+    formData.append('image', file, file.name);
+
+    const resp = await fetch('/verify-headshot-face/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }, // keep CSRF
+        body: formData,
+        signal: headshotCheckAbort.signal
+    });
+
+    // Non-2xx still might contain JSON
+    let data;
+    try { data = await resp.json(); } catch (_) {
+        throw new Error('Invalid server response while verifying headshot.');
+    }
+    if (!resp.ok) {
+        // Standardize a message if server returned 4xx/5xx
+        throw new Error(data.message || 'Headshot verification failed.');
+    }
+    return data;
+}
+
 function showsaveButtonPlatform(){
     const saveButtonPlatform = document.getElementById('saveButtonPlatform');
     if(saveButtonPlatform){saveButtonPlatform.classList.add('animate-save-button-platform');}
+}
+
+function hidesaveButtonPlatform(){
+    const saveButtonPlatform = document.getElementById('saveButtonPlatform');
+    if(saveButtonPlatform){saveButtonPlatform.classList.remove('animate-save-button-platform');}
 }
 
 /* My Courses Page JS */
@@ -323,7 +507,6 @@ function toggleDescription(event) {
 
     const descriptionWrapper = event.target.previousElementSibling;
     const fadeOverlay = descriptionWrapper.querySelector('.fade-overlay');
-    console.log(fadeOverlay);
     
     if (descriptionWrapper.classList.contains('expanded')) {
         descriptionWrapper.classList.remove('expanded');

@@ -257,60 +257,56 @@
                                             </div>
                                         </div>
                                         <div class="info-card-body">                         
-                                            <div class="popup-scroll-wrapper">
-                                                <div style="border: none;" class="popup-body">
-                                                    <div class="edit-images-row">
-                                                        <div class="edit-image">
-                                                            <label class="edit-user-label" for="photoid">Identification Image</label>
+                                            <div class="edit-images-row">
+                                                <div class="edit-image">
+                                                    <label class="edit-user-label" for="photoid">Identification Image</label>
+                                                    {% if profile.photoid %}
+                                                        <img id="photoidPreview" src="{{ profile.photoid.url }}" alt="photoid">
+                                                    {% else %}
+                                                        <div class="profile-image">
+                                                            <i class="fa-regular fa-user-graduate"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <label for="photoid" class="custom-file-upload-container">
+                                                        <div class="custom-file-upload">
+                                                            <input type="file" id="photoid" name="photoid" accept="image/*" onchange="previewImage('photoid', 'photoidPreview')" style="display: none;">
+                                                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Choose File
+                                                        </div>
+                                                        <div class="custom-file-title">
                                                             {% if profile.photoid %}
-                                                                <img id="photoidPreview" src="{{ profile.photoid.url }}" alt="photoid">
+                                                                <span id="photoidNameDisplay" class="file-name-display">{{ profile.photoid }}</span>
                                                             {% else %}
-                                                                <div class="profile-image">
-                                                                    <i class="fa-regular fa-user-graduate"></i>
-                                                                </div>
+                                                                <span id="photoidNameDisplay" class="file-name-display">No file selected</span>
                                                             {% endif %}
-                                                            <label for="photoid" class="custom-file-upload-container">
-                                                                <div class="custom-file-upload">
-                                                                    <input type="file" id="photoid" name="photoid" accept="image/*" onchange="previewImage('photoid', 'photoidPreview')" style="display: none;">
-                                                                    <i class="fa-solid fa-arrow-up-from-bracket"></i> Choose File
-                                                                </div>
-                                                                <div class="custom-file-title">
-                                                                    {% if profile.photoid %}
-                                                                        <span id="photoidNameDisplay" class="file-name-display">{{ profile.photoid }}</span>
-                                                                    {% else %}
-                                                                        <span id="photoidNameDisplay" class="file-name-display">No file selected</span>
-                                                                    {% endif %}
-                                                                    
-                                                                </div>
-                                                            </label>
+                                                            
                                                         </div>
-                                                        <div class="edit-image">
-                                                            <label class="edit-user-label" for="passportphoto">Headshot Image</label>
-                                                            {% if profile.passportphoto %}
-                                                                <img id="passportphotoPreview" src="{{ profile.passportphoto.url }}" alt="passportphoto">
-                                                            {% else %}
-                                                                <div class="profile-image">
-                                                                    <i class="fa-regular fa-user-graduate"></i>
-                                                                </div>
-                                                            {% endif %}
-                                                            <label for="passportphoto" class="custom-file-upload-container">
-                                                                <div class="custom-file-upload">
-                                                                    <input type="file" id="passportphoto" name="passportphoto" accept="image/*" onchange="previewImage('passportphoto', 'passportphotoPreview')" style="display: none;">
-                                                                    <i class="fa-solid fa-arrow-up-from-bracket"></i> Choose File
-                                                                </div>
-                                                                <div class="custom-file-title">
-                                                                    {% if profile.passportphoto %}
-                                                                        <span id="passportphotoNameDisplay" class="file-name-display">{{ profile.passportphoto }}</span>
-                                                                    {% else %}
-                                                                        <span id="passportphotoNameDisplay" class="file-name-display">No file selected</span>
-                                                                    {% endif %}
-                                                                    
-                                                                </div>
-                                                            </label>
-                                                        </div>
-                                                    </div>
+                                                    </label>
                                                 </div>
-                                            </div>                 
+                                                <div class="edit-image">
+                                                    <label class="edit-user-label" for="passportphoto">Headshot Photo</label>
+                                                    {% if profile.passportphoto %}
+                                                        <img id="passportphotoPreview" src="{{ profile.passportphoto.url }}" alt="passportphoto">
+                                                    {% else %}
+                                                        <div class="profile-image">
+                                                            <i class="fa-regular fa-user-graduate"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <label for="passportphoto" class="custom-file-upload-container">
+                                                        <div class="custom-file-upload">
+                                                            <input type="file" id="passportphoto" name="passportphoto" accept="image/*" onchange="previewImage('passportphoto', 'passportphotoPreview')" style="display: none;">
+                                                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Choose File
+                                                        </div>
+                                                        <div class="custom-file-title">
+                                                            {% if profile.passportphoto %}
+                                                                <span id="passportphotoNameDisplay" class="file-name-display">{{ profile.passportphoto }}</span>
+                                                            {% else %}
+                                                                <span id="passportphotoNameDisplay" class="file-name-display">No file selected</span>
+                                                            {% endif %}
+                                                            
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>              
                                         </div>
                                     </div>
                                 </div>
@@ -320,7 +316,7 @@
                                             <span>You have unsaved changes</span>
                                             <div class="save-button-row">
                                                 <button type="button" onclick="location.reload()" class="close-popup-btn popup-btn">Reset</button>
-                                                <button type="submit" id="saveUserBtn" class="popup-btn learner-save-btns"> Save Changes </button>
+                                                <button onclick="setDisabledSaveBtns()" type="submit" id="saveUserBtn" class="popup-btn learner-save-btns"> Save Changes </button>
                                             </div>                       
                                         </div>
                                     </div>
@@ -392,6 +388,7 @@
     </div>
 </div>
 
+{% include 'popups/verify_headshot_face.html' %}
 <link rel="stylesheet" href="{% static 'content/css/content.css' %}">
 <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
 <link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">

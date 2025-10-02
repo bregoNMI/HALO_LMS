@@ -25,6 +25,7 @@ from reportlab.lib.enums import TA_LEFT
 from datetime import datetime
 import boto3
 from django.conf import settings
+import io
 import logging
 import json
 from botocore.exceptions import ClientError
@@ -34,6 +35,14 @@ from course_player.models import LessonSession, SCORMTrackingData
 import re
 from datetime import timedelta
 from collections import defaultdict
+from PIL import Image, ImageOps, UnidentifiedImageError
+import numpy as np, io
+from insightface.app import FaceAnalysis
+
+# Module-level singleton (per process)
+app = FaceAnalysis(providers=['CPUExecutionProvider'])
+app.prepare(ctx_id=0)
+
 
 def custom_logout_view(request):
     logout(request)
@@ -64,8 +73,6 @@ def learner_dashboard(request):
         'profile': profile,
         'user_course': user_course,
     }
-
-    print("Session data after redirect:", request.session.get('impersonate_user_id'))
 
     if dashboard:
         return render(request, 'dashboard/learner_dashboard.html', context)
@@ -642,8 +649,6 @@ def on_login_course(request, uuid):
 
 @login_required
 def update_learner_profile(request, user_id):
-
-    print("Is Impersonating:", getattr(request, 'is_impersonating', False))
     # Prevent updates if impersonating
     if getattr(request, 'is_impersonating', False):
         return JsonResponse("Cannot edit while Impersonating")
@@ -682,16 +687,27 @@ def update_learner_profile(request, user_id):
                 profile.birth_date = birth_date
 
         # Handle file uploads for 'photoid' and 'passportphoto'
-        if 'photoid' in request.FILES:
-            profile.photoid = request.FILES['photoid']
-        if 'passportphoto' in request.FILES:
-            profile.passportphoto = request.FILES['passportphoto']
+        photoid_file = request.FILES.get('photoid')
+        if photoid_file:
+            try:
+                photoid_file.seek(0)
+            except Exception:
+                pass
+            # Option A (streaming, preferred):
+            profile.photoid.save(photoid_file.name, photoid_file, save=False)
 
+        passport_file = request.FILES.get('passportphoto')
+        if passport_file:
+            try:
+                passport_file.seek(0)
+            except Exception:
+                pass
+            profile.passportphoto.save(passport_file.name, passport_file, save=False)
+
+
+        profile.save() 
         #Updating Cognito User
         modifyCognito(request)
-
-        # Save Profile model
-        profile.save()
 
         # Success message
         messages.success(request, 'Profile updated successfully')
@@ -710,6 +726,100 @@ def update_learner_profile(request, user_id):
 
     # Render the appropriate template
     return render(request, 'learner_pages/learner_profile.html', context)
+
+ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
+ALLOWED_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
+MAX_UPLOAD_MB = 10
+MIN_WIDTH = 200
+MIN_HEIGHT = 200
+
+@login_required
+@require_POST
+def verify_headshot_face(request):
+    f = request.FILES.get('image')
+    if not f:
+        return JsonResponse({'success': False, 'message': 'No image uploaded.'}, status=400)
+
+    # 1) Basic type / size checks
+    name = (f.name or "").lower()
+    ctype_ok = (f.content_type or "").lower() in ALLOWED_CONTENT_TYPES
+    ext_ok = any(name.endswith(ext) for ext in ALLOWED_EXTS)
+    if not (ctype_ok and ext_ok):
+        return JsonResponse({
+            'success': False,
+            'error_type': 'unsupported_type',
+            'message': 'Unsupported file type. Please upload a JPG, PNG, or WebP image.'
+        }, status=400)
+
+    if f.size > MAX_UPLOAD_MB * 1024 * 1024:
+        return JsonResponse({
+            'success': False,
+            'error_type': 'image_too_large',
+            'message': f'Image is too large. Max size is {MAX_UPLOAD_MB} MB.'
+        }, status=400)
+
+    try:
+        # 2) Validate it’s a real image (and not corrupt)
+        raw = f.read()
+        bio = io.BytesIO(raw)
+        try:
+            Image.open(bio).verify()  # quick integrity check
+        except UnidentifiedImageError:
+            return JsonResponse({
+                'success': False,
+                'error_type': 'invalid_image',
+                'message': 'We couldn’t read that file as an image. Please upload a JPG, PNG, or WebP photo.'
+            }, status=400)
+
+        # reopen after verify()
+        bio.seek(0)
+        img = Image.open(bio)
+        img = ImageOps.exif_transpose(img).convert('RGB')
+
+        # 3) Basic quality checks
+        if img.width < MIN_WIDTH or img.height < MIN_HEIGHT:
+            return JsonResponse({
+                'success': False,
+                'error_type': 'image_too_small',
+                'message': f'Image is too small. Minimum size is {MIN_WIDTH}×{MIN_HEIGHT}px.'
+            }, status=400)
+
+        img.thumbnail((1024, 1024))  # speed up face detection
+
+        # 4) Face detection (InsightFace expects BGR)
+        arr = np.array(img)[:, :, ::-1]
+        faces = app.get(arr) or []
+        count = len(faces)
+
+        if count == 0:
+            return JsonResponse({
+                'success': False,
+                'error_type': 'no_face_found',
+                'faces': 0,
+                'message': 'No face detected. Please upload a clear, front-facing photo with good lighting.'
+            }, status=200)
+
+        if count > 1:
+            return JsonResponse({
+                'success': False,
+                'error_type': 'multiple_faces',
+                'faces': count,
+                'message': 'Multiple faces detected. Please upload a photo with just your face.'
+            }, status=200)
+
+        return JsonResponse({
+            'success': True,
+            'faces': count,
+            'message': 'Face detected. Remember to save your changes to update your Headshot Photo.'
+        })
+
+    except Exception:
+        # Generic fallback without leaking internals
+        return JsonResponse({
+            'success': False,
+            'error_type': 'server_error',
+            'message': 'Something went wrong while checking your photo. Please try again.'
+        }, status=500)
 
 @login_required
 def change_password(request):

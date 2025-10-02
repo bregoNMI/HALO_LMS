@@ -64,8 +64,6 @@ def compare_faces(request):
             faces_1 = app.get(img1_np) or []
             faces_2 = app.get(img2_np) or []
 
-            print(f"faces_1: {len(faces_1)}, faces_2: {len(faces_2)}")
-
             if len(faces_1) == 0:
                 return JsonResponse({
                     'success': False,

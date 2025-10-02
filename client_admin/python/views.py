@@ -553,16 +553,25 @@ def edit_user(request, user_id):
         user.referral = referral
         user.associate_school = associate_school
 
-        # Handle file uploads (no manual S3 upload, let Django handle it)
         if 'photoid' in request.FILES:
             id_photo = request.FILES['photoid']
             id_photo.name = f'users/{username}/id_photo/{id_photo.name}'
             user.photoid = id_photo
+        else:
+            if request.POST.get('clear_photoid') == '1':
+                if user.photoid:
+                    user.photoid.delete(save=False)
+                user.photoid = None
 
         if 'passportphoto' in request.FILES:
             passport_photo = request.FILES['passportphoto']
             passport_photo.name = f'users/{username}/passport_photo/{passport_photo.name}'
             user.passportphoto = passport_photo
+        else:
+            if request.POST.get('clear_passportphoto') == '1':
+                if user.passportphoto:
+                    user.passportphoto.delete(save=False)
+                user.passportphoto = None
 
         user.save()
         modifyCognito(request)
@@ -590,7 +599,6 @@ def edit_user(request, user_id):
         return redirect(referer if referer else 'user_details', user_id=user.id)
     
     return render(request, template, {'profile': user})
-
 
 @login_required
 def enroll_users_request(request):

@@ -136,16 +136,22 @@ function initializeClearImageFields(){
             });
 
             // Clear button click handler
-            clearBtn.addEventListener('click', (e) => {
+            clearBtn.addEventListener('click', (e) => {                
                 e.preventDefault();
                 e.stopPropagation();
+                
                 if(hiddenInputValue){
                     hiddenInputValue.value = '';
                     imageFieldName.innerText = 'No file selected';
                 }else{
                     trueInputValue.value = '';
                     imageFieldName.innerText = 'No file selected';
-                }          
+                }
+                
+                const editBlock   = clearBtn.closest('.edit-image');
+                const clearFlag = editBlock.querySelector('input[name="clear_passportphoto"], input[name="clear_photoid"]');
+                if (clearFlag) clearFlag.value = '1';
+
                 const headerImagePreview = clearBtn.closest('.course-content-input').querySelector('.logo-image-preview');  
                 if(headerImagePreview){headerImagePreview.style.display = 'none'}
             });

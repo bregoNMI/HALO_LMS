@@ -399,7 +399,7 @@ html, body, button{
 .save-button-platform {
     padding: var(--pad-xs) var(--pad-med);
     backdrop-filter: blur(10px);
-    border-radius: 8px;
+    border-radius: 12px;
     position: fixed;
     bottom: -20rem;
     left: 56%;

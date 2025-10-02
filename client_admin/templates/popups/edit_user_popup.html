@@ -14,7 +14,7 @@
                 <div style="border: none;" class="popup-body">
                     <div class="edit-images-row">
                         <div class="edit-image">
-                            <label class="edit-user-label" for="passportphoto">Headshot Image</label>
+                            <label class="edit-user-label" for="passportphoto">Headshot Photo</label>
                             {% if profile.passportphoto %}
                                 <img id="passportphotoPreview" src="{{ profile.passportphoto.url }}" alt="passportphoto">
                             {% else %}
@@ -22,6 +22,7 @@
                                     <i class="fa-light fa-user-graduate"></i>
                                 </div>
                             {% endif %}
+                            <input type="hidden" name="clear_passportphoto" id="clear_passportphoto" value="0">
                             <label for="passportphoto" class="custom-file-upload-container">
                                 <div class="custom-file-upload">
                                     <input type="file" id="passportphoto" name="passportphoto" accept="image/*" onchange="previewImage('passportphoto', 'passportphotoPreview')" style="display: none;">
@@ -32,8 +33,7 @@
                                         <span id="passportphotoNameDisplay" class="file-name-display">{{ profile.passportphoto }}</span>
                                     {% else %}
                                         <span id="passportphotoNameDisplay" class="file-name-display">No file selected</span>
-                                    {% endif %}
-                                    
+                                    {% endif %}                                   
                                 </div>
                             </label> 
                         </div>
@@ -46,6 +46,7 @@
                                     <i class="fa-light fa-user-graduate"></i>
                                 </div>
                             {% endif %}
+                            <input type="hidden" name="clear_photoid" id="clear_photoid" value="0">
                             <label for="photoid" class="custom-file-upload-container">
                                 <div class="custom-file-upload">
                                     <input type="file" id="photoid" name="photoid" accept="image/*" onchange="previewImage('photoid', 'photoidPreview')" style="display: none;">
