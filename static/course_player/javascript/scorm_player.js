@@ -623,6 +623,12 @@ function observeSCORMChanges(iframe) {
     let iframeDocument = iframe.contentWindow.document;
     let observer = new MutationObserver(() => {
         // console.log("🔄 SCORM UI updated, ensuring progress circles stay correct...");
+        const pct = getIframeQuizScorePercent();
+        if (pct === 100) {
+            const idx = getCurrentMiniLessonIndex();
+            if (!promoteIfWasFailed(idx)) setMiniLessonCompleted(idx);
+        }
+
     });
 
     observer.observe(iframeDocument.body, {
@@ -666,37 +672,121 @@ function markLessonAsCompletedInSCORM() {
     } else {
         console.warn("❌ SCORM API not available in iframe.");
     }
-}   
+}
+
+// Set a mini-lesson bubble to Completed right now.
+function setMiniLessonCompleted(index) {
+    const iframe = document.getElementById("scormContentIframe");
+    const doc = iframe?.contentWindow?.document;
+    if (!doc) return false;
+
+    const el = doc.querySelector(`svg.progress-circle--sidebar[data-lesson-index="${index}"]`);
+    if (!el) return false;
+
+    const circle    = el.querySelector("circle.progress-circle__runner");
+    const checkmark = el.querySelector("path.progress-circle__pass");
+    const failIcon  = el.querySelector("path.progress-circle__fail");
+
+    // Apply Completed state
+    el.setAttribute("aria-label", "Completed");
+    el.setAttribute("data-completion-status", "completed");
+    el.classList.add("progress-circle--done");
+
+    if (circle) {
+        circle.classList.add("progress-circle__runner--done", "progress-circle__runner--passed");
+        circle.classList.remove("progress-circle__runner--unstarted", "progress-circle__runner--failed");
+        circle.setAttribute("stroke-dashoffset", "0");
+    }
+    if (checkmark) {
+        checkmark.style.display = "block";
+        checkmark.style.opacity = "1";
+        checkmark.style.visibility = "visible";
+    }
+    if (failIcon) {
+        failIcon.style.display = "none";
+    }
+
+    // Sync memory so other code (or observers) won't reapply the X
+    try {
+        const arr = Array.isArray(window.miniLessonProgress) ? window.miniLessonProgress : (window.miniLessonProgress = []);
+        let entry = arr.find(p => String(p.mini_lesson_index) === String(index));
+        if (!entry) { entry = { mini_lesson_index: Number(index) }; arr.push(entry); }
+        entry.progress = "Completed";
+    } catch (_) {}
+
+    return true;
+}
+
+// Only promote if the bubble is currently showing a FAIL (X)
+function promoteIfWasFailed(index) {
+    const iframe = document.getElementById("scormContentIframe");
+    const doc = iframe?.contentWindow?.document;
+    if (!doc) return false;
+
+    const el = doc.querySelector(`svg.progress-circle--sidebar[data-lesson-index="${index}"]`);
+    if (!el) return false;
+
+    const label = (el.getAttribute("aria-label") || "").toLowerCase();
+    const circle = el.querySelector("circle.progress-circle__runner");
+    const failIcon = el.querySelector("path.progress-circle__fail");
+
+    const isFailed =
+        label === "failed" ||
+        circle?.classList.contains("progress-circle__runner--failed") ||
+        (failIcon && failIcon.style && failIcon.style.display === "block");
+
+    if (!isFailed) return false; // don’t touch if it wasn’t an X
+
+    return setMiniLessonCompleted(index);
+}
 
 function observeAndLockTooltip() {
     const iframe = document.getElementById("scormContentIframe");
     if (!iframe || !iframe.contentWindow || !iframe.contentWindow.document) return;
 
     const iframeDoc = iframe.contentWindow.document;
-    const saved = Array.isArray(window.miniLessonProgress) ? window.miniLessonProgress : [];
+
+    // KEEP this snapshot to restore bubbles on load
+    const savedInitial = Array.isArray(window.miniLessonProgress) ? window.miniLessonProgress : [];
 
     const observer = new MutationObserver((mutationsList) => {
         mutationsList.forEach(mutation => {
             const el = mutation.target.closest?.("svg.progress-circle--sidebar");
             if (!el) return;
 
+            // Read fresh data each time; fall back to initial snapshot if empty/undefined
+            const savedNow = Array.isArray(window.miniLessonProgress) && window.miniLessonProgress.length
+                ? window.miniLessonProgress
+                : savedInitial;
+
             const index = el.getAttribute("data-lesson-index");
-            const savedEntry = saved.find(p => p.mini_lesson_index == index);
+            const savedEntry = savedNow.find(p => p.mini_lesson_index == index)
+                               || savedInitial.find(p => p.mini_lesson_index == index);
             if (!savedEntry) return;
 
             const normalizedProgress = (savedEntry.progress || "").trim().toLowerCase();
 
-            const currentLabel = el.getAttribute("aria-label");
-            const alreadyCompleted = currentLabel === "Completed" && el.classList.contains("progress-circle--done");
-            const alreadyFailed = currentLabel === "Failed" && el.classList.contains("progress-circle--done");
+            // Current DOM state
+            const currentLabel = (el.getAttribute("aria-label") || "").trim();
+            const domIsCompleted = currentLabel === "Completed" && el.classList.contains("progress-circle--done");
+            const domIsFailed    = currentLabel === "Failed"    && el.classList.contains("progress-circle--done");
 
-            if (alreadyCompleted || alreadyFailed) return;
+            // Desired state from saved progress
+            const wantCompleted = normalizedProgress === "completed";
+            const wantFailed    = normalizedProgress === "failed";
 
-            const circle = el.querySelector("circle.progress-circle__runner");
+            // If DOM already equals desired, bail.
+            if ((domIsCompleted && wantCompleted) || (domIsFailed && wantFailed)) return;
+
+            // Never downgrade a completed circle back to failed
+            if (domIsCompleted && wantFailed) return;
+
+            // Allow upgrade: failed -> completed
+            const circle    = el.querySelector("circle.progress-circle__runner");
             const checkmark = el.querySelector("path.progress-circle__pass");
-            const failIcon = el.querySelector("path.progress-circle__fail");
+            const failIcon  = el.querySelector("path.progress-circle__fail");
 
-            if (normalizedProgress === "completed") {
+            if (wantCompleted) {
                 el.setAttribute("aria-label", "Completed");
                 el.setAttribute("data-completion-status", "completed");
                 el.classList.add("progress-circle--done");
@@ -704,21 +794,20 @@ function observeAndLockTooltip() {
                 if (circle) {
                     circle.classList.add("progress-circle__runner--done", "progress-circle__runner--passed");
                     circle.classList.remove("progress-circle__runner--unstarted");
+                    circle.classList.remove("progress-circle__runner--failed");
                     circle.setAttribute("stroke-dashoffset", "0");
                 }
-
                 if (checkmark) {
                     checkmark.style.display = "block";
                     checkmark.style.opacity = "1";
                     checkmark.style.visibility = "visible";
                 }
-
                 if (failIcon) {
                     failIcon.style.display = "none";
                 }
 
-                console.log(`🔁 Reapplied and locked COMPLETED state for mini-lesson ${index}`);
-            } else if (normalizedProgress === "failed") {
+                console.log(`🔁 Promoted to COMPLETED for mini-lesson ${index}`);
+            } else if (wantFailed) {
                 el.setAttribute("aria-label", "Failed");
                 el.setAttribute("data-completion-status", "failed");
                 el.classList.add("progress-circle--done");
@@ -726,20 +815,19 @@ function observeAndLockTooltip() {
                 if (circle) {
                     circle.classList.add("progress-circle__runner--done", "progress-circle__runner--failed");
                     circle.classList.remove("progress-circle__runner--unstarted");
+                    circle.classList.remove("progress-circle__runner--passed");
                     circle.setAttribute("stroke-dashoffset", "0");
                 }
-
                 if (failIcon) {
                     failIcon.style.display = "block";
                     failIcon.style.opacity = "1";
                     failIcon.style.visibility = "visible";
                 }
-
                 if (checkmark) {
                     checkmark.style.display = "none";
                 }
 
-                console.log(`🔁 Reapplied and locked FAILED state for mini-lesson ${index}`);
+                console.log(`🔁 Reapplied FAILED for mini-lesson ${index}`);
             }
         });
     });
@@ -752,7 +840,7 @@ function observeAndLockTooltip() {
         });
     });
 
-    console.log("👀 MutationObserver attached to persist ✅ and ❌ icons.");
+    console.log("👀 MutationObserver attached to persist ✅ and ❌ icons (with upgrade allowed).");
 }
 
 function waitForTooltipPortal(callback, retries = 100, delay = 500) {
@@ -903,6 +991,18 @@ function updateProgressCircles() {
                 progressPercentage = parseInt(match[1], 10);
             }
         }
+
+        // ✅ If SCORM says this mini-lesson is 100%, always prefer Completed even if our saved state says "failed"
+        if (progressPercentage === 100) {
+            // force the UI and memory to Completed (handles X → ✅)
+            setMiniLessonCompleted(mini_lesson_index);
+            try {
+                const entry = (window.miniLessonProgress || []).find(p => p.mini_lesson_index === mini_lesson_index);
+                if (entry) entry.progress = "Completed";
+            } catch (_) {}
+            return; // don't let the failed branch below re-run
+        }
+
 
         if (normalized === "failed") {
             console.log("FAIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIILED")
@@ -1103,6 +1203,10 @@ function rebuildMiniLessonProgressFromSCORM(providedRawData = null) {
         const idx = obj.mini_lesson_index;
         const isComplete = obj.progress === "Completed";
 
+        if (isComplete) {
+            try { promoteIfWasFailed(idx); } catch (_) {}
+        }
+
         window.API_1484_11.SetValue(`cmi.objectives.${idx}.id`, `mini_${idx}`);
         window.API_1484_11.SetValue(`cmi.objectives.${idx}.progress_measure`, isComplete ? "1.0" : "0.0");
         window.API_1484_11.SetValue(`cmi.objectives.${idx}.completion_status`, isComplete ? "completed" : "incomplete");
@@ -1139,6 +1243,23 @@ function trackMiniLessonProgress() {
 
     sidebarCircles.forEach((el, index) => {
         const progressText = el.getAttribute("aria-label");
+            // If the DOM is already saying "Completed" but the bubble still shows X, upgrade it now.
+        if (progressText === "Completed") {
+            promoteIfWasFailed(index);
+        }
+
+        // If the results screen shows 100%, promote the currently selected/failed bubble.
+        const scorePct = getIframeQuizScorePercent();
+        const isActive = el.classList.contains("active") || el.closest(".active");
+        if (scorePct === 100 && isActive) {
+            // If it was an X, flip it to a check; otherwise leave it.
+            if (!promoteIfWasFailed(index)) {
+                // If the X check didn't trigger (label didn't say "Failed"), force-complete anyway.
+                setMiniLessonCompleted(index);
+            }
+        }
+
+
         if (!progressText || progressText === "Unstarted") return;
 
         const existing = updated.find(p => p.mini_lesson_index === index);
@@ -1269,7 +1390,26 @@ function getLessonLocation() {
         console.error("🚨 Error retrieving lesson location:", error);
         return "";
     }
-}       
+}     
+
+// Try to read a numeric score from the results screen inside the SCORM iframe.
+// Returns an integer percent or null if not found.
+function getIframeQuizScorePercent() {
+    const iframe = document.getElementById("scormContentIframe");
+    const doc = iframe?.contentWindow?.document;
+    if (!doc) return null;
+
+    // Prefer obvious "score" nodes; fall back to body text.
+    const nodes = doc.querySelectorAll('[class*="score"], [data-testid*="score"], .quiz-results, .assessment-results, [class*="result"]');
+    let text = Array.from(nodes).map(n => (n.textContent || "")).join(" ");
+    if (!text) text = doc.body?.innerText || "";
+
+    // Matches "Your score 100%" or "... 100% score" or "PASSING 100%"
+    const m = text.match(/your\s*score\s*(\d+)\s*%|(\d+)\s*%\s*(?:score|passing)/i);
+    const pct = m ? parseInt(m[1] || m[2], 10) : NaN;
+    return Number.isFinite(pct) ? pct : null;
+}
+
 
 function saveLessonProgress() {
     let lessonId = window.lessonId;
