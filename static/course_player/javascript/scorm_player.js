@@ -322,7 +322,14 @@ function sendTrackingData(trackingData) {
             });
             console.log("⏳ Lesson NOT marked complete by backend (likely due to pending assignments)", data.message);
         }
-        updatecourseProgressBar(data);
+        const cp = Number(data?.course_progress);
+        if (Number.isFinite(cp)) {
+            updatecourseProgressBar(cp);
+        } else {
+        // let the DOM fallback update it (next patch)
+            console.warn("No numeric course_progress from backend; using DOM fallback.");
+        }
+
     })
     .catch(error => console.error("🚨 Error tracking SCORM data:", error));
 }
@@ -389,6 +396,7 @@ function updateSidebarItems(trackingData) {
     }
 }
 
+/*
 function updatecourseProgressBar(data){
     console.log('trackingData.course_progress:', data.course_progress);
     const courseProgressBar = document.getElementById("courseProgressBar");
@@ -402,6 +410,40 @@ function updatecourseProgressBar(data){
     }
     updateLessonCompletionCounterSCORM();
 }
+*/
+
+// Safe & flexible: accepts a number or an object with {course_progress}
+function updatecourseProgressBar(progressOrObj){
+  const bar  = document.getElementById("courseProgressBar");
+  const gauge = document.getElementById("courseProgress");     // <circle-progress>
+  const text = document.getElementById("courseProgressText");
+  if (!bar && !gauge && !text) return;
+
+  // Accept number or object
+  let pct = (typeof progressOrObj === "number")
+              ? progressOrObj
+              : Number(progressOrObj?.course_progress);
+
+  // Fallback: compute from DOM if server didn't send a number
+  if (!Number.isFinite(pct)) pct = recomputeCourseProgressFromDOM();
+  if (!Number.isFinite(pct)) return; // still nothing to show—do not touch the UI
+
+  pct = Math.max(0, Math.min(100, Math.round(pct)));
+
+  if (text)  text.innerText = `${pct}%`;
+  if (bar)   bar.style.width = `${pct}%`;
+  if (gauge) {
+    gauge.setAttribute("value", String(pct));
+    if (gauge.nextElementSibling) gauge.nextElementSibling.innerText = `${pct}%`;
+  }
+}
+
+function recomputeCourseProgressFromDOM(){
+  const total = document.querySelectorAll('.lesson-item').length;
+  const done  = document.querySelectorAll('.lesson-item.lesson-completed').length;
+  return total ? Math.round((done / total) * 100) : 0;
+}
+
 
 function updateLessonCompletionCounterSCORM() {
     document.querySelectorAll('.details-info-card').forEach(moduleCard => {
