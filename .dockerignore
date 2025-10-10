@@ -1,0 +1,47 @@
+# --- Python / Django ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.build/
+.venv/
+venv/
+ENV/
+pip-wheel-metadata/
+*.sqlite3
+
+# Do NOT ignore migrations/  (you want these in the image)
+
+# Static & media (adjust to your workflow)
+staticfiles/
+media/
+
+# --- Tests & tooling caches ---
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# --- Node / frontend ---
+node_modules/
+dist/
+build/
+
+# --- VCS / editors / OS junk ---
+.git
+.gitignore
+.gitattributes
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Secrets / env files ---
+.env
+.env.*
+!.env.example

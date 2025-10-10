@@ -1,4 +1,6 @@
+import base64
 from io import BytesIO
+import io
 import re
 from datetime import timedelta
 import boto3
@@ -51,6 +53,12 @@ from client_admin.python.badges_catalog import BADGE_CATALOG
 from typing import List ,Iterable
 from django.templatetags.static import static
 from learner_dashboard.services.achievements import compute_progress, login_streak_days
+from insightface.app import FaceAnalysis
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
+import numpy as np
+from PIL import Image
+
 #from models import Profile
 #from authentication.python import views
 
@@ -489,6 +497,29 @@ def edit_user(request, user_id):
     template = 'users/user_transcript.html' if 'transcript' in referer else 'users/user_details.html'
 
     if request.method == 'POST':
+        # --- Face check (abort if no face) ---
+        id_photo = request.FILES.get('photoid')
+        passport_photo = request.FILES.get('passportphoto')
+
+        if id_photo or passport_photo:
+            app = get_face_app()
+
+            def has_face(fileobj):
+                img = _np_from_file(fileobj)
+                faces = app.get(img) or []
+                return len(faces) > 0
+
+            if id_photo and not has_face(id_photo):
+                messages.error(request, "No face detected in Identification photo. Nothing was saved.")
+                referer = request.META.get('HTTP_REFERER')
+                return redirect(referer if referer else 'user_details', user_id=user.id)
+
+            if passport_photo and not has_face(passport_photo):
+                messages.error(request, "No face detected in Headshot photo. Nothing was saved.")
+                referer = request.META.get('HTTP_REFERER')
+                return redirect(referer if referer else 'user_details', user_id=user.id)
+        # -------------------------------------
+
         username = request.POST.get('username')
         new_password = (request.POST.get('new_password') or '').strip()
         confirm_password = (request.POST.get('confirm_password') or '').strip()
@@ -588,13 +619,12 @@ def edit_user(request, user_id):
             user=user.user,
             action_performer=request.user.username,
             action_target=user.user.username,
-            action_type= 'user_updated',
+            action_type='user_updated',
             action=f'Updated User Information: {changes_log}',
             user_groups=', '.join(group.name for group in request.user.groups.all()),
         )
 
         messages.success(request, 'Information updated successfully')
-
         referer = request.META.get('HTTP_REFERER')
         return redirect(referer if referer else 'user_details', user_id=user.id)
     
@@ -865,73 +895,231 @@ def add_user_page(request):
         'profile_form': profile_form
     })
 
+_face_app = None
+def get_face_app():
+    global _face_app
+    if _face_app is None:
+        _face_app = FaceAnalysis(providers=['CPUExecutionProvider'])
+        _face_app.prepare(ctx_id=0)
+    return _face_app
+
+def _np_from_file(uploaded_file):
+    data = uploaded_file.read()
+    uploaded_file.seek(0)  # make sure the file can still be used later in the real submit
+    return np.array(Image.open(io.BytesIO(data)).convert('RGB'))
+
+@login_required
+@require_POST
+@csrf_protect
+def ajax_check_faces(request):
+    app = get_face_app()
+    id_file = request.FILES.get('photoid')
+    pass_file = request.FILES.get('passportphoto')
+
+    def detect(fileobj):
+        img = _np_from_file(fileobj)
+        faces = app.get(img) or []
+        return len(faces) > 0, len(faces)
+
+    result = {"success": True, "errors": []}
+
+    if id_file:
+        ok, cnt = detect(id_file)
+        if not ok:
+            result["success"] = False
+            result["errors"].append("No face detected in Identification photo.")
+    if pass_file:
+        ok, cnt = detect(pass_file)
+        if not ok:
+            result["success"] = False
+            result["errors"].append("No face detected in Headshot photo.")
+
+    return JsonResponse(result, status=200 if result["success"] else 400)
+
 @login_required
 def add_user(request):
     if request.method == 'POST':
-        print('POST request received')
+        is_ajax = (
+            request.headers.get('x-requested-with') == 'XMLHttpRequest'
+            or request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+        )
 
-        # Bind forms with POST data and FILES
         user_form = UserRegistrationForm(request.POST)
         profile_form = ProfileForm(request.POST, request.FILES)
 
+        # Forms valid?
         if user_form.is_valid() and profile_form.is_valid():
+            # ---- Face detection BEFORE creating anything ----
+            app = get_face_app()  # already defined in this file:contentReference[oaicite:0]{index=0}
+            id_photo = request.FILES.get('photoid')              # ID image
+            passport_photo = request.FILES.get('passportphoto')  # Headshot image
 
+            if id_photo:
+                id_img = _np_from_file(id_photo)  # helper already defined here:contentReference[oaicite:1]{index=1}
+                if len(app.get(id_img) or []) == 0:
+                    msg = "No face detected in Identification photo."
+                    if is_ajax:
+                        return JsonResponse(
+                            {'success': False, 'message': msg, 'errors': {'photoid': [msg]}},
+                            status=400
+                        )
+                    messages.error(request, msg)
+                    return redirect('add_user_page')
+
+            if passport_photo:
+                pass_img = _np_from_file(passport_photo)  # helper here:contentReference[oaicite:2]{index=2}
+                if len(app.get(pass_img) or []) == 0:
+                    msg = "No face detected in Headshot photo."
+                    if is_ajax:
+                        return JsonResponse(
+                            {'success': False, 'message': msg, 'errors': {'passportphoto': [msg]}},
+                            status=400
+                        )
+                    messages.error(request, msg)
+                    return redirect('add_user_page')
+            # ---- End face detection ----
+
+            # At this point, face checks passed (or no photos uploaded)
             username = user_form.cleaned_data.get('username')
             password = user_form.cleaned_data.get('password')
             email = user_form.cleaned_data.get('email')
             first_name = user_form.cleaned_data.get('first_name')
             last_name = user_form.cleaned_data.get('last_name')
 
-            # Create the new user
-            user = User.objects.create_user(
-                username=username,
-                password=password,
-                email=email,
-                first_name=first_name,
-                last_name=last_name,
-            )
-            profile = profile_form.save(commit=False)
-            profile.user = user  # Link profile to user
-            s3_client = boto3.client(
-                's3',
-                aws_access_key_id=AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-                region_name=settings.AWS_S3_REGION_NAME
-            )
+            # Create everything atomically
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    username=username,
+                    password=password,
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name,
+                )
 
-            # >>> START FILE UPLOAD TO S3 <<<
-            id_photo = request.FILES.get('photoid')
-            passport_photo = request.FILES.get('passportphoto')
+                profile = profile_form.save(commit=False)
+                profile.user = user
 
-            # Skip uploading via boto3 if files are already in S3.
-            # Set custom S3 key by overriding the file name BEFORE save()
-            if id_photo:
-                id_photo.name = f'users/{username}/id_photo/{id_photo.name}'
-            if passport_photo:
-                passport_photo.name = f'users/{username}/passport_photo/{passport_photo.name}'
+                # Normalize file names before saving to storage
+                if id_photo:
+                    id_photo.name = f'users/{username}/id_photo/{id_photo.name}'
+                    profile.photoid = id_photo
+                if passport_photo:
+                    passport_photo.name = f'users/{username}/passport_photo/{passport_photo.name}'
+                    profile.passportphoto = passport_photo
 
-            profile = profile_form.save(commit=False)
-            profile.user = user
-            profile.save()
+                profile.save()
 
-            # Additional operations like Cognito integration
-            addUserCognito(request)
-            print('User successfully created and registered with Cognito.')
+            # Keep Cognito in sync (your existing function)
+            addUserCognito(request)  # lives in your auth views:contentReference[oaicite:3]{index=3}
+
+            if is_ajax:
+                return JsonResponse({'success': True, 'redirect_url': '/admin/users/'}, status=201)
 
             messages.success(request, 'User created successfully.')
-            return redirect('/admin/users/')  # Redirect to success page
+            return redirect('/admin/users/')
 
-        else:
-            # Handle form errors and log them
-            if not user_form.is_valid():
-                print('User form errors:', user_form.errors)
-                messages.error(request, user_form.errors)
+        # Forms invalid — return message + field errors
+        errors = {'user_form': user_form.errors, 'profile_form': profile_form.errors}
+        if is_ajax:
+            return JsonResponse(
+                {'success': False, 'message': 'Please fix the errors below.', 'errors': errors},
+                status=400
+            )
 
-            if not profile_form.is_valid():
-                print('Profile form errors:', profile_form.errors)
-                messages.error(request, profile_form.errors)
+        if user_form.errors:
+            messages.error(request, user_form.errors)
+        if profile_form.errors:
+            messages.error(request, profile_form.errors)
 
     return redirect('add_user_page')
+
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
+
+@login_required
+@require_POST
+@csrf_protect
+def ajax_add_user(request):
+    """
+    Create a user via AJAX. Validates forms and face presence.
+    Returns JSON with {success, errors?, redirect_url?}.
+    """
+    user_form = UserRegistrationForm(request.POST)
+    profile_form = ProfileForm(request.POST, request.FILES)
+
+    print('here')
+
+    if not (user_form.is_valid() and profile_form.is_valid()):
+        # Flatten form errors for easy frontend rendering
+        def flat_errors(form):
+            return {k: [str(e) for e in v] for k, v in form.errors.items()}
+        return JsonResponse({
+            "success": False,
+            "errors": {
+                "user_form": flat_errors(user_form),
+                "profile_form": flat_errors(profile_form),
+            }
+        }, status=400)
+
+    # Face presence check (same logic as your page-post view)
+    app = get_face_app()
+    id_photo = request.FILES.get('photoid')
+    passport_photo = request.FILES.get('passportphoto')
+
+    if id_photo:
+        id_img = _np_from_file(id_photo)
+        if len(app.get(id_img) or []) == 0:
+            return JsonResponse({
+                "success": False,
+                "errors": {"profile_form": {"photoid": ["No face detected in Identification photo."]}}
+            }, status=400)
+
+    if passport_photo:
+        pass_img = _np_from_file(passport_photo)
+        if len(app.get(pass_img) or []) == 0:
+            return JsonResponse({
+                "success": False,
+                "errors": {"profile_form": {"passportphoto": ["No face detected in Headshot photo."]}}
+            }, status=400)
+
+    # Create user (mirrors your add_user view)
+    username = user_form.cleaned_data.get('username')
+    password = user_form.cleaned_data.get('password')
+    email = user_form.cleaned_data.get('email')
+    first_name = user_form.cleaned_data.get('first_name')
+    last_name = user_form.cleaned_data.get('last_name')
+
+    user = User.objects.create_user(
+        username=username,
+        password=password,
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+    )
+
+    profile = profile_form.save(commit=False)
+    profile.user = user
+
+    # Set S3 keys before save (exactly like your current flow)
+    if id_photo:
+        id_photo.name = f'users/{username}/id_photo/{id_photo.name}'
+        profile.photoid = id_photo
+    if passport_photo:
+        passport_photo.name = f'users/{username}/passport_photo/{passport_photo.name}'
+        profile.passportphoto = passport_photo
+
+    profile.save()
+
+    # Cognito integration (same as your standard view)
+    addUserCognito(request)
+
+    # On success, return a JSON instruction for the frontend
+    return JsonResponse({
+        "success": True,
+        "message": "User created successfully.",
+        "redirect_url": "/admin/users/"
+    }, status=201)
+
 
 @login_required
 def enroll_users(request):
@@ -1021,7 +1209,6 @@ def impersonate_user(request, profile_id):
 
     print("Unauthorized access attempt.")
     return redirect('/login')
-
 
 @login_required
 def stop_impersonating(request):

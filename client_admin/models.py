@@ -61,7 +61,7 @@ class ProfileManager(models.Manager):
         return new_profile
     
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     username = models.CharField(('Username'), max_length=30, blank=True)
     email = models.EmailField(('email address'), unique=True)
     first_name = models.CharField(('first name'), max_length=30, blank=True)
@@ -133,8 +133,8 @@ class EnrollmentKey(models.Model):
 
 class UserCourse(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
     progress = models.PositiveIntegerField(default=0)  # percentage of the course completed by the user
     enrollment_date = models.DateField(auto_now_add=True)
     stored_progress = models.PositiveIntegerField(default=0) # Stores course progress. Reverts back to this integer if status is changed from completed to not completed 
@@ -402,8 +402,8 @@ def parse_iso_duration(duration_str):
     return timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
 class UserModuleProgress(models.Model):
-    user_course = models.ForeignKey(UserCourse, related_name='module_progresses', on_delete=models.CASCADE)
-    module = models.ForeignKey(Module, on_delete=models.CASCADE)
+    user_course = models.ForeignKey(UserCourse, related_name='module_progresses', on_delete=models.CASCADE, null=True, blank=True)
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, null=True, blank=True)
     progress = models.PositiveIntegerField(default=0)  # percentage of the module completed by the user
     completed = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
@@ -415,8 +415,8 @@ class UserModuleProgress(models.Model):
         return f"{self.user_course.user.username} - {self.module.title}"
 
 class UserLessonProgress(models.Model):
-    user_module_progress = models.ForeignKey(UserModuleProgress, related_name='lesson_progresses', on_delete=models.CASCADE)
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    user_module_progress = models.ForeignKey(UserModuleProgress, related_name='lesson_progresses', on_delete=models.CASCADE, null=True, blank=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, null=True, blank=True)
     completed = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
     completed_on_date = models.DateField(blank=True, null=True)  # This is the date the learner completed this lesson
@@ -483,9 +483,9 @@ class UserAssignmentProgress(models.Model):
         ('rejected', 'Rejected'),
     ]
 
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    assignment = models.ForeignKey(Upload, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    assignment = models.ForeignKey(Upload, on_delete=models.CASCADE, null=True, blank=True)
     lesson = models.ForeignKey(Lesson, null=True, blank=True, on_delete=models.SET_NULL)
     file = models.FileField(upload_to='user_assignments/', null=True, blank=True)
     student_notes = models.TextField(blank=True, null=True)
@@ -555,7 +555,7 @@ class Message(models.Model):
 
     subject = models.CharField(max_length=255)
     body = models.TextField(max_length=2000)
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages', null=True, blank=True)
     recipients = models.ManyToManyField(User, related_name='received_messages')
     sent_at = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
@@ -712,7 +712,7 @@ class FacialVerificationLog(models.Model):
         ('no_face_uploaded', 'No Headshot Face Detected')
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True, null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.SET_NULL, null=True, blank=True)
     user_course = models.ForeignKey(UserCourse, on_delete=models.SET_NULL, null=True, blank=True)
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True, blank=True)

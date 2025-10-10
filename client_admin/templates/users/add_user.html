@@ -20,6 +20,7 @@
         </div>
     {% endif %}
     <div id="stickyNavBar">
+        <div class="alert-container" id="inlineAlerts"></div>
         <div class="details-top-row max-width-0">
             <div class="details-top-row-left">
                 <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
@@ -28,7 +29,7 @@
                 <h3> Add New User </h3>
             </div>
             <div class="details-top-row-right">
-                <button type="submit" class="action-button-primary submit-form-button scale-button">
+                <button type="submit" form="addUserForm" class="action-button-primary submit-form-button scale-button">
                     <i class="fa-regular fa-paper-plane"></i>
                     <span>Create User</span>
                 </button>
@@ -47,7 +48,7 @@
                         <h3> Add New User </h3>
                     </div>
                     <div class="details-top-row-right">
-                        <button type="submit" class="action-button-primary submit-form-button scale-button">
+                        <button type="submit" form="addUserForm" class="action-button-primary submit-form-button scale-button">
                             <i class="fa-regular fa-paper-plane"></i>
                             <span>Create User</span>
                         </button>
@@ -306,5 +307,6 @@
     </script>
     <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
+    <script src="{% static 'custom_dashboard\javascript\registration.js' %}"></script>
     <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
 {% endblock content %}

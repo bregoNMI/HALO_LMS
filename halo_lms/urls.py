@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from halo_lms.main.python import views
 from authentication.python.views import login_view, register_view, password_reset, confirm_password_reset
+from emails.views import trigger_test_email
 
 urlpatterns = [
     path('django-admin/', admin.site.urls),
@@ -29,6 +30,7 @@ urlpatterns = [
     path('course_player/', include('course_player.urls')),
     path('confirm_password_reset/', confirm_password_reset, name='confirm_password_reset'),
     path('', include('learner_dashboard.urls')),
+    path("send/", trigger_test_email, name="send"),  # simple test hook
 ]
 
 handler404 = 'halo_lms.main.python.views.custom_404_view'
