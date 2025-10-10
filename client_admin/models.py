@@ -99,7 +99,6 @@ class Profile(models.Model):
     accepted_terms_version = models.CharField(max_length=10, blank=True, null=True)
     completed_on_login_course = models.BooleanField(default=False)
  
- 
     objects = ProfileManager()
  
     def __str__(self):

@@ -235,54 +235,79 @@ async function openAssignment(assignmentId, lessonId = null) {
     const fileInput = document.getElementById('assignmentFileInput');
     const uploadBtn = document.getElementById('assignmentUploadBtn');
 
+    function isImageFile(file) {
+        if (file?.type) return file.type.startsWith('image/');
+        const ext = (file?.name?.split('.').pop() || '').toLowerCase();
+        return ['jpg','jpeg','png','gif','webp','svg','avif','heic'].includes(ext);
+    }
+
     function handleFileReady() {
         const fileDisplayContainer = document.getElementById('fileDisplayContainer');
-        fileDisplayContainer.innerHTML = ''; // Clear previous content
+        fileDisplayContainer.innerHTML = '';
         fileDisplayContainer.classList.add('show-assignment-upload-file');
 
         const file = fileInput.files[0];
-        if (file) {
-            // Enable the upload button
-            uploadBtn.disabled = false;
-            uploadBtn.classList.remove('disabled');
+        if (!file) {
+            uploadBtn.disabled = true;
+            uploadBtn.classList.add('disabled');
+            return;
+        }
 
-            const fileType = getFileTypeFromName(file.name);
-            const fileIcon = getFileTypeIcon(fileType);
+        // Enable the upload button
+        uploadBtn.disabled = false;
+        uploadBtn.classList.remove('disabled');
 
-            const fileDisplay = document.createElement('div');
-            fileDisplay.classList.add('uploaded-file-preview');
-            fileDisplay.innerHTML = `
-                <div class="file-preview-left">
-                    <span class="file-icon">${fileIcon}</span>
-                    <span class="file-name">${file.name}</span>
-                </div>
-                <div class="file-preview-right">
-                    <button type="button" class="remove-file-btn tooltip" aria-label="Remove File">
-                        <i class="fa-light fa-trash-can"></i>
-                        <span class="tooltiptext"> Remove Assignment</span>
-                    </button>
-                </div>
-            `;
+        const fileType = getFileTypeFromName(file.name);
+        const fileIcon = getFileTypeIcon(fileType);
 
-            // Add the display element to container
-            fileDisplayContainer.appendChild(fileDisplay);
+        const fileDisplay = document.createElement('div');
+        fileDisplay.classList.add('uploaded-file-preview');
 
-            // Handle remove
-            const removeBtn = fileDisplay.querySelector('.remove-file-btn');
-            removeBtn.addEventListener('click', () => {
-                fileInput.value = '';
-                fileDisplayContainer.innerHTML = '';
-                uploadBtn.disabled = true;
-                uploadBtn.classList.add('disabled');
-                fileDisplayContainer.classList.remove('show-assignment-upload-file');
-            });
+        // base layout
+        fileDisplay.innerHTML = `
+            <div class="file-preview-left">
+            <span class="file-icon">
+                <span class="file-generic-icon">${fileIcon}</span>
+                <span class="file-image-display" style="display:none">
+                <img alt="Uploaded image preview" loading="lazy">
+                </span>
+            </span>
+            <span class="file-name">${file.name}</span>
+            </div>
+            <div class="file-preview-right">
+            <button type="button" class="remove-file-btn tooltip" aria-label="Remove File">
+                <i class="fa-light fa-trash-can"></i>
+                <span class="tooltiptext"> Remove Assignment</span>
+            </button>
+            </div>
+        `;
 
-        } else {
-            // No file selected
+        fileDisplayContainer.appendChild(fileDisplay);
+
+        const imgWrap = fileDisplay.querySelector('.file-image-display');
+        const imgEl   = imgWrap.querySelector('img');
+        const iconEl  = fileDisplay.querySelector('.file-generic-icon');
+
+        let objectUrl = null;
+        if (isImageFile(file)) {
+            objectUrl = URL.createObjectURL(file);
+            imgEl.src = objectUrl;
+            imgWrap.style.display = '';     // show image
+            iconEl.style.display = 'none';  // hide icon
+            imgEl.addEventListener('load', () => URL.revokeObjectURL(objectUrl), { once: true });
+        }
+
+        // Handle remove
+        const removeBtn = fileDisplay.querySelector('.remove-file-btn');
+        removeBtn.addEventListener('click', () => {
+            if (objectUrl) { try { URL.revokeObjectURL(objectUrl); } catch {}
+            }
+            fileInput.value = '';
             fileDisplayContainer.innerHTML = '';
             uploadBtn.disabled = true;
             uploadBtn.classList.add('disabled');
-        }
+            fileDisplayContainer.classList.remove('show-assignment-upload-file');
+        });
     }
 
     function getFileTypeFromName(fileName) {

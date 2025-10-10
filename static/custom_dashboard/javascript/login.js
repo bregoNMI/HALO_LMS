@@ -96,3 +96,56 @@ document.addEventListener('DOMContentLoaded', function() {
         dateFormat: "Y-m-d",
     });
 });
+
+
+(function () {
+    function togglePassword(toggleEl) {
+        const fieldWrap = toggleEl.closest('.login-form-field');
+        if (!fieldWrap) return;
+
+        const input = fieldWrap.querySelector('input[name="password"]') || fieldWrap.querySelector('input[type="password"], input[type="text"]');
+        if (!input) return;
+
+        const icon = toggleEl.querySelector('i');
+        const showing = input.type === 'text';
+
+        let start = null, end = null, hadFocus = document.activeElement === input;
+        if (hadFocus && typeof input.selectionStart === 'number') {
+            start = input.selectionStart;
+            end   = input.selectionEnd;
+        }
+
+        input.type = showing ? 'password' : 'text';
+
+        if (hadFocus) {
+            input.focus();
+            if (start !== null && end !== null && typeof input.setSelectionRange === 'function') {
+                input.setSelectionRange(start, end);
+            }
+        }
+
+        if (icon) {
+            icon.classList.toggle('fa-eye',  showing);
+            icon.classList.toggle('fa-eye-slash', !showing);
+        }
+
+        toggleEl.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+        toggleEl.setAttribute('aria-pressed', (!showing).toString());
+    }
+
+    // Click
+    document.addEventListener('click', (e) => {
+        const t = e.target.closest('.toggle-password-icon');
+        if (t) togglePassword(t);
+    });
+
+    // Keyboard (Enter/Space)
+    document.addEventListener('keydown', (e) => {
+        const el = e.target;
+        if (!el.classList || !el.classList.contains('toggle-password-icon')) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            togglePassword(el);
+        }
+    });
+})();

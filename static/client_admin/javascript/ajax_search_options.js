@@ -1,183 +1,232 @@
 function initializeUserDropdown(containerId, selectedUserIds = []) {
-    const container = document.getElementById(containerId);
-    const userSearchInput = container.querySelector('.userSearch');
-    const userList = container.querySelector('.userList');
-    const loadingIndicator = container.querySelector('.loadingIndicator');
-    const selectedUsersList = container.querySelector('.selectedUsers');
+  const container = document.getElementById(containerId);
+  const userSearchInput = container.querySelector('.userSearch');
+  const userList = container.querySelector('.userList');
+  const loadingIndicator = container.querySelector('.loadingIndicator');
+  const selectedUsersList = container.querySelector('.selectedUsers');
 
-    let page = 1;
-    let isLoading = false;
-    let hasMoreUsers = true;
+  let page = 1;
+  let isLoading = false;
+  let hasMoreUsers = true;
 
-    // Normalize selectedUserIds to strings for consistent comparison
-    const normalizedSelectedIds = selectedUserIds.map(id => String(id));
+  const normalizedSelectedIds = selectedUserIds.map(String);
+  const selectedIdSet = new Set(normalizedSelectedIds);
 
-    // Function to fetch users from the backend
-    function fetchUsers(searchTerm = '', resetList = false) {
-        if (isLoading || !hasMoreUsers) return;
-    
-        isLoading = true;
-        loadingIndicator.style.display = 'block';
-    
-        fetch(`/requests/get-users/?page=${page}&search=${searchTerm}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (resetList) {
-                    userList.innerHTML = '';
-                    page = 1;
-                }             
-    
-                // Append users to the dropdown list
-                data.users.forEach(user => {
-                    const userItem = document.createElement('div');
-                    userItem.classList.add('dropdown-item');
-                    userItem.innerHTML = `
-                        <div class="dropdown-item-inner">
-                            <h5>${user.first_name} ${user.last_name}</h5><span>${user.username} (${user.email})</span>
-                        </div>
-                    `;
-                    userItem.dataset.userId = user.id;
-    
-                    // Create the checkbox with the proper structure
-                    const checkboxWrapper = document.createElement('div');
-                    checkboxWrapper.innerHTML = `
-                        <label class="container" readonly disabled>
-                            <input value="${user.id}" class="user-checkbox" type="checkbox" readonly disabled>
-                            <div class="checkmark"></div>
-                        </label>
-                    `;
-    
-                    userItem.prepend(checkboxWrapper);
-                    userList.appendChild(userItem);
-    
-                    const checkbox = checkboxWrapper.querySelector('.user-checkbox');
-                    // Pre-select users who are already approvers (based on selectedUserIds)
-                    if (normalizedSelectedIds.includes(String(user.id))) {
-                        userItem.classList.add('selected');
-                        checkbox.checked = true;
-                        appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
-                    }
-    
-                    // Check if the user is already selected and mark the checkbox
-                    if (selectedUsersList.querySelector(`[data-user-id="${user.id}"]`)) {
-                        userItem.classList.add('selected');
-                        checkbox.checked = true; // Ensure the checkbox is checked
-                    }
-    
-                    // Click event for the entire item
-                    userItem.addEventListener('click', function (event) {
-                        if (checkbox.checked) {
-                            removeSelectedUser(user.id);
-                            checkbox.checked = false;
-                            userItem.classList.remove('selected');
-                        } else {
-                            appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
-                            checkbox.checked = true;
-                            userItem.classList.add('selected');
-                        }
-                    });
-    
-                    // Ensure checkbox triggers parent item click
-                    checkbox.addEventListener('click', function (event) {
-                        event.stopPropagation();  // Prevent checkbox click from triggering twice
-                        userItem.click();  // Trigger the parent item click
-                    });
-                });
-    
-                if (data.users.length === 0 && resetList) {
-                    userList.innerHTML = '<div class="no-results">No results found</div>';
-                }
-    
-                hasMoreUsers = data.has_more;
-                isLoading = false;
-                loadingIndicator.style.display = 'none';
-                page += 1;
-            })
-            .catch(error => {
-                console.error('Error fetching users:', error);
-                isLoading = false;
-                loadingIndicator.style.display = 'none';
-            });
+  function markRowSelectedById(userId) {
+    const row = userList.querySelector(`[data-user-id="${userId}"]`);
+    if (!row) return;
+    row.classList.add('selected');
+    const cb = row.querySelector('.user-checkbox');
+    if (cb) cb.checked = true;
+  }
+
+  function alreadyInSelected(userId) {
+    return !!selectedUsersList.querySelector(`[data-user-id="${userId}"]`);
+  }
+
+  function needIds(ids) {
+    return ids.filter(id => !alreadyInSelected(id));
+  }
+
+  function primeSelectedUsersByIds(ids) {
+    if (!ids.length) return Promise.resolve();
+    return fetch(`/requests/get-users/?ids=${ids.join(',')}`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+      .then(r => {
+        if (!r.ok) throw new Error('ids endpoint not supported');
+        return r.json();
+      })
+      .then(data => {
+        (data.users || []).forEach(user => {
+          const uid = String(user.id);
+          if (!selectedIdSet.has(uid)) return; // hard filter to requested IDs
+          if (!alreadyInSelected(uid)) {
+            appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
+          }
+          markRowSelectedById(uid);
+        });
+      });
+  }
+
+  function fetchUntilAllSelectedLoaded() {
+    const tick = () => {
+      const missing = needIds(normalizedSelectedIds);
+      if (!missing.length || !hasMoreUsers) return;
+      if (!isLoading) fetchUsers(userSearchInput.value);
+      setTimeout(tick, 150);
+    };
+    tick();
+  }
+
+  function fetchUsers(searchTerm = '', resetList = false) {
+    if (resetList) {
+      page = 1;
+      hasMoreUsers = true;
+      userList.innerHTML = '';
     }
+    if (isLoading || !hasMoreUsers) return;
 
-    // Function to append selected user to the list
-    function appendSelectedUser(username, email, userId, first_name, last_name) {
-        const userItem = document.createElement('div');
-        userItem.classList.add('selected-user');
-        userItem.dataset.userId = userId;
-        if(first_name){
-            userItem.innerHTML = `<span class="selected-user-details">${first_name} ${last_name}</span>`;
-        }else{
-            userItem.innerHTML = `<span class="selected-user-details">${username} (${email})</span>`;
-        }
+    isLoading = true;
+    loadingIndicator.style.display = 'block';
 
-        const removeButton = document.createElement('div');
-        removeButton.classList.add('remove-user');
-        removeButton.innerHTML = `
-        <div class="upload-delete tooltip" data-tooltip="Remove User">
-            <span class="tooltiptext">Remove User</span>
-            <i class="fa-regular fa-trash-can"></i>
-        </div>
-        `;
-        removeButton.addEventListener('click', function () {
-            removeSelectedUser(userId);
+    fetch(`/requests/get-users/?page=${page}&search=${encodeURIComponent(searchTerm)}`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+      .then(response => response.json())
+      .then(data => {
+        (data.users || []).forEach(user => {
+          const userItem = document.createElement('div');
+          userItem.classList.add('dropdown-item');
+          userItem.dataset.userId = user.id;
+          userItem.innerHTML = `
+            <div class="dropdown-item-inner">
+              <h5>${user.first_name || ''} ${user.last_name || ''}</h5>
+              <span>${user.username} (${user.email})</span>
+            </div>
+          `;
+
+          const checkboxWrapper = document.createElement('div');
+          checkboxWrapper.innerHTML = `
+            <label class="container" readonly disabled>
+              <input value="${user.id}" class="user-checkbox" type="checkbox" readonly disabled>
+              <div class="checkmark"></div>
+            </label>
+          `;
+          userItem.prepend(checkboxWrapper);
+          userList.appendChild(userItem);
+
+          const checkbox = checkboxWrapper.querySelector('.user-checkbox');
+          const uid = String(user.id);
+
+          if (selectedIdSet.has(uid)) {
+            userItem.classList.add('selected');
+            checkbox.checked = true;
+            if (!alreadyInSelected(uid)) {
+              appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
+            }
+          }
+
+          if (alreadyInSelected(uid)) {
+            userItem.classList.add('selected');
+            checkbox.checked = true;
+          }
+
+          userItem.addEventListener('click', function () {
+            if (checkbox.checked) {
+              removeSelectedUser(user.id);
+              checkbox.checked = false;
+              userItem.classList.remove('selected');
+              selectedIdSet.delete(uid);
+            } else {
+              appendSelectedUser(user.username, user.email, user.id, user.first_name, user.last_name);
+              checkbox.checked = true;
+              userItem.classList.add('selected');
+              selectedIdSet.add(uid);
+            }
+          });
+
+          checkbox.addEventListener('click', function (event) {
+            event.stopPropagation();
+            userItem.click();
+          });
         });
 
-        userItem.appendChild(removeButton);
-        selectedUsersList.appendChild(userItem);
+        if ((data.users || []).length === 0 && resetList) {
+          userList.innerHTML = '<div class="no-results">No results found</div>';
+        }
+
+        hasMoreUsers = !!data.has_more;
+        isLoading = false;
+        loadingIndicator.style.display = 'none';
+        page += 1;
+      })
+      .catch(error => {
+        console.error('Error fetching users:', error);
+        isLoading = false;
+        loadingIndicator.style.display = 'none';
+      });
+  }
+
+  function appendSelectedUser(username, email, userId, first_name, last_name) {
+    const uid = String(userId);
+    if (alreadyInSelected(uid)) return;
+    const userItem = document.createElement('div');
+    userItem.classList.add('selected-user');
+    userItem.dataset.userId = userId;
+
+    const label = first_name ? `${first_name} ${last_name || ''}`.trim() : `${username} (${email})`;
+    userItem.innerHTML = `<span class="selected-user-details">${label}</span>`;
+
+    const removeButton = document.createElement('div');
+    removeButton.classList.add('remove-user');
+    removeButton.innerHTML = `
+      <div class="upload-delete tooltip" data-tooltip="Remove User">
+        <span class="tooltiptext">Remove User</span>
+        <i class="fa-regular fa-trash-can"></i>
+      </div>
+    `;
+    removeButton.addEventListener('click', function () {
+      removeSelectedUser(userId);
+      selectedIdSet.delete(uid);
+    });
+
+    userItem.appendChild(removeButton);
+    selectedUsersList.appendChild(userItem);
+  }
+
+  function removeSelectedUser(userId) {
+    const chip = selectedUsersList.querySelector(`[data-user-id="${userId}"]`);
+    if (chip) chip.remove();
+
+    const row = userList.querySelector(`[data-user-id="${userId}"]`);
+    if (row) {
+      row.classList.remove('selected');
+      const cb = row.querySelector('.user-checkbox');
+      if (cb) cb.checked = false;
     }
+  }
 
-    // Function to remove selected user from the list
-    function removeSelectedUser(userId) {
-        const userItem = selectedUsersList.querySelector(`[data-user-id="${userId}"]`);
-        if (userItem) {
-            userItem.remove();
-        }
-
-        // Uncheck the corresponding item in the dropdown
-        const dropdownItem = userList.querySelector(`[data-user-id="${userId}"]`);
-        if (dropdownItem) {
-            dropdownItem.classList.remove('selected');
-            dropdownItem.querySelector('.user-checkbox').checked = false;
-        }
+  // Events
+  userList.addEventListener('scroll', function () {
+    if (userList.scrollTop + userList.clientHeight >= userList.scrollHeight) {
+      fetchUsers(userSearchInput.value);
     }
+  });
 
-    // Event listener for scrolling in the dropdown list (infinite scroll)
-    userList.addEventListener('scroll', function () {
-        if (userList.scrollTop + userList.clientHeight >= userList.scrollHeight) {
-            fetchUsers(userSearchInput.value);
-        }
+  userSearchInput.addEventListener('input', function () {
+    page = 1;
+    hasMoreUsers = true;
+    fetchUsers(userSearchInput.value, true);
+  });
+
+  userSearchInput.addEventListener('focus', function () {
+    userSearchInput.style.borderRadius = '8px 8px 0 0';
+    userList.style.display = 'block';
+    userSearchInput.style.border = '2px solid #c7c7db';
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!container.contains(event.target)) {
+      userList.style.display = 'none';
+      userSearchInput.style.borderRadius = '8px';
+      userSearchInput.style.border = '1px solid #ececf1';
+    }
+  });
+
+  // Init: load first page
+  fetchUsers();
+
+  // Prime by IDs; if any still missing after the call resolves, start paging fallback
+  primeSelectedUsersByIds(normalizedSelectedIds)
+    .then(() => {
+      const stillMissing = needIds(normalizedSelectedIds);
+      if (stillMissing.length) fetchUntilAllSelectedLoaded(); // <<<
+    })
+    .catch(() => {
+      // ids endpoint not supported -> just page until we see them
+      fetchUntilAllSelectedLoaded();
     });
-
-    // Event listener for the search input
-    userSearchInput.addEventListener('input', function () {
-        page = 1;
-        hasMoreUsers = true;
-        fetchUsers(userSearchInput.value, true);
-    });
-
-    // Event listener to display the dropdown list when focusing the search input
-    userSearchInput.addEventListener('focus', function () {
-        userSearchInput.style.borderRadius = '8px 8px 0 0';
-        userList.style.display = 'block';
-        userSearchInput.style.border = '2px solid #c7c7db';
-    });
-
-    // Hide the dropdown list when clicking outside
-    document.addEventListener('click', function (event) {
-        if (!container.contains(event.target)) {
-            userList.style.display = 'none';
-            userSearchInput.style.borderRadius = '8px';
-            userSearchInput.style.border = '1px solid #ececf1';
-        }
-    });
-
-    // Initial load
-    fetchUsers();
 }
 
 function initializeCourseDropdown(containerId, initialSelectedCourseIds = []) {

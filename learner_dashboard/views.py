@@ -510,6 +510,19 @@ def learner_profile(request):
     })
 
 @login_required
+def require_id_photos(request):
+    user = request.user
+    profile = get_object_or_404(Profile, user=user)
+    settings = OrganizationSettings.get_instance()
+
+    allowed_photos = settings.allowed_id_photos.order_by('id')
+
+    return render(request, 'require_id_photos/require_id_photos.html', {
+        'profile': profile,
+        'allowed_photos': allowed_photos,
+    })
+
+@login_required
 def terms_and_conditions(request):
     settings = OrganizationSettings.get_instance()
     profile = request.user.profile
@@ -729,7 +742,7 @@ def update_learner_profile(request, user_id):
 
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
 ALLOWED_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
-MAX_UPLOAD_MB = 10
+MAX_UPLOAD_MB = 100
 MIN_WIDTH = 200
 MIN_HEIGHT = 200
 

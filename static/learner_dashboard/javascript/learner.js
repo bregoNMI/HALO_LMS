@@ -133,15 +133,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.tab-content-description').forEach(container => {
         const content = container.querySelector('.description-content');
         const toggle = container.querySelector('.read-more-toggle');
+        const fadeOverlay = container.querySelector('.fade-overlay');
         const wrapper = container.querySelector('.description-wrapper');
 
         if (content.scrollHeight > 200) {
             // Content exceeds 200px, limit it and show "Read More"
             wrapper.classList.add('collapsed');
             toggle.style.display = 'block';
+            fadeOverlay.style.display = 'block';
         } else {
             // Content fits, hide toggle
             toggle.style.display = 'none';
+            fadeOverlay.style.display = 'none';
         }
     });
 

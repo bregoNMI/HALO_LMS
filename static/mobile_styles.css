@@ -83,6 +83,7 @@
         margin-top: 2rem;
     }.larger-buttons{
         flex-wrap: wrap;
+        flex-direction: column;
     }.learner-header-logout .action-button-primary{
         padding: 8px 11px;
     }.learner-header-logout .action-button-primary span{
@@ -109,6 +110,11 @@
         display: none;
     }.course-button-primary i{
         font-size: 1.1rem;
+    }
+
+    /* Achievements*/
+    .earned-badge-card{
+        max-width: unset;
     }
 }
   

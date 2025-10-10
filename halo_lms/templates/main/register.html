@@ -144,32 +144,6 @@
                             <div id="registrationSlideTwo" class="registration-slide-container hidden" style="gap: 24px;">
                                 <div class="edit-user-input" style="width: {{ login_form.input_width }}%;">
                                     <div class="input-label-row">
-                                        <label class="edit-user-label" style=" padding-bottom: 0 !important; color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Identification Photo<span class="required-asterisk">*</span></label>
-                                        <div onclick="openPopup('idPhotoInformation')" class="info-icon tooltip" data-tooltip="What is this?">
-                                            <i class="fa-regular fa-circle-info"></i>
-                                            <span class="tooltiptext" style="left: -1.4rem;">What is this?</span>
-                                        </div>
-                                    </div>                                  
-                                    <img class="taken-image-preview hidden" id="id_id_photo_preview" src="" alt="Your Identification Photo">
-                                    <!-- This is where the image data gets input from the student taken photo -->
-                                    <input type="hidden" id="id_id_photo_image_data" name="image_data">
-                                    <label for="id_id_photo" class="custom-file-upload-container" style="font-size: unset; margin-top: {{ login_form.label_space_bottom }}px; margin-bottom: unset; padding-bottom: unset; color: unset; max-width: unset;">
-                                        <div class="custom-file-upload">
-                                            <input class="custom-file form-file-field" type="file" id="id_id_photo" name="id_id_photo" style="display: none;" accept=".jpg,.jpeg,.png" required>
-                                            <i class="fa-regular fa-folder-open"></i> Choose File <!-- Choose File -->
-                                        </div>
-                                        <div class="custom-file-title">
-                                            <span id="id_id_photo_name" class="file-name-display"> No file selected </span>
-                                        </div>
-                                    </label>
-                                    <span style="text-align: center; font-weight: 500; font-size: 0.85rem; margin: 0.4rem 0;"> OR </span>
-                                    <button type="button" onclick="takePhoto('id_id_photo')" class="secondary-add-btn">
-                                        <i class="fa-regular fa-camera-retro"></i>
-                                        <span> Take a Photo </span>
-                                    </button>
-                                </div>
-                                <div class="edit-user-input" style="width: {{ login_form.input_width }}%;">
-                                    <div class="input-label-row">
                                         <label class="edit-user-label" style=" padding-bottom: 0 !important; color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Headshot Photo<span class="required-asterisk">*</span></label>
                                         <div onclick="openPopup('headshotPhotoInformation')" class="info-icon tooltip" data-tooltip="What is this?">
                                             <i class="fa-regular fa-circle-info"></i>
@@ -182,7 +156,7 @@
                                     <label for="id_reg_photo" class="custom-file-upload-container" style="font-size: unset; margin-top: {{ login_form.label_space_bottom }}px; margin-bottom: unset; padding-bottom: unset; color: unset; max-width: unset;">
                                         <div class="custom-file-upload">
                                             <input class="custom-file form-file-field" type="file" id="id_reg_photo" name="id_reg_photo" style="display: none;" accept=".jpg,.jpeg,.png" required>
-                                            <i class="fa-regular fa-folder-open"></i> Choose File <!-- Choose File -->
+                                            <i class="fa-regular fa-arrow-up-from-bracket"></i> Choose File <!-- Choose File -->
                                         </div>
                                         <div class="custom-file-title">
                                             <span id="id_reg_photo_name" class="file-name-display"> No file selected </span>
@@ -190,6 +164,32 @@
                                     </label>
                                     <span style="text-align: center; font-weight: 500; font-size: 0.85rem; margin: 0.4rem 0;"> OR </span>
                                     <button type="button" onclick="takePhoto('id_reg_photo')" class="secondary-add-btn">
+                                        <i class="fa-regular fa-camera-retro"></i>
+                                        <span> Take a Photo </span>
+                                    </button>
+                                </div>
+                                <div class="edit-user-input" style="width: {{ login_form.input_width }}%;">
+                                    <div class="input-label-row">
+                                        <label class="edit-user-label" style=" padding-bottom: 0 !important; color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Identification Photo<span class="required-asterisk">*</span></label>
+                                        <div onclick="openPopup('idPhotoInformation')" class="info-icon tooltip" data-tooltip="What is this?">
+                                            <i class="fa-regular fa-circle-info"></i>
+                                            <span class="tooltiptext" style="left: -1.4rem;">What is this?</span>
+                                        </div>
+                                    </div>                                  
+                                    <img class="taken-image-preview hidden" id="id_id_photo_preview" src="" alt="Your Identification Photo">
+                                    <!-- This is where the image data gets input from the student taken photo -->
+                                    <input type="hidden" id="id_id_photo_image_data" name="image_data">
+                                    <label for="id_id_photo" class="custom-file-upload-container" style="font-size: unset; margin-top: {{ login_form.label_space_bottom }}px; margin-bottom: unset; padding-bottom: unset; color: unset; max-width: unset;">
+                                        <div class="custom-file-upload">
+                                            <input class="custom-file form-file-field" type="file" id="id_id_photo" name="id_id_photo" style="display: none;" accept=".jpg,.jpeg,.png" required>
+                                            <i class="fa-regular fa-arrow-up-from-bracket"></i> Choose File <!-- Choose File -->
+                                        </div>
+                                        <div class="custom-file-title">
+                                            <span id="id_id_photo_name" class="file-name-display"> No file selected </span>
+                                        </div>
+                                    </label>
+                                    <span style="text-align: center; font-weight: 500; font-size: 0.85rem; margin: 0.4rem 0;"> OR </span>
+                                    <button type="button" onclick="takePhoto('id_id_photo')" class="secondary-add-btn">
                                         <i class="fa-regular fa-camera-retro"></i>
                                         <span> Take a Photo </span>
                                     </button>

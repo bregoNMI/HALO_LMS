@@ -273,6 +273,7 @@ body{
     max-width: 500px;
     max-height: 500px;
 }.login-form-field{
+    position: relative;
     display: flex;
     flex-direction: column;
 }.login-form-field input{
@@ -285,6 +286,15 @@ body{
     background-color: var(--bg-color3) !important;
 }.login-form-field .login-form-button{
     border-style: solid;
+}
+
+.toggle-password-icon{
+    position: absolute;
+    color: #858b8f;
+    transition: all 0.2s linear;
+    cursor: pointer;
+}.toggle-password-icon:hover{
+    color: #191c1f;
 }
 
 .login-form-logo-wrapper{
@@ -479,9 +489,9 @@ body{
     background-color: var(--bg-color2);
 }
 
-.login-form-inputs-wrapper .secondary-add-btn{
+.login-form-inputs-wrapper .secondary-add-btn, .require-id-photos-container .secondary-add-btn{
     border: 2px solid #ececf1;
-}.login-form-inputs-wrapper .secondary-add-btn:hover{
+}.login-form-inputs-wrapper .secondary-add-btn:hover, .require-id-photos-container .secondary-add-btn:hover{
     border-color: var(--primary-blue);
 }
 

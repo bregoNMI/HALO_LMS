@@ -1,0 +1,158 @@
+{% extends 'terms_and_conditions/terms_base.html' %}
+{% load static %}
+{% block content %}
+{% load custom_filters %}
+<div class="section-header full-width">
+    <div class="max-width-0">
+        <div class="section-header-inner">
+            <div>
+                <h2>Before you begin</h2>
+                <span class="course-time-wrapper"> Add your photos to complete your account and start learning. </span>              
+            </div>
+            <div class="learner-top-row-right">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="learner-body align-center overflow-unset" style="border-left: 0;">
+    {% include 'messageContainer/message_container.html' %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="max-width-0">       
+        <div class="learner-body-inner">
+            <div class="section-items-container" style="border-top-right-radius: 16px; border-top-left-radius: 16px;">
+                <div class="section-overlap-item-container">
+                    <div class="section-overlap-item">
+                        <div class="course-item-popup-banner-inner">
+                            <div class="course-item-popup-type-wrapper">
+                                <span class="course-item-popup-type pastel-purple"> Upload Images </span>
+                            </div>
+                            <h4 class="course-item-popup-title"> Finalize your account </h4>
+                            <div class="course-time-wrapper" style="font-size: 0.9rem;">
+                                <span style="font-size: 0.9rem;">Please upload both your Headshot and Identification photos below. Click on the 'i' icon for more information.</span>
+                            </div>
+
+                            <div class="course-item-footer" style="margin-top: 1.5rem;">
+                                <div class="course-item-footer-item">
+                                    <div class="course-type-icon mandatory-course">
+                                        <i class="fa-solid fa-light-emergency-on"></i>      
+                                    </div>    
+                                    <span> Mandatory </span>     
+                                </div>        
+                                <!-- <div class="course-item-footer-item">
+                                    <i class="fa-solid fa-circle-small footer-spacer"></i>
+                                </div>
+                                <div class="course-item-footer-item">
+                                    <i class="fa-regular fa-calendar-clock"></i>
+                                    <span><b>Expires:</b> {% if user_course.get_expiration_date %}{{ user_course.get_expiration_date }}{% else%} Never {% endif %}  </span>
+                                </div> -->
+                            </div> 
+                        </div>
+                    </div>
+                    <div class="course-item-popup require-id-photos-container">
+                        <div class="edit-user-input">
+                            <div class="input-label-row">
+                                <label class="edit-user-label" style=" padding-bottom: 0 !important; color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Headshot Photo<span class="required-asterisk">*</span></label>
+                                <div onclick="openPopup('headshotPhotoInformation')" class="info-icon tooltip" data-tooltip="What is this?">
+                                    <i class="fa-regular fa-circle-info"></i>
+                                    <span class="tooltiptext" style="left: -1.4rem;">What is this?</span>
+                                </div>
+                            </div>
+                            <img class="taken-image-preview hidden" id="passportphoto_preview" alt="Your Headshot Photo">
+                            <!-- This is where the image data gets input from the student taken photo -->
+                            <input type="hidden" id="passportphoto_image_data" name="image_data">
+                            <label for="passportphoto" class="custom-file-upload-container" style="font-size: unset; margin-top: 6px; margin-bottom: unset; padding-bottom: unset; color: unset; max-width: unset;">
+                                <div class="custom-file-upload">
+                                    <input class="custom-file form-file-field" type="file" id="passportphoto" name="passportphoto" style="display: none;" accept=".jpg,.jpeg,.png" required>
+                                    <i class="fa-regular fa-arrow-up-from-bracket"></i> Choose File <!-- Choose File -->
+                                </div>
+                                <div class="custom-file-title">
+                                    <span id="passportphoto_name" class="file-name-display"> No file selected </span>
+                                </div>
+                            </label>
+                            <span style="text-align: center; font-weight: 500; font-size: 0.85rem; margin: 0.4rem 0;"> OR </span>
+                            <button type="button" onclick="takePhoto('passportphoto')" class="secondary-add-btn">
+                                <i class="fa-regular fa-camera-retro"></i>
+                                <span> Take a Photo </span>
+                            </button>
+                        </div>
+                        <div class="edit-user-input">
+                            <div class="input-label-row">
+                                <label class="edit-user-label" style=" padding-bottom: 0 !important; color: {{ login_form.label_color}}; font-size: {{ login_form.label_font_size }}px; font-weight: {{ login_form.label_font_weight }}; padding-bottom: {{ login_form.label_space_bottom }}px;">Identification Photo<span class="required-asterisk">*</span></label>
+                                <div onclick="openPopup('idPhotoInformation')" class="info-icon tooltip" data-tooltip="What is this?">
+                                    <i class="fa-regular fa-circle-info"></i>
+                                    <span class="tooltiptext" style="left: -1.4rem;">What is this?</span>
+                                </div>
+                            </div>                                  
+                            <img class="taken-image-preview hidden" id="photoid_preview" alt="Your Identification Photo">
+                            <!-- This is where the image data gets input from the student taken photo -->
+                            <input type="hidden" id="photoid_image_data" name="image_data">
+                            <label for="photoid" class="custom-file-upload-container" style="font-size: unset; margin-top: 6px; margin-bottom: unset; padding-bottom: unset; color: unset; max-width: unset;">
+                                <div class="custom-file-upload">
+                                    <input class="custom-file form-file-field" type="file" id="photoid" name="photoid" style="display: none;" accept=".jpg,.jpeg,.png" required>
+                                    <i class="fa-regular fa-arrow-up-from-bracket"></i> Choose File <!-- Choose File -->
+                                </div>
+                                <div class="custom-file-title">
+                                    <span id="photoid_name" class="file-name-display"> No file selected </span>
+                                </div>
+                            </label>
+                            <span style="text-align: center; font-weight: 500; font-size: 0.85rem; margin: 0.4rem 0;"> OR </span>
+                            <button type="button" onclick="takePhoto('photoid')" class="secondary-add-btn">
+                                <i class="fa-regular fa-camera-retro"></i>
+                                <span> Take a Photo </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-overlap-item-container section-overlap-item margin-top-8">
+                    <div class="course-item-footer">
+                        <div class="course-item-footer-item" style="gap: 0.5rem; font-size: 0.95rem; color: #41454d;">
+                            <div class="course-type-icon success">
+                                <i class="fa-regular fa-circle-check" style="font-size: 0.8rem;"></i>      
+                            </div>    
+                            <span> Once you have uploaded both of your images, you can continue to the LMS </span>     
+                        </div>           
+                    </div>
+                    <!-- Button To Start Course -->
+                    <div class="larger-buttons" style="margin-top: 3rem;">
+                        <a href="{% url 'custom_logout_view' %}" class="popup-btn close-popup-btn">
+                            <i class="fa-regular fa-arrow-right-from-bracket"></i>Logout and complete later
+                        </a>
+                        <button class="action-button-primary learner-save-btns disabled" onclick="showFacialRecognitionPopup('require_id_photo')" disabled><i class="fa-regular fa-forward-step"></i> Continue </button>
+                    </div> 
+                </div>      
+            </div>                            
+        </div>
+    </div>
+</div>
+
+{% include 'main/popups/take_registration_photo.html' %}
+{% include 'main/popups/require_id_id_photo_information.html' %}
+{% include 'main/popups/require_id_headshot_photo_information.html' %}
+{% include 'popups/verify_headshot_face.html' %}
+{% include 'main/popups/facial_recognition_process.html' %}
+
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/login.css' %}">
+<script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+<script src="{% static 'learner_dashboard/javascript/learner.js' %}"></script>
+<script src="{% static 'custom_dashboard/javascript/registration.js' %}"></script>
+<script src="{% static 'custom_dashboard/javascript/require_id_photos.js' %}"></script>
+{% endblock %}

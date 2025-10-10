@@ -42,6 +42,7 @@ from halo_lms.settings import AWS_S3_REGION_NAME, AWS_STORAGE_BUCKET_NAME
 from collections import defaultdict
 from typing import List
 from django.middleware.csrf import get_token
+from types import SimpleNamespace
 
 secret_name = "COGNITO_SECRET"
 secrets = get_secret(secret_name)
@@ -514,7 +515,7 @@ def get_quiz_score(request):
     # (Keep your SCORMTrackingData/UserLessonProgress no-downgrade updates here)
 
     success_text = getattr(quiz_like, "success_text", "") or "You passed!"
-    fail_text    = getattr(quiz_like, "fail_text", "") or "Your quiz is under review."
+    fail_text    = getattr(quiz_like, "fail_text", "") or "Your have not passed this quiz."
 
     return JsonResponse({
         "total_answered": total_answered,
@@ -1246,9 +1247,18 @@ def launch_scorm_file(request, lesson_id):
         key = f"{progress.assignment_id}-{progress.lesson_id}" if progress.lesson_id else str(progress.assignment_id)
         assignment_status_map[key] = {"status": progress.status, "locked": False}
 
+    # attach status to full-course assignments (existing behavior)
     for assignment in full_course_assignments:
         key = str(assignment.id)
         assignment.status = assignment_status_map.get(key, {}).get('status', 'pending')
+
+    # 🔽🔽🔽 ONLY-CHANGE #1: sort full_course_assignments by status → title → id
+    status_rank = {'approved': 0, 'submitted': 1, 'pending': 2, 'rejected': 3}
+    full_course_assignments = sorted(
+        full_course_assignments,
+        key=lambda a: (status_rank.get(getattr(a, 'status', 'pending'), 99), a.title.lower(), a.id)
+    )
+    # 🔼🔼🔼
 
     for assignment in lesson_assignments:
         for attached_lesson in assignment.lessons.all():
@@ -1262,7 +1272,9 @@ def launch_scorm_file(request, lesson_id):
     ordered_lessons = Lesson.objects.filter(module__course=course).select_related('module').order_by('module__order', 'order')
     ordered_lesson_assignment_pairs = []
     for lsn in ordered_lessons:
-        for assign in lsn.assignments.all():
+        # 🔽🔽🔽 ONLY-CHANGE #2: order assignments within each lesson by title → id
+        for assign in lsn.assignments.all().order_by('title', 'id'):
+            # 🔼🔼🔼
             key = f"{assign.id}-{lsn.id}"
             ordered_lesson_assignment_pairs.append({
                 'lesson': lsn,
@@ -1942,6 +1954,7 @@ def track_scorm_data(request):
             "require_passing_used": require_passing_flag,  # handy for debugging
             "session_id": session_id,
             "course_progress": user_course.progress,
+            "course_completion_status": user_course.is_course_completed,
         })
 
     except Exception as e:

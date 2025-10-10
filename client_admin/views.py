@@ -1,4 +1,5 @@
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from insightface.app import FaceAnalysis
 import numpy as np
@@ -12,6 +13,8 @@ from content.models import Course
 from client_admin.models import UserCourse, FacialVerificationLog, Lesson
 from user_agents import parse as parse_user_agent
 import base64, io, numpy as np
+from django.core.files.base import ContentFile
+from typing import Optional
 
 # Facial Verification
 app = FaceAnalysis(providers=['CPUExecutionProvider'])
@@ -175,6 +178,41 @@ def facial_verification_check(request):
             return log_and_respond(request, request.user, verification_type, 'failure', 'server_error', user_course, course, lesson, None, str(e))
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def _contentfile_from_dataurl(data_url: str, fallback_name: str) -> Optional[ContentFile]:
+    if not data_url or ',' not in data_url:
+        return None
+    header, b64 = data_url.split(',', 1)
+    ext = 'png'
+    if 'image/jpeg' in header:
+        ext = 'jpg'
+    try:
+        raw = base64.b64decode(b64)
+    except Exception:
+        return None
+    return ContentFile(raw, name=f"{fallback_name}.{ext}")
+
+@login_required
+@require_POST
+def finalize_account(request):
+    profile = request.user.profile
+    headshot = request.FILES.get('passportphoto')
+    photoid  = request.FILES.get('photoid')
+
+    if not headshot or not photoid:
+        return JsonResponse({'success': False, 'message': 'Both images are required.'}, status=400)
+
+    # quick sanity check
+    try:
+        Image.open(headshot).verify(); headshot.seek(0)
+        Image.open(photoid).verify();  photoid.seek(0)
+    except Exception:
+        return JsonResponse({'success': False, 'message': 'Invalid image(s).'}, status=400)
+
+    profile.passportphoto.save(headshot.name, headshot, save=False)
+    profile.photoid.save(photoid.name, photoid, save=False)
+    profile.save(update_fields=['passportphoto', 'photoid'])
+    return JsonResponse({'success': True})
 
 def log_verification_attempt(
     request,

@@ -94,6 +94,7 @@ urlpatterns = [
     path('templates/widgets/edit/<int:widget_id>/', custom_template_views.edit_widget, name='edit_widget'),
     path('templates/widgets/reorder/', custom_template_views.widget_reorder, name='widget_reorder'),
     path('templates/dashboards/<int:dashboard_id>/preview/', custom_template_views.dashboard_preview, name='dashboard_preview'),
+    
     # Custom Login Page
     path('templates/login/', custom_template_views.login_form, name='login_form'),
     path('templates/login/edit/', custom_template_views.login_edit, name='login_edit'),
@@ -119,4 +120,5 @@ urlpatterns = [
     # Facial Recognition
     path('compare-faces/', facial_recognition_views.compare_faces, name='compare_faces'),
     path('facial-verification-check/', facial_recognition_views.facial_verification_check, name='facial_verification_check'),
+    path('finalize-account/', facial_recognition_views.finalize_account, name='finalize_account'),
 ]

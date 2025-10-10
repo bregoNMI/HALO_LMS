@@ -887,11 +887,14 @@ input[type="text"], input[type="number"]{
     position: absolute;
     align-items: center;
     justify-content: center;
-    bottom: 0.19rem;
-    right: 0.2rem;
+    bottom: 0rem;
+    top: 1.4rem;
+    right: 0rem;
     padding: 0.35rem var(--pad-xs);
     background-color: var(--primary-blue);
-    border-radius: 6px;
+    border-radius: 8px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
     color: white;
     transition: all 0.3s linear;
     cursor: pointer;

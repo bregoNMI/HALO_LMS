@@ -73,7 +73,7 @@
                                         <i class="fa-solid fa-circle-check"></i>
                                     </div>
                                 {% elif b.claimable %}
-                                    <button class="course-button-primary claim-btn" data-credits="{{ b.credits }}">Claim  Reward</button>
+                                    <button class="course-button-primary claim-btn" data-credits="{{ b.credits }}" style="border: 1px solid;">Claim  Reward</button>
                                     <div class="badge-credits-amount hidden">
                                         {% if settings.learning_credits_icon %}
                                             <img class="credits-icon" src="{{ settings.learning_credits_icon.url }}" alt="Credits Icon">

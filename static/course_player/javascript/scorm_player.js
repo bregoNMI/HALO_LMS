@@ -328,7 +328,7 @@ function sendTrackingData(trackingData) {
         });
 
         updatecourseProgressBar(data);
-        })
+    })
     .catch(error => console.error("🚨 Error tracking SCORM data:", error));
 }
 
@@ -421,6 +421,15 @@ function updatecourseProgressBar(data){
         courseProgress.setAttribute("value", data.course_progress);
         courseProgress.nextElementSibling.innerText = `${data.course_progress}%`;
     }
+    console.log('COURSE DATA:', data);
+    if (data.course_completion_status && data.course_progress == 100) {
+        const finishCourseBtn = document.getElementById('finishCourseBtn');
+        if (finishCourseBtn) {
+            finishCourseBtn.classList.remove('disabled');
+            finishCourseBtn.removeAttribute('disabled');
+        }
+    }
+
     updateLessonCompletionCounterSCORM();
 }
 

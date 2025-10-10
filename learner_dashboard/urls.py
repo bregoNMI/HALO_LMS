@@ -19,6 +19,9 @@ urlpatterns = [
     # On Login Course
     path('login-course/<uuid:uuid>/', views.on_login_course, name='on_login_course'),
 
+    # Require ID Photos (If Learners don't have both ID and Headshot Photos)
+    path('require-photos', views.require_id_photos, name='require_id_photos'),
+
     # Requests
     path('update-profile/<int:user_id>/', views.update_learner_profile, name='update_learner_profile'),
     path('change-password/', views.change_password, name='change_password'),
@@ -28,5 +31,5 @@ urlpatterns = [
     path('track-scorm-data/', track_scorm_data, name='track_scorm_data'),
     path('track-scorm-data/', track_mini_lesson_progress, name='track_mini_lesson_progress'),
     path('launch_scorm_file/<int:lesson_id>/', launch_scorm_file, name='launch_scorm_file'),
-    path("learner/achievements/claim/<int:org_badge_id>/", views.claim_badge, name="claim_badge"),
+    path('learner/achievements/claim/<int:org_badge_id>/', views.claim_badge, name='claim_badge'),
 ]

@@ -144,7 +144,7 @@
                                                 <span class="popup-header-subtext"><b>File Name:</b> {{ assignment.file_name }}</span>
                                                 <span class="popup-header-subtext"><b>Date Submitted:</b> {{ assignment.completed_at }}</span>
                                                 {% if assignment.reviewed_by %}
-                                                    <span class="popup-header-subtext"><b>Reviewed By:</b> {{ assignment.reviewed_by }}</span>
+                                                    <span class="popup-header-subtext"><b>Reviewed By:</b> {{ assignment.reviewed_by.first_name }} {{ assignment.reviewed_by.last_name }} ({{ assignment.reviewed_by.email }})</span>
                                                 {% endif %}
                                                 {% if assignment.reviewed_at %}
                                                     <span class="popup-header-subtext"><b>Reviewed At:</b> {{ assignment.reviewed_at }}</span>

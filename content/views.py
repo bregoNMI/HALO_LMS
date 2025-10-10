@@ -2733,8 +2733,6 @@ def manage_assignments(request, assignment_id):
     elif approval_type == 'other' and user in upload.approvers.all():
         can_approve = True
 
-    print(can_approve)
-
     user_course = UserCourse.objects.filter(
         user=assignment.user,
         course=assignment.course

@@ -53,6 +53,6 @@ BADGE_CATALOG = [
         "name": "Verified Learner",
         "description": "Complete your first verified facial verification check.",
         "criteria": {"event": "facial_verification", "count": 1, "reward": {"credits": 80}},
-        "icon_static": "client_admin\Images\HALO LMS No Graphic Test-28.png",
+        "icon_static": "images/gamification/badges/VerifiedLearner_Badge.jpg",
     },
 ]

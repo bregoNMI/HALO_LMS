@@ -46,8 +46,9 @@
                                 <i class="fa-light fa-caret-right"></i>
                             </button>
                         {% else %}
-                            <button type="button" id="finishCourseBtn" class="course-button-primary" onclick="window.location.href='{% url 'learner_dashboard' %}'" style="display: none;">
-                                Finish Course
+                            <button type="button" id="finishCourseBtn" class="course-button-primary {% if not user_course.is_course_completed %}disabled{% endif %}" onclick="window.location.href='{% url 'learner_dashboard' %}'" {% if not user_course.is_course_completed %}disabled{% endif %}>
+                                <span>Finish</span> <span class="footer-button-lesson-text">Course</span>
+                                <i class="fa-regular fa-rocket-launch fa-rotate-90"></i>
                             </button>
                         {% endif %}
                     </div>

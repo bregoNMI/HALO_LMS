@@ -31,9 +31,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
 
     const passwordInput = document.getElementById('id_password'); 
-    passwordInput.addEventListener('input', testPasswordReqs);
+    if(passwordInput){passwordInput.addEventListener('input', testPasswordReqs);}
     const usernameInput = document.getElementById('id_username'); 
-    usernameInput.addEventListener('input', testUsernameReqs);
+    if(usernameInput){usernameInput.addEventListener('input', testUsernameReqs);}
 });
 
 
@@ -150,7 +150,10 @@ const nextBtn = document.getElementById('nextBtn');
 const prevBtn = document.getElementById('prevBtn');
 const submitFormBtn = document.getElementById('registerButton');
 const javascriptErrorContainer = document.getElementById('javascriptErrorContainer');
-const javascriptErrorMessage = javascriptErrorContainer.querySelector('.lesson-alert-message');
+let javascriptErrorMessage;
+if(javascriptErrorContainer){
+    javascriptErrorMessage = javascriptErrorContainer.querySelector('.lesson-alert-message');
+}
 let currentErrorStep = 0;
 
 const updateSteps = (e) => {
@@ -342,6 +345,7 @@ function savePhoto(photoId) {
             }else if(photoId == 'id_reg_photo'){
                 displayName.innerText = 'Headshot_Photo.png';
             }
+            if(photoId == 'passportphoto' || photoId == 'photoid'){detectFileChanges();}   
         });
     
         setTimeout(() => {cameraLoading.classList.remove('hidden');}, 300);
@@ -445,15 +449,18 @@ function detectBrowser(errorContainer) {
     }
 }
 
-submitFormBtn.addEventListener("click", addLoadingSymbol);
-document.getElementById('registerForm').addEventListener('keydown', function(event) {
-    if ((event.key === 'Enter' || event.keyCode === 13) &&
-        !submitFormBtn.classList.contains('hidden') &&
-        !submitFormBtn.disabled) {
-        event.preventDefault();
-        addLoadingSymbol();
-    }
-});
+if(submitFormBtn){submitFormBtn.addEventListener("click", addLoadingSymbol);}
+const registerForm = document.getElementById('registerForm')
+if(registerForm){
+    registerForm.addEventListener('keydown', function(event) {
+        if ((event.key === 'Enter' || event.keyCode === 13) &&
+            !submitFormBtn.classList.contains('hidden') &&
+            !submitFormBtn.disabled) {
+            event.preventDefault();
+            addLoadingSymbol();
+        }
+    });
+}
 
 function addLoadingSymbol() {
     const password = document.getElementById('id_password').value;
@@ -527,23 +534,33 @@ function showErrorMessage(message, isError, slide){
     }
 }
 
-function showFacialRecognitionPopup(){
+function showFacialRecognitionPopup(facialPage){
+    if(facialPage == 'require_id_photo'){
+        document.getElementById('scanFaceBtn').setAttribute('onclick', 'initiateFacialRecognition("require_id_photo")');
+    }
+
     fadeIn('scanFaceBtn');
     openPopup('facialRecognition');
     document.getElementById('closeFacialPopupBtn').style.top = '36.4rem';
-    javascriptErrorContainer.classList.add('hidden');
+    if(javascriptErrorContainer){javascriptErrorContainer.classList.add('hidden');}
 }
 
 let facialStream = null;
 
-async function initiateFacialRecognition() {
+async function initiateFacialRecognition(facialPage) {
     const videoElement = document.getElementById('facialRecognitionVideo');
     const cameraLoading = document.getElementById('cameraLoadingVerification');
-    const regPhotoPreview = document.getElementById('id_reg_photo_preview');
+    let regPhotoPreview;
     const facialVideoFeedPlaceholder = document.getElementById('facialVideoFeedPlaceholder');
 
+    if(facialPage == 'require_id_photo'){
+        regPhotoPreview = document.getElementById('passportphoto_preview');
+    }else{
+        regPhotoPreview = document.getElementById('id_reg_photo_preview');
+    }
+
     if (!regPhotoPreview || regPhotoPreview.classList.contains('hidden')) {
-        alert("Please upload your registration photo before scanning.");
+        alert("Please upload your headshot photo before scanning.");
         closePopup('facialRecognition');
         return;
     }
@@ -556,7 +573,6 @@ async function initiateFacialRecognition() {
     facialRecognitionMessage.innerHTML = `<span>Please look directly into the camera while we work our magic.</span`
 
     // Check for support            
-
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
             .then(async function(stream) {
@@ -588,9 +604,10 @@ async function initiateFacialRecognition() {
 
                     if (result.success) {
                         console.log(`Verified! Similarity: ${result.similarity.toFixed(2)}`);
-                        showSuccess(`<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;"></i> Now Finalizing your account...`, dotsInterval, videoElement, false);
+                        showSuccess(`<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;"></i> Now Finalizing your account...`, dotsInterval, videoElement, false, facialPage);
                         baseText.innerText = 'Verification Successful!';
                         animatedDots.innerText = '';
+                        if(facialPage == 'require_id_photo'){await finalizeLearnerAccount();}
                     } else {
                         switch (result.error_type) {
                             case 'no_face_live':
@@ -644,7 +661,7 @@ function showFacialError(message, dotsInterval, videoElement, headshotError){
     clearInterval(dotsInterval);
 }
 
-function showSuccess(message, dotsInterval, videoElement, headshotError){
+function showSuccess(message, dotsInterval, videoElement, headshotError, facialPage){
     const facialVideoFeedContainer = document.getElementById('facialVideoFeedContainer');
     const facialRecognitionMessage = document.getElementById('facialRecognitionMessage');
     facialRecognitionMessage.innerHTML = `<span class="facial-videofeed-successful-message">${message}</span`
@@ -654,19 +671,93 @@ function showSuccess(message, dotsInterval, videoElement, headshotError){
 
     fadeIn('facialVideoFeedSuccessfulContainer');
     clearInterval(dotsInterval);
-    setTimeout(() => {
-        document.getElementById('registerForm').submit();
-    }, 2000);
+    if(facialPage != 'require_id_photo'){
+        setTimeout(() => {
+            document.getElementById('registerForm').submit();
+        }, 2000);
+    }
+}
+
+function dataURLtoBlob(dataUrl, filename='image.jpg') {
+    const [meta, b64] = dataUrl.split(',');
+    const mime = (meta.match(/data:(.*?);base64/) || [,'image/jpeg'])[1];
+    const bin = atob(b64);
+    const u8  = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    const blob = new Blob([u8], { type: mime });
+    blob.name = filename;
+    return blob;
+}
+
+async function resizeDataURL(dataUrl, maxSide=1280, quality=0.85) {
+    const img = new Image();
+    img.src = dataUrl;
+    await img.decode();
+    const { width, height } = img;
+    const scale = Math.min(1, maxSide / Math.max(width, height));
+    const w = Math.round(width * scale);
+    const h = Math.round(height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    return canvas.toDataURL('image/jpeg', quality);
+}
+
+async function finalizeLearnerAccount() {
+    // Prefer original files if present, otherwise fall back to preview dataURLs
+    const headshotInput = document.getElementById('passportphoto');
+    const idInput       = document.getElementById('photoid');
+
+    const headshotPreview = document.getElementById('passportphoto_preview');
+    const idPreview       = document.getElementById('photoid_preview');
+
+    const fd = new FormData();
+
+    // Headshot (passportphoto)
+    if (headshotInput?.files?.[0]) {
+        fd.append('passportphoto', headshotInput.files[0]);
+    } else if (headshotPrev?.src) {
+        const small = await resizeDataURL(headshotPrev.src);
+        fd.append('passportphoto', dataURLtoBlob(small, 'headshot.jpg'), 'headshot.jpg');
+    }
+
+    // Photo ID (photoid)
+    if (idInput?.files?.[0]) {
+        fd.append('photoid', idInput.files[0]);
+    } else if (idPrev?.src) {
+        const small = await resizeDataURL(idPrev.src);
+        fd.append('photoid', dataURLtoBlob(small, 'photoid.jpg'), 'photoid.jpg');
+    }
+
+    fd.append('from_verification', '1');
+
+    const resp = await fetch('/admin/finalize-account/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }, // your existing getCookie helper
+        body: fd
+    });
+
+    const result = await resp.json();
+    if (result.success) {
+        setTimeout(() => {
+            window.location = '/dashboard/';
+        }, 2000);
+    } else {
+        displayValidationMessage('Could not finalize your account', false);
+        alert(result.message || 'Could not finalize your account.');
+    }
 }
 
 function reUploadHeadshot(){
+    closePopup('facialRecognition');
+
     submitFormBtn.innerText = `Sign Up`;
     javascriptErrorContainer.classList.add('hidden');
 
     currentStep = 2;
     currentErrorStep = 0;
     updateSteps();
-    closePopup('facialRecognition');
 }
 
 function captureVideoFrame(videoElement) {
