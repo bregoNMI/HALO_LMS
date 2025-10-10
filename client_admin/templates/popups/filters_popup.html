@@ -20,7 +20,7 @@
                     <div class="filter-option">
                         <h5>Field Name</h5>
                         <div class="custom-select">
-                            <i class="fa-regular fa-angle-down"></i>
+                            <i class="fa-light fa-angles-up-down"></i>
                             <div class="select-selected">Select an option</div>
                             <div class="select-items scrollable-content">
                                 <div class="select-item" data-name="filter_last_name" data-value="{{ request.GET.filter_last_name }}">Last Name</div>
@@ -39,7 +39,7 @@
             <div class="popup-footer">
                 <div class="spacer"></div>
                 <div class="popup-btns">
-                    <div onclick="closePopup('filtersPopup')" class="close-popup-btn popup-btn">Close</div>
+                    <button type="button" onclick="closePopup('filtersPopup')" class="close-popup-btn popup-btn">Close</button>
                     <button id="applyFilterBtn" class="popup-btn"> Apply Filter </button>
                 </div>
             </div>

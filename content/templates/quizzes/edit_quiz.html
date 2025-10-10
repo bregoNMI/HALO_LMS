@@ -1,0 +1,353 @@
+{% extends 'quizzes\quizzes_base.html' %}
+{% load static %}
+{% block content %}
+{% include 'messageContainer/message_container.html' %}
+<input id="quizUUID" type="hidden" value="{{ quiz.uuid }}">
+<div id="quizBuilderHeader" class="quiz-builder-header-container">
+    <div class="quiz-builder-header-container-inner">
+        <div class="quiz-builder-header-left">
+            <div class="details-top-row-left">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3 id="quizMainTitle"> {{ quiz.title }} </h3>
+            </div>
+            <div class="quiz-builder-header-item">             
+                <div class="header-icon pastel-yellow">
+                    <i class="fa-regular fa-lightbulb"></i>         
+                </div>    
+                <span> Quiz </span>                    
+            </div>
+        </div>
+        <div class="quiz-builder-header-right">
+            <button onclick="openQuizSettings()" class="action-button-border course-save-btns" style="padding: 5.5px 10px">
+                <i class="fa-solid fa-gear"></i>
+            </button>  
+            <!-- <button onclick="saveQuiz('{{ quiz.uuid }}')" class="action-button-primary quiz-save-btns">
+                <i class="fa-regular fa-paper-plane"></i>
+                <span>Publish</span>
+            </button>          -->
+            <a href="/admin/quizzes/" class="action-button-primary quiz-save-btns">
+                <i class="fa-regular fa-paper-plane"></i>
+                <span>Publish</span>
+            </a>
+        </div>
+    </div>
+</div>
+<div id="quizBuilderContent" class="quiz-builder-content-container">
+    <div class="quiz-builder-questions-container">
+        <div class="quiz-builder-questions-header">
+            <h4>Questions</h4>
+            <div class="quiz-builder-dropdown-container relative-container">
+                <div class="quiz-builder-dropdown-toggle quiz-builder-add-question-icon">
+                    <i class="fa-regular fa-plus"></i>
+                </div>
+                <div id="questionDropdown" class="quiz-builder-dropdown-options width-2">
+                    <div onclick="createQuestion('multiple-choice')" class="quiz-builder-type-option">
+                        <div class="question-item-icon pastel-purple">
+                            <i class="fa-regular fa-check-double"></i>
+                        </div>
+                        <span>Multiple Choice</span>
+                    </div>
+                    <div onclick="createQuestion('multiple-response')" class="quiz-builder-type-option">
+                        <div class="question-item-icon pastel-green">
+                            <i class="fa-regular fa-square-check"></i>
+                        </div>
+                        <span>Multiple Response</span>
+                    </div>
+                    <div onclick="createQuestion('true-false')" class="quiz-builder-type-option">
+                        <div class="question-item-icon pastel-blue">
+                            <i class="fa-solid fa-circle-half-stroke"></i>
+                        </div>
+                        <span>True/False</span>
+                    </div>
+                    <div onclick="createQuestion('open-response')" class="quiz-builder-type-option">
+                        <div class="question-item-icon pastel-orange">
+                            <i class="fa-regular fa-comment-dots"></i>
+                        </div>
+                        <span>Open Response</span>
+                    </div>
+                    <div onclick="createQuestion('fill-in-the-blank')" class="quiz-builder-type-option">
+                        <div class="question-item-icon pastel-pink">
+                            <i class="fa-regular fa-pen-line"></i>
+                        </div>
+                        <span>Fill In The Blank</span>
+                    </div>
+                </div>
+            </div>            
+        </div>
+        <div id="questionList" class="quiz-builder-questions-wrapper scrollable-content"></div>
+    </div>
+    <div class="quiz-builder-body-container align-center">
+        <div id="loadingContainer" class="no-questions-container" style="display: none;">
+            <i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;"></i>
+        </div>
+        <div id="noQuestionsSelected" class="no-questions-container">
+            <i class="fa-light fa-box-open"></i>
+            <h3> No Questions Selected...</h3>
+            <span> Please select a question from the left to edit.</span>
+        </div>
+        <div id="questionEditor" class="quiz-builder-body-container-inner max-width-extend-1"></div>
+    </div>
+</div>
+
+<div id="quizSettingsHeader" class="quiz-builder-header-container">
+    <div class="quiz-builder-header-container-inner">
+        <div class="quiz-builder-header-left">
+            <div class="details-top-row-left">
+                <h3> Quiz Settings </h3>
+            </div>
+        </div>
+        <div class="quiz-builder-header-right">
+            <button onclick="closeQuizSettings()" class="action-button-border quiz-save-btns">
+                <span> Back </span>
+            </button>  
+            <button onclick="saveQuizSettings('{{ quiz.uuid }}')" class="action-button-primary quiz-save-btns">
+                <i class="fa-regular fa-floppy-disk"></i>
+                <span>Save Settings</span>
+            </button>         
+        </div>
+    </div>
+</div>
+<div id="quizSettingsContent" class="quiz-builder-content-container">
+    <div class="admin-body align-center">
+        <div class="max-width-0">
+            <div id="mainNavBar" class="admin-top-row">
+                <div class="admin-top-row-left">
+                    <h2>Settings</h2>
+                    <span class="admin-header-subtext">Customize your Quiz</span>
+                </div>
+                <div class="admin-top-row-right">
+                    
+                </div>
+            </div>
+            <div class="settings-container">
+                <div id="settingsTabs" class="tabs-container">
+                    <div class="tabs">
+                        <button type="button" class="tab active" data-target="tab1">General</button>
+                        <button type="button" class="tab" data-target="tab2">Results</button>
+                        <button type="button" class="tab" data-target="tab3">References</button>
+                        <button type="button" class="tab" data-target="tab4">Optional</button>
+                        <div class="tab-indicator"></div>
+                    </div>
+                
+                    <div class="tab-content-container">
+                        <!-- General -->
+                        <div class="tab-content active" id="tab1">
+                            <div class="settings-info-section">
+                                <div class="details-info-card">
+                                    <div class="info-card-header collapsable-header">
+                                        <div class="card-header-left">
+                                            <i class="fa-regular fa-house"></i>
+                                            <span> General </span>
+                                        </div>
+                                        <div class="card-header-right">
+                                            <i class="fa-regular fa-angle-down"></i>
+                                        </div>
+                                    </div>
+                                    <div class="info-card-body">                         
+                                        <div class="settings-card-wrapper">
+                                            <div class="edit-settings-row">
+                                                <div class="edit-settings-input">
+                                                    <label for="quiz_title">Quiz Title<span class="required-asterisk">*</span></label>
+                                                    <input type="text" id="quiz_title" name="quiz_title" placeholder="Quiz Title" maxlength="255" value="{{ quiz.title }}">
+                                                </div>
+                                            </div>                    
+                                            <div class="edit-settings-row">
+                                                <div class="edit-settings-input">
+                                                    <label for="quiz_category">Quiz Category</label>
+                                                    <div id="userDropdown102" class="category-dropdown course-content-input">
+                                                        {% if quiz.category %}
+                                                            <input type="text" id="quiz_category" name="quiz_category" class="categorySearch" placeholder="Search categories..." autocomplete="off" value="{{ quiz.category }}" data-id="{{ quiz.category.id }}">
+                                                        {% else %}
+                                                            <input type="text" id="quiz_category" name="quiz_category" class="categorySearch" placeholder="Search categories..." autocomplete="off">
+                                                        {% endif %}
+                                                        <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                                                        <div class="categoryList scrollable-content-inner">
+                                                            <div class="loadingIndicator" style="display:none;">Loading...</div>
+                                                        </div>
+                                                        <div class="dropdown-clear-input">
+                                                            <i class="fa-solid fa-xmark"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="edit-settings-row">
+                                                <div class="edit-settings-input">
+                                                    <label for="quiz_description">Quiz Description</label>
+                                                    <div class="editor-container scrollable-content-inner" id="quiz_description">{{ quiz.description|safe }}</div>
+                                                    <span class="settings-input-subtext">Provide a brief overview for learners to read prior to taking the quiz.</span>
+                                                </div>
+                                            </div>
+                                            <div class="edit-settings-row">
+                                                <div class="edit-settings-input">
+                                                    <label for="singular_quiz_rules">Quiz Rules</label>
+                                                    <div class="editor-container scrollable-content-inner" id="singular_quiz_rules">{{ quiz.singular_quiz_rules|safe }}</div>
+                                                    <span class="settings-input-subtext">These rules will override the default quiz rules set within the main settings page (This only applies to AI monitored quizzes).</span>
+                                                </div>
+                                            </div> 
+                                        </div>                 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Results -->
+                        <div class="tab-content" id="tab2">
+                            <div class="settings-info-section">
+                                <div class="details-info-card">
+                                    <div class="info-card-header collapsable-header">
+                                        <div class="card-header-left">
+                                            <i class="fa-regular fa-badge-percent"></i>
+                                            <span> Results </span>
+                                        </div>
+                                        <div class="card-header-right">
+                                            <i class="fa-regular fa-angle-down"></i>
+                                        </div>
+                                    </div>
+                                    <div class="info-card-body">                         
+                                        <div class="settings-card-wrapper">
+                                            <div class="edit-settings-row">
+                                                <div class="edit-settings-input">
+                                                    <label for="success_text">Passing Message</label>
+                                                    <div class="editor-container scrollable-content-inner" id="success_text">{{ quiz.success_text|safe }}</div>
+                                                    <span class="settings-input-subtext">This message will be displayed to the learner upon receiving a passing grade on their quiz.</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="edit-settings-row">
+                                                <div class="edit-settings-input">
+                                                    <label for="fail_text">Failure Message</label>
+                                                    <div class="editor-container scrollable-content-inner" id="fail_text">{{ quiz.fail_text|safe }}</div>
+                                                    <span class="settings-input-subtext">This message will be displayed to the learner if they do <b>NOT</b> receive a passing grade on their quiz.</span>
+                                                </div>
+                                            </div>               
+                                        </div>                 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- References -->
+                        <div class="tab-content" id="tab3">
+                            <div class="settings-info-section">
+                                <div class="details-info-card">
+                                    <div class="info-card-header collapsable-header">
+                                        <div class="card-header-left">
+                                            <i class="fa-regular fa-link"></i>
+                                            <span> References </span>
+                                        </div>
+                                        <div class="card-header-right">
+                                            <i class="fa-regular fa-angle-down"></i>
+                                        </div>
+                                    </div>
+                                    <div class="info-card-body">                         
+                                        <div class="settings-card-wrapper">
+                                            <div class="edit-settings-row">
+                                                <div class="edit-settings-input">
+                                                    <label for="quiz_material">Quiz Materials</label>
+                                                    <div class="editor-container scrollable-content-inner" id="quiz_material">{{ quiz.quiz_material|safe }}</div>
+                                                    <span class="settings-input-subtext">List any materials learners are allowed to use during this quiz (e.g., pen, paper, notes, books).</span>
+                                                </div>
+                                            </div> 
+                                            
+                                            <div class="edit-settings-row">
+                                                <div class="edit-settings-input">
+                                                    <div class="settings-header-row">
+                                                        <label for="quiz_material">Quiz References</label>
+                                                        
+                                                        <div class="quiz-builder-dropdown-container relative-container">
+                                                            <button type="button" class="action-button-primary quiz-builder-dropdown-toggle">
+                                                                <span>Add Reference</span>
+                                                                <i class="fa-regular fa-angle-down"></i>
+                                                            </button>
+                                                            <div class="quiz-builder-dropdown-options width-2">
+                                                                <div onclick="addReference('upload-media')" class="quiz-builder-type-option">
+                                                                    <div class="question-item-icon pastel-gray">
+                                                                        <i class="fa-regular fa-arrow-up-from-bracket"></i>
+                                                                    </div>
+                                                                    <span>Upload Reference</span>
+                                                                </div>
+                                                                <div onclick="addReference('file-library')" class="quiz-builder-type-option">
+                                                                    <div class="question-item-icon pastel-gray">
+                                                                        <i class="fa-regular fa-folder-open"></i>
+                                                                    </div>
+                                                                    <span>File Library</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="quizReferenceContainer" class="quiz-reference-gallery"></div>
+                                                    <span class="settings-input-subtext">References listed here will be available for the learner to access during the quiz.</span> 
+                                                </div> 
+                                            </div>               
+                                        </div>                 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Optional -->
+                        <div class="tab-content" id="tab4">
+                            <div class="settings-info-section">
+                                <div class="details-info-card">
+                                    <div class="info-card-header collapsable-header">
+                                        <div class="card-header-left">
+                                            <i class="fa-regular fa-screwdriver-wrench"></i>
+                                            <span> Optional </span>
+                                        </div>
+                                        <div class="card-header-right">
+                                            <i class="fa-regular fa-angle-down"></i>
+                                        </div>
+                                    </div>
+                                    <div class="info-card-body">                         
+                                        <div class="settings-card-wrapper">
+                                            <div class="edit-settings-column">
+                                                <div class="edit-settings-input">
+                                                    <div class="text-gradient-wrapper">
+                                                        <label class="edit-settings-label text-gradient-ai" for="ai_grade_essay">AI Open Response Grading</label>
+                                                        <div class="ai-icon-wrapper">
+                                                            <i class="fa-regular fa-sparkles"></i>
+                                                        </div>
+                                                    </div>
+                                                    <label class="toggle-switch">
+                                                        <input class="toggle-hidden-settings-input" type="checkbox" id="ai_grade_essay" name="ai_grade_essay" {% if quiz.ai_grade_essay %}checked{% endif %}>
+                                                        <div class="toggle-switch-background">
+                                                        <div class="toggle-switch-handle"></div>
+                                                        </div>
+                                                    </label>
+                                                    <span class="settings-input-subtext"> If enabled, our AI Model will analyze your grading rubric provided below for every open response question. You’ll receive a recommended grade for each response after the quiz, along with a detailed explanation of the grading rationale. </span>
+                                                </div>
+                                                <div class="edit-settings-input hidden-settings-input toggle-option-details show-toggle-option-details">
+                                                    <div class="editor-container scrollable-content-inner" id="ai_grade_rubric"> {{ quiz.ai_grade_rubric|safe }}</div>
+                                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                        <span class="settings-input-subtext"> Provide AI Grading Rubric </span>
+                                                        <div class="quill-character-counter">
+                                                            <div class="quill-current-counter">0</div>
+                                                            <span>/</span>
+                                                            <div class="quill-max-counter">50000</div>
+                                                        </div>
+                                                    </div>
+                                                </div> 
+                                            </div>                                               
+                                        </div>                 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+<link rel="stylesheet" href="{% static 'client_admin\css\settings.css' %}">
+<link rel="stylesheet" href="{% static 'content\css\content.css' %}">
+{% include 'popups/edit_question_instructions.html' %}
+{% include 'popups/edit_question_rubric.html' %}
+{% include 'popups/expand_media_popup.html' %}
+{% include 'popups/embed_media_popup.html' %}
+{% include 'popups/delete_quiz_question_popup.html' %}
+{% include 'popups/file_library.html' %}
+{% include 'popups/create_category.html' %}
+{% include 'popups/assign_question_category.html' %}
+{% endblock %}

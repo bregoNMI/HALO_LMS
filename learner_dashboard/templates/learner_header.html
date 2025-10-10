@@ -1,0 +1,106 @@
+{% load static %}
+<div id="mainHeader" style="background-color: {{ header.header_background_color }};" class="learner-header-container">
+    <div class="learner-header-container-inner">
+        <a href="/dashboard/" class="learner-header-left">
+            {% if header.header_logo %}
+                <img class="header-logo" src="{{ header.header_logo }}" alt="Header Logo">
+            {% else %}
+                <img class="header-logo" src="{% static 'images/logo/Halo LMS Logo-10.png' %}" alt="Header Logo">          
+            {% endif %}
+        </a>
+        <div class="learner-header-right">
+            {% if request.is_impersonating %}
+            <div class="learner-impersonate" onclick="toggleDropdown()">
+                <i class="fa-light fa-masks-theater"></i>
+                <span class="tooltip-text">Impersonating</span>
+            </div>
+            {% endif %}            
+            <div class="learner-header-icons">             
+                <a href="/notifications/" class="learner-header-icon" style="color: {{ header.header_text_color }};" onmouseover="this.style.backgroundColor='{{ header.header_text_background_color }}'; this.style.color='{{ header.header_text_hover_color }}';" onmouseout="this.style.backgroundColor='';" onmouseout="this.style.color='';">
+                    {% if unread_messages_exist %}
+                        <div class="notification-icon" style="background-color: {{ header.header_background_color }};">
+                            <i class="fa-solid fa-circle-small"></i>
+                        </div>
+                        <i class="fa-light fa-bell"></i>
+                    {% else %}
+                        <i class="fa-light fa-bell"></i>
+                    {% endif %}
+                </a>
+            </div>
+            <div class="learner-dropdown-menu">
+                <div class="learner-dropdown-menu-icon" onclick="toggleDropdown()" style="color: {{ header.header_text_color }};" onmouseover="this.style.backgroundColor='{{ header.header_text_background_color }}'; this.style.color='{{ header.header_text_hover_color }}';" onmouseout="this.style.backgroundColor='';" onmouseout="this.style.color='';">
+                    <i class="fa-light fa-bars"></i>
+                </div>
+                <div id="learnerDropdownContent" class="dropdown-content">
+                    <div class="dropdown-user-information">                  
+                        {% if request.is_impersonating %}
+                            <div class="dropdown-user-icon" style="padding: 0.3rem; border-radius: 8px; background-color: #ffd0d0;">
+                                <i class="fa-light fa-masks-theater" style="color: #f34242; font-size: 1.5rem;"></i>
+                            </div>                        
+                        {% else %}
+                            <div class="dropdown-user-icon">
+                                <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
+                            </div>
+                        {% endif %}
+                        <div class="dropdown-user-details">
+                            <h4>{{ first_name }} {{ last_name }}</h4>
+                            <span>{{ email }}</span>
+                        </div>
+                    </div>
+                    <div class="dropdown-section">
+                        {% if request.is_impersonating %}
+                            <a class="dropdown-content-option stop-impersonating-btn" href="{% url 'stop_impersonating' %}">
+                                <i class="fa-light fa-circle-xmark"></i>
+                                <span> Stop Impersonating </span>
+                            </a>
+                        {% endif %}
+                        <a class="dropdown-content-option" href="/dashboard/">
+                            <i class="fa-light fa-objects-column"></i>
+                            <span> Dashboard </span>
+                        </a>
+                        <a class="dropdown-content-option" href="/courses/">
+                            <i class="fa-light fa-book-open-cover"></i>
+                            <span> My Courses </span>
+                        </a>
+                        <a class="dropdown-content-option" href="/notifications/">
+                            <i class="fa-light fa-bell"></i>
+                            <span> Notifications </span>
+                        </a>
+                        <a class="dropdown-content-option" href="/transcript/">
+                            <i class="fa-light fa-memo-pad"></i>
+                            <span> Transcript </span>
+                        </a>
+                        <a class="dropdown-content-option" href="/profile/">
+                            <i class="fa-light fa-user-graduate"></i>
+                            <span> Profile </span>
+                        </a>
+                    </div>
+                    {% if user.profile.role == 'Admin' %}
+                        <div class="dropdown-section">
+                            <a class="dropdown-content-option" href="/admin/dashboard/">
+                                <i class="fa-light fa-toolbox"></i>
+                                <span> Admin </span>
+                            </a>
+                            {% if dashboard %}
+                                <a class="dropdown-content-option" href="/admin/templates/dashboards/{{dashboard.id}}/edit/">
+                                    <i class="fa-light fa-rectangle-history"></i>
+                                    <span> View Template </span>
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <div class="dropdown-section">
+                        <a class="dropdown-content-option" href="{% url 'custom_logout_view' %}">
+                            <i class="fa-light fa-arrow-right-from-bracket"></i>
+                            <span> Logout </span>
+                        </a>
+                    </div>                   
+                </div>
+            </div>            
+        </div>
+    </div>
+</div>
+<script>
+    window.savedTexture = "{{ header.header_texture|default:'texture0' }}";
+    window.savedFooterTexture = "{{ footer.footer_texture|default:'footer-texture0' }}"; 
+</script>

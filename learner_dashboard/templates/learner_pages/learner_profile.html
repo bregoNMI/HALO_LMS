@@ -1,0 +1,441 @@
+{% extends 'learner_base.html' %}
+{% load static %}
+{% block content %}
+{% include 'learner_sidebar.html' %}
+{% include 'popups/change_password.html' %}
+<div class="learner-body align-center scrollable-content">
+    {% include 'messageContainer/message_container.html' %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Display Impersonation Error if it exists -->
+    {% if impersonation_error %}
+        <div class="alert alert-error">
+            <i class="fa-solid fa-circle-xmark"></i>
+            {{ impersonation_error }}
+        </div>
+    {% endif %}
+
+    
+    <div class="max-width-0">
+        <div id="stickyNavBar">
+            <div class="learner-top-row max-width-0">
+                <div class="learner-top-row-left">
+                    <h2>Profile</h2>
+                </div>
+                <div class="learner-top-row-right">
+                    {% if settings.enable_gamification %}
+                        <a href="/achievements/" type="button" class="action-button-secondary">
+                            <i class="fa-regular fa-trophy-star"></i>
+                            <span>All Achievements</span>
+                            {% if unclaimed_badge_count %}
+                                <span class="sidebar-notification-pill" style="top: -0.4rem; right: -0.4rem;">{{ unclaimed_badge_count }}</span>
+                            {% endif %}
+                        </a>
+                    {% endif %}
+                    <div onclick="openPopup('changePasswordPopup')" class="learner-primary-button">
+                        <i class="fa-regular fa-lock-keyhole"></i>
+                        <span> Change Password </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="mainNavBar" class="learner-top-row">
+            <div class="learner-top-row-left">
+                <h2>Profile</h2>
+                {% if settings.profile_customization %}
+                    <span>View or edit your profile</span>
+                {% else %}
+                    <span>View your profile</span>
+                {% endif %}
+            </div>
+            <div class="learner-top-row-right">
+                {% if settings.enable_gamification %}
+                    <a href="/achievements/" type="button" class="action-button-secondary">
+                        <i class="fa-regular fa-trophy-star"></i>
+                        <span>All Achievements</span>
+                        {% if unclaimed_badge_count %}
+                            <span class="sidebar-notification-pill" style="top: -0.4rem; right: -0.4rem;">{{ unclaimed_badge_count }}</span>
+                        {% endif %}
+                    </a>
+                {% endif %}
+                <div onclick="openPopup('changePasswordPopup')" class="learner-primary-button">
+                    <i class="fa-regular fa-lock-keyhole"></i>
+                    <span> Change Password </span>
+                </div>
+            </div>
+        </div>
+        <div class="learner-body-inner">
+            {% include 'learner_pages/learner_profile_card.html' %}
+            <div class="settings-container">
+                <div id="settingsTabs" class="tabs-container courses-tabs">
+                    <div class="tabs">
+                        <div class="tab active" data-target="tab1">
+                            <i class="fa-light fa-user-graduate"></i>
+                            Profile
+                        </div>
+                        {% if settings.enable_gamification %}
+                            <div class="tab" data-target="tab2">
+                                <i class="fa-light fa-trophy-star"></i>
+                                Achievements
+                            </div>
+                        {% endif %}
+                        <div class="tab-indicator"></div>
+                    </div>
+                
+                    <div class="tab-content-container">
+                        <!-- Profile -->
+                        <div class="tab-content margin-top-7 active" id="tab1">
+                            <form method="post" action="{% url 'update_learner_profile' profile.id %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="learner-info-section">
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-head-side-gear"></i>
+                                                <span> General </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="learner-card-wrapper">
+                                                <div class="edit-user-row">
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="first_name">First Name</label>
+                                                        <input type="text" id="first_name" name="first_name" value="{{ profile.first_name }}">
+                                                    </div>
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="last_name">Last Name</label>
+                                                        <input type="text" id="last_name" name="last_name" value="{{ profile.last_name }}">
+                                                    </div>
+                                                </div>
+                                                <div class="edit-user-row">
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="username">Username</label>
+                                                        <input type="text" id="username" name="username" value="{{ profile.username }}">
+                                                    </div>
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="email">Email</label>
+                                                        <input type="email" id="email" name="email" value="{{ profile.email }}">
+                                                    </div>
+                                                </div> 
+                                            </div>                 
+                                        </div>
+                                    </div>
+
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-address-book"></i>
+                                                <span> Contact </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="learner-card-wrapper">
+                                                <div class="edit-user-row">
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="country">Country</label>
+                                                        <div class="custom-select margin-0">
+                                                            <i class="fa-light fa-angles-up-down"></i>     
+                                                            <input class="select-selected" type="text" id="country" name="country" value="{{ profile.country }}" readonly>
+                                                            <div class="select-items scrollable-content" style="display: none;">
+                                                                {% include 'dropdownOptions/country_options.html' %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="city">City</label>
+                                                        <input type="text" id="city" name="city" value="{{ profile.city }}">
+                                                    </div>
+                                                </div>
+                                                <div class="edit-user-row">
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="state">State</label>
+                                                        <input type="text" id="state" name="state" value="{{ profile.state }}">
+                                                    </div>
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="code">Zip Code</label>
+                                                        <input type="text" id="code" name="code" value="{{ profile.code }}">
+                                                    </div>
+                                                </div>
+                                                <div class="edit-user-row">
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="citizenship">Citizenship</label>
+                                                        <div class="custom-select margin-0">
+                                                            <i class="fa-light fa-angles-up-down"></i>     
+                                                            <input class="select-selected" type="text" id="citizenship" name="citizenship" value="{{ profile.citizenship }}" readonly>
+                                                            <div class="select-items scrollable-content" style="display: none;">
+                                                                {% include 'dropdownOptions/citizenship_options.html' %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="address_1">Address</label>
+                                                        <input type="text" id="address_1" name="address_1" value="{{ profile.address_1 }}">
+                                                    </div>
+                                                </div> 
+                                            </div>                 
+                                        </div>
+                                    </div>
+
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-dice-two"></i>
+                                                <span> Other </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="learner-card-wrapper">
+                                                <div class="edit-user-row">
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="birth_date">Date of Birth</label>
+                                                        <div class="edit-user-input flatpickr-input-field">              
+                                                            <input type="text" id="birth_date" name="birth_date" class="date-picker" value="{{ profile.birth_date|date:'Y-m-d' }}">
+                                                            <button type="button" class="input-group-addon">
+                                                                <i class="fa-regular fa-calendar-lines"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="sex">Gender</label>
+                                                        <div class="custom-select margin-0">
+                                                            <i class="fa-light fa-angles-up-down"></i>     
+                                                            <input class="select-selected" type="text" id="sex" name="sex" value="{{ profile.sex }}" readonly>
+                                                            <div class="select-items scrollable-content" style="display: none;">
+                                                                {% include 'dropdownOptions/gender_options.html' %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="edit-user-row">
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="referral">Referral</label>
+                                                        <input type="text" id="referral" name="referral" value="{{ profile.referral }}">
+                                                    </div>
+                                                    <div class="edit-user-input">
+                                                        <label class="edit-user-label" for="associate_school">Associate School</label>
+                                                        <input type="text" id="associate_school" name="associate_school" value="{{ profile.associate_school }}">
+                                                    </div>
+                                                </div> 
+                                            </div>                 
+                                        </div>
+                                    </div>
+
+
+                                    <div class="details-info-card">
+                                        <div class="info-card-header collapsable-header">
+                                            <div class="card-header-left">
+                                                <i class="fa-regular fa-photo-film"></i>
+                                                <span> My Images </span>
+                                            </div>
+                                            <div class="card-header-right">
+                                                <i class="fa-regular fa-angle-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="info-card-body">                         
+                                            <div class="edit-images-row">
+                                                <div class="edit-image">
+                                                    <label class="edit-user-label" for="passportphoto">Headshot Photo</label>
+                                                    {% if profile.passportphoto %}
+                                                        <img id="passportphotoPreview" src="{{ profile.passportphoto.url }}" alt="passportphoto">
+                                                    {% else %}
+                                                        <div class="profile-image">
+                                                            <i class="fa-regular fa-user-graduate"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <label for="passportphoto" class="custom-file-upload-container">
+                                                        <div class="custom-file-upload">
+                                                            <input type="file" id="passportphoto" name="passportphoto" accept="image/*" onchange="previewImage('passportphoto', 'passportphotoPreview')" style="display: none;">
+                                                            <i class="fa-regular fa-arrow-up-from-bracket"></i> Choose File
+                                                        </div>
+                                                        <div class="custom-file-title">
+                                                            {% if profile.passportphoto %}
+                                                                <span id="passportphotoNameDisplay" class="file-name-display">{{ profile.passportphoto }}</span>
+                                                            {% else %}
+                                                                <span id="passportphotoNameDisplay" class="file-name-display">No file selected</span>
+                                                            {% endif %}
+                                                            
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                                <div class="edit-image">
+                                                    <label class="edit-user-label" for="photoid">Identification Image</label>
+                                                    {% if profile.photoid %}
+                                                        <img id="photoidPreview" src="{{ profile.photoid.url }}" alt="photoid">
+                                                    {% else %}
+                                                        <div class="profile-image">
+                                                            <i class="fa-regular fa-user-graduate"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <label for="photoid" class="custom-file-upload-container">
+                                                        <div class="custom-file-upload">
+                                                            <input type="file" id="photoid" name="photoid" accept="image/*" onchange="previewImage('photoid', 'photoidPreview')" style="display: none;">
+                                                            <i class="fa-regular fa-arrow-up-from-bracket"></i> Choose File
+                                                        </div>
+                                                        <div class="custom-file-title">
+                                                            {% if profile.photoid %}
+                                                                <span id="photoidNameDisplay" class="file-name-display">{{ profile.photoid }}</span>
+                                                            {% else %}
+                                                                <span id="photoidNameDisplay" class="file-name-display">No file selected</span>
+                                                            {% endif %}
+                                                            
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>              
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if settings.profile_customization %}
+                                    <div id="saveButtonPlatform" class="save-button-platform max-width-0">
+                                        <div class="save-button-platform-inner">
+                                            <span>You have unsaved changes</span>
+                                            <div class="save-button-row">
+                                                <button type="button" onclick="location.reload()" class="close-popup-btn popup-btn">Reset</button>
+                                                <button onclick="setDisabledSaveBtns()" type="submit" id="saveUserBtn" class="popup-btn learner-save-btns"> Save Changes </button>
+                                            </div>                       
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </form>                      
+                        </div>
+                        <!-- Achievements -->
+                        <div class="tab-content margin-top-7" id="tab2">
+                            {% if earned_badges %}
+                                <div class="earned-badges-grid">
+                                {% for b in earned_badges %}
+                                    <div class="earned-badge-card">
+                                        <div class="earned-badge-top">
+                                            <div class="badge-icon">
+                                                {% if b.icon_url %}
+                                                    <img src="{{ b.icon_url }}" alt="{{ b.name }}">
+                                                {% else %}
+                                                    <div class="earned-badge-placeholder" aria-hidden="true">🏅</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="earned-badge-main">
+                                                <div class="badge-chip-text">
+                                                    <div class="name">{{ b.name }}</div>
+                                                    <div class="desc">{{ b.description }}</div>
+                                                </div>                                          
+                                            </div>
+                                        </div>
+                                        <div class="earned-badge-bottom">
+                                            <div class="course-item-footer">
+                                                <div class="course-item-footer-item">
+                                                    <i class="fa-regular fa-calendar"></i>
+                                                    <span>{{ b.earned_at|date:org_date_format }} <!-- {{ b.earned_at|date:"g:ia" }}--></span>
+                                                </div>                                              
+                                                <div class="course-item-footer-item">
+                                                    <i class="fa-solid fa-circle-small footer-spacer"></i>
+                                                </div>
+                                                {% if b.credits and b.credits|add:0 > 0 %}
+                                                    <div class="course-item-footer-item profile-card-item credits-total">
+                                                        {% if credits_icon_url %}
+                                                            <img src="{{ credits_icon_url }}" alt="" class="credits-icon">
+                                                        {% endif %}
+                                                        <span>{{ b.credits }}</span>
+                                                    </div>
+                                                {% endif %}                                               
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                </div>
+                            {% else %}
+                                <div style="display: flex;" class="no-widgets-found">
+                                    <img src="/static/client_admin/images/HALO LMS No Graphic Test-27.png" alt="No Widgets Image">    
+                                    <h4>No achievements earned yet</h4>
+                                    <span class="no-widgets-subtext"> Complete achievements and claim rewards to unlock badges </span> 
+                                    <a href="/achievements/" class="action-button-primary">
+                                        <i class="fa-regular fa-trophy-star"></i>
+                                        <span>All Achievements</span>
+                                        {% if unclaimed_badge_count %}
+                                            <span class="sidebar-notification-pill" style="top: -0.4rem; right: -0.4rem;">{{ unclaimed_badge_count }}</span>
+                                        {% endif %}
+                                    </a>       
+                                </div>
+                            {% endif %}
+                        </div>                                           
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'popups/verify_headshot_face.html' %}
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin\css\user_course_details.css' %}">
+
+<script src="{% static 'client_admin\javascript\tabs.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let profileCustomization = '{{ settings.profile_customization }}';
+
+        if (profileCustomization != 'True') {
+            const emailField = document.querySelector('input[type="email"]');
+            emailField.classList.add('disabled');
+            emailField.setAttribute('readonly', true);
+
+            const inputFields = document.querySelectorAll('input[type="text"]');            
+            for (let input of inputFields) {
+                input.classList.add('disabled');
+                input.setAttribute('readonly', true);
+            }
+
+            const selectFields = document.querySelectorAll('.custom-select');
+            for(let field of selectFields){
+                field.classList.add('disabled');
+                field.querySelector('.select-selected').style.pointerEvents = 'none';
+                field.querySelector('.select-selected').classList.remove('disabled');
+            }
+
+            const labels = document.querySelectorAll('label');
+            for(let label of labels){
+                label.style.pointerEvents = 'none';
+            }
+
+            const fileUploads = document.querySelectorAll('.custom-file-upload-container');
+            for(let upload of fileUploads){
+                // upload.classList.add('disabled');
+                upload.style.display = 'none';
+            }
+
+            const flatPickrFields = document.querySelectorAll('.flatpickr-input-field');
+            for(let field of flatPickrFields){
+                field.classList.add('disabled');
+                field.classList.add('control-disabled-opacity');
+                field.querySelector('.form-control').classList.remove('disabled');
+            }
+        }
+    });
+
+</script>
+{% endblock %}

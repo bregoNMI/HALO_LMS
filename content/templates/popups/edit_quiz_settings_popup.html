@@ -1,0 +1,117 @@
+<div id="quizSettingsPopup" class="popup-background">
+    <div class="popup-content max-width-5">
+        <div class="popup-header">
+            <div class="popup-header-column">
+                <h3>Quiz Settings</h3>
+                <span id="quizSettingsSubtext" class="popup-header-subtext">AI Monitored Quiz</span>
+            </div>
+            <span class="selected-lesson-type pastel-green">Quiz</span>
+            <button onclick="previousPopupSlide('quizSettingsPopup', 'quizPopup')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="popup-body scrollable-content">
+            <div class="edit-user-input" >
+                <label for="quiz_passing_score" class="edit-user-label">Passing Score<span class="required-asterisk">*</span></label>
+                <div class="input-field-value-descriptor-wrapper">
+                    <div class="edit-user-input" style="max-width: 6.6rem;">
+                        <input type="number" id="quiz_passing_score" name="quiz_passing_score" class="icon-field form-control" placeholder="70" min="0" max="100" value="70">
+                        <span class="input-group-addon">
+                            <i class="fa-regular fa-percent"></i>
+                        </span>
+                    </div>
+                    <div class="input-field-value-descriptor">
+                        <span>%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="edit-user-input padding-top-2">
+                <label class="edit-user-label" for="quiz_require_passing">Require Passing Score</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="quiz_require_passing" name="quiz_require_passing">
+                    <div class="toggle-switch-background">
+                    <div class="toggle-switch-handle"></div>
+                    </div>
+                </label>
+                <span class="course-content-input-subtext"> Require a passing score on this quiz for the lesson to be marked as complete.</span>
+            </div>
+            <div id="monitoredQuizSettings">
+                <div class="edit-user-input padding-top-2">
+                    <label for="quiz_duration" class="edit-user-label">Quiz Duration <span class="required-asterisk">*</span></label>
+                    <div class="input-field-value-descriptor-wrapper">
+                        <div class="edit-user-input" style="max-width: 6.6rem;">
+                            <input type="number" id="quiz_duration" name="quiz_duration" class="icon-field form-control" placeholder="120" min="0" max="240" value="120">
+                            <span class="input-group-addon">
+                                <i class="fa-regular fa-watch"></i>
+                            </span>
+                        </div>
+                        <div class="input-field-value-descriptor">
+                            <span>minutes</span>
+                        </div>
+                    </div>
+                    <!-- <span class="course-content-input-subtext"> The maximum amount of time the learner is allowed within this quiz.</span> -->
+                </div>
+                <div class="edit-user-input padding-top-2">
+                    <label class="edit-user-label" for="quiz_attempts">Quiz Retries</label>
+                    <div class="custom-select margin-0">
+                        <i class="fa-light fa-angles-up-down"></i>     
+                        <input class="select-selected" type="text" id="quiz_attempts" name="quiz_attempts" value="Unlimited" readonly="">
+                        <div class="select-items scrollable-content" style="display: none;">
+                            <div class="select-item" data-name="quiz_attempts" data-value="Unlimited">Unlimited</div>
+                            <div class="select-item" data-name="quiz_attempts" data-value="1">1</div>
+                            <div class="select-item" data-name="quiz_attempts" data-value="2">2</div>
+                            <div class="select-item" data-name="quiz_attempts" data-value="3">3</div>
+                            <div class="select-item" data-name="quiz_attempts" data-value="4">4</div>
+                            <div class="select-item" data-name="quiz_attempts" data-value="5">5</div>
+                            <div class="select-item" data-name="quiz_attempts" data-value="6">6</div>
+                            <div class="select-item" data-name="quiz_attempts" data-value="7">7</div>
+                            <div class="select-item" data-name="quiz_attempts" data-value="8">8</div>
+                            <div class="select-item" data-name="quiz_attempts" data-value="9">9</div>
+                            <div class="select-item" data-name="quiz_attempts" data-value="10">10</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-user-input padding-top-2">
+                    <label for="quiz_maximum_warnings" class="edit-user-label">Maximum Warnings (unlimited if 0) <span class="required-asterisk">*</span></label>
+                    <div class="input-field-value-descriptor-wrapper">
+                        <div class="edit-user-input" style="max-width: 6.6rem;">
+                            <input type="number" id="quiz_maximum_warnings" name="quiz_maximum_warnings" class="icon-field form-control" placeholder="10" min="0" max="100" value="10">
+                            <span class="input-group-addon">
+                                <i class="fa-regular fa-hashtag"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <span class="course-content-input-subtext"> Warnings are triggered by the learner moving their mouse cursor outside of the examination window, over any pop-ups not related to the exam or attempting to click any element outside of the exam screen. The learner's exam will be invalidated and their account will be temporarily blocked if they exceed this number. </span>
+                </div>
+            </div>
+            <div class="edit-user-input padding-top-2">
+                <label class="edit-user-label" for="quiz_randomize_order">Randomize Question Order</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="quiz_randomize_order" name="quiz_randomize_order">
+                    <div class="toggle-switch-background">
+                    <div class="toggle-switch-handle"></div>
+                    </div>
+                </label>
+            </div>
+            <div class="edit-user-input padding-top-2">
+                <label class="edit-user-label" for="quiz_reveal_answers">Reveal Answers</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="quiz_reveal_answers" name="quiz_reveal_answers">
+                    <div class="toggle-switch-background">
+                    <div class="toggle-switch-handle"></div>
+                    </div>
+                </label>
+            </div>
+            <div id="standardQuizSettings">                
+                
+            </div>        
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button type="button" onclick="previousPopupSlide('quizSettingsPopup', 'quizPopup')" class="popup-btn close-popup-btn">Back</button>
+                <button id="editQuizLessonBtn" onclick="createLesson('quiz')" class="popup-btn disabled" disabled>Create Lesson</button>   
+            </div>
+        </div>
+    </div>
+</div>

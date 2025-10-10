@@ -1,0 +1,99 @@
+{% load static %}
+<div id="headerImage" class="dashboard-header-container image-section" style="background-image: url('{{ dashboard.header_background_image }}'); background-position: {{ dashboard.header_background_image_position }};">
+    <div class="dashboard-header-inner">
+        <div class="dashboard-header-inner-left">
+            <div id="headerIcon" class="icon-wrapper" style="background-color: {{ dashboard.header_icon_background_color }};">
+                <i class="{{ dashboard.header_icon }}" style="color: {{ dashboard.header_icon_color }};"></i>
+            </div>
+            <div class="text-wrapper">
+                <h3 id="headerTitle" style="color: {{ dashboard.header_text_color }};"> {{ dashboard.header_title }} </h3>
+                <span id="headerSubtext" style="color: {{ dashboard.header_subtext_color }};"> {{ dashboard.header_subtext }} </span>
+            </div>
+        </div>
+        <div class="dashboard-header-inner-right"></div>
+    </div>
+    <div class="edit-header-option">
+        <div onclick="openEditSidebar()" class="edit-option-inner tooltip" data-tooltip="Edit Banner">
+            <span class="tooltiptext">Edit Banner</span>
+            <i class="fa-solid fa-pencil"></i>
+        </div>
+    </div>
+</div>
+<div id="widgets-container">
+    {% for widget in dashboard.widgets.all %}
+        {% if widget.type == 'resumeCourses' %}
+            <div class="widget resume-course" data-id="{{ widget.id }}">
+                <div class="widget-top">
+                    <div class="widget-drag-icon">
+                        <i class="fa-light fa-grip-dots-vertical"></i>
+                    </div>
+                    <div class="widget-inner-wrapper">
+                        <div style="background-color: {{ widget.widget_icon_background_color }};" class="widget-icon pastel-purple">
+                            <i style="color: {{ widget.widget_icon_color }};" class="{{ widget.widget_icon }}"></i>
+                        </div>
+                        <div class="widget-inner-right">
+                            <h3 style="color: {{ widget.widget_title_color }};"> {{ widget.widget_title }} </h3>
+                            <div style="display: flex; gap: 0.3rem; align-items: baseline; color: {{ widget.widget_subtext_color }};">
+                                <span style="color: {{ widget.widget_subtext_color }};" id="resumeSubtext"> {{ widget.widget_subtext }} </span><i id="resumeIcon" class="fa-solid fa-angle-right"></i>
+                            </div>
+                            <p hidden>{{ widget.type }}</p>
+                        </div>   
+                    </div>
+                </div>
+                <div class="widget-bottom">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 30%;"></div>
+                    </div>
+                    <span>30%</span>
+                </div>
+                <div class="widget-option-btns">
+                    <div onclick="openEditSidebar('{{ widget.id }}');" class="edit-widget tooltip" data-id="{{ widget.id }}" data-tooltip="Edit Widget">
+                        <span class="tooltiptext">Edit Widget</span>
+                        <i class="fa-regular fa-pen-to-square"></i>
+                    </div>
+                    <div onclick="deleteWidget('{{ widget.id }}'), openPopup('confirmWidgetDeletePopup');" class="delete-widget tooltip" data-id="{{ widget.id }}" data-tooltip="Delete Widget">
+                        <span class="tooltiptext">Delete Widget</span>
+                        <i class="fa-regular fa-trash-can"></i>
+                    </div>
+                </div>           
+            </div>
+        {% else %}
+            <div class="widget my-courses" data-id="{{ widget.id }}">
+                <div class="widget-top">
+                    <div class="widget-drag-icon">
+                        <i class="fa-light fa-grip-dots-vertical"></i>
+                    </div>
+                    <div class="widget-inner-wrapper">
+                        <div style="background-color: {{ widget.widget_icon_background_color }};" class="widget-icon pastel-orange">
+                            <i style="color: {{ widget.widget_icon_color }};" class="{{ widget.widget_icon }}"></i>
+                        </div>
+                        <div class="widget-inner-right">
+                            <h3 style="color: {{ widget.widget_title_color }};"> {{ widget.widget_title }} </h3>
+                            <span style="color: {{ widget.widget_subtext_color }};" id="resumeSubtext"> {{ widget.widget_subtext }} </span>
+                            <p hidden>{{ widget.type }}</p>
+                        </div>   
+                    </div>
+                </div>
+                <div class="widget-option-btns">
+                    <div onclick="openEditSidebar('{{ widget.id }}');" class="edit-widget tooltip" data-id="{{ widget.id }}" data-tooltip="Edit Widget">
+                        <span class="tooltiptext">Edit Widget</span>
+                        <i class="fa-regular fa-pen-to-square"></i>
+                    </div>
+                    <div onclick="deleteWidget('{{ widget.id }}'), openPopup('confirmWidgetDeletePopup');" class="delete-widget tooltip" data-id="{{ widget.id }}" data-tooltip="Delete Widget">
+                        <span class="tooltiptext">Delete Widget</span>
+                        <i class="fa-regular fa-trash"></i>
+                    </div>
+                </div>           
+            </div> 
+        {% endif %}  
+    {% endfor %}
+    <div style="display: none;"  id="noWidgetsContainer" class="no-widgets-found">
+        <img src="{% static 'images\dashboard\NoWidgetsImage.png' %}" alt="No Widgets Image">    
+        <h4>No Widgets Created</h4>
+        <span class="no-widgets-subtext"> Add a widget to your dashboard to get started</span>
+        <div onclick="openPopup('addWidgetPopup')" id="add-widget" class="action-button-primary">
+            <i class="fa-regular fa-plus"></i>
+            <span>Add Widget</span>
+        </div>          
+    </div>
+</div>

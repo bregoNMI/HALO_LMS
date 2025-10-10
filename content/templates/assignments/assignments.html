@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+    {% include 'messageContainer/message_container.html' %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="admin-body">
+        <div class="admin-top-row">
+            <div class="admin-top-row-left">
+                <h2>Submitted Assignments</h2>
+            </div>
+            <div class="admin-top-row-right">
+                <!-- <div class="action-button-secondary">
+                    <span>Import</span>
+                </div> -->
+                <!-- <a href="{% url 'add_categories' %}" class="action-button-primary">
+                    <i class="fa-regular fa-plus"></i>
+                    <span>Create Category</span>
+                </a> -->
+            </div>
+        </div>
+        <div class="table-container">
+            <div class="table-filter-section">           
+                <div class="search-table-option">
+                    <form style="display: flex; width: 100%;" method="get">
+                        <!-- Hidden inputs for current filters -->
+                        {% for key, value in active_filters.items %}
+                            {% if key == 'sort_by' %}
+                                <input class="sort-hidden-filters" id="sortByHIddenFilter" type="hidden" name="{{ key }}" value="{{ value }}">
+                            {% endif %}
+                        {% endfor %} 
+                        <i class="fa-regular fa-magnifying-glass search-icon"></i>                  
+                        <input id="searchTable" name="query" value="{{ active_filters.query }}" type="text" placeholder="Search">
+                        <button style="display: none;" id="searchAllUsersBtn" class="search-all-users-btn" type="submit">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button> 
+                    </form>                   
+                </div>
+                <div class="table-filter-section-right">
+                    <div onclick="openPopup('filtersPopup')" class="table-filter-item-small tooltip" data-tooltip="Filter">
+                        <span class="tooltiptext"></span>
+                        <i class="fa-light fa-filter"></i>
+                    </div>
+                    <div id="sortButton" class="table-filter-item-small tooltip" data-tooltip="Sort">
+                        <span class="tooltiptext"></span>
+                        <i class="fa-light fa-arrow-up-arrow-down"></i>
+                    </div>
+                    <!-- Hidden input or data attribute to store the active sort value -->
+                    {% for key, value in active_filters.items %}
+                        {% if key == 'sort_by' %}
+                        <input type="hidden" id="activeSort" value="{{ value }}">
+                        {% endif %}
+                    {% endfor %}
+                    <form method="get" id="sortForm" style="position:absolute;top:2rem;right: 0rem;">
+                        <!-- Hidden inputs for current filters -->
+                        {% for key, value in active_filters.items %}
+                            {% if key == 'query' %}
+                                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                            {% elif key != 'sort_by' %}
+                                <input type="hidden" name="filter_{{ key }}" value="{{ value }}">
+                            {% elif key == 'sort_by' %}
+                                <input class="sort-hidden-filters" id="sortByHIddenFilter" type="hidden" name="{{ key }}" value="{{ value }}">
+                            {% endif %}
+                        {% endfor %}                     
+                        <div class="custom-select sort-options">
+                            <div class="select-selected" style="display: none;">Sort By</div>
+                            <div id="sortSelectItems" class="select-items scrollable-content">
+                                <div class="sort-item-wrapper" data-value="course_title_asc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio1" class="radio-button__input" type="radio" value="course_title_asc">
+                                        <label for="radio1" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Course (A-Z)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="course_title_desc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio2" class="radio-button__input" type="radio" value="course_title_desc">
+                                        <label for="radio2" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Course (Z-A)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="assignment_title_asc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio3" class="radio-button__input" type="radio" value="assignment_title_asc">
+                                        <label for="radio3" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Assignment (A-Z)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="assignment_title_desc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio4" class="radio-button__input" type="radio" value="assignment_title_desc">
+                                        <label for="radio4" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Assignment (Z-A)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="first_name_asc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio5" class="radio-button__input" type="radio" value="first_name_asc">
+                                        <label for="radio5" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>First Name (A-Z)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="first_name_desc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio6" class="radio-button__input" type="radio" value="first_name_desc">
+                                        <label for="radio6" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>First Name (Z-A)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="last_name_asc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio7" class="radio-button__input" type="radio" value="last_name_asc">
+                                        <label for="radio7" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Last Name (A-Z)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="last_name_desc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio8" class="radio-button__input" type="radio" value="last_name_desc">
+                                        <label for="radio8" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Last Name (Z-A)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="status_asc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio9" class="radio-button__input" type="radio" value="status_asc">
+                                        <label for="radio9" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Status (A-Z)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="status_desc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio10" class="radio-button__input" type="radio" value="status_desc">
+                                        <label for="radio10" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Status (Z-A)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="completed_at_asc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio11" class="radio-button__input" type="radio" value="completed_at_asc">
+                                        <label for="radio11" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Submitted At <i class="fa-regular fa-arrow-up"></i></div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="sort-item-wrapper" data-value="completed_at_desc">
+                                    <div class="radio-button select-item">
+                                        <input id="radio12" class="radio-button__input" type="radio">
+                                        <label for="radio12" class="radio-button__label">
+                                            <span class="radio-button__custom"></span>
+                                            <div>Submitted At <i class="fa-regular fa-arrow-down"></i></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="sort_by" id="sort_by" value="">
+                        <button type="submit" hidden>Sort</button>
+                    </form>
+                </div>
+            </div>
+            <div id="activeFilters" class="table-filter-section">
+                <div class="table-filter-section-left">
+                    <!-- Display Active Filters -->
+                    <div class="table-active-filters">
+                        {% if active_filters %}
+                            {% for key, value in active_filters.items %}
+                                {% if key != 'query' %}
+                                    <div data-key="{{ key }}" data-value="{{ value }}" class="filter">
+                                        <div class="edit-filter">
+                                            <span>{{ key|pretty_name }}: {{ value|safe }}</span>
+                                        </div>
+                                        <div class="remove-filter">
+                                            <i class="fa-light fa-xmark"></i>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div data-key="{{ key }}" data-value="{{ value }}" class="filter">
+                                        <div class="edit-filter">
+                                            <span>Search All: {{ value }}</span>
+                                        </div>
+                                        <div class="remove-filter">
+                                            <i class="fa-light fa-xmark"></i>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="table-filter-section-right">
+                    <div style="display: none;" id="selectedOptionsWrapper" class="selected-options-count">
+                        <span id="selectedOptionsCount"></span>
+                        <span> Selected </span>
+                    </div>
+                </div>
+            </div>
+            {% if page_obj %}
+                <div class="scrollable-content">
+                    <table>
+                        <thead>      
+                            <tr>
+                                <th><label class="container"><input type="checkbox" class="table-select-all-option"><div class="checkmark"></div></label></th>
+                                <th>Course</th>
+                                <th>Assignment</th>
+                                <th>Last Name</th>
+                                <th>First Name</th>                       
+                                <th>Submitted At</th>
+                                <th>Status</th>                           
+                            </tr>
+                        </thead>
+                        <tbody>     
+                            {% for assignment in page_obj %}
+                                <tr data-id="{{ assignment.id }}" data-details="{% url 'manage_assignments' assignment.id %}" class="table-select-option">
+                                    <td><label class="container"><input type="checkbox" disabled><div class="checkmark"></div></label></td>
+                                    <td>{{ assignment.course.title }}</td>
+                                    <td>{{ assignment.assignment.title }}</td>
+                                    <td>{{ assignment.user.last_name }}</td>
+                                    <td>{{ assignment.user.first_name }}</td>                         
+                                    <td>{{ assignment.completed_at }}</td>
+                                    {% if assignment.status == 'approved' %}
+                                        <td><span class="status course-active pastel-green">Approved</span></td>
+                                    {% elif assignment.status == 'submitted' %}
+                                        <td><span class="status course-active pastel-yellow">Submitted</span></td>
+                                    {% else %}
+                                        <td><span class="status course-active pastel-red">Rejected</span></td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}        
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="no-results-found">
+                    <img src="{% static 'client_admin\Images\HALO LMS No Graphic Test-27.png' %}" alt="HALO Graphic">    
+                    <span>No Assignments Found</span>          
+                </div>
+            {% endif %}
+            <div class="pagination-row-wrapper">
+                <div class="pagination-info">
+                    <div class="pagination-results">
+                        {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} results
+                    </div>
+                </div>
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a class="pagination-link" href="?page={{ page_obj.previous_page_number }}"><i class="fa-regular fa-angle-left"></i></a>
+                    {% endif %}
+            
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="current pagination-link">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
+                        {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                            <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
+                        {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                            <span class="pagination-spacer">...</span>
+                        {% endif %}
+                    {% endfor %}
+            
+                    {% if page_obj.has_next %}
+                        <a class="pagination-link" href="?page={{ page_obj.next_page_number }}"><i class="fa-regular fa-angle-right"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'optionsSidebar/assignment_options_sidebar.html' %}
+    {% include 'popups/assignment_filters_popup.html' %}
+    {% include 'popups/delete_assignment_popup.html' %}
+    <script src="{% static 'client_admin\javascript\admin.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\ajax_search_options.js' %}"></script>
+{% endblock content %}

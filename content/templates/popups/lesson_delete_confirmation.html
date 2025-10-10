@@ -1,0 +1,20 @@
+<div id="lessonDeleteConfirmation" class="popup-background">
+    <div class="popup-content max-width-6">
+        <div class="popup-header">
+            <h3>Are you sure you want to delete this lesson?</h3>
+            <div onclick="closePopup('lessonDeleteConfirmation')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <p class="warning-message">Deleting this lesson will remove all associated content.</p>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button type="button" id="cancelDeleteButton" class="popup-btn close-popup-btn">Cancel</button>
+                <button id="confirmDeleteButton" onclick="confirmDelete()" class="popup-btn delete-confirm-btn"><i class="fa-regular fa-trash-can"></i> Delete Lesson </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    {% include 'messageContainer/message_container.html' %}
+    <div id="stickyNavBar">
+        <div class="details-top-row max-width-extend-1">
+            <div class="details-top-row-left">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3> Edit Enrollment Key </h3>
+            </div>
+            <div class="details-top-row-right">
+                <div class="option-btn-row">
+                    <button id="editKeyBtn" class="action-button-primary create-key-btn course-save-btns disabled" disabled>
+                        <i class="fa-regular fa-floppy-disk"></i>
+                        <span>Save Changes</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="admin-body align-center">
+        <div class="max-width-extend-1">
+            <div id="mainNavBar" class="details-top-row">
+                <div class="details-top-row-left">
+                    <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <h3> Edit Enrollment Key </h3>
+                </div>
+                <div class="details-top-row-right">
+                    <div class="option-btn-row">
+                        <button id="editKeyBtn" class="action-button-primary create-key-btn course-save-btns disabled" disabled>
+                            <i class="fa-regular fa-floppy-disk"></i>
+                            <span>Save Changes</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="course-content-container margin-top-10">
+                <!-- Left Column -->
+                <div class="course-content-left-column">
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-key"></i>
+                                <span> General </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <!-- This is the key ID that gets sent to edit -->
+                            <input type="hidden" id="keyId" value="{{ key.id }}">
+                        <div class="info-card-body">
+                            <div class="course-content-input">
+                                <label class="edit-user-label" for="name">Name<span class="required-asterisk">*</span></label>
+                                <input type="text" id="name" name="name" placeholder="Name" maxlength="200" value="{{ key.name }}" required>
+                            </div>
+                            <div id="selectedCourses">
+                                <label class="edit-user-label" for="courseSearch">Assign Courses</label>
+                                <div class="right-column-file-wrapper">
+                                    <div id="courseDropdown{{ key.id }}" class="course-dropdown course-content-input">
+                                        <input type="text" class="courseSearch" placeholder="Search courses...">
+                                        <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                                        <div class="courseList scrollable-content-inner">
+                                            <div class="loadingIndicator" style="display:none;">Loading...</div>
+                                        </div>
+                                        
+                                        <div class="selectedCourses"></div>
+                                    </div>
+                                </div>
+                                <span class="course-content-input-subtext"> Please select the Course(s) you would like to assign to this enrollment key. </span>
+                            </div>
+                            <!-- Initialize the dropdown with selected courses for this key -->
+                            {% if key.courses.exists %}
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        let selectedCourseIds = [{% for course in key.courses.all %}{{ course.id }}, {% endfor %}];
+                                        initializeCourseDropdown('courseDropdown{{ key.id }}', selectedCourseIds);
+                                    });
+                                </script>
+                            {% endif %}
+                            <div class="edit-user-input">
+                                <label for="key_name" class="edit-user-label">Key Name<span class="required-asterisk">*</span></label>
+                                <div style="display: flex; gap: 1rem;">
+                                    <div class="edit-user-input">
+                                        <input type="text" id="key_name" name="key_name" class="icon-field form-control" placeholder="Key Name" maxlength="100" autocomplete="off" value="{{ key.key }}" required>
+                                        <span onclick="functionGenerateRandomKey()" class="input-group-addon tooltip" data-tooltip="Generate a random key">
+                                            <span class="tooltiptext">Generate Key</span>
+                                            <i class="fa-regular fa-rotate"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <span class="course-content-input-subtext"> The key provided here will be entered by Learners.</span>
+                            </div>
+                            <div class="edit-user-input">
+                                <label class="edit-user-label" for="active">Activate Enrollment Key</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="active" name="active" {% if key.active %}checked{% endif %}>
+                                    <div class="toggle-switch-background">
+                                    <div class="toggle-switch-handle"></div>
+                                    </div>
+                                </label>
+                                <span class="course-content-input-subtext"> Toggle on to enable this key for use. Toggle off to deactivate it. </span>
+                            </div>
+                            <div class="edit-user-input">
+                                <label for="max_uses" class="edit-user-label">Maximum Number of Uses</label>
+                                <div style="display: flex; gap: 1rem;">
+                                    <div class="edit-user-input" style="max-width: 13.6rem;">
+                                        <input type="number" id="max_uses" name="max_uses" class="icon-field form-control" placeholder="Max Uses" min="0" max="999999999" value="{{ key.max_uses }}">
+                                        <span class="input-group-addon">
+                                            <i class="fa-regular fa-hashtag"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <span class="course-content-input-subtext"> Maximum times this key can be used.</span>
+                            </div>   
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'client_admin\javascript\ajax_search_options.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\enrollment_key.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
+    <script>
+        try {
+            localStorage.removeItem('selectedCourseIds');
+        } catch (e) {
+            console.error('Could not clear selectedCourseIds:', e);
+        }
+    </script>
+{% endblock content %}

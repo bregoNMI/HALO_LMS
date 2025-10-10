@@ -16,12 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from halo_lms.main.python import views
+from authentication.python.views import login_view, register_view, password_reset, confirm_password_reset
 
 urlpatterns = [
     path('django-admin/', admin.site.urls),
     path('admin/', include('client_admin.python.urls')),
-    path('login/', include('authentication.python.urls')),
-    path('client_admin/', include('client_admin.python.urls')),
-    #path('login_view/', views.login_view, name='login_view'),
+    path('login/', login_view, name='login_view'),
+    path('register/', register_view, name='register_view'),  # Register URL
+    path('password_reset/', password_reset, name='password_reset'),
+    path('requests/', include('content.urls')),
+    path('course_player/', include('course_player.urls')),
+    path('confirm_password_reset/', confirm_password_reset, name='confirm_password_reset'),
+    path('', include('learner_dashboard.urls')),
 ]
 
+handler404 = 'halo_lms.main.python.views.custom_404_view'
+handler500 = 'halo_lms.main.python.views.custom_500_view'

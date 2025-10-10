@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{%load custom_filters%}
 {% block content %}
     {% if messages %}
         <div class="alert-container">
@@ -18,26 +19,50 @@
             {% endfor %}
         </div>
     {% endif %}
+    <div id="stickyNavBar">
+        <div class="details-top-row max-width-0">
+            <div class="details-top-row-left">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3> User History </h3>
+            </div>
+            <div class="details-top-row-right">
+                <div class="option-btn-row">
+                    <div class="option-btn" onclick="messageUserBtn()">
+                        <i class="fa-regular fa-messages"></i>
+                        <span> Message User</span>
+                    </div>
+                </div>
+                <div class="option-btn-row">
+                    <div class="option-btn" onclick="enrollUserBtn()">
+                        <i class="fa-regular fa-hand-holding-box"></i>
+                        <span> Enroll User</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="admin-body align-center">
         <div class="max-width-0">
-            <div class="details-top-row">
+            <div id="mainNavBar" class="details-top-row">
                 <div class="details-top-row-left">
-                    <a href="{% url 'admin_users' %}" class="back-btn">
+                    <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
                         <i class="fa-solid fa-arrow-left"></i>
-                    </a>
+                    </button>
                     <h3> User History </h3>
                 </div>
                 <div class="details-top-row-right">
                     <div class="option-btn-row">
-                        <div class="option-btn">
+                        <div class="option-btn" onclick="messageUserBtn()">
                             <i class="fa-regular fa-messages"></i>
-                            <span> Message user</span>
+                            <span> Message User</span>
                         </div>
                     </div>
                     <div class="option-btn-row">
-                        <div class="option-btn">
+                        <div class="option-btn" onclick="enrollUserBtn()">
                             <i class="fa-regular fa-hand-holding-box"></i>
-                            <span> Enroll user</span>
+                            <span> Enroll User</span>
                         </div>
                     </div>
                 </div>
@@ -57,77 +82,147 @@
                     <span> History </span>
                 </a>
             </div>
-            <div class="details-info-section">
-                <div class="details-info-card">
-                    <div class="info-card-header collapsable-header">
-                        <div class="card-header-left">
-                            <i class="fa-solid fa-list-tree"></i>
-                            <span> Activity Log </span>
-                        </div>
-                        <div class="card-header-right">
-                            <i class="fa-regular fa-angle-down"></i>
-                        </div>
-                    </div>
-                    <div class="user-history-container info-card-body">
-                        <div class="user-history-wrapper">                      
-                            <div class="user-history-item">
-                                <div class="user-history-header">
-                                    <div class="user-history-left">
-                                        <div class="user-history-icon">
-                                            <i class="fa-light fa-pencil"></i>
-                                        </div>
-                                        <div class="user-history-action">
-                                            <span><b>Evan Ferro</b> edited user information</span>
-                                        </div>
-                                    </div>
-                                    <div class="user-history-right">
-                                        <div class="user-history-date">
-                                            <span> Jul 30</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="user-history-body">
-                                    <div class="user-history-body-item">
-                                        <span> Changed username from eferro to eferro123</span>
-                                    </div>
-                                    <div class="user-history-body-item">
-                                        <span> Changed role from Student to Admin</span>
-                                    </div>
-                                </div>
+            {% if activity_logs %}
+                <div class="details-info-section">
+                    <div class="details-info-card details-info-card-overflow">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-list-tree"></i>
+                                <span> Activity Log </span>
                             </div>
-                            <div class="user-history-item">
-                                <div class="user-history-header">
-                                    <div class="user-history-left">
-                                        <div class="user-history-icon">
-                                            <i class="fa-light fa-hand-holding-box"></i>
-                                        </div>
-                                        <div class="user-history-action">
-                                            <span><b>Evan Ferro</b> enrolled user in courses</span>
-                                        </div>
-                                    </div>
-                                    <div class="user-history-right">
-                                        <div class="user-history-date">
-                                            <span> Jul 29</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="user-history-body">
-                                    <div class="user-history-body-item">
-                                        <span> Enrolled user in Advanced Firefighting Revalidation</span>
-                                    </div>
-                                </div>
-                            </div>                         
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="user-history-container info-card-body scrollable-content-inner">
+                            <div class="user-history-wrapper">
+                                {% for log in activity_logs %}      
+                                    {% if log.action_type != 'user_login' %}                
+                                        <div class="user-history-item">
+                                            <div class="user-history-header">
+                                                <div class="user-history-left">
+                                                    {% if log.action_type == 'course_completed' %}
+                                                        <div class="user-history-icon">
+                                                            <i class="fa-light fa-badge-check"></i>
+                                                        </div>
+                                                    {% elif log.action_type == 'user_updated' %}
+                                                        <div class="user-history-icon">
+                                                            <i class="fa-light fa-pencil"></i>
+                                                        </div>
+                                                    {% elif log.action_type == 'user_enrolled' %}
+                                                        <div class="user-history-icon">
+                                                            <i class="fa-light fa-hand-holding-box"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div class="user-history-action">
+                                                        <span><b>{{ log.action_performer }}</b> {{ log.action }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="user-history-right">
+                                                    <div class="user-history-date">
+                                                        <span> {{ log.timestamp|date:"M d" }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="user-history-body">
+                                                {% with log.action|split:"," as action_parts %}
+                                                    {% for part in action_parts %}
+                                                        <div class="user-history-body-item">
+                                                            <span>{{ part }}</span>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endwith %}
+                                            </div>
+                                        </div>  
+                                    {% endif %} 
+                                {% endfor %}    
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
+            {% if sent_messages %}
+                <div class="details-info-section" style="display: block;">
+                    <div class="details-info-card details-info-card-overflow">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-envelope-open-text"></i>
+                                <span> Message History </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body scrollable-content-inner" style="display: block;">
+                            <div class="message-history-wrapper">                      
+                            
+                                {% for message in sent_messages %}
+                                    <div id="message-{{ message.id }}" class="message {% if message.read %}read{% endif %} message-container" onclick="openMessagePopup({{ message.id }})">
+                                        <div class="message-left">
+                                            <div class="dropdown-user-icon">
+                                                <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
+                                            </div>
+                                            <div class="message-content">
+                                                <div class="message-content-header">
+                                                    <p>Message to: {{ profile.user.first_name }} {{ profile.user.last_name }}</p>
+                                                </div>
+                                                <div class="message-body">
+                                                    {{ message.body|safe }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="message-right">
+                                            <span>{{ message.sent_at }}</span>
+                                            {% if not message.read %}
+                                                <i class="fa-solid fa-circle-small mark-as-read-icon"></i>
+                                                <button class="mark-as-read-btn" data-message-id="{{ message.id }}" hidden>Mark as Read</button>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Popup for showing message details -->
+                                        <div id="popup-message-{{ message.id }}" class="popup-background" hidden>
+                                            <div class="popup-content max-width-2">
+                                                <div class="message-popup-header">
+                                                    <h4>{{ message.subject }}</h4>
+                                                    <div onclick="closeMessagePopup(event, {{ message.id }})" class="close-popup-icon">
+                                                        <i class="fa-solid fa-xmark"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="message-container" style="cursor: auto; background-color: white; border-radius: 8px;">
+                                                    <div class="message-popup-left">
+                                                        <div class="dropdown-user-icon">
+                                                            <i class="fa-duotone fa-solid fa-circle-{{ first_letter_lowercase }}" style="--fa-primary-color: #ffffff; --fa-secondary-color: transparent; --fa-secondary-opacity: 1;"></i>
+                                                        </div>
+                                                        <div class="message-content">
+                                                            <div class="message-content-header">
+                                                                <p>Message sent to: {{ profile.user.first_name }} {{ profile.user.last_name }}</p>
+                                                            </div>
+                                                            <div class="message-popup-body">
+                                                                {{ message.body|safe }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="message-right">
+                                                        <span>{{ message.sent_at }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}                                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
     {% include 'popups/edit_user_popup.html' %}
+    <link rel="stylesheet" href="{% static 'learner_dashboard/css/messages.css' %}">
+    <script src="{% static 'learner_dashboard\javascript\messages.js' %}"></script>
     <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
     <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
-    <script src="{% static 'client_admin\javascript\custom_select.js' %}"></script>
     <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 {% endblock content %}

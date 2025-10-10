@@ -1,0 +1,156 @@
+{% extends 'course_viewer/course_base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+    {% include 'messageContainer/message_container.html' %}
+    <div class="course-body align-center">
+        <button id="toggleCourseSidebar" class="toggle-course-sidebar tooltip" data-tooltip="Hide Sidebar">
+            <i class="fa-regular fa-angle-right"></i>
+            <span class="tooltiptext">Hide Sidebar</span>  
+        </button>
+
+        <div class="course-player-container">
+            <div id="scormContentIframe" class="quiz-player-container">
+                <div class="quiz-player-top-row">
+                    <div class="quiz-player-top-row-left">
+                        <h3>Question <span id="currentQuestionNumber">1</span></h3>
+                        <span class="quiz-player-total-questions">/<span id="totalQuestionsCount">{{ total_questions }}</span></span>
+                    </div>
+                    <div class="quiz-player-top-row-right">
+                        {% if quiz.category %}
+                            <div class="question-editor-label pastel-gray tooltip cursor-auto" data-tooltip="Category" style="display: flex;">
+                                <div id="categoryDisplayName" class="question-editor-label-text">{{ quiz.category }}</div>
+                                <span class="tooltiptext">Category</span>
+                            </div>
+                        {% endif %}
+
+                        {% if quiz.references.exists %}
+                            <button class="date-selection-dropdown date-custom-select quiz-player-label js-bucket">
+                                <div class="quiz-player-label-left">
+                                    <i class="fa-light fa-book-open-lines"></i>
+                                    <span class="date-select-selected js-bucket-selected">References</span>
+                                    <div class="date-select-items quiz-player-references scrollable-content">
+                                        {% for reference in quiz.references.all %}
+                                            <a href="{{ reference.get_file_url }}" target="_blank" class="reference-item">
+                                                <div class="reference-item-left">
+                                                    <div class="reference-icon pastel-blue">
+                                                        {% if reference.type_from_library == 'pdf' %}
+                                                            <i class="fa-light fa-file-pdf"></i>
+                                                        {% elif reference.type_from_library == 'audio' %}
+                                                            <i class="fa-light fa-volume"></i>
+                                                        {% elif reference.type_from_library == 'image' %}
+                                                            <i class="fa-light fa-image"></i>
+                                                        {% elif reference.type_from_library == 'video' %}
+                                                            <i class="fa-light fa-film"></i>
+                                                        {% elif reference.type_from_library == 'document' %}
+                                                            <i class="fa-light fa-file-doc"></i>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="reference-text">
+                                                        <h4>{{ reference.title }}</h4>
+                                                        {% if reference.description and reference.description != '<p><br></p>' %}
+                                                            <span class="popup-header-subtext">{{ reference.description|safe }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="reference-item-right">
+                                                    <i class="fa-regular fa-arrow-up-right-from-square"></i>
+                                                </div>
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="quiz-player-label-right">
+                                    <i class="fa-regular fa-angle-down"></i>
+                                </div>
+                            </button>
+                        {% endif %}
+
+                        {% if quiz.quiz_material != '<p><br></p>' and quiz.quiz_material %}
+                            <button class="date-selection-dropdown date-custom-select quiz-player-label js-bucket">
+                                <div class="quiz-player-label-left">
+                                    <i class="fa-light fa-pen-ruler"></i>
+                                    <span class="date-select-selected js-bucket-selected">Materials</span>
+                                    <div class="date-select-items quiz-player-references scrollable-content">
+                                        <div class="quiz-player-materials">
+                                            <div class="reference-text quiz-player-materials-header">
+                                                <h4>Exam Materials</h4>
+                                                <span class="popup-header-subtext"><p>Materials you are allowed to access during this quiz.</p></span>
+                                            </div>
+                                            {{ quiz.quiz_material|safe }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="quiz-player-label-right">
+                                    <i class="fa-regular fa-angle-down"></i>
+                                </div>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Mount for client-rendered question -->
+                <div class="quiz-player-body scrollable-content">
+                    <div id="questionMount" class="max-width-1 margin-top-8"></div>
+                    <div id="questionNavigation" class="question-navigation hidden">
+                        <button id="nextQuestionBtn" class="next-button quiz-player-btn action-button-primary rounded-lg margin-top-8">Next Question</button>
+                    </div>
+                </div>
+
+                <div class="quiz-player-footer">
+                    <div class="quiz-player-footer-inner">
+                        <div class="quiz-player-footer-left">
+                            <button id="toggleReferencesBtn"
+                                    class="date-selection-dropdown date-custom-select quiz-player-label js-bucket"
+                                    style="display:none;">
+                                <div class="quiz-player-label-left">
+                                    <i class="fa-light fa-book-open-lines"></i>
+                                    <span class="date-select-selected js-bucket-selected">Question References</span>
+
+                                    <!-- JS will populate this per question -->
+                                    <div id="questionReferencesList" class="date-select-items quiz-player-references scrollable-content"></div>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="quiz-player-footer-right">
+                            
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div id="courseAssignmentsViewer" class="course-assignments-viewer hide-assignments"></div>
+        </div>
+    </div>
+
+    <script id="lessonData" type="application/json">{{ lesson_progress_data|default:"[]"|safe }}</script>
+    
+    {% url 'get_quiz_score' as get_score_url %}
+    {% url 'submit_question' as submit_question_url %}
+    {# Build a base URL for /course_player/lesson/<id>/q/<pos>/ using pos=0 and replace it in JS #}
+    {% url 'quiz_question_json' lesson.id 0 as q0_url %}
+    {% url 'save_quiz_progress' as save_url %}
+
+    <script>
+        window.lessonId = {{ lesson.id }};
+        window.revealAnswers = {{ reveal_answers|yesno:"true,false" }};
+        window.quizResume = {{ resume_json|safe }};
+        window.submitQuestionUrl ="{% url 'submit_question' %}";
+        window.getScoreUrl ="{% url 'get_quiz_score' %}";
+        window.fetchQuestionUrl = (pos) => (
+            "{% url 'quiz_question_json' lesson_id=lesson.id position=0 %}".replace(/0\/$/, "") + pos + "/"
+        );
+        window.saveQuizProgressUrl = "{{ save_url }}";
+        window.lessonSessionId ="{{ lesson_session.session_id }}";
+
+        // Attempt resume payload
+        window.quizResume = JSON.parse('{{ resume_json|escapejs }}');
+        // window.lessonAttemptId = r.session_id;
+        // window.lessonSessionId = r.session_id;
+
+    </script>
+
+    <script src="{% static 'course_player/javascript/quiz_player.js' %}?v=ajax4"></script>
+    <script src="{% static 'course_player/javascript/scorm_player.js' %}?v=ajax4"></script>
+    <link rel="stylesheet" href="{% static 'course_player/javascript/css/quiz_player.css' %}">
+{% endblock content %}

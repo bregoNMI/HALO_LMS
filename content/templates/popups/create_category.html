@@ -1,0 +1,49 @@
+<div id="createCategory" class="popup-background">
+    <div class="popup-content max-width-6">
+        <div class="popup-header">
+            <h3>Create Category</h3>
+            <div onclick="closePopup('createCategory')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <div class="edit-user-input">
+                <label class="edit-user-label" for="parentCategory">Parent Category</label>
+                <div id="creatingCategories">
+                    <div class="right-column-file-wrapper">
+                        <div id="userDropdown100" class="category-dropdown course-content-input">
+                            <input type="text" id="parentCategory" name="parentCategory" class="categorySearch" placeholder="Search categories..." autocomplete="off">
+                            <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                            <div class="categoryList scrollable-content-inner">
+                                <div class="loadingIndicator" style="display:none;">Loading...</div>
+                            </div>
+                            <div class="dropdown-clear-input">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="course-content-input padding-top-1-5 padding-bottom-1-5">
+                <label class="edit-user-label" for="newCategoryName">Category Name<span class="required-asterisk">*</span></label>
+                <input type="text" id="newCategoryName" name="newCategoryName" placeholder="Category Name">
+            </div>
+            <div class="course-content-input">
+                <label class="edit-user-label" for="categoryDescription">Description</label>
+                <div class="editor-container" id="categoryDescription"></div>
+                <div class="quill-character-counter">
+                    <div class="quill-current-counter">0</div>
+                    <span>/</span>
+                    <div class="quill-max-counter">2000</div>
+                </div>
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button type="button" onclick="closePopup('createCategory')" class="popup-btn close-popup-btn">Cancel</button>
+                <button class="popup-btn disabled" id="createCategoryButton" disabled>Create Category</button>
+            </div>
+        </div>
+    </div>
+</div>

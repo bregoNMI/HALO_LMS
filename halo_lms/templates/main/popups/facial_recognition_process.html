@@ -1,0 +1,75 @@
+<div id="facialRecognition" class="popup-background facial-recognition-popup">
+    <div class="popup-content max-width-6">
+        <div class="facial-recognition-body scrollable-content">
+            <h3 id="facialVerificationHeader"><span id="baseText">Great! Now let’s match your facial data with the Headshot Photo you uploaded.</span><span id="animatedDots"></span></h3>
+            <div id="facialVerification" class="camera-error-container hidden">
+                <div class="form-heading-wrapper">
+                    <div class="icon-warning">
+                        <i class="fa-light fa-triangle-exclamation"></i>
+                    </div>
+                    <h1 id="cameraErrorHeading"> </h1>
+                    <h6 id="cameraErrorSubtext"> </h6>
+                </div>
+                <div id="cameraAccessTroubleshooting" class="camera-error-body hidden">
+                    <div class="help-steps-item-wrapper">
+                        <div class="help-steps-item-header">
+                            <div class="help-steps-item-icon">1</div>
+                            <h5 class="help-steps-item-title">Ensure that no other applications, browser tabs or windows are actively using your camera. Your camera can only be used on one application at a time. Close all other apps or browser tabs that may be using your camera.</h5>
+                        </div>
+                        <div class="help-steps-item-header">
+                            <div class="help-steps-item-icon">2</div>
+                            <h5 class="help-steps-item-title">Your camera may be disabled, not plugged in or not selected within your browser's settings. Please check your camera's connection to ensure that it is working properly. You may test this within your device's camera app or within your browser's settings.</h5>
+                        </div>
+                        <div class="help-steps-item-header">
+                            <div class="help-steps-item-icon">3</div>
+                            <h5 class="help-steps-item-title">Your browser may not have received the proper access to your camera. Please click on the "Refresh Page" button below to re-attempt camera access.</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="facialVideoFeedSuccessfulContainer" class="facial-videofeed-success-container hidden">
+                <div class="facial-videofeed-successful">
+                    <i class="fa-regular fa-circle-check fa-bounce"></i>
+                </div>
+            </div>
+            <div id="facialVideoFeedContainer" class="facial-videofeed-container">
+                <div id="facialVideoFeedPlaceholder" class="facial-videofeed-placeholder">
+                    <i class="fa-light fa-face-viewfinder fa-beat-fade slow-beat"></i>
+                </div>
+                <div id="cameraLoadingVerification" class="item-loading-container hidden">
+                    <svg viewBox="0 0 240 240" height="240" width="240" class="pl">
+                        <circle stroke-linecap="round" stroke-dashoffset="-330" stroke-dasharray="0 660" stroke-width="10" stroke="#000" fill="none" r="105" cy="120" cx="120" class="pl__ring pl__ring--a"></circle>
+                        <circle stroke-linecap="round" stroke-dashoffset="-110" stroke-dasharray="0 220" stroke-width="10" stroke="#000" fill="none" r="35" cy="120" cx="120" class="pl__ring pl__ring--b"></circle>
+                        <circle stroke-linecap="round" stroke-dasharray="0 440" stroke-width="10" stroke="#000" fill="none" r="70" cy="120" cx="85" class="pl__ring pl__ring--c"></circle>
+                        <circle stroke-linecap="round" stroke-dasharray="0 440" stroke-width="10" stroke="#000" fill="none" r="70" cy="120" cx="155" class="pl__ring pl__ring--d"></circle>
+                    </svg>       
+                </div>
+                <video class="facial-recognition-video hidden" id="facialRecognitionVideo" autoplay playsinline></video>
+            </div>
+            <button onclick="initiateFacialRecognition()" id="scanFaceBtn" type="button" class="registration-btn action-button-primary facial-recognition-button" style="width: 100%; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: normal; border-style: none;">Scan My Face</button>
+            <button onclick="reUploadHeadshot()" id="closeFacialPopupBtn" type="button" class="registration-btn previous-slide-btn action-button-border facial-recognition-button hidden" style="width: 100%; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: normal;">Re-upload Headshot Photo</button>
+            <a target="_blank" id="fixPermissionsVerificationBtn" type="button" class="registration-btn action-button-primary facial-recognition-button hidden" style="width: 100%; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: normal;">Fix Permissions</a>
+            <div id="cameraAccessTroubleshootingVerification" class="camera-error-body hidden" style="padding-bottom: 2rem;">
+                <div class="help-steps-item-wrapper">
+                    <div class="help-steps-item-header">
+                        <div class="help-steps-item-icon">1</div>
+                        <h5 class="help-steps-item-title">Ensure that no other applications, browser tabs or windows are actively using your camera. Your camera can only be used on one application at a time. Close all other apps or browser tabs that may be using your camera.</h5>
+                    </div>
+                    <div class="help-steps-item-header">
+                        <div class="help-steps-item-icon">2</div>
+                        <h5 class="help-steps-item-title">Your camera may be disabled, not plugged in or not selected within your browser's settings. Please check your camera's connection to ensure that it is working properly. You may test this within your device's camera app or within your browser's settings.</h5>
+                    </div>
+                    <div class="help-steps-item-header">
+                        <div class="help-steps-item-icon">3</div>
+                        <h5 class="help-steps-item-title">Your browser may not have received the proper access to your camera. Please click on the "Refresh Page" button below to re-attempt camera access.</h5>
+                    </div>
+                </div>
+            </div>
+            <button onclick="location.reload()" id="refreshPageVerificationBtn" type="button" class="registration-btn hidden" style="background-color: {{ login_form.button_color}}; color: {{ login_form.button_text }}; border-color: {{ login_form.button_border_color}}; width: {{ login_form.button_width }}%; border-radius: {{ login_form.button_radius }}px; padding-top: {{ login_form.button_padding_top}}px; padding-right: {{ login_form.button_padding_right}}px; padding-bottom: {{ login_form.button_padding_bottom}}px; padding-left: {{ login_form.button_padding_left}}px; font-size: {{ login_form.button_font_size }}px; font-weight: {{ login_form.button_font_weight }};">Refresh Page</button>
+            <div id="facialRecognitionMessage" class="facial-recognition-message hidden">
+                <span> Please look directly into the camera while we work our magic. </span>
+            </div>
+        </div>
+
+    </div>
+</div>

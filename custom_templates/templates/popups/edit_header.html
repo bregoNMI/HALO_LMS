@@ -1,0 +1,116 @@
+<div id="editHeaderPopup" class="popup-background">
+    <div class="popup-content max-width-5">
+        <div class="popup-header">
+            <h3>Edit Header</h3>
+            <div onclick="closePopup('editHeaderPopup')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div id="header-form" class="popup-body scrollable-content">
+            {% csrf_token %}
+            <div class="course-content-input">
+                <label style="padding: 0;" class="edit-user-label" for="header_logo">Logo</label>               
+                {% if header.header_logo %}
+                    <div class="logo-image-preview">
+                        <img id="logoImagePreview" src="{{ header.header_logo }}" alt="Header Logo">
+                    </div>
+                {% else %}
+                    <div class="logo-image-preview" style="display: none;">
+                        <img id="logoImagePreview">
+                    </div>
+                {% endif %}
+                <div onclick="openFileLibrary('header_logo')" class="custom-file-upload-container">
+                    <div class="custom-file-upload">
+                        <i class="fa-regular fa-folder-open"></i> Choose File
+                    </div>
+                    <div class="custom-file-title">
+                        <span id="header_logo_name_display" class="file-name-display">{% if header.header_logo %}{{ header.header_logo_display }}{% else %}No file selected{% endif %}</span>
+                    </div>
+                    <!-- This is where the header_logo File Lives -->
+                    <input type="hidden" id="header_logo" name="header_logo" value="{{header.header_logo }}">
+                </div>
+                <input type="text" id="header_logoDisplay" name="header_logoDisplay" value="{{ header.header_logo_display }}" hidden>
+            </div>
+            <div class="popup-body-flex-inner">
+                <div class="course-content-input">
+                    <label class="edit-user-label" for="header_background_color">Background Color</label>
+                    <div class="color-picker-container">
+                        <label class="color-sample" for="header_background_color" id="header_background_colorSample" style="background-color: {{ header.header_background_color }};"></label>
+                        <input class="color-picker" type="color" id="header_background_color" value="{{ header.header_background_color }}" oninput="updateColorInfo('header_background_color')">
+                        <input type="text" id="header_background_colorHex" value="{{ header.header_background_color }}" min="1">     
+                    </div>
+                </div>          
+                <div class="course-content-input">
+                    <label class="edit-user-label" for="header_text_color">Icon Color</label>
+                    <div class="color-picker-container">
+                        <label class="color-sample" for="header_text_color" id="header_text_colorSample" style="background-color: {{ header.header_text_color }};"></label>
+                        <input class="color-picker" type="color" id="header_text_color" name="header_text_color" value="{{ header.header_text_color }}" oninput="updateColorInfo('header_text_color')">
+                        <input type="text" id="header_text_colorHex" value="{{ header.header_text_color }}">
+                    </div>
+                </div>              
+                <div class="course-content-input">
+                    <label class="edit-user-label" for="header_text_hover_color">Icon Hover Color</label>
+                    <div class="color-picker-container">
+                        <label class="color-sample" for="header_text_hover_color" id="header_text_hover_colorSample" style="background-color: {{ header.header_text_hover_color }};"></label>
+                        <input class="color-picker" type="color" id="header_text_hover_color" name="header_text_hover_color" value="{{ header.header_text_hover_color }}" oninput="updateColorInfo('header_text_hover_color')">
+                        <input type="text" id="header_text_hover_colorHex" value="{{ header.header_text_hover_color }}">       
+                    </div>              
+                </div>             
+                <div class="course-content-input">
+                    <label class="edit-user-label" for="header_text_background_color">Icon Background Hover Color</label>
+                    <div class="color-picker-container">
+                        <label class="color-sample" for="header_text_background_color" id="header_text_background_colorSample" style="background-color: {{ header.header_text_background_color }};"></label>
+                        <input class="color-picker" type="color" id="header_text_background_color" name="header_text_background_color" value="{{ header.header_text_background_color }}" oninput="updateColorInfo('header_text_background_color')">
+                        <input type="text" id="header_text_background_colorHex" value="{{ header.header_text_background_color }}">                  
+                    </div>      
+                </div>
+                <div class="course-content-input">
+                    <label class="edit-user-label" for="header_background_texture">Background Texture</label>
+                    <div class="icon-selection-container padding-bottom-1 textures-container">
+                        <label class="icon-selection-item tooltip" for="texture0" data-tooltip="No Texture"> 
+                            <span class="tooltiptext">No Texture</span>
+                            <input id="texture0" type="radio" name="texture-selection" hidden="" checked="">
+                            <div class="icon-selection-icon no-texture-icon">
+                                <i class="fa-solid fa-ban"></i>
+                            </div>
+                        </label>
+                        <label class="icon-selection-item horizontal-stripes-texture" for="texture1">
+                            <input id="texture1" type="radio" name="texture-selection" hidden="">
+                            <div class="icon-selection-icon">
+                                <i class="fa-regular fa-books"></i>
+                            </div>
+                        </label>
+                        <label class="icon-selection-item dotted-texture" for="texture2">
+                            <input id="texture2" type="radio" name="texture-selection" hidden="">
+                            <div class="icon-selection-icon">
+                                <i class="fa-solid fa-book-open-cover"></i>
+                            </div>
+                        </label>
+                        <label class="icon-selection-item weave-texture" for="texture3">
+                            <input id="texture3" type="radio" name="texture-selection" hidden="">
+                            <div class="icon-selection-icon">
+                                <i class="fa-solid fa-book-open-cover"></i>
+                            </div>
+                        </label>
+                        <label class="icon-selection-item wave-texture" for="texture4">
+                            <input id="texture4" type="radio" name="texture-selection" hidden="">
+                            <div class="icon-selection-icon">
+                                <i class="fa-solid fa-book-open-cover"></i>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>  
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button type="button" onclick="closePopup('editHeaderPopup')" class="popup-btn close-popup-btn">Back</button>
+                <button id="update-header-btn" class="popup-btn course-save-btns">Save Changes</button>   
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    window.savedTexture = "{{ header.header_texture|default:'texture0' }}"; 
+</script>

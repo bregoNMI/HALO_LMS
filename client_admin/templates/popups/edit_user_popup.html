@@ -1,43 +1,73 @@
 {% load static %}
 <div id="editUserPopup" class="popup-background"> 
     <div class="popup-content max-width-3">
-        <form id="editUserForm" method="post" action="{% url 'edit_user' profile.id %}">
+        <form id="editUserForm" method="post" action="{% url 'edit_user' profile.id %}" enctype="multipart/form-data">
             {% csrf_token %}
+            <input type="hidden" name="cognito_username" value="{{ profile.username }}">
+
             <div style="border-bottom: 1px solid var(--bg-color2);" class="popup-header">
                 <h3> Edit User Information </h3>
                 <div onclick="closePopup('editUserPopup')" class="close-popup-icon">
                     <i class="fa-solid fa-xmark"></i>
                 </div>
             </div>
-            <div class="popup-scroll-wrapper">
+            <div class="popup-scroll-wrapper scrollable-content">
                 <div style="border: none;" class="popup-body">
                     <div class="edit-images-row">
                         <div class="edit-image">
-                            <label class="edit-user-label" for="photoid">Headshot Image</label>
-                            {% if profile.photoid %}
-                                <img id="photoid" name="photoid" src="{{ profile.photoid.url }}" alt="photoid">
+                            <label class="edit-user-label" for="passportphoto">Headshot Photo</label>
+                            {% if profile.passportphoto %}
+                                <img id="passportphotoPreview" src="{{ profile.passportphoto.url }}" alt="passportphoto">
                             {% else %}
                                 <div class="profile-image">
-                                    <i class="fa-regular fa-user-graduate"></i>
+                                    <i class="fa-light fa-user-graduate"></i>
                                 </div>
                             {% endif %}
+                            <input type="hidden" name="clear_passportphoto" id="clear_passportphoto" value="0">
+                            <label for="passportphoto" class="custom-file-upload-container">
+                                <div class="custom-file-upload">
+                                    <input type="file" id="passportphoto" name="passportphoto" accept="image/*" onchange="previewImage('passportphoto', 'passportphotoPreview')" style="display: none;">
+                                    <i class="fa-regular fa-arrow-up-from-bracket"></i> Choose File
+                                </div>
+                                <div class="custom-file-title">
+                                    {% if profile.passportphoto %}
+                                        <span id="passportphotoNameDisplay" class="file-name-display">{{ profile.passportphoto }}</span>
+                                    {% else %}
+                                        <span id="passportphotoNameDisplay" class="file-name-display">No file selected</span>
+                                    {% endif %}                                   
+                                </div>
+                            </label> 
                         </div>
                         <div class="edit-image">
                             <label class="edit-user-label" for="photoid">Identification Image</label>
-                            {% if profile.passportphoto %}
-                                <img id="passportphoto" name="passportphoto" src="{{ profile.passportphoto.url }}" alt="passportphoto">
+                            {% if profile.photoid %}
+                                <img id="photoidPreview" src="{{ profile.photoid.url }}" alt="photoid">
                             {% else %}
                                 <div class="profile-image">
-                                    <i class="fa-regular fa-user-graduate"></i>
+                                    <i class="fa-light fa-user-graduate"></i>
                                 </div>
                             {% endif %}
+                            <input type="hidden" name="clear_photoid" id="clear_photoid" value="0">
+                            <label for="photoid" class="custom-file-upload-container">
+                                <div class="custom-file-upload">
+                                    <input type="file" id="photoid" name="photoid" accept="image/*" onchange="previewImage('photoid', 'photoidPreview')" style="display: none;">
+                                    <i class="fa-regular fa-arrow-up-from-bracket"></i> Choose File
+                                </div>
+                                <div class="custom-file-title">
+                                    {% if profile.photoid %}
+                                        <span id="photoidNameDisplay" class="file-name-display">{{ profile.photoid }}</span>
+                                    {% else %}
+                                        <span id="photoidNameDisplay" class="file-name-display">No file selected</span>
+                                    {% endif %}                                
+                                </div>
+                            </label> 
                         </div>
                     </div>
                 </div>
                 <div class="popup-body">
                     <div class="edit-user-header">
                         <div class="edit-user-header-icon">
-                            <i class="fa-regular fa-head-side-gear"></i>
+                            <i class="fa-light fa-head-side-gear"></i>
                         </div>
                         <h3> General</h3>
                     </div>
@@ -76,7 +106,7 @@
                         <div class="edit-user-input">
                             <label class="edit-user-label" for="role">Role</label>
                             <div class="custom-select margin-0">
-                                <i class="fa-regular fa-angle-down"></i>     
+                                <i class="fa-light fa-angles-up-down"></i>     
                                 <input class="select-selected" type="text" id="role" name="role" value="{{ profile.role }}" readonly>
                                 <div class="select-items scrollable-content" style="display: none;">
                                     <div class="select-item" data-name="role" data-value="Student">Student</div>
@@ -100,7 +130,25 @@
                 <div class="popup-body">
                     <div class="edit-user-header">
                         <div class="edit-user-header-icon">
-                            <i class="fa-regular fa-address-book"></i>
+                            <i class="fa-light fa-lock"></i>
+                        </div>
+                        <h3> Password </h3>
+                    </div>
+                    <div class="edit-user-row">
+                        <div class="edit-user-input">
+                            <label class="edit-user-label" for="new_password">New Password</label>
+                            <input type="password" id="new_password" name="new_password" autocomplete="new-password">
+                        </div>
+                        <div class="edit-user-input">
+                            <label class="edit-user-label" for="confirm_password">Confirm New Password</label>
+                            <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password">
+                        </div>
+                    </div>
+                </div>
+                <div class="popup-body">
+                    <div class="edit-user-header">
+                        <div class="edit-user-header-icon">
+                            <i class="fa-light fa-address-book"></i>
                         </div>
                         <h3> Contact </h3>
                     </div>
@@ -108,7 +156,7 @@
                         <div class="edit-user-input">
                             <label class="edit-user-label" for="country">Country</label>
                             <div class="custom-select margin-0">
-                                <i class="fa-regular fa-angle-down"></i>     
+                                <i class="fa-light fa-angles-up-down"></i>     
                                 <input class="select-selected" type="text" id="country" name="country" value="{{ profile.country }}" readonly>
                                 <div class="select-items scrollable-content" style="display: none;">
                                     {% include 'dropdownOptions/country_options.html' %}
@@ -134,7 +182,7 @@
                         <div class="edit-user-input">
                             <label class="edit-user-label" for="citizenship">Citizenship</label>
                             <div class="custom-select margin-0">
-                                <i class="fa-regular fa-angle-down"></i>     
+                                <i class="fa-light fa-angles-up-down"></i>     
                                 <input class="select-selected" type="text" id="citizenship" name="citizenship" value="{{ profile.citizenship }}" readonly>
                                 <div class="select-items scrollable-content" style="display: none;">
                                     {% include 'dropdownOptions/citizenship_options.html' %}
@@ -150,22 +198,24 @@
                 <div class="popup-body">
                     <div class="edit-user-header">
                         <div class="edit-user-header-icon">
-                            <i class="fa-regular fa-ellipsis-stroke"></i>
+                            <i class="fa-light fa-ellipsis-stroke"></i>
                         </div>
                         <h3> Other </h3>
                     </div>
                     <div class="edit-user-row">
                         <div class="edit-user-input">
                             <label class="edit-user-label" for="birth_date">Date of Birth</label>
-                            <input type="text" id="birth_date" name="birth_date" class="date-picker" value="{{ profile.birth_date|date:'Y-m-d' }}">
-                            <span class="input-group-addon">
-                                <i class="fa-regular fa-calendar-lines"></i>
-                            </span>
+                            <div class="edit-user-input">
+                                <input type="text" id="birth_date" name="birth_date" class="date-picker" value="{{ profile.birth_date|date:'Y-m-d' }}">
+                                <span class="input-group-addon">
+                                    <i class="fa-regular fa-calendar-lines"></i>
+                                </span>
+                            </div>
                         </div>
                         <div class="edit-user-input">
                             <label class="edit-user-label" for="sex">Gender</label>
                             <div class="custom-select margin-0">
-                                <i class="fa-regular fa-angle-down"></i>     
+                                <i class="fa-light fa-angles-up-down"></i>     
                                 <input class="select-selected" type="text" id="sex" name="sex" value="{{ profile.sex }}" readonly>
                                 <div class="select-items scrollable-content" style="display: none;">
                                     {% include 'dropdownOptions/gender_options.html' %}
@@ -182,17 +232,31 @@
                             <label class="edit-user-label" for="associate_school">Associate School</label>
                             <input type="text" id="associate_school" name="associate_school" value="{{ profile.associate_school }}">
                         </div>
+                    </div>
+                    <div class="edit-user-row">
+                        {% if profile.terms_accepted_on %}
+                            <div class="edit-user-input">
+                                <label class="edit-user-label" for="accepted_terms">Accepted Terms on</label>
+                                <span class="edit-user-text"> {{ profile.terms_accepted_on }} </span>
+                            </div>
+                        {% endif %}
+                        <div class="edit-user-input">
+                            <label class="edit-user-label" for="date_joined">Date Joined</label>
+                            <span class="edit-user-text"> {{ profile.date_joined }} </span>
+                        </div>
                     </div>  
                 </div>
             </div>
             <div class="popup-footer">
                 <div class="spacer"></div>
                 <div class="popup-btns">
-                    <div onclick="closePopup('editUserPopup')" class="close-popup-btn popup-btn">Close</div>
-                    <button type="submit" id="saveUserBtn" class="popup-btn"> Save Changes </button>
+                    <button type="button" onclick="closePopup('editUserPopup')" class="close-popup-btn popup-btn">Close</button>
+                    <button onclick="setDisabledSaveBtns()" type="submit" id="saveUserBtn" class="popup-btn course-save-btns"> Save Changes </button>
                 </div>
             </div>
         </form>
     </div>
 </div>
-<script src="{% static 'client_admin/javascript/editUser.js' %}"></script>
+<script type="text/javascript">
+    var userId = "{{ profile.user.id }}";
+</script>

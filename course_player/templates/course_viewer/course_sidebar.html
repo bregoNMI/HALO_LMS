@@ -1,0 +1,300 @@
+{% load static %}
+{% load custom_filters %}
+<!-- Sidebar area -->
+<div id="courseSidebar" class="course-sidebar-container">
+    <div class="course-sidebar-header">
+        <div class="course-sidebar-header-top">
+            <h4>Course Progress</h4>
+            <span id="courseProgressText">{{ user_course.progress|default:0 }}%</span>
+        </div>
+        <div class="course-sidebar-header-bottom">
+            <div class="course-item-progress-bar-container">
+                <div id="courseProgressBar" class="course-item-progress-bar" style="width: 0%;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="course-sidebar-body scrollable-content">
+        {{ lesson_progress_data|json_script:"lessonData" }}
+
+        <div id="lessonList">
+            <!-- {% for module in modules_with_lessons %}
+                <div class="module-section-container">
+                    <div class="module-title">
+                        <span>{{ module.title }}</span>
+                    </div>
+                    <div class="lesson-section-container">
+                        {% for lesson in module.lessons.all %}
+                            <button class="lesson-item" data-lesson-id="{{ lesson.id }}" onclick="launchLessonById({{ lesson.id }})">
+                                <div class="lesson-item-left">
+                                    <div class="lesson-item-number">
+                                        <span>{{ forloop.counter }}</span>
+                                    </div>
+                                    <div class="lesson-item-text">
+                                        <span>{{ lesson.title }}</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-item-right"></div>
+                                
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %} -->
+            {% for module in modules_with_lessons %}
+                <div class="details-info-card">
+                    <div class="module-card-header collapsable-header">
+                        <div class="card-header-left">
+                            <div class="module-title" title="{{ module.title }}">
+                                <span>{{ forloop.counter }}. {{ module.title }}</span>
+                            </div>
+                        </div>
+                        <div class="lesson-completion-counter" data-module-id="{{ module.id }}">
+                            <span>0/0</span>
+                        </div>
+                        <button class="card-header-right active">
+                            <i class="fa-regular fa-angle-down"></i>
+                        </button>
+                    </div>
+                    <div class="info-card-body hidden">                         
+                        <div class="module-lessons-section">
+                            {% for lesson in module.lessons.all %}
+                                <button class="lesson-item" data-lesson-id="{{ lesson.id }}" onclick="launchLessonById({{ lesson.id }})">
+                                    <div class="lesson-item-left">
+                                        <div class="lesson-item-number">
+                                            <span>{{ forloop.counter }}</span>
+                                        </div>
+                                        <div class="lesson-item-text" title="{{ lesson.title }}">
+                                            <span>{{ lesson.title }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="lesson-item-right"></div>
+                                </button>
+
+                                {% with lesson_assignment_map|get_item:lesson.id as assignments %}
+                                    {% if assignments %}
+                                        <div class="lesson-assignments-list hidden">
+                                            {% for pair in assignments %}
+                                                <button onclick="openAssignment({{ pair.assignment.id }}, {{ pair.lesson.id }})" class="assignment-item {% if pair.locked %}disabled locked{% endif %} {{ pair.status }}" {% if pair.locked %}disabled{% endif %} data-assignment-id="{{ pair.assignment.id }}" {% if pair.lesson.id %}data-lesson-id="{{ pair.lesson.id }}"{% endif %}>
+                                                    <div title="{{ pair.assignment.title }}" class="assignment-item-left">
+                                                        <i class="fa-regular fa-flag"></i>
+                                                        <span>{{ pair.assignment.title }}</span>
+                                                    </div>
+                                                    <div class="assignment-item-right">
+                                                        {% if pair.locked %}
+                                                            <div class="assignment-locked-icon">
+                                                                <i class="fa-solid fa-lock"></i>
+                                                            </div>
+                                                        {% elif pair.status == 'approved' %}
+                                                            <div class="assignment-complete-icon">
+                                                                <i class="fa-regular fa-circle-check"></i>
+                                                            </div>
+                                                        {% elif pair.status == 'submitted' %}
+                                                            <div class="assignment-submitted-icon">
+                                                                <i class="fa-regular fa-clock"></i>
+                                                            </div>
+                                                        {% elif pair.status == 'rejected' %}
+                                                            <div class="assignment-rejected-icon">
+                                                                <i class="fa-regular fa-circle-xmark"></i>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </button>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endfor %}
+                        </div>                 
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+    <!-- <div class="course-sidebar-footer">
+        
+    </div>   -->
+</div>
+<script>
+  // Globals from server
+  window.lessonId         = {{ lesson.id|default:"0" }};
+  window.userId           = {{ profile_id|default:"0" }};
+  window.courseLocked     = {{ course_locked|yesno:"true,false" }};
+  window.miniLessonProgress = {{ mini_lesson_progress|default:"[]"|safe }};
+  window.lessonContentType  = "{{ lesson.content_type }}";
+  window.lessonLocation     = "{{ lesson.lesson_location }}";
+  window.savedProgress      = {{ saved_progress|default:0 }};
+  window.lessonSessionId    = "{{ request.session.current_lesson_session_id }}";
+  window.nextlessonId       = "{{ next_lesson.id }}";
+
+  const launchScormUrlTemplate = "{% url 'launch_scorm_file' 0 %}".replace("/0/", "/");
+
+  function launchLessonById(lessonId) {
+    window.location.href = launchScormUrlTemplate + lessonId + "/";
+  }
+  function launchNextLesson(nextLessonId) { launchLessonById(nextLessonId); }
+  function launchPrevLesson(prevLessonId) { launchLessonById(prevLessonId); }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    try {
+      const rawData   = `{{ lesson_progress_data|escapejs }}`;
+      const parsedData = JSON.parse(rawData);
+      window.lessonData = parsedData;
+      console.log('🧪 parsedData:', parsedData);
+
+      const urlPath = window.location.pathname;
+      const match   = urlPath.match(/\/launch_scorm_file\/(\d+)\//);
+      const currentLessonIdFromUrl = match ? parseInt(match[1], 10) : null;
+
+      // Walk all sidebar lessons and render status/progress/locks
+      document.querySelectorAll('.lesson-item').forEach(item => {
+        const id = parseInt(item.dataset.lessonId, 10);
+        const lesson = parsedData.find(l => l.id === id);
+        if (!lesson) return;
+
+        const lessonRight    = item.querySelector('.lesson-item-right');
+        const lessonProgress = item.querySelector('.lesson-progress');
+
+        const isCurrentLesson = id === currentLessonIdFromUrl;
+        const isLocked        = !!(window.courseLocked && lesson.locked);
+
+        // Next button lock (based on next lesson lock)
+        const currentIdx = parsedData.findIndex(l => l.id === currentLessonIdFromUrl);
+        const nextLesson = currentIdx >= 0 ? parsedData[currentIdx + 1] : null;
+        if (nextLesson && (nextLesson.locked || (window.courseLocked && nextLesson.locked))) {
+          const nextBtn = document.getElementById('nextLessonBtn');
+          if (nextBtn) {
+            nextBtn.classList.add('disabled');
+            nextBtn.setAttribute('disabled', 'true');
+          }
+        }
+
+        // Store progress for later updates
+        item.setAttribute('data-lesson-progress', lesson.progress);
+
+        // Use explicit completion_status first (server normalized),
+        // then fall back to the legacy "completed" boolean.
+        let status = (lesson.completion_status || '').toLowerCase();
+        if (!status && lesson.completed) status = 'complete';
+
+        // Reset right side
+        if (lessonRight) lessonRight.innerHTML = '';
+
+        // Lock non-current items when required and not completed
+        if (isLocked && !isCurrentLesson && status !== 'complete') {
+          const lockedIcon = document.createElement('div');
+          lockedIcon.classList.add('lesson-locked-icon');
+          lockedIcon.innerHTML = '<i class="fas fa-lock"></i>';
+          if (lessonRight) lessonRight.appendChild(lockedIcon);
+          item.classList.add('locked', 'disabled');
+          item.setAttribute('disabled', 'true');
+          return;
+        }
+
+        // Render by status
+        if (status === 'complete' || lesson.completed) {
+            item.classList.add('lesson-completed');
+            if (lessonRight) {
+                lessonRight.innerHTML = `<div class="lesson-complete-icon"><i class="fa-solid fa-circle-check"></i></div>`;
+            }
+          if (lessonProgress) lessonProgress.style.display = 'none';
+        } else if (status === 'pending') {
+            item.classList.remove('lesson-completed');
+            if (lessonRight) {
+                lessonRight.innerHTML = `<div class="lesson-pending-icon"><i class="fa-regular fa-clock"></i></div>`;
+            }
+        } else if (status === 'failed') {
+            item.classList.remove('lesson-completed');
+            if (lessonRight) {
+                lessonRight.innerHTML = `<div class="lesson-failed-icon"><i class="fa-regular fa-circle-xmark"></i></div>`;
+            }
+        } else {
+            // incomplete (or unknown) — show percentage if available and unlocked
+            item.classList.remove('lesson-completed');
+            if (lesson.progress != null && !isLocked) {
+                const pct = document.createElement('span');
+                pct.className = 'lesson-progress';
+                pct.textContent = `${lesson.progress}%`;
+                if (lessonRight) lessonRight.appendChild(pct);
+            }
+        }
+
+      });
+
+      updateLessonCompletionCounterSCORM();
+
+    } catch (e) {
+      console.warn("❌ Failed to update sidebar lesson progress:", e);
+    }
+
+    // Force SCORM iframe to saved location on load (if applicable)
+    const iframe = document.getElementById("scormContentIframe");
+    const fallbackScormUrl = "{{ scorm_index_file_url|escapejs }}";
+    const intendedUrl = "{{ lesson_location|escapejs }}" || fallbackScormUrl;
+
+    if ("{{ lesson.content_type }}" === "SCORM2004" && iframe) {
+      const urlToLoad = intendedUrl !== "about:blank" ? intendedUrl : fallbackScormUrl;
+      console.log("⏩ Forcing SCORM iframe to load:", urlToLoad);
+      iframe.src = urlToLoad;
+    }
+
+    // Highlight current lesson
+    const currentLessonId = parseInt(window.lessonId, 10);
+    document.querySelectorAll('.lesson-item').forEach(item => item.classList.remove('active-lesson'));
+    const activeLessons = document.querySelectorAll(`.lesson-item[data-lesson-id="${currentLessonId}"]`);
+
+    activeLessons.forEach(activeLesson => {
+      activeLesson.classList.add('active-lesson');
+
+      const parentCard = activeLesson.closest('.details-info-card');
+      if (!parentCard) return;
+
+      const cardBody = parentCard.querySelector('.info-card-body');
+      if (cardBody) cardBody.classList.toggle('hidden');
+
+      const cardHeaderRight = parentCard.querySelector('.card-header-right');
+      if (cardHeaderRight) cardHeaderRight.classList.toggle('active');
+
+      const cardHeader = parentCard.querySelector('.collapsable-header');
+      if (cardHeader) cardHeader.classList.toggle('active');
+
+      const nextEl = activeLesson.nextElementSibling;
+      if (nextEl && nextEl.classList.contains('lesson-assignments-list')) {
+        nextEl.classList.remove('hidden');
+      }
+    });
+
+    // Course progress bar
+    const courseProgressBar  = document.getElementById("courseProgressBar");
+    const courseProgressText = document.getElementById("courseProgressText");
+    if (courseProgressBar && courseProgressText) {
+      const percentMatch = courseProgressText.textContent.match(/(\d+)%/);
+      if (percentMatch) {
+        const progress = parseInt(percentMatch[1], 10);
+        courseProgressBar.style.width = `${progress}%`;
+      }
+    }
+  });
+  
+//   function updateLessonCompletionCounter() {
+//     document.querySelectorAll('.details-info-card').forEach(moduleCard => {
+//       const lessonButtons = moduleCard.querySelectorAll('.lesson-item');
+//       const counterEl = moduleCard.querySelector('.lesson-completion-counter span');
+
+//       let total = 0;
+//       let completed = 0;
+
+//       lessonButtons.forEach(button => {
+//         const id = parseInt(button.dataset.lessonId, 10);
+//         const lesson = (window.lessonData || []).find(l => l.id === id);
+//         if (!lesson) return;
+
+//         total++;
+//         const status = (lesson.completion_status || '').toLowerCase();
+//         if (status === 'complete' || lesson.completed) completed++;
+//       });
+
+//       if (counterEl) counterEl.textContent = `${completed}/${total}`;
+//     });
+//   }
+</script>

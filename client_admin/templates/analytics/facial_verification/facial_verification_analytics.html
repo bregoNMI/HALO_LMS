@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+    {% include 'messageContainer/message_container.html' %} 
+    {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-check"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div id="realTimeAlert" class="alert-container hidden"></div>
+    <div id="stickyNavBar">
+        <div class="details-top-row max-width-extend-4">
+            <div class="admin-top-row-left">
+                <h2>Facial Verification</h2>
+            </div>
+            <div class="admin-top-row-right">
+                {% include 'analytics/chart_filters.html' %}
+            </div>
+        </div>
+    </div>
+    <div class="admin-body align-center">
+        <div class="max-width-extend-4">         
+            <div id="mainNavBar" class="admin-top-row">
+                <div class="admin-top-row-left">
+                    <h2>Facial Verification</h2>
+                    <span class="admin-header-subtext">A comprehensive overview of facial verification activity across your LMS</span>
+                </div>
+                <div class="admin-top-row-right">
+                    {% include 'analytics/chart_filters.html' %}
+                </div>
+            </div>
+            <div class="settings-container">
+                <div id="settingsTabs" class="tabs-container">
+                    <div class="tabs">
+                        <button type="button" class="tab active" data-target="tab1">Visual Overview</button>
+                        <button type="button" class="tab" data-target="tab2">Table View</button>
+                        <div class="tab-indicator"></div>
+                    </div>
+                
+                    <div class="tab-content-container">
+                        <!-- Visual -->
+                        <div class="tab-content active" id="tab1">
+                            <div class="admin-dashboard-container">
+                                <div class="admin-dashboard-left">
+                                    <div class="display-card-wrapper">
+                                        <div class="display-card-header">
+                                            <div class="display-card-header-left">
+                                                <span>Verification Summary</span>
+                                                <div class="header-tooltip-icon header-tooltip">
+                                                    <span class="tooltiptext"> Shows the Verified Rate alongside Verified and Unverified attempt counts across the selected time range. Use the legend to toggle series. </span>
+                                                    <i class="fa-regular fa-circle-info"></i>
+                                                </div>
+                                            </div>
+                                            <div class="display-card-header-right">
+                                                
+                                            </div>
+                                        </div>
+                                        <div class="display-card-body">
+                                            <canvas id="passRateLine"></canvas>
+                                            <div id="passRateLegend" class="chart-legend"></div>
+                                        </div>
+                                    </div>
+                                    <div class="analytics-row-container">
+                                        <div class="display-card-wrapper">
+                                            <div class="display-card-header">
+                                                <div class="display-card-header-left">
+                                                    <span>Failures by Step</span>
+                                                    <div class="header-tooltip-icon header-tooltip">
+                                                        <span class="tooltiptext"> Counts of failures by step—Course Launch vs In-Session. Use the legend to isolate a step; hover a bar for the exact count and that step’s share of failures. </span>
+                                                        <i class="fa-regular fa-circle-info"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="display-card-header-right">
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="display-card-body">
+                                                <canvas id="failuresByStep"></canvas>
+                                                <div id="failuresByStepLegend" class="chart-legend"></div>
+                                            </div>
+                                        </div>
+                                        <div class="display-card-wrapper">
+                                            <div class="display-card-header">
+                                                <div class="display-card-header-left">
+                                                    <span>Failures by Reason</span>
+                                                    <div class="header-tooltip-icon header-tooltip">
+                                                        <span class="tooltiptext"> Distribution of failure reasons per period as % of failures. Toggle reasons in the legend to focus on specific issues. </span>
+                                                        <i class="fa-regular fa-circle-info"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="display-card-header-right">
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="display-card-body">
+                                                <canvas id="failureReasonsComposition"></canvas>
+                                                <div id="failureReasonsCompositionLegend" class="chart-legend"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="analytics-row-container">
+                                        <div class="display-card-wrapper">
+                                            <div class="display-card-header">
+                                                <div class="display-card-header-left">
+                                                    <span>Failures Comparison</span>
+                                                    <div class="header-tooltip-icon header-tooltip">
+                                                        <span class="tooltiptext"> For each failure reason, compares In-Session vs Course Launch. In percent mode, the two bars sum to 100% per reason; in count mode they show raw totals. Great for spotting where a reason is concentrated. </span>
+                                                        <i class="fa-regular fa-circle-info"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="display-card-header-right">
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="display-card-body">
+                                                <canvas id="failureReasonsByStepCategories"></canvas>
+                                                <div id="failureReasonsByStepCategoriesLegend" class="chart-legend"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="analytics-row-container">
+                                        <div class="display-card-wrapper">
+                                            <div class="display-card-header">
+                                                <div class="display-card-header-left">
+                                                    <span>Similarity Comparison</span>
+                                                    <div class="header-tooltip-icon header-tooltip">
+                                                        <span class="tooltiptext"> Average face-match similarity for successful vs failed attempts (0–100%) over time. Only attempts with a recorded score are included; gaps indicate no data for that bucket. </span>
+                                                        <i class="fa-regular fa-circle-info"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="display-card-header-right">
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="display-card-body">
+                                                <canvas id="similarityTrend"></canvas>
+                                                <div id="similarityLegend" class="chart-legend"></div>
+                                            </div>
+                                        </div>
+                                        <div class="display-card-wrapper">
+                                            <div class="display-card-header" style="padding: 0.53rem var(--pad-sm);">
+                                                <div class="display-card-header-left">
+                                                    <span id="platformDonutHeader">Device Failure Summary</span>
+                                                    <div class="header-tooltip-icon header-tooltip">
+                                                        <span class="tooltiptext"> Share of total attempts by Browser or Device. Use the header buttons to switch the dimension. Hover a slice to see its attempts and failure rate; use the legend to show/hide slices. </span>
+                                                        <i class="fa-regular fa-circle-info"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="display-card-header-right">
+                                                    <div class="chart-filters-container">
+                                                        <button class="chart-filter-label active-label" id="platformDimBrowser">
+                                                            <i class="fa-regular fa-browsers"></i>
+                                                            <span>Browsers</span>
+                                                        </button>
+                                                        <button class="chart-filter-label" id="platformDimDevice">
+                                                            <i class="fa-regular fa-laptop-mobile"></i>
+                                                            <span>Devices</span>
+                                                        </button>                                                
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="display-card-body">
+                                                <canvas id="platformDonut"></canvas>
+                                                <div id="platformLegend" class="chart-legend"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="admin-dashboard-right"></div> -->
+                            </div>
+                        </div>
+                        <!-- Table -->
+                        <div class="tab-content" id="tab2">
+                            {% include 'analytics/facial_verification/facial_verification_table.html' %}
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        </div>   
+    </div>
+    {% include 'optionsSidebar/facial_verification_sidebar.html' %}
+
+    <link rel="stylesheet" href="{% static 'client_admin\css\analytics.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin\css\settings.css' %}">   
+    <script src="{% static 'client_admin\javascript\analytics.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\ajax_search_options.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
+    <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
+{% endblock content %}

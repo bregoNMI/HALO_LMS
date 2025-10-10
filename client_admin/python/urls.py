@@ -1,5 +1,8 @@
 from django.urls import path
 from . import views
+from content import views as content_views
+from client_admin import views as facial_recognition_views
+from custom_templates import views as custom_template_views
 
 urlpatterns = [
     # Dashboard
@@ -10,6 +13,112 @@ urlpatterns = [
     path('users/<int:user_id>/', views.user_details, name='user_details'),
     path('users/<int:user_id>/transcript/', views.user_transcript, name='user_transcript'),
     path('users/<int:user_id>/history/', views.user_history, name='user_history'),
+    path('users/enroll-users/', views.enroll_users, name='enroll_users'),
+    path('users/enroll-user-request/', views.enroll_users_request, name='enroll_user_request'),
+    path('users/message-users/', views.message_users, name='message_users'),
+    path('users/message-user-request/', views.message_users_request, name='message_users'),
+    path('users/delete-users/', views.delete_users, name='delete_users'),
+        # User Course
+    path('users/course-progress/<uuid:uuid>/', views.usercourse_detail_view, name='usercourse_detail_view'),
+    path('course-progress/<uuid:uuid>/edit/', views.edit_usercourse_detail_view, name='edit_usercourse_detail_view'),
+    path('course-progress/lesson/<int:user_lesson_progress_id>/reset/', views.reset_lesson_progress, name='reset_lesson_progress'),
+    path('course-progress/lesson/<int:user_lesson_progress_id>/edit/', views.edit_lesson_progress, name='edit_lesson_progress'),
+    path('course-progress/lesson/<int:user_lesson_progress_id>/fetch/', views.fetch_lesson_progress, name='fetch_lesson_progress'),
+    path('course-progress/quiz/<int:ulp_id>/fetch/', views.fetch_quiz_attempts_for_lesson, name='fetch_quiz_attempts_for_lesson'),
+    path('course-progress/quiz/attempt/<int:attempt_id>/qandas/',views.fetch_quiz_attempt_qandas,name='fetch_quiz_attempt_qandas'),
+    path('course-progress/quiz/attempt/<int:attempt_id>/grade-essay/<int:question_id>/', views.grade_essay_question, name='grade_essay_question'),
+    path('course-progress/lesson/lesson-assignment/', views.get_lesson_assignments, name='get_lesson_assignments'),
+    
+    path('add/', views.add_user, name='add_user'),
+    path('users/add/', views.add_user_page, name='add_user_page'),
+    # Courses
+    path('courses/', content_views.admin_courses, name='admin_courses'),
+    path('courses/online/add/', content_views.add_online_courses, name='add_online_courses'),
+    path('courses/online/edit/<int:course_id>/', content_views.edit_online_courses, name='edit_online_courses'),
+    path('courses/delete-courses/', views.delete_courses, name='delete_courses'),
 
-    path('add', views.add_user, name='add_user')
+    # Quizzes
+    path('quizzes/', content_views.admin_quizzes, name='admin_quizzes'),
+    path('quizzes/create/', content_views.create_or_edit_quiz, name='create_quiz'),
+    path('quizzes/<uuid:uuid>/', content_views.create_or_edit_quiz, name='edit_quiz'),
+    path('quizzes/delete-quizzes/', views.delete_quizzes, name='delete_quizzes'),
+
+    # Questions
+    path('questions/', content_views.admin_questions, name='admin_questions'),
+    path('questions/delete-questions/', views.delete_questions, name='delete_questions'),
+
+    # Quiz Templates
+    path('quiz-templates/', content_views.admin_quiz_templates, name='admin_quiz_templates'),
+    path('quiz-templates/add/', content_views.add_quiz_templates, name='add_quiz_templates'),
+    path('quiz-templates/edit/<int:quiz_template_id>/', content_views.edit_quiz_templates, name='edit_quiz_templates'),
+    path('quiz-templates/delete-quiz-templates/', views.delete_quiz_templates, name='delete_quiz_templates'),
+
+    # Categories
+    path('categories/', content_views.admin_categories, name='admin_categories'),
+    path('categories/add/', content_views.add_categories, name='add_categories'),
+    path('categories/edit/<int:category_id>/', content_views.edit_categories, name='edit_categories'),
+    path('categories/delete-categories/', views.delete_categories, name='delete_categories'),
+
+    # Assignments
+    path('assignments/', content_views.admin_assignments, name='admin_assignments'),
+    path('assignments/manage/<int:assignment_id>/', content_views.manage_assignments, name='manage_assignments'),
+    path('assignments/delete-assignments/', views.delete_assignments, name='delete_assignments'),
+
+    # Enrollment Keys
+    path('enrollment-keys/', content_views.admin_enrollment_keys, name='admin_enrollment_keys'),
+    path('enrollment-keys/add/', content_views.add_enrollment_keys, name='add_enrollment_keys'),
+    path('enrollment-keys/edit/<int:key_id>/', content_views.edit_enrollment_keys, name='edit_enrollment_keys'),
+    path('enrollment-keys/delete-keys/', views.delete_enrollment_keys, name='delete_enrollment_keys'),
+
+    # User Enrollments
+    path('user-enrollments/', content_views.admin_user_enrollments, name='admin_user_enrollments'),
+    path('user-enrollments/delete-enrollments/', views.delete_user_enrollments, name='delete_user_enrollments'),
+
+    # Analytics
+    path('analytics/facial-verification/', content_views.admin_facial_verification_analytics, name='admin_facial_verification_analytics'),
+    path('analytics/api/facial_verification/timeseries', content_views.facial_verification_timeseries_api, name='facial_verification_timeseries_api'),
+
+    # Settings
+    path('settings/', views.admin_settings, name='admin_settings'), 
+    path('settings/create-allowed-id/', views.create_allowed_id_photo, name='create_allowed_id_photo'),
+    path('settings/get-allowed-ids/', views.get_allowed_id_photos, name='get_allowed_id_photos'),
+    path('settings/edit-allowed-ids/', views.edit_allowed_id_photos, name='edit_allowed_id_photos'), 
+    path('settings/delete-allowed-ids/', views.delete_allowed_id_photos, name='delete_allowed_id_photos'),
+
+    # Custom User Dashboard
+    path('templates/', custom_template_views.templates, name='templates'),
+    path('templates/dashboards/', custom_template_views.dashboard_list, name='dashboard_list'),
+    path('templates/dashboards/create/', custom_template_views.dashboard_create, name='dashboard_create'),
+    path('templates/dashboards/<int:dashboard_id>/edit/', custom_template_views.dashboard_edit, name='dashboard_edit'),
+    path('templates/widgets/add/<int:dashboard_id>/', custom_template_views.widget_add, name='widget_add'),
+    path('templates/widgets/edit/<int:widget_id>/', custom_template_views.edit_widget, name='edit_widget'),
+    path('templates/widgets/reorder/', custom_template_views.widget_reorder, name='widget_reorder'),
+    path('templates/dashboards/<int:dashboard_id>/preview/', custom_template_views.dashboard_preview, name='dashboard_preview'),
+    
+    # Custom Login Page
+    path('templates/login/', custom_template_views.login_form, name='login_form'),
+    path('templates/login/edit/', custom_template_views.login_edit, name='login_edit'),
+        # Requests
+    path('templates/widgets/<int:widget_id>/data/', custom_template_views.get_widget_data, name='get_widget_data'),
+    path('templates/widgets/delete/<int:widget_id>/', custom_template_views.delete_widget, name='delete_widget'),
+    path('templates/dashboard/<int:dashboard_id>/edit-header/', custom_template_views.edit_dashboard_header, name='edit_dashboard_header'),
+    path('templates/dashboards/<int:dashboard_id>/delete/', custom_template_views.dashboard_delete, name='dashboard_delete'),
+    path('templates/update-header/', custom_template_views.update_header, name='update_header'),
+    path('templates/update-footer/', custom_template_views.update_footer, name='update_footer'),
+
+    # Main Dashboard
+    path('templates/dashboard/set_main/<int:dashboard_id>/', custom_template_views.set_main_dashboard, name='set_main_dashboard'),
+
+    path('impersonate/<int:profile_id>/', views.impersonate_user, name='impersonate_user'),
+    path('stop-impersonating/', views.stop_impersonating, name='stop_impersonating'),
+
+    path('import-users/', views.import_user, name='import_user'),
+
+
+
+
+    # Facial Recognition
+    path('compare-faces/', facial_recognition_views.compare_faces, name='compare_faces'),
+    path('facial-verification-check/', facial_recognition_views.facial_verification_check, name='facial_verification_check'),
+    path('finalize-account/', facial_recognition_views.finalize_account, name='finalize_account'),
 ]

@@ -1,0 +1,42 @@
+<div id="idPhotoInformation" class="popup-background">
+    <div class="popup-content max-width-5">
+        <div class="popup-header">
+            <h3>What is an Identification Photo?</h3>
+            <div onclick="closePopup('idPhotoInformation')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body">
+            <div class="help-steps-main-header">
+                <span><i class="fa-regular fa-circle-info"></i>  Your Identification Photo helps us verify that the correct learner is completing their assigned courses. </span>
+                <span> Below is a list of acceptable forms of Identification you may upload. </span>
+                <span> You can either use the 'Take a Photo' option to capture a new image with your camera or upload an existing photo from your device. </span>
+            </div>
+            <div class="help-steps-item-wrapper">
+                <h3 class="help-steps-heading">Accepted Identification Photos</h3>
+                {% if allowed_photos %}
+                    {% for allowed_photo in allowed_photos %}
+                        <div class="help-steps-item-header">
+                            <div class="help-steps-item-icon">{{ forloop.counter }}</div>
+                            <h5 class="help-steps-item-title">{{ allowed_photo.name }}</h5>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="help-steps-item-header">
+                        <h5 class="help-steps-item-title">Oops! It looks like no accepted identification photos have been listed yet. Please reach out to an administrator to have them added in the settings.</h5>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button type="button" onclick="closePopup('idPhotoInformation')" class="popup-btn close-popup-btn">Close</button>
+                <button onclick="closePopup('idPhotoInformation'), takePhoto('id_id_photo')" class="popup-btn">
+                    <i class="fa-regular fa-camera-retro"></i>
+                    <span> Take a Photo </span>
+                </button> 
+            </div>     
+        </div>
+    </div>
+</div>

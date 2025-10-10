@@ -1,0 +1,168 @@
+import pytz
+from django.apps import apps
+from django.utils import timezone
+from reportlab.pdfgen import canvas
+from pypdf import PdfReader, PdfWriter
+from pypdf.generic import NameObject, NumberObject, TextStringObject
+from io import BytesIO
+from django.utils.timezone import localtime
+
+def display_user_time(user, utc_datetime):
+    user_tz = pytz.timezone(user.profile.timezone)
+    return timezone.localtime(utc_datetime, user_tz)
+
+def fill_certificate_form(template_stream, data):
+    print('data:', data)
+    """
+    Fills form fields in a PDF template loaded from a BytesIO stream.
+
+    :param template_stream: BytesIO of the PDF with AcroForm fields.
+    :param data: Dict of field_name -> value.
+    :return: BytesIO containing the filled PDF.
+    """
+    reader = PdfReader(template_stream)
+    writer = PdfWriter()
+    writer.append_pages_from_reader(reader)
+
+    if "/AcroForm" in reader.trailer["/Root"]:
+        print("AcroForm found. Attempting to fill fields...")
+
+        fields = reader.get_fields()
+        if fields:
+            print("Fields found in the PDF:")
+            for name in fields.keys():
+                print(f" - {name}")
+        else:
+            print("No fillable fields found in the AcroForm.")
+
+        # Copy the full AcroForm to the output PDF
+        acro_form = reader.trailer["/Root"]["/AcroForm"]
+        writer._root_object.update({
+            NameObject("/AcroForm"): acro_form
+        })
+
+        # Apply data to fields
+        writer.update_page_form_field_values(writer.pages[0], data)
+
+        for page in writer.pages:
+            page_obj = page.get_object()
+            if "/Annots" in page_obj:
+                for annot in page_obj["/Annots"]:
+                    field = annot.get_object()
+
+                    # Detect field name
+                    field_name = field.get("/T")
+                    existing_flags = field.get("/Ff", 0)
+
+                    if field_name == "CertificateId":
+                        # Pad value if present
+                        if "CertificateId" in data:
+                            data["CertificateId"] = "   " + data["CertificateId"]  # Add 3 spaces
+
+                        # Apply appearance override specifically for CertificateId
+                        field.update({
+                            NameObject("/Ff"): NumberObject(existing_flags | 1),  # Set ReadOnly bit, preserve others
+                            NameObject("/DA"): TextStringObject("/Helv 11 Tf 0 g")  # Only override for this field
+                        })
+
+                    else:
+                        # Apply appearance only if /DA is missing (preserve designer's choice)
+                        if "/DA" not in field:
+                            field.update({
+                                NameObject("/Ff"): NumberObject(existing_flags | 1),  # Set ReadOnly bit, preserve others
+                                NameObject("/DA"): TextStringObject("/Helv 12 Tf 0 g")
+                            })
+                        else:
+                            # Just preserve flags
+                            field.update({
+                                NameObject("/Ff"): NumberObject(existing_flags | 1)
+                            })
+    else:
+        print("No AcroForm dictionary found in the PDF.")
+
+    # Final output
+    output = BytesIO()
+    writer.write(output)
+    output.seek(0)
+    return output
+
+def get_strftime_format(custom_format):
+    mapping = {
+        "MM/DD/YYYY": "%m/%d/%Y",
+        "DD/MM/YYYY": "%d/%m/%Y",
+        "YYYY-MM-DD": "%Y-%m-%d"
+    }
+    return mapping.get(custom_format, "%m/%d/%Y")
+
+def get_flatpickr_format(custom_format):
+    mapping = {
+        "MM/DD/YYYY": "m/d/Y",
+        "DD/MM/YYYY": "d/m/Y",
+        "YYYY-MM-DD": "Y-m-d"
+    }
+    return mapping.get(custom_format, "%m/%d/%Y")
+
+def enroll_user_with_key(user, key_str):
+    UserCourse = apps.get_model('client_admin', 'UserCourse')
+    EnrollmentKey = apps.get_model('client_admin', 'EnrollmentKey')
+
+    try:
+        enrollment_key = EnrollmentKey.objects.get(key=key_str)
+    except EnrollmentKey.DoesNotExist:
+        return False, "Invalid enrollment key."
+
+    if not enrollment_key.is_valid():
+        return False, "Enrollment key is no longer valid or has been used up."
+
+    course = enrollment_key.course
+
+    # Check if the user is already enrolled
+    if UserCourse.objects.filter(user=user, course=course).exists():
+        return False, "User is already enrolled in this course."
+
+    # Enroll the user
+    UserCourse.objects.create(user=user, course=course)
+
+    # Update the key usage
+    enrollment_key.uses += 1
+    if enrollment_key.uses >= enrollment_key.max_uses:
+        enrollment_key.active = False
+    enrollment_key.save()
+
+    return True, f"Successfully enrolled in {course.title}."
+
+def get_formatted_datetime(dt, date_format=None, include_time=False, time_24h=False):
+    if not dt:
+        return ""
+    from .models import OrganizationSettings
+    settings = OrganizationSettings.get_instance()
+    fmt = get_date_strftime_format(date_format or settings.date_format)
+
+    if include_time:
+        time_fmt = "%H:%M" if time_24h else "%I:%M%p"  # e.g., 14:05 or 02:05PM
+        fmt = f"{fmt} {time_fmt}"
+
+    s = localtime(dt).strftime(fmt)
+    # optional: make AM/PM lowercase if you like
+    # if not time_24h: s = s.replace("AM", "am").replace("PM", "pm")
+    return s
+
+def get_date_strftime_format(date_format):
+    mapping = {
+        "MM/DD/YYYY": "%m/%d/%Y",
+        "DD/MM/YYYY": "%d/%m/%Y",
+        "YYYY-MM-DD": "%Y-%m-%d",
+        # (optional extras)
+        "MM/DD/YY": "%m/%d/%y",
+        "DD/MM/YY": "%d/%m/%y",
+    }
+    # default to a sane 4-digit year if unknown
+    return mapping.get(date_format, "%m/%d/%Y")
+
+def get_strftime_format(date_format):
+    mapping = {
+        "MM/DD/YYYY": "m/d/y",   # 09/17/25
+        "DD/MM/YYYY": "d/m/y",   # 17/09/25
+        "YYYY-MM-DD": "Y-m-d",   # 2025-09-17
+    }
+    return mapping.get(date_format, "m/d/y")

@@ -1,0 +1,80 @@
+<div id="scorm1.2Popup" class="popup-background">
+    <div class="popup-content max-width-5">
+        <div class="popup-header">
+            <h3>Create New Lesson</h3>
+            <span class="selected-lesson-type pastel-purple">SCORM 1.2</span>
+            <button onclick="closeCreateLessonPopup('scorm1.2Popup')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="popup-body scrollable-content">
+            <div class="course-content-input">
+                <label class="edit-user-label" for="SCORM1.2lessonTitle">Lesson Title<span class="required-asterisk">*</span></label>
+                <input type="text" id="SCORM1.2lessonTitle" name="SCORM1.2lessonTitle" placeholder="Lesson Title" maxlength="200">
+            </div>
+            <div class="course-content-input padding-top-2 padding-bottom-1">
+                <label class="edit-user-label" for="SCORM12lessonDescription">Lesson Description</label>
+                <div class="editor-container" id="SCORM12lessonDescription"></div>
+                <div class="quill-character-counter">
+                    <div class="quill-current-counter">0</div>
+                    <span>/</span>
+                    <div class="quill-max-counter">2000</div>
+                </div>
+            </div>
+            <div class="choose-file-wrapper">
+                <label class="edit-user-label" for="SCORM1.2fileInput">Upload Lesson File<span class="required-asterisk">*</span></label>
+                <label for="SCORM1.2fileInput" class="custom-file-upload-container">
+                    <div class="custom-file-upload">
+                        <input type="file" id="SCORM1.2fileInput" name="file" style="display: none;" accept=".zip">
+                        <i class="fa-regular fa-arrow-up-from-bracket"></i> Choose File
+                    </div>
+                    <div class="custom-file-title">
+                        <span id="SCORM1.2fileNameDisplay" class="file-name-display">No file selected</span>
+                    </div>
+                    
+                    <!-- <input type="file" id="fileInput" name="file">               -->   
+                </label> 
+            </div>
+            <div class="loading-symbol-blue-sm">
+                <svg class="loading-symbol-sm-inner" viewBox="25 25 50 50">
+                    <circle r="20" cy="50" cx="50"></circle>
+                </svg>
+                <span>Uploading Lesson File, please wait...</span>
+            </div>
+            <!-- <input type="hidden" id="SCORM1.2fileURLInput" name="fileURL" accept=".zip"> -->
+            <div class="course-content-input padding-top-1">
+                <label class="edit-user-label" for="SCORM1.2assignmentsToggle">Attach Assignments</label>
+                <label class="toggle-switch">
+                    <input class="toggle-option" type="checkbox" id="SCORM1.2assignmentsToggle" name="SCORM1.2assignmentsToggle">
+                    <div class="toggle-switch-background">
+                      <div class="toggle-switch-handle"></div>
+                    </div>
+                </label>
+                <span class="course-content-input-subtext"> Select from the list of existing course assignments to be completed with this lesson. Attached assignments will be removed from the course assignments and added to this lesson.</span>
+            </div>
+            <!-- Lesson Assignments -->
+            <div class="toggle-option-details margin-top-5 margin-bottom-5">
+                <div id="selectedAssignments">
+                    <div class="right-column-file-wrapper">
+                        <div id="assignmentDropdown2" class="assignment-dropdown course-content-input">
+                            <input type="text" class="assignmentSearch" placeholder="Search assignments...">
+                            <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                            <div class="assignmentList scrollable-content-inner">
+                                <div class="loadingIndicator" style="display:none;">Loading...</div>
+                            </div>
+                            
+                            <div class="selectedAssignments"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button type="button" onclick="closeCreateLessonPopup('scorm1.2Popup')" class="popup-btn close-popup-btn">Back</button>
+                <button id="create12LessonBtn" onclick="createLesson('SCORM1.2')" class="popup-btn disabled" disabled>Create Lesson</button>   
+            </div>
+        </div>
+    </div>
+</div>

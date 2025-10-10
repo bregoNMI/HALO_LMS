@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="admin-body align-center scrollable-content dashboard-edit-body">
+    {% include 'messageContainer/message_container.html' %}
+    <div class="custom-dashboard-body max-width-extend-1">
+        <div class="details-top-row">
+            <div class="details-top-row-left">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3>Edit Template</h3>
+            </div>
+            <div class="details-top-row-right">
+                <div class="option-btn-row">
+                    <a href="{% url 'dashboard_preview' dashboard.id %}" target="_blank" class="action-button-secondary">
+                        <i class="fa-regular fa-binoculars"></i>
+                        <span>Preview</span>
+                    </a>
+                </div>
+                <div class="option-btn-row">
+                    <div onclick="openPopup('addWidgetPopup')" id="add-widget" class="action-button-primary">
+                        <i class="fa-regular fa-plus"></i>
+                        <span>Add Widget</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" hidden>
+            {% csrf_token %}
+            <label class="edit-user-label" for="name">Name</label>
+            <input type="text" id="name" name="name" value="{{ dashboard.name }}">
+            <button type="submit">Save</button>
+        </form>
+        <input type="hidden" id="dashboard-id" value="{{ dashboard.id }}">
+        {% if selected_layout == 'layout1' %}
+            {% include 'html/layouts/layout1.html' %}
+        {% elif selected_layout == 'layout2' %}
+            {% include 'html/layouts/layout2.html' %}
+        {% else %}
+            <p>No layout selected.</p>
+        {% endif %}
+    </div>
+</div>
+<div id="optionsSidebar" class="options-sidebar-container"> 
+    <div style="justify-content: space-between;" class="options-sidebar-header">
+        <div style="display: flex; gap: 0.6rem;">
+            <div class="options-sidebar-icon pastel-yellow">
+                <i class="fa-light fa-pencil"></i>
+            </div>
+            <div class="options-sidebar-title">
+                <h6 id="optionsHeading"></h6>
+                <span> Customize learner dashboard</span>
+            </div>
+        </div>
+        
+        <div onclick="closeEditSidebar()" class="close-popup-icon">
+            <i class="fa-solid fa-xmark"></i>
+        </div>
+    </div>
+    <div id="widgetEditOptions">
+        <div class="options-sidebar-body dashboard-edit-options-container scrollable-content" style="display: flex;">
+            <div class="dashboard-edit-options">             
+                <div id="externalLinkContainer" class="dashboard-edit-options-section">
+                    <div class="course-content-input">
+                        <label class="edit-user-label" for="widgetEditExternalLinkInput">External Link</label>
+                        <input class="external-link-input" style="padding-right: 2.5rem;" type="text" id="widgetEditExternalLinkInput" placeholder="https://my-link">
+                        <div class="external-link-visit tooltip" data-tooltip="Visit Link">
+                            <span style="left: 10%;" class="tooltiptext">Visit Link</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-edit-options-section">
+                    <div class="course-content-input">
+                        <label class="edit-user-label" for="widgetEditTitle">Title</label> 
+                        <input class="custom-text-value" type="text" id="widgetEditTitle">
+                        <span id="resumeTitleExplanation" class="course-content-input-subtext"> This title will be shown when the learner has no courses to resume. </span>
+                    </div>
+                    <div class="course-content-input">
+                        <label class="edit-user-label">Title Color</label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" for="widgetEditTextColor" id="widgetEditTextColorSample"></label>
+                            <input class="color-picker" type="color" id="widgetEditTextColor" oninput="updateColorInfo('widgetEditIconBackgroundColor')">
+                            <input type="text" id="widgetEditTextColorHex">                       
+                        </div>                       
+                    </div>
+                    <div class="course-content-input">
+                        <label class="edit-user-label" for="widgetEditSubtext">Subtext</label>
+                        <input class="custom-text-value" type="text" id="widgetEditSubtext">
+                        <span id="resumeSubtextExplanation" class="course-content-input-subtext"> This subtext will be shown when the learner has no courses to resume.</span>
+                    </div>
+                    <div class="course-content-input">
+                        <label class="edit-user-label" for="widgetEditSubtextColor">Subtext Color</label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" id="widgetEditSubtextColorSample"></label>
+                            <input class="color-picker" type="color" id="widgetEditSubtextColor" oninput="updateColorInfo('widgetEditIconBackgroundColor')">
+                            <input type="text" id="widgetEditSubtextColorHex">                      
+                        </div>                       
+                    </div>
+                </div>
+                <div class="dashboard-edit-options-section">
+                    <div onclick="openPopup('iconSelectionPopup'); testIconSelection('widgetIcon');" class="course-content-input">
+                        <label class="edit-user-label" for="widgetEditIcon">Icon</label>
+                        <div style="max-width: 3rem;" class="icon-selection-item">
+                            <input type="radio" hidden checked>
+                            <div class="icon-selection-icon">
+                                <i id="currentSelectedIconWidget" class="{{ dashboard.widget_icon }}"></i>
+                            </div>
+                        </div>
+                        <input type="text" id="widgetEditIcon" value="{{ dashboard.widget_icon }}" hidden>
+                        <span id="resumeIconExplanation" class="course-content-input-subtext"> This icon will be shown when the learner has no courses to resume. </span>
+                    </div>
+                    <div class="course-content-input">
+                        <label class="edit-user-label" for="widgetEditIconColor">Icon Color</label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" id="widgetEditIconColorSample" style="background-color: {{ dashboard.header_icon_color }};"></label>
+                            <input class="color-picker" type="color" id="widgetEditIconColor" oninput="updateColorInfo('widgetEditIconBackgroundColor')">
+                            <input type="text" id="widgetEditIconColorHex">                     
+                        </div>
+                        
+                    </div>
+                    <div class="course-content-input">
+                        <label class="edit-user-label" for="widgetEditIconBackgroundColor">Icon Background Color</label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" id="widgetEditIconBackgroundColorSample" style="background-color: {{ dashboard.header_icon_background_color }};"></label>
+                            <input class="color-picker" type="color" id="widgetEditIconBackgroundColor" oninput="updateColorInfo('widgetEditIconBackgroundColor')">
+                            <input type="text" id="widgetEditIconBackgroundColorHex">            
+                        </div>                    
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="dashboard-edit-options-btn">
+            <div id="saveWidgetBtn" onclick="saveWidgetChanges(widgetId)" class="main-add-btn course-save-btns">
+                <i class="fa-regular fa-floppy-disk"></i>
+                <span> Save Changes </span>
+            </div>
+        </div>
+        <input type="text" id="edit-widget-type" name="edit-widget-type" placeholder="Type (Required)" hidden>
+    </div>
+    <div id="headerEditOptions">
+        <div class="options-sidebar-body dashboard-edit-options-container scrollable-content" style="display: flex;">
+            <div class="dashboard-edit-options">
+                <div class="dashboard-edit-options-section">
+                    <div class="course-content-input">
+                        <label style="padding: 0;" class="edit-user-label">Banner Image</label>
+                        <div onclick="openFileLibrary('dashboardHeader')" for="headerEditBackgroundImage" class="custom-file-upload-container">
+                            <div class="custom-file-upload">
+                                <input type="file" id="headerEditBackgroundImage" name="headerEditBackgroundImage" style="display: none;" readonly="">
+                                <i class="fa-regular fa-folder-open" aria-hidden="true"></i> Choose File
+                            </div>
+                            <div class="custom-file-title">
+                                <span id="headerEditBackgroundImageDisplay" class="file-name-display">No file selected</span>
+                            </div>
+                            <!-- This is where the Header File Lives -->
+                            <input type="hidden" id="dashboardURLInput" name="dashboardURL" value="{{ dashboard.header_background_image }}">
+                        </div>
+                        <span style="text-align: center; font-weight: 600; font-size: 0.9rem; margin: 0.4rem 0;"> OR </span>
+                        <div onclick="openPopup('bannerTemplatesPopup')" class="secondary-add-btn">
+                            <i class="fa-regular fa-image"></i>
+                            <span> Use a Template </span>
+                        </div>
+                    </div>
+                    <div class="course-content-input">
+                        <label class="edit-user-label" for="headerEditBackgroundPosition">Banner Position</label>
+                        <div class="position-selection-container">
+                            <label id="bannerPosition1Label" class="position-selection-item" for="bannerPosition1">
+                                <input id="bannerPosition1" type="radio" name="position-selection" hidden="" data-position="top left">
+                                <i class="fa-regular fa-arrow-up-left"></i>
+                            </label>
+                            <label id="bannerPosition2Label" class="position-selection-item" for="bannerPosition2">
+                                <input id="bannerPosition2" type="radio" name="position-selection" hidden="" data-position="top center">
+                                <i class="fa-regular fa-arrow-up"></i>
+                            </label>
+                            <label id="bannerPosition3Label" class="position-selection-item" for="bannerPosition3">
+                                <input id="bannerPosition3" type="radio" name="position-selection" hidden="" data-position="top right">
+                                <i class="fa-regular fa-arrow-up-right"></i>
+                            </label>
+                            <label id="bannerPosition4Label" class="position-selection-item" for="bannerPosition4">
+                                <input id="bannerPosition4" type="radio" name="position-selection" hidden="" data-position="left center">
+                                <i class="fa-regular fa-arrow-left"></i>
+                            </label>
+                            <label id="bannerPosition5Label" class="position-selection-item" for="bannerPosition5">
+                                <input id="bannerPosition5" type="radio" name="position-selection" hidden="" data-position="center">
+                                <i class="fa-solid fa-circle-small"></i>
+                            </label>
+                            <label id="bannerPosition6Label" class="position-selection-item" for="bannerPosition6">
+                                <input id="bannerPosition6" type="radio" name="position-selection" hidden="" data-position="right center">
+                                <i class="fa-regular fa-arrow-right"></i>
+                            </label>
+                            <label id="bannerPosition7Label" class="position-selection-item" for="bannerPosition7">
+                                <input id="bannerPosition7" type="radio" name="position-selection" hidden="" data-position="bottom left">
+                                <i class="fa-regular fa-arrow-down-left"></i>
+                            </label>
+                            <label id="bannerPosition8Label" class="position-selection-item" for="bannerPosition8">
+                                <input id="bannerPosition8" type="radio" name="position-selection" hidden="" data-position="bottom center">
+                                <i class="fa-regular fa-arrow-down"></i>
+                            </label>
+                            <label id="bannerPosition9Label" class="position-selection-item" for="bannerPosition9">
+                                <input id="bannerPosition9" type="radio" name="position-selection" hidden="" data-position="bottom right" checked>
+                                <i class="fa-regular fa-arrow-down-right"></i>
+                            </label>         
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-edit-options-section">
+                    <div class="course-content-input">
+                        <label class="edit-user-label" for="headerEditTitle">Title</label>
+                        <input class="custom-text-value" type="text" id="headerEditTitle" value="{{ dashboard.header_title }}">
+                    </div>
+                    <div class="course-content-input">
+                        <label class="edit-user-label">Title Color</label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" for="headerEditTextColor" id="headerEditTextColorSample" style=" background-color: {{ dashboard.header_text_color }};"></label>
+                            <input class="color-picker" type="color" id="headerEditTextColor" value="{{ dashboard.header_text_color }}" oninput="updateColorInfo('headerEditIconBackgroundColor')">
+                            <input type="text" id="headerEditTextColorHex" value="{{ dashboard.header_text_color }}">                        
+                        </div>                 
+                    </div>
+                    <div class="course-content-input">
+                        <label class="edit-user-label" for="headerEditSubtext">Subtext</label>
+                        <input class="custom-text-value" type="text" id="headerEditSubtext" value="{{ dashboard.header_subtext }}">
+                    </div>
+                    <div class="course-content-input">
+                        <label class="edit-user-label" for="headerEditSubtextColor">Subtext Color</label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" id="headerEditSubtextColorSample" style="background-color: {{ dashboard.header_subtext_color }};"></label>
+                            <input class="color-picker" type="color" id="headerEditSubtextColor" value="{{ dashboard.header_subtext_color }}" oninput="updateColorInfo('headerEditIconBackgroundColor')">
+                            <input type="text" id="headerEditSubtextColorHex" value="{{ dashboard.header_subtext_color }}">                       
+                        </div>                       
+                    </div>
+                </div>
+                <div class="dashboard-edit-options-section">
+                    <div onclick="openPopup('iconSelectionPopup'); testIconSelection('headerIcon');" class="course-content-input">
+                        <label class="edit-user-label" for="headerEditIcon">Icon</label>
+                        <div style="max-width: 3rem;" class="icon-selection-item">
+                            <input type="radio" hidden checked>
+                            <div class="icon-selection-icon">
+                                <i id="currentSelectedIconHeader" class="{{ dashboard.header_icon }}"></i>
+                            </div>
+                        </div>
+                        <input type="text" id="headerEditIcon" value="{{ dashboard.header_icon }}" hidden>
+                    </div>
+                    <div class="course-content-input">
+                        <label class="edit-user-label" for="headerEditIconColor">Icon Color</label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" id="headerEditIconColorSample" style="background-color: {{ dashboard.header_icon_color }};"></label>
+                            <input class="color-picker" type="color" id="headerEditIconColor" value="{{ dashboard.header_icon_color }}" oninput="updateColorInfo('headerEditIconBackgroundColor')">
+                            <input type="text" id="headerEditIconColorHex" value="{{ dashboard.header_icon_color }}">                      
+                        </div>                     
+                    </div>
+                    <div class="course-content-input">
+                        <label class="edit-user-label" for="headerEditIconBackgroundColor">Icon Background Color</label>
+                        <div class="color-picker-container">
+                            <label class="color-sample" id="headerEditIconBackgroundColorSample" style="background-color: {{ dashboard.header_icon_background_color }};"></label>
+                            <input class="color-picker" type="color" id="headerEditIconBackgroundColor" value="{{ dashboard.header_icon_background_color }}" oninput="updateColorInfo('headerEditIconBackgroundColor')">
+                            <input type="text" id="headerEditIconBackgroundColorHex" value="{{ dashboard.header_icon_background_color }}">                  
+                        </div>                 
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="dashboard-edit-options-btn">
+            <div onclick="saveDashboardHeader({{ dashboard.id }})" class="main-add-btn course-save-btns">
+                <i class="fa-regular fa-floppy-disk"></i>
+                <span> Save Changes </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'popups/confirm_widget_delete.html' %}
+{% include 'popups/add_new_widget.html' %}
+{% include 'popups/icon_selection.html' %}
+{% include 'popups/banner_template_options.html' %}
+{% include 'popups/file_library.html' %}
+<script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+<script src="{% static 'client_admin/javascript/user_details.js' %}"></script>
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+<script src="{% static 'custom_dashboard/javascript/editDashboard.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script src="{% static 'client_admin\javascript\ajax_search_options.js' %}"></script>
+<script> const checkBannerPositionItems = '{{ dashboard.header_background_image_position }}';</script>
+<style>
+    .admin-header-container, .admin-sidebar-container {
+        display: none;
+    }
+</style>
+{% endblock %}

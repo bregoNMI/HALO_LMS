@@ -1,0 +1,120 @@
+/* Styles for course player */
+@media (max-width: 1085px) {
+    .footer-button-lesson-text{
+        display: none;
+    }
+    .course-footer-container .tab {
+        font-size: 15px;
+    }.course-footer-container .tab-indicator{
+        bottom: -2px;
+    }
+
+}
+@media (max-width: 946px) {
+    #toggleFooterBtn span{
+        display: none;
+    }
+    .lesson-list-option{
+        flex-wrap: wrap;
+    }
+}
+
+/* Styles for Tablet Devices*/
+@media (max-width: 768px) {
+    .course-footer-container .tab span{
+        display: none;
+    }.course-footer-container .tab i{
+        font-size: 1.1rem;
+    }.course-footer-container .tab.active i{
+        font-weight: 600;
+    }
+
+    .course-body #toggleCourseSidebar.toggle-course-sidebar{
+        display: none;
+    }#courseSidebar.course-sidebar-container{
+        display: none;
+    }.course-body{
+        margin-right: 0.7rem;
+    }
+
+    .lesson-list-option-right{
+        flex-wrap: wrap;
+        padding-top: 0.5rem;
+    }
+}
+
+/* Styles for Mobile Devices*/
+@media (max-width: 600px) {
+    /* Learner Dashboard */
+    .learner-dashboard-body .dashboard-header-container{
+        margin-top: unset;
+        border-radius: 0px 0px 6px 6px;
+    }
+    .learner-dashboard-body{
+        border: none;
+        padding: unset;
+    }
+    .custom-dashboard-body .dashboard-header-inner{
+        padding: unset;
+        width: 100%;
+    }
+    .dashboard-header-inner-left {
+        background-color: #0000002b;
+        padding: var(--pad-med);
+        border-radius: 0 0 6px 6px;
+        width: 100%;
+    }#widgets-container{
+        padding: var(--pad-xxxl);
+        padding-top: 0;
+    }#widgets-container .widget{
+        padding: 0.8rem 2rem;
+    }.widget-inner-wrapper {
+        flex-direction: column;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    /* Learner Pages */
+    .learner-sidebar-container{
+        display: none;
+    }.course-item{
+        width: 100%;
+    }.row-course-item{
+        margin-top: 2rem;
+    }.larger-buttons{
+        flex-wrap: wrap;
+        flex-direction: column;
+    }.learner-header-logout .action-button-primary{
+        padding: 8px 11px;
+    }.learner-header-logout .action-button-primary span{
+        display: none;
+    }
+
+    /* Profile Save Option */
+    .save-button-platform{
+        left: 2rem;
+        right: 2rem;
+        transform: unset;
+        width: unset;
+    }
+
+    /* Course Player Mobile */
+    .course-footer-container .tabs{
+        padding: 0 1rem;
+    }.course-footer-container .tab-content{
+        padding: 1rem 1rem 2rem 1rem;
+    }.course-footer-container-right{
+        padding: var(--pad-xs) var(--pad-med);
+    }
+    .course-button-primary span{
+        display: none;
+    }.course-button-primary i{
+        font-size: 1.1rem;
+    }
+
+    /* Achievements*/
+    .earned-badge-card{
+        max-width: unset;
+    }
+}
+  

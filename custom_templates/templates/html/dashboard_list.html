@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="admin-body">
+        <div class="details-top-row">
+            <div class="details-top-row-left">
+                <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3>Dashboard Templates</h3>
+            </div>
+            <div class="details-top-row-right">
+                <div class="option-btn-row">
+                    <a onclick="openPopup('templateCreationPopup')" class="action-button-primary">
+                        <i class="fa-regular fa-plus"></i>
+                        <span>Create Template</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- MAKE SURE TO KEEP THIS INPUT FOR REQUESTS -->
+        <input type="hidden" id="dashboard-id" value="{{ dashboard.id }}">
+        <div class="custom-dashboard-body">
+            <div class="card-items-container">
+                {% for dashboard in dashboards %}
+                    <a class="template-card" href="{% url 'dashboard_edit' dashboard.id %}">
+                        <div class="card-item">
+                            {% if dashboard.is_main %}
+                                <button class="set-main-dashboard tooltip" data-tooltip="Main Dashboard" data-id="{{ dashboard.id }}" data-is-main="true">
+                                    <span style="left: -100%; text-wrap: nowrap;" class="tooltiptext">Main Dashboard</span>
+                                    <i style="color: #ffbc00;" class="fa-solid fa-star"></i>
+                                </button>
+                            {% else %}
+                                <button class="set-main-dashboard tooltip" data-tooltip="Set As Main" data-id="{{ dashboard.id }}" data-is-main="false">
+                                    <span style="left: -140%; text-wrap: nowrap;" class="tooltiptext">Set As Main</span>
+                                    <i class="fa-regular fa-star"></i>
+                                </button>
+                            {% endif %}
+                            {% if dashboard.header_background_image %}
+                                <img src="{{ dashboard.header_background_image }}" alt="Dashboard Banner">
+                            {% else %}
+                                <div class="no-banner-placeholder">
+                                    <i class="fa-regular fa-image"></i>
+                                </div>          
+                            {% endif %}
+                            <div class="card-item-inner">
+                                <div class="card-item-body">
+                                    <div class="card-item-body-header">
+                                        <div style="background-color: {{ dashboard.header_icon_background_color }}; color: {{ dashboard.header_icon_color }};" class="card-item-icon">
+                                            <i style="color: {{ dashboard.header_icon_color }};" class="{{ dashboard.header_icon }}"></i>
+                                        </div>
+                                        <div class="card-item-heading">
+                                            <h3 class="edit-dashboard-title" data-layout="{{ dashboard.layout }}" data-id="{{ dashboard.id }}">{{ dashboard.name }}</h3>
+                                        </div>
+                                    </div>
+                                    <div class="card-item-body-center">
+                                        <span><span style="color: var(--text-color5); font-weight: 600;">{{ dashboard.num_widgets }}</span> Widgets</span>
+                                    </div>
+                                </div>
+                                        
+                                <div class="card-item-footer">
+                                    <div class="card-item-options">
+                                        <i class="fa-regular fa-ellipsis-vertical"></i>
+                                        <!-- Dropdown Menu -->
+                                        <div class="options-dropdown-menu" style="display: none;">
+                                            <button class="edit-dashboard" data-id="{{ dashboard.id }}">
+                                                <i class="fa-light fa-pen"></i>
+                                                <span>Edit</span>
+                                            </button>
+                                            <button class="delete-dashboard" data-id="{{ dashboard.id }}">
+                                                <i class="fa-light fa-trash-can"></i>
+                                                <span>Delete</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                   
+                        </div>
+                    </a>
+                {% endfor %}
+                <div style="display: none;" id="noDashboardsFound" class="no-widgets-found">
+                    <img src="{% static 'client_admin\Images\HALO LMS No Graphic Test-27.png' %}" alt="HALO Graphic">    
+                    <h4>No Dashboard Templates </h4>
+                    <span class="no-widgets-subtext"> Create a new dashboard to get started </span>
+                    <a onclick="openPopup('templateCreationPopup')" class="action-button-primary">
+                        <i class="fa-regular fa-plus"></i>
+                        <span>Create Dashboard</span>
+                    </a>          
+                </div>
+            </dv>
+        </div>
+    </div>
+    {% include 'popups/edit_dashboard_title.html' %}
+    {% include 'popups/confirm_dashboard_delete.html' %}
+    {% include 'popups/create_new_template.html' %}
+    <link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <script src="{% static 'custom_dashboard/javascript/dashboard.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+{% endblock content %}
+

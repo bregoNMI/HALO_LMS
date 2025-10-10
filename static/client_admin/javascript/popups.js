@@ -9,10 +9,53 @@ function openPopup(popup){
 }
 
 function closePopup(popup){
+    if(popup == 'takePhotoPopup'){
+        setTimeout(() => {resetCameraPermissions(popup);}, 300);   
+    }
+
     const currentPopup = document.getElementById(popup);
     const popupContent = currentPopup.querySelector('.popup-content');
     popupContent.classList.remove('animate-popup-content');
     setTimeout(() => {
         currentPopup.style.display = "none";
     }, 200);
+}
+
+function closeLibraryPopup(popup){
+    const currentPopup = document.getElementById(popup);
+    const popupContent = currentPopup.querySelector('.popup-content');
+    currentPopup.style.display = "none";
+    setTimeout(() => {        
+        popupContent.classList.remove('animate-popup-content');       
+    }, 200);
+}
+
+function openLibraryPopup(popup){
+    const currentPopup = document.getElementById(popup);
+    const popupContent = currentPopup.querySelector('.popup-content');
+
+    const fileLibrary = document.getElementById('fileLibrary');
+    fileLibrary.style.display = "none";
+    currentPopup.style.display = "flex";
+    setTimeout(() => {
+        fileLibrary.classList.remove('animate-popup-content');    
+        popupContent.classList.add('animate-popup-content');
+    }, 100);
+}
+
+function resetCameraPermissions(){
+    const cameraLoading = document.getElementById('cameraLoading');
+    const cameraFeed = document.getElementById('cameraFeed');
+    const photoCanvas = document.getElementById('photoCanvas');
+    const captureRegistrationPhoto = document.getElementById('captureRegistrationPhoto');
+
+    cameraLoading.classList.remove('hidden');
+    cameraFeed.classList.add('hidden');
+    captureRegistrationPhoto.classList.add('disabled');
+    captureRegistrationPhoto.setAttribute('disabled', true);
+    photoCanvas.style.display = 'none';
+    cameraFeed.style.display = 'none';
+
+    // Stop all video streams
+    cameraFeed.srcObject.getVideoTracks().forEach(track => track.stop());
 }

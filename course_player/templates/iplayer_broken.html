@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCORM Player</title>
+    {% load static %}
+    
+    <p>If you can see this text, the HTML is rendering correctly.</p>
+    <p>Signed URL: {{ scorm_index_file_url }}</p>
+
+    <!-- Include the SCORM API JavaScript wrapper -->
+    <script src="{% static 'course_player/javascript/SCORM_API_wrapper.js' %}?v=2"></script>
+
+    <script>
+        console.log("iplayer.html script loaded");
+
+        // Define the global lesson ID and user ID
+        window.lessonId = "{{ lesson.id }}";
+        window.userId = "{{ profile_id }}";
+        window.savedLocation = "{{ saved_location|escapejs }}"; // Passed from Django
+        window.savedProgress = "{{ saved_progress|default:0 }}";
+
+        let totalPages = 0;
+        let pagesVisited = new Set();
+
+        console.log("Profile ID:", window.userId);
+
+        // Initialize session start time globally
+        let sessionStartTime = new Date();
+
+        // Ensure SCORM API is available globally
+        window.API_1484_11 = window.API_1484_11 || {
+            Initialize: () => {
+                console.log("SCORM API: Initialize called");
+                sessionStartTime = new Date(); // Set the session start time
+                return "true";
+            },
+            Terminate: () => {
+                console.log("SCORM API: Terminate called");
+                return "true";
+            },
+            GetValue: (key) => {
+                console.log(`SCORM API: GetValue called for key: ${key}`);
+                
+                // Retrieve from mock data store
+                return this.dataStore ? this.dataStore[key] || "" : "";
+            },
+            SetValue: (key, value) => {
+                console.log(`SCORM API: SetValue called for key: ${key}, value: ${value}`);
+                
+                // Persist progress measure in a mock data store
+                if (!this.dataStore) {
+                    this.dataStore = {}; // Create a mock data store if it doesn't exist
+                }
+                this.dataStore[key] = value; // Store the key-value pair
+
+                return "true";
+            },
+            Commit: () => {
+                console.log("SCORM API: Commit called");
+                return "true";
+            },
+            SetBookmark: () => {
+                console.log("SCORM API: SetBookmark called");
+                return "true";
+            },
+            CommitData: () => {
+                console.log("SCORM API: CommitData called");
+                return "true";
+            },
+            GetLastError: () => "0",
+            GetErrorString: (errorCode) => "No error",
+            GetDiagnostic: (errorCode) => "",
+        };
+
+        // Function to calculate session time
+        function getSessionTime() {
+            const now = new Date();
+            const duration = Math.floor((now - sessionStartTime) / 1000); // Duration in seconds
+
+            const hours = Math.floor(duration / 3600);
+            const minutes = Math.floor((duration % 3600) / 60);
+            const seconds = duration % 60;
+
+            return `PT${hours}H${minutes}M${seconds}S`;
+        }
+
+        // Function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function getTotalPagesFromIframe() {
+            const iframe = document.getElementById("scormContentIframe");
+            if (iframe && iframe.contentWindow) {
+                try {
+                    const iframeDocument = iframe.contentWindow.document;
+
+                    // Adjust selectors to match the structure of your SCORM content
+                    const slides = iframeDocument.querySelectorAll(".slide, .page"); // Example selectors
+                    console.log("Slides Found:", slides.length);
+
+                    return slides.length;
+                } catch (error) {
+                    console.error("Unable to access iframe content:", error);
+                }
+            }
+            return 0; // Default fallback if pages are not found
+        }
+
+        function updateTotalPages() {
+            const iframe = document.getElementById("scormContentIframe");
+            if (iframe) {
+                iframe.addEventListener("load", () => {
+                    totalPages = getTotalPagesFromIframe();
+                    console.log("Total Pages Updated:", totalPages); // Display total pages in the console
+                });
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            updateTotalPages(); // Initialize the process to count total pages
+        });
+
+        // Function to send SCORM tracking data to the server
+        async function sendTrackingData(trackingData) {
+            console.log("Preparing to send tracking data:", trackingData);
+
+            try {
+                const response = await fetch('/course_player/track-scorm-data/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify(trackingData),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Successfully tracked SCORM data:", data);
+            } catch (error) {
+                console.error("Error tracking SCORM data:", error);
+            }
+        }
+
+        //function updateProgress(currentPage) {
+            // Add current page to visited set
+            //pagesVisited.add(currentPage);
+
+            //if (totalPages > 0) {
+                //const progress = pagesVisited.size / totalPages;
+                //window.API_1484_11.SetValue("cmi.progress_measure", progress.toFixed(2));
+                //console.log(`Progress Updated: ${progress}`);
+                //trackProgress();
+            //}
+        //}
+
+        function getProgressFromIframe() {
+            return new Promise((resolve, reject) => {
+                const iframe = document.getElementById("scormContentIframe");
+                console.log("Checking iframe for progress...");
+
+                if (iframe && iframe.contentWindow) {
+                    try {
+                        const iframeDocument = iframe.contentWindow.document;
+                        
+                        setTimeout(() => {
+                            const progressElement = iframeDocument.querySelector(".nav-sidebar-header__progress-text");
+
+                            if (progressElement) {
+                                const progressText = progressElement.textContent.trim();
+                                console.log("📊 Found Progress Element:", progressText);
+
+                                const progressMatch = progressText.match(/(\d+)%/);
+                                if (progressMatch) {
+                                    const progressValue = parseInt(progressMatch[1], 10) / 100;
+                                    console.log("✅ Extracted Progress:", progressValue);
+                                    resolve(progressValue); // ✅ Properly return extracted progress
+                                } else {
+                                    console.warn("⚠️ No valid progress found.");
+                                    resolve(0);
+                                }
+                            } else {
+                                console.warn("⚠️ No progress element found.");
+                                resolve(0);
+                            }
+                        }, 2000); // Wait for content to load before extracting progress
+                        
+                    } catch (error) {
+                        console.error("❌ Error extracting progress:", error);
+                        reject(error);
+                    }
+                } else {
+                    console.error("❌ Iframe or iframe.contentWindow not available.");
+                    resolve(0);
+                }
+            });
+        }
+
+
+        function updateSidebarProgress() {
+            console.log("Updating sidebar progress...");
+
+            const iframe = document.getElementById("scormContentIframe");
+
+            if (iframe && iframe.contentWindow) {
+                try {
+                    // Wait until iframe loads fully
+                    iframe.addEventListener("load", function () {
+                        console.log("SCORM content loaded, checking sidebar...");
+
+                        const iframeDocument = iframe.contentWindow.document;
+
+                        // Wait for the sidebar to be available
+                        setTimeout(() => {
+                            const progressElements = iframeDocument.querySelectorAll(".lesson-progress");
+
+                            if (progressElements.length > 0) {
+                                console.log(`Found ${progressElements.length} progress elements.`);
+
+                                progressElements.forEach((progressElement) => {
+                                    const progressText = progressElement.textContent.trim();
+
+                                    // Extract numeric progress percentage (e.g., "19% Completed")
+                                    const progressMatch = progressText.match(/(\d+)%/);
+                                    if (progressMatch) {
+                                        const progressValue = parseInt(progressMatch[1], 10);
+
+                                        // Update the progress bar dynamically
+                                        progressElement.style.width = `${progressValue}%`;
+                                        progressElement.setAttribute("data-progress", progressValue);
+
+                                        console.log(`Updated progress bar to ${progressValue}%`);
+                                    }
+                                });
+                            } else {
+                                console.warn("⚠️ No progress elements found in the sidebar. Double-check the selector.");
+                            }
+                        }, 1000); // Give it 1 second to ensure sidebar is fully rendered
+                    });
+                } catch (error) {
+                    console.error("Error updating sidebar progress:", error);
+                }
+            } else {
+                console.error("⚠️ Iframe or contentWindow not available.");
+            }
+        }
+
+        async function trackProgress() {
+            try {
+                console.log("⏳ Tracking progress...");
+                
+                const progressMeasure = await getProgressFromIframe(); // ✅ Wait for extracted progress
+
+                console.log("📊 Extracted Progress:", progressMeasure);
+
+                if (progressMeasure > 0) {
+                    window.API_1484_11.SetValue("cmi.progress_measure", progressMeasure.toFixed(2));
+                    console.log(`✅ Progress Updated: ${progressMeasure}`);
+
+                    if (progressMeasure === 1) {
+                        window.API_1484_11.SetValue("cmi.completion_status", "complete");
+                        console.log("✅ Completion Status Updated to: complete");
+                    }
+
+                    // Send tracking data to backend
+                    sendTrackingData({
+                        lesson_id: window.lessonId,
+                        user_id: window.userId,
+                        progress: progressMeasure,
+                        completion_status: progressMeasure === 1 ? "complete" : "incomplete",
+                        session_time: getSessionTime(),
+                        score: null,
+                    });
+                } else {
+                    console.warn("⚠️ Progress measure is 0, skipping tracking.");
+                }
+            } catch (error) {
+                console.error("❌ Error in trackProgress:", error);
+            }
+        }
+
+
+        // Set progress tracking interval
+        //document.addEventListener("DOMContentLoaded", function () {
+            //console.log("Adding progress tracking interval.");
+            //setInterval(trackProgress, 30000); // Track progress every 60 seconds
+        //});
+
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("Checking for saved progress...");
+
+            const iframe = document.getElementById("scormContentIframe");
+
+            const progressElements = document.querySelectorAll(".lesson-progress");
+            progressElements.forEach((progressElement) => {
+                let progressValue = window.savedProgress * 100;
+                progressElement.textContent = `${progressValue}% COMPLETE`;
+
+                // Update progress bar UI
+                const progressBar = progressElement.querySelector(".progress-circle");
+                if (progressBar) {
+                    progressBar.style.strokeDasharray = `${progressValue}, 100`; // Update circular progress bar
+                }
+            });
+
+            console.log("✅ Sidebar progress updated before page load.");
+
+            if (window.savedLocation) {
+                console.log(`Resuming at saved location: ${window.savedLocation}`);
+
+                iframe.addEventListener("load", function () {
+                    console.log(`Navigating to saved location: ${window.savedLocation}`);
+                    iframe.contentWindow.location.href = window.savedLocation;
+
+                    setTimeout(() => {
+                        iframe.contentWindow.scrollTo(0, window.savedScrollPosition);
+                        console.log(`Restored scroll position: ${window.savedScrollPosition}`);
+                    }, 1000); // Allow time for page to load
+                });
+            }
+
+            console.log("Adding progress tracking interval.");
+            setInterval(() => {
+                console.log("🔄 Tracking progress automatically...");
+                trackProgress();
+            }, 30000);    // Track progress every 30 seconds
+
+            if (iframe) {
+                iframe.addEventListener("load", function () {
+                    const progress = getProgressFromIframe();
+                    console.log(`Current Progress: ${progress * 100}%`);
+                    trackProgress();
+                    // 🔹 Call updateSidebarProgress() after iframe is fully loaded
+                    setTimeout(updateSidebarProgress, 1500);
+                });
+
+                // Log available iframe content (optional for debugging)
+                if (iframe.contentWindow) {
+                    console.log("iframe contentWindow properties:", Object.keys(iframe.contentWindow));
+                }
+
+                // Load event to handle specific SCORM interactions or content
+                iframe.addEventListener("load", () => {
+                    console.log("SCORM content iframe loaded");
+
+                    try {
+                        // Example of LMSProxy override (already in your script)
+                        const iframeWindow = iframe.contentWindow;
+
+                        if (iframeWindow && iframeWindow.LMSProxy) {
+                            console.log("LMSProxy detected. Wrapping SetDataChunk...");
+
+                            const originalSetDataChunk = iframeWindow.LMSProxy.SetDataChunk;
+
+                            iframeWindow.LMSProxy.SetDataChunk = function (data) {
+                                console.log("SetDataChunk called with data:", data);
+
+                                // Process SetDataChunk data and extract progress (your existing logic)
+                                if (data) {
+                                    try {
+                                        const parsedData = JSON.parse(data);
+                                        console.log("Parsed SetDataChunk data:", parsedData);
+
+                                        if (parsedData.totalSlides) {
+                                            totalPages = parsedData.totalSlides;
+                                            console.log("Total Slides Updated:", totalPages);
+                                        }
+
+                                        if (parsedData.currentSlide) {
+                                            const currentPage = parsedData.currentSlide;
+                                            pagesVisited.add(currentPage);
+                                            console.log("Current Slide Visited:", currentPage);
+
+                                            if (totalPages > 0) {
+                                                const progress = pagesVisited.size / totalPages;
+                                                window.API_1484_11.SetValue("cmi.progress_measure", progress.toFixed(2));
+                                                console.log(`Progress Updated: ${progress}`);
+
+                                                trackProgress();
+                                            }
+                                        }
+                                    } catch (error) {
+                                        console.error("Error parsing SetDataChunk data:", error);
+                                    }
+                                }
+
+                                return originalSetDataChunk.apply(this, arguments);
+                            };
+                        } else {
+                            console.warn("LMSProxy not found in iframe content.");
+                        }
+                    } catch (error) {
+                        console.error("Error wrapping LMSProxy.SetDataChunk:", error);
+                    }
+                });
+            } else {
+                console.error("Iframe with ID 'scormContentIframe' not found.");
+            }
+        });
+
+    </script>
+</head>
+<body>
+    <div class="scorm-container">
+        <iframe 
+            id="scormContentIframe"
+            src="{{ scorm_index_file_url }}"
+            frameborder="0" 
+            width="100%" 
+            height="800px" 
+            sandbox="allow-scripts allow-same-origin allow-forms"
+            allowfullscreen>
+        </iframe>
+    </div>
+</body>
+</html>

@@ -1,0 +1,467 @@
+{% extends 'learner_base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+{% include 'learner_sidebar.html' %}
+<div class="learner-body align-center scrollable-content">
+    {% include 'messageContainer/message_container.html' %}
+    <div class="max-width-extend-1">
+        <div class="learner-top-row">
+            <div class="learner-top-row-left">
+                <h2>My Courses</h2>
+                <span>Select the course you would like to open</span>
+            </div>
+            <div class="learner-top-row-right">
+                <!-- <div class="learner-primary-button">
+                    <i class="fa-regular fa-lock-keyhole"></i>
+                    <span> Change Password </span>
+                </div> -->
+            </div>
+        </div>
+        <div class="learner-body-inner"> 
+            <div class="learner-courses-container">
+                {% for user_course in user_courses %}
+                    <div class="course-item">
+                        <div class="course-item-top">                         
+                            {% if user_course.course.thumbnail.thumbnail_link %}
+                                <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_link }});" class="course-item-thumbnail"></div>
+                            {% elif user_course.course.thumbnail.thumbnail_image %}
+                                <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_image.url }});" class="course-item-thumbnail"></div>
+                            {% else %}
+                                {% if settings.default_course_thumbnail %}
+                                    <div style="background-image: url({{ settings.default_course_thumbnail_image.url }});" class="course-item-thumbnail"></div>
+                                {% else %}
+                                    <div class="course-item-thumbnail">
+                                        <div class="thumbnail-placeholder">
+                                            <i class="fa-light fa-book-open-cover"></i>
+                                        </div>
+                                    </div> 
+                                {% endif %}                                  
+                            {% endif %}
+                            <div class="course-item-status">
+                                {% if user_course.get_status == 'Not Started' %}
+                                    <div class="course-item-status-item purple-status-item">
+                                        <i class="fa-regular fa-rocket-launch"></i>
+                                    </div>
+                                {% elif user_course.get_status == 'Started' %}
+                                    <div class="course-item-status-item purple-status-item">
+                                        <i class="fa-solid fa-play"></i>
+                                    </div>
+                                {% elif user_course.get_status == 'Completed' %}
+                                    <div class="course-item-status-item green-status-item">
+                                        <i class="fa-solid fa-check"></i>
+                                    </div>
+                                {% elif user_course.get_status == 'Not Completed' %}
+                                    <div class="course-item-status-item yellow-status-item">
+                                        <i class="fa-regular fa-light-emergency-on"></i>
+                                    </div>
+                                {% elif user_course.get_status == 'Scheduled' %}
+                                    <div class="course-item-status-item yellow-status-item">
+                                        <i class="fa-kit fa-regular-calendar-star-lock"></i>
+                                    </div> 
+                                {% elif user_course.get_status == 'Expired' %}
+                                    <div class="course-item-status-item red-status-item">
+                                        <i class="fa-regular fa-stopwatch"></i>
+                                    </div>
+                                {% elif user_course.get_status == 'Overdue' %}
+                                    <div class="course-item-status-item yellow-status-item">
+                                        <i class="fa-regular fa-calendar-exclamation"></i>
+                                    </div>
+                                {% endif %}  
+                            </div>
+                        </div>
+                        
+                        <div class="course-item-inner">
+                            <div class="course-item-body">
+                                <div class="course-item-type-wrapper">
+                                    {% if user_course.course.type == 'online' %}
+                                        <span class="course-item-type pastel-purple"> Online Course </span>
+                                    {% else %}
+                                        <span class="course-item-type pastel-orange"> In-Person Course </span>
+                                    {% endif %}
+                                </div>
+                                
+                                <h4 class="course-item-title limit-text-wrap">{{ user_course.course.title }}</h4>
+                                <div class="course-item-progress-container">
+                                    <div class="course-item-progress-bar-container">
+                                        <div class="course-item-progress-bar" style="width: {{ user_course.progress }}%;"></div>
+                                    </div>
+                                    <span>{{ user_course.progress }}%</span>
+                                </div>
+                                
+                            </div>
+                            <div class="course-item-footer">
+                                <div class="course-item-footer-item">
+                                    <i class="fa-regular fa-photo-film"></i>
+                                    {% if user_course.course.get_lesson_count > 1 %}
+                                        <span>{{ user_course.course.get_lesson_count }} Lessons</span> 
+                                    {% else %}
+                                        <span>{{ user_course.course.get_lesson_count }} Lesson</span>
+                                    {% endif %}
+                                </div>
+                                {% if user_course.get_expiration_date or user_course.get_due_date or user_course.get_start_date %}
+                                    <div class="course-item-footer-item">
+                                        <i class="fa-solid fa-circle-small footer-spacer"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="course-item-footer-item">
+                                    {% if user_course.get_expiration_date %}
+                                        <!-- <i class="fa-regular fa-stopwatch"></i> -->
+                                        <i class="fa-regular fa-calendar-clock"></i>
+                                        <span> {{ user_course.get_expiration_date }}</span>
+                                    {% elif user_course.get_due_date %}
+                                        <i class="fa-regular fa-calendar-exclamation"></i>
+                                        <span> {{ user_course.get_due_date }}</span>
+                                    {% elif user_course.get_start_date %}
+                                        <i class="fa-regular fa-calendar-star"></i>
+                                        <span> {{ user_course.get_start_date }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>          
+                    </div>
+                    <div id="courseItemPopup" class="popup-background">
+                        <div class="popup-content max-width-2" style="border-top-right-radius: 16px; border-top-left-radius: 16px;">
+                            <div class="course-item-popup-banner">
+                                <div class="close-course-item-popup" onclick="closeCourseItemPopup(this.closest('.popup-background'))">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </div>
+                                <div class="course-item-popup-banner-inner">
+                                    <div class="course-item-popup-type-wrapper">
+                                        {% if user_course.course.type == 'online' %}
+                                            <span class="course-item-popup-type"> Online Course </span>
+                                        {% else %}
+                                            <span class="course-item-popup-type"> In-Person Course </span>
+                                        {% endif %}
+                                    </div>
+                                    <h4 class="course-item-popup-title">{{ user_course.course.title }}</h4>
+                                    {% if user_course.course.estimated_completion_time %}
+                                        <div class="course-time-wrapper">
+                                            <i class="fa-regular fa-clock"></i>
+                                            <span>{{ user_course.course.estimated_completion_time|format_time }}</span>
+                                        </div>
+                                    {% endif %}
+                                    <!-- Button To Start Course -->
+                                    {% if user_course.get_status == 'Not Started' %}
+                                        <button class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
+                                            <i class="fa-regular fa-rocket-launch"></i>
+                                            <span> Start Course</span>
+                                        </button>
+                                    {% elif user_course.get_status == 'Started' or user_course.get_status == 'Not Completed' %}
+                                        <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
+                                            <i class="fa-regular fa-circle-play"></i>
+                                            <span> Resume Course</span>
+                                        </div>
+                                    {% elif user_course.get_status == 'Completed' %}
+                                        <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
+                                            <i class="fa-regular fa-glasses"></i>
+                                            <span> Review Course</span>
+                                        </div>
+                                    {% elif user_course.get_status == 'Scheduled' %}
+                                        <div class="start-course-btn learner-save-btns disabled">
+                                            <i class="fa-kit fa-regular-calendar-star-lock"></i>
+                                            <span> Course Scheduled </span>
+                                        </div> 
+                                    {% elif user_course.get_status == 'Expired' %}
+                                        <div class="start-course-btn learner-save-btns disabled">
+                                            <i class="fa-regular fa-stopwatch"></i>
+                                            <span> Course Expired</span>
+                                        </div>
+                                    {% elif user_course.get_status == 'Overdue' %}
+                                        <div class="start-course-btn learner-save-btns" onclick="launchCourse('{{ user_course.lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}')">
+                                            <i class="fa-regular fa-calendar-exclamation"></i>
+                                            <span> Course Overdue </span>
+                                        </div>
+                                    {% endif %}  
+                                </div>
+                            </div>
+                            <div class="course-item-popup">
+                                <div class="tabs-container">
+                                    <div class="tabs">
+                                        <button class="tab active" data-target="tab1">Overview</button>
+                                        <button class="tab" data-target="tab2">Lessons</button>
+                                        {% if user_course.course.resources.exists and user_course.course.referencesEnabled %}
+                                            <button class="tab" data-target="tab3">Reference Materials</button>
+                                        {% endif %}
+                                        {% if user_course.course.uploads.exists and user_course.course.uploadsEnabled %}
+                                            <button class="tab" data-target="tab4">Assignments</button>
+                                        {% endif %}
+                                        {% if user_course.certificates.exists %}
+                                            <button class="tab" data-target="tab5">Certificate</button>
+                                        {% endif %}
+                                        <div class="tab-indicator"></div>
+                                    </div>
+                                
+                                    <div class="tab-content-container">
+                                        <div class="tab-content active scrollable-content-inner" id="tab1">
+                                            {% if user_course.course.description != '<p><br></p>' and user_course.course.description %}
+                                                <div class="tab-content-description">
+                                                    <div class="description-wrapper">
+                                                        <div class="description-content">
+                                                            {{ user_course.course.description|safe }}
+                                                        </div>
+                                                        <div class="fade-overlay"></div>
+                                                    </div>
+                                                    <div class="read-more-toggle" onclick="toggleDescription(event)">Read More</div>
+                                                </div>
+                                            {% endif %}
+                                            {% if user_course.get_start_date or user_course.get_due_date or user_course.get_expiration_date %}
+                                                <div class="tab-content-event-dates">
+                                                    {% if user_course.get_start_date %}
+                                                        <div class="tab-content-event-dates-item">
+                                                            <div class="tab-content-event-dates-item-top">
+                                                                <i class="fa-regular fa-calendar-star"></i>
+                                                                <span>Start Date</span>
+                                                            </div>
+                                                            <span class="event-dates-subtext"> {{ user_course.get_start_date }} </span>
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if user_course.get_due_date %}
+                                                        <div class="tab-content-event-dates-item">
+                                                            <div class="tab-content-event-dates-item-top">
+                                                                <i class="fa-regular fa-calendar-exclamation"></i>
+                                                                <span>Due Date</span>
+                                                            </div>
+                                                            <span class="event-dates-subtext"> {{ user_course.get_due_date }} </span>
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if user_course.get_expiration_date %}
+                                                        <div class="tab-content-event-dates-item">
+                                                            <div class="tab-content-event-dates-item-top">
+                                                                <i class="fa-regular fa-calendar-clock"></i>
+                                                                <span>Expiration Date</span>
+                                                            </div>
+                                                            <span class="event-dates-subtext"> {{ user_course.get_expiration_date }} </span>
+                                                        </div>                                         
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="tab-content scrollable-content-inner" id="tab2">
+                                            {% for module_progress in user_course.module_progresses.all %}
+                                                <div class="course-item-module-wrapper">
+                                                    <div class="course-item-module-header">
+                                                        <h4 class="course-item-module-title">{{ module_progress.module.title }}</h4>
+                                                        {% if module_progress.lesson_progresses.all|length > 1%}
+                                                            <span class="lesson-counter pastel-blue"> {{ module_progress.lesson_progresses.all|length }} Lessons</span>
+                                                        {% else %}
+                                                            <span class="lesson-counter pastel-blue"> {{ module_progress.lesson_progresses.all|length }} Lesson</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="course-item-lesson-container">
+                                                        {% for lesson_progress in module_progress.lesson_progresses.all %}
+                                                            <div class="course-item-lesson-wrapper">
+                                                                <div class="course-item-lesson-header">
+                                                                    {% if lesson_progress.completed %}
+                                                                        <div class="course-item-lesson-complete-icon">
+                                                                            <i class="fa-solid fa-circle-check"></i>
+                                                                        </div>                                                             
+                                                                    {% else %}
+                                                                        <div class="course-item-lesson-icon">{{ forloop.counter }}</div>
+                                                                    {% endif %}                                                                
+                                                                    <h5 class="course-item-lesson-title">{{ lesson_progress.lesson.title }}</h5>
+                                                                </div>
+                                                                {% if lesson_progress.lesson.description != '<p><br></p>' and lesson_progress.lesson.description %}
+                                                                    <div class="course-item-lesson-body">
+                                                                        <div class="course-item-lesson-description">{{ lesson_progress.lesson.description|safe }}</div>
+                                                                    </div>
+                                                                {% endif %}
+                                                            </div>
+                                                        {% empty %}
+                                                            <span>No lessons available.</span>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            {% empty %}
+                                                <span>No modules available.</span>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="tab-content scrollable-content-inner" id="tab3">
+                                            <div class="course-resources-container">
+                                                {% for resource in user_course.course.resources.all %}
+                                                    {% if resource.type == 'reference' %}
+                                                        <a href="{{ resource.url }}" target="_blank" class="reference-item">
+                                                            <div class="reference-item-left">
+                                                                <div class="reference-icon pastel-blue">
+                                                                    {% if resource.file_type == 'pdf' %}
+                                                                        <i class="fa-light fa-file-pdf"></i>
+                                                                    {% elif resource.file_type == 'audio' %}
+                                                                        <i class="fa-light fa-volume"></i>
+                                                                    {% elif resource.file_type == 'image' %}
+                                                                        <i class="fa-light fa-image"></i>
+                                                                    {% elif resource.file_type == 'video' %}
+                                                                        <i class="fa-light fa-film"></i>
+                                                                    {% elif resource.file_type == 'document' %}
+                                                                        <i class="fa-light fa-file-doc"></i>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="reference-text">
+                                                                    <h4>{{ resource.title }}</h4>
+                                                                    {% if resource.description != '<p><br></p>' %}
+                                                                        <span class="popup-header-subtext">{{ resource.description|safe }}</span>
+                                                                    {% endif %}
+                                                                    <!-- <span>{{ resource.file_type }}</span> -->
+                                                                </div>
+                                                            </div>
+                                                            <div class="reference-item-right">
+                                                                <i class="fa-regular fa-arrow-up-right-from-square"></i>
+                                                            </div>                             
+                                                        </a>                                                    
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <div class="tab-content scrollable-content-inner" id="tab4">
+                                            <div class="course-assignments-container">
+                                                {% with full_course_assignment_map|get_item:user_course.course.id as full_course_assignments %}
+                                                    {% if full_course_assignments %}
+                                                        <div class="assignments-container">
+                                                            <div class="assignments-top-row">
+                                                                <div class="assignments-top-row-left">
+                                                                    <h3>Full-Course Assignments</h3>
+                                                                    <span class="popup-header-subtext">Assignments that can be completed at any time</span>
+                                                                </div>
+                                                                <div class="assignments-top-row-right">
+                                                                    <span>{{ full_course_assignments|length }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="assignments-body">
+                                                                {% for assignment in full_course_assignments %}
+                                                                    <button onclick="openAssignment({{ assignment.id }})"
+                                                                            class="assignment-item {{ assignment.status }}"
+                                                                            data-assignment-id="{{ assignment.id }}">
+                                                                        <div class="assignment-item-left">
+                                                                            <i class="fa-regular fa-flag"></i>
+                                                                            <span>{{ assignment.title }}</span>
+                                                                        </div>
+                                                                        <div class="assignment-item-right">
+                                                                            {% if assignment.status == 'approved' %}
+                                                                                <div class="assignment-complete-icon">
+                                                                                    <i class="fa-solid fa-circle-check"></i>
+                                                                                </div>
+                                                                            {% elif assignment.status == 'submitted' %}
+                                                                                <div class="assignment-submitted-icon">
+                                                                                    <i class="fa-regular fa-clock"></i>
+                                                                                </div>
+                                                                            {% elif assignment.status == 'rejected' %}
+                                                                                <div class="assignment-rejected-icon">
+                                                                                    <i class="fa-regular fa-circle-xmark"></i>
+                                                                                </div>
+                                                                            {% endif %}
+                                                                        </div>
+                                                                    </button>
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endwith %}
+
+                                                {# Lesson-specific assignments #}
+                                                {% with course_lesson_assignment_map|get_item:user_course.course.id as ordered_lesson_assignment_pairs %}
+                                                    {% if ordered_lesson_assignment_pairs %}
+                                                        <div class="assignments-container">
+                                                            <div class="assignments-top-row">
+                                                                <div class="assignments-top-row-left">
+                                                                    <h3>Lesson-Specific Assignments</h3>
+                                                                    <span class="popup-header-subtext">These assignments are tied to lessons</span>
+                                                                </div>
+                                                                <div class="assignments-top-row-right">
+                                                                    <span>{{ ordered_lesson_assignment_pairs|length }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="assignments-body">
+                                                                {% for pair in ordered_lesson_assignment_pairs %}
+                                                                    <button onclick="openAssignment({{ pair.assignment.id }}, {{ pair.lesson.id }})"
+                                                                            class="assignment-item {% if pair.locked %}disabled locked{% endif %} {{ pair.status }}"
+                                                                            {% if pair.locked %}disabled{% endif %}
+                                                                            data-assignment-id="{{ pair.assignment.id }}"
+                                                                            {% if pair.lesson.id %}data-lesson-id="{{ pair.lesson.id }}"{% endif %}>
+                                                                        <div class="assignment-item-left">
+                                                                            <i class="fa-regular fa-flag"></i>
+                                                                            <span>{{ pair.assignment.title }} ({{ pair.lesson.title }})</span>
+                                                                        </div>
+                                                                        <div class="assignment-item-right">
+                                                                            {% if pair.locked %}
+                                                                                <div class="assignment-locked-icon">
+                                                                                    <i class="fa-solid fa-lock"></i>
+                                                                                </div>
+                                                                            {% elif pair.status == 'approved' %}
+                                                                                <div class="assignment-complete-icon">
+                                                                                    <i class="fa-solid fa-circle-check"></i>
+                                                                                </div>
+                                                                            {% elif pair.status == 'submitted' %}
+                                                                                <div class="assignment-submitted-icon">
+                                                                                    <i class="fa-regular fa-clock"></i>
+                                                                                </div>
+                                                                            {% elif pair.status == 'rejected' %}
+                                                                                <div class="assignment-rejected-icon">
+                                                                                    <i class="fa-regular fa-circle-xmark"></i>
+                                                                                </div>
+                                                                            {% endif %}
+                                                                        </div>
+                                                                    </button>
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                        <div class="tab-content scrollable-content-inner" id="tab5">
+                                            <div class="certificate-items-container">
+                                                {% for cert in user_course.certificates.all %}
+                                                    <a href="{{ cert.file.url }}" class="certificate-item-wrapper" target="_blank">
+                                                        <div class="certificate-item-left">
+                                                        <i class="fa-light fa-award pastel-blue"></i>
+                                                        </div>
+                                                        <div class="certificate-item-right">
+                                                        <span class="certificate-item-title">{{ user_course.course.certificate_title }}</span>
+
+                                                        <div class="course-item-footer">
+                                                            <div class="course-item-footer-item">
+                                                            <i class="fa-regular fa-calendar-check"></i>
+                                                            <span><b>Issued On:</b> {{ cert.issued_at|date:"Y-m-d" }}</span>
+                                                            </div>
+
+                                                            {# show expiration if present #}
+                                                            {% with exp=cert.expiration_date %}
+                                                            {% if exp %}
+                                                                <div class="course-item-footer-item">
+                                                                <i class="fa-solid fa-circle-small footer-spacer"></i>
+                                                                </div>
+                                                                <div class="course-item-footer-item">
+                                                                <i class="fa-regular fa-calendar-clock"></i>
+                                                                <span><b>Expires:</b> {{ exp|date:"Y-m-d" }}</span>
+                                                                </div>
+                                                            {% endif %}
+                                                            {% endwith %}
+                                                        </div>
+                                                        </div>
+                                                    </a>
+                                                {% empty %}
+                                                    <span class="card-info-icon">Learner does not have any certificates yet.</span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>                        
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div style="display: flex;" class="no-widgets-found">
+                        <img src="/static/client_admin/images/HALO LMS No Graphic Test-27.png" alt="No Widgets Image">    
+                        <h4>It's empty in here</h4>
+                        <span class="no-widgets-subtext"> You are currently not enrolled in any courses </span>        
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+<script src="{% static 'learner_dashboard/javascript/learner.js' %}"></script>
+{% endblock %}

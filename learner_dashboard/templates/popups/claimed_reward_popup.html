@@ -1,0 +1,21 @@
+<div id="claimedRewardPopup" class="popup-background">
+    <div class="popup-content max-width-7 border-radius-plus">
+        <div class="popup-body scrollable-content" style="border: none;">
+            <div class="claimed-reward-popup-header">
+                <span class="claimed-reward-title pastel-gold">Reward Claimed</span>
+                <div id="claimedRewardsCredits" class="claimed-reward-credits hidden"></div>
+            </div>
+            <div class="claimed-reward-popup-body">
+                <div id="claimedRewardCredits" class="claimed-reward-credits"></div>
+                <div id="claimedRewardsColumn" class="claimed-reward-column margin-top-8 hidden">
+                    <img id="claimedRewardIcon" class="claimed-reward-icon" alt="Badge Icon" />
+                    <div class="claimed-reward-text margin-bottom-12 margin-top-4">
+                        <div id="claimedRewardName" class="claimed-reward-name"></div>
+                        <div id="claimedRewardDesc" class="claimed-reward-desc"></div>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closePopup('claimedRewardPopup'), resetRewardPopup()" class="action-button-primary rounded-lg margin-top-8 learner-save-btns">Close</button>
+        </div>
+    </div>
+</div>

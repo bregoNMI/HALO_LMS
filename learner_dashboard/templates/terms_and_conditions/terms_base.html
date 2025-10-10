@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <script src="https://kit.fontawesome.com/d26020b714.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    {% if settings.portal_favicon %}
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ settings.portal_favicon.url }}">
+    {% else %}
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images\favicon\16x16.png' %}">
+    {% endif %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HALO LMS</title>
+    <link rel="stylesheet" href="{% static 'global_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'global_variables.css' %}">
+    <link rel="stylesheet" href="{% static 'learner_dashboard\css\learner.css' %}">
+    <script src="{% static 'client_admin\javascript\message_container.js' %}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="{% static 'mobile_styles.css' %}">
+</head>
+<body class="learner-body-container scrollable-content">
+    {% include 'terms_and_conditions/terms_header.html' %}
+    <div class="learner-body-container-inner section-overlay-container">
+        {% block content %}{% endblock %}
+    </div>
+    {% include 'learner_footer.html' %}
+</body>
+</html>
+<script>
+    let flatpickr_format = '{{ flatpickr_format }}';
+</script>

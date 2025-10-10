@@ -1,0 +1,29 @@
+<div id="verifyHeadshotFacePopup" class="popup-background">
+    <div class="popup-content max-width-7 border-radius-plus">
+        <div class="popup-body" style="border-top: none;">
+            <div class="verify-headshot-body margin-top-10">
+                <div class="verify-headshot-top">
+                    <div id="verifyHeadshotLoading" class="verify-headshot-loading">
+                        <i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;"></i>
+                    </div>
+                    <div class="verify-headshot-result">
+                        <div id="verifyHeadshotSuccess" class="verify-headshot-success hidden">
+                            <i class="fa-regular fa-circle-check fa-bounce"></i>
+                        </div>
+                        <div id="verifyHeadshotFailed" class="verify-headshot-failed hidden">
+                            <i class="fa-regular fa-circle-x fa-bounce"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="enrollment-key-text margin-top-10 margin-bottom-10">
+                    <h3 id="verifyHeadshotHeading"></h3>
+                    <span id="verifyHeadshotDesc" class="margin-top-3">Analyzing your Headshot Photo...</span>
+                </div>
+            </div>
+
+            <button id="reUploadHeadshotBtn" onclick="closePopup('verifyHeadshotFacePopup')" class="action-button-secondary rounded-lg margin-top-8 learner-save-btns reupload-headshot-btn hidden">Re-upload Headshot Photo</button>
+            <button id="saveVerifyHeadshotFace" onclick="document.getElementById('saveUserBtn').click()" class="action-button-primary rounded-lg margin-top-8 learner-save-btns hidden">Save Changes</button> 
+            <button id="closeVerifyHeadshotFace" onclick="closePopup('verifyHeadshotFacePopup')" class="action-button-primary rounded-lg margin-top-4 reupload-headshot-btn hidden">Close</button>          
+        </div>
+    </div>
+</div>

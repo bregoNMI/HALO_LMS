@@ -1,0 +1,20 @@
+<div id="userImportSummary" class="popup-background">
+    <div class="popup-content max-width-6 border-radius-plus">
+        <div class="popup-body scrollable-content" style="border: none;">
+            <div class="import-summary-popup-header">
+                <span id="importSummaryTitleBadge" class="import-summary-title pastel-gray">Import Summary</span>
+            </div>
+            <div id="userImportSummaryBody" class="import-summary-popup-body">
+                <div id="importSummaryTop" class="import-summary-top-row margin-top-20 margin-bottom-10">
+                    <div id="importSummaryItemUpdated" class="import-summary-item" style="opacity: 0;"></div>
+                    <div id="importSummaryItemCreated" class="import-summary-item" style="opacity: 0;"></div>
+                    <div id="importSummaryItemSkipped" class="import-summary-item" style="opacity: 0;"></div>
+                </div>
+                <div id="importSummaryNotesContainer" class="import-summary-notes margin-bottom-20" style="opacity: 0;">
+                    <span id="importSummaryNotes"></span>
+                </div>
+            </div>
+            <button onclick="closePopup('userImportSummary'); finishUserImport();" class="action-button-primary rounded-lg margin-top-8">Finish</button>
+        </div>
+    </div>
+</div>

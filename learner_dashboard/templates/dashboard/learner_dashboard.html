@@ -1,0 +1,140 @@
+{% extends 'learner_base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'global_styles.css' %}">
+<div class="learner-dashboard-body align-center scrollable-content">
+    <div class="custom-dashboard-body max-width-extend-1">
+        <input type="hidden" id="dashboard-id" value="{{ dashboard.id }}">
+        <div id="headerImage" class="dashboard-header-container image-section" style="background-image: url('{{ dashboard.header_background_image }}'); background-position: {{ dashboard.header_background_image_position }};">
+            <div class="dashboard-header-inner">
+                <div class="dashboard-header-inner-left">
+                    <div id="headerIcon" class="icon-wrapper" style="background-color: {{ dashboard.header_icon_background_color }};">
+                        <i class="{{ dashboard.header_icon }}" style="color: {{ dashboard.header_icon_color }};"></i>
+                    </div>
+                    <div class="text-wrapper">
+                        <h3 id="headerTitle" style="color: {{ dashboard.header_text_color }};" data-header-title="{{ dashboard.header_title }}" data-first-name="{{ first_name }}" data-last-name="{{ last_name }}">{{ dashboard.header_title }}</h3>
+                        <span id="headerSubtext" style="color: {{ dashboard.header_subtext_color }};" data-header-subtext="{{ dashboard.header_subtext }}" data-first-name="{{ first_name }}" data-last-name="{{ last_name }}">{{ dashboard.header_subtext|safe }}</span>
+                    </div>
+                </div>
+                <div class="dashboard-header-inner-right"></div>
+            </div>
+        </div>
+        <div id="widgets-container">
+            {% for widget in dashboard.widgets.all %}
+                {% if widget.type == 'resumeCourses' %}
+                    {% if profile.last_opened_course and user_course %}
+                        <button onclick="launchCourse('{{ profile.last_opened_lesson_id }}', '{{ user_course.id }}', '{{ user_course.course.id }}'), setDisabledWidget();" class="widget resume-course" data-id="{{ widget.id }}">
+                            <div class="widget-top">
+                                <div class="widget-inner-wrapper">
+                                    {% if user_course.course.thumbnail.thumbnail_link %}
+                                        <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_link }});" class="course-item-thumbnail widget-icon"></div>
+                                    {% elif user_course.course.thumbnail.thumbnail_image %}
+                                        <div style="background-image: url({{ user_course.course.thumbnail.thumbnail_image.url }});" class="course-item-thumbnail widget-icon"></div>
+                                    {% else %}
+                                        {% if settings.default_course_thumbnail %}
+                                            <div style="background-image: url({{ settings.default_course_thumbnail_image.url }});" class="course-item-thumbnail widget-icon"></div>
+                                        {% else %}
+                                            <div class="course-item-thumbnail widget-icon">
+                                                <div class="thumbnail-placeholder">
+                                                    <i class="fa-light fa-book-open-cover"></i>
+                                                </div>
+                                            </div> 
+                                        {% endif %}                                  
+                                    {% endif %}
+                                    
+                                    <div class="widget-inner-right">
+                                        <h3 style="color: {{ widget.widget_title_color }};"> {{ user_course.course.title }} </h3>
+                                        <div style="display: flex; gap: 0.3rem; align-items: baseline; color: {{ widget.widget_subtext_color }};">
+                                            <span style="color: {{ widget.widget_subtext_color }};" id="resumeSubtext"> Resume </span><i id="resumeIcon" class="fa-solid fa-angle-right"></i>
+                                        </div>
+                                        <p hidden>{{ widget.type }}</p>
+                                    </div>   
+                                </div>
+                            </div>
+                            <div class="widget-bottom">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" data-progress="{{ user_course.progress }}"></div>
+                                </div>
+                                <span>{{ user_course.progress }}%</span>
+                            </div>          
+                        </button>
+                    {% else %}
+                        <a href="/courses/" class="widget resume-course" data-id="{{ widget.id }}">
+                            <div class="widget-top">
+                                <div class="widget-inner-wrapper">
+                                    <div style="background-color: {{ widget.widget_icon_background_color }};" class="widget-icon pastel-purple">
+                                        <i style="color: {{ widget.widget_icon_color }};" class="{{ widget.widget_icon }}"></i>
+                                    </div>
+                                    <div class="widget-inner-right">
+                                        <h3 style="color: {{ widget.widget_title_color }};"> {{ widget.widget_title }} </h3>
+                                        <div style="display: flex; gap: 0.3rem; align-items: baseline; color: {{ widget.widget_subtext_color }};">
+                                            <span style="color: {{ widget.widget_subtext_color }};" id="resumeSubtext"> {{ widget.widget_subtext }} </span><i id="resumeIcon" class="fa-solid fa-angle-right"></i>
+                                        </div>
+                                        <p hidden>{{ widget.type }}</p>
+                                    </div>   
+                                </div>
+                            </div>
+                            <div class="widget-bottom">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 0%;"></div>
+                                </div>
+                                <span>0%</span>
+                            </div>          
+                        </a>
+                    {% endif %}
+                {% elif widget.type == 'myCourses' %}
+                    <a href="/courses/" class="widget my-courses" data-id="{{ widget.id }}">
+                        <div class="widget-top">
+                            <div class="widget-inner-wrapper">
+                                <div style="background-color: {{ widget.widget_icon_background_color }};" class="widget-icon pastel-orange">
+                                    <i style="color: {{ widget.widget_icon_color }};" class="{{ widget.widget_icon }}"></i>
+                                </div>
+                                <div class="widget-inner-right">
+                                    <h3 style="color: {{ widget.widget_title_color }};"> {{ widget.widget_title }} </h3>
+                                    <span style="color: {{ widget.widget_subtext_color }};" id="resumeSubtext"> {{ widget.widget_subtext }} </span>
+                                    <p hidden>{{ widget.type }}</p>
+                                </div>   
+                            </div>
+                        </div>          
+                    </a>
+                {% elif widget.type == 'enrollmentKey' %}
+                    <div onclick="openPopup('enterEnrollmentKey')" class="widget my-courses" data-id="{{ widget.id }}">
+                        <div class="widget-top">
+                            <div class="widget-inner-wrapper">
+                                <div style="background-color: {{ widget.widget_icon_background_color }};" class="widget-icon pastel-orange">
+                                    <i style="color: {{ widget.widget_icon_color }};" class="{{ widget.widget_icon }}"></i>
+                                </div>
+                                <div class="widget-inner-right">
+                                    <h3 style="color: {{ widget.widget_title_color }};"> {{ widget.widget_title }} </h3>
+                                    <span style="color: {{ widget.widget_subtext_color }};" id="resumeSubtext"> {{ widget.widget_subtext }} </span>
+                                    <p hidden>{{ widget.type }}</p>
+                                </div>   
+                            </div>
+                        </div>          
+                    </div>
+                {% else %}
+                    <a href="{{ widget.widget_external_link }}" class="widget my-courses" data-id="{{ widget.id }}">
+                        <div class="widget-top">
+                            <div class="widget-inner-wrapper">
+                                <div style="background-color: {{ widget.widget_icon_background_color }};" class="widget-icon pastel-orange">
+                                    <i style="color: {{ widget.widget_icon_color }};" class="{{ widget.widget_icon }}"></i>
+                                </div>
+                                <div class="widget-inner-right">
+                                    <h3 style="color: {{ widget.widget_title_color }};"> {{ widget.widget_title }} </h3>
+                                    <span style="color: {{ widget.widget_subtext_color }};" id="resumeSubtext"> {{ widget.widget_subtext }} </span>
+                                    <p hidden>{{ widget.type }}</p>
+                                </div>   
+                            </div>
+                        </div>          
+                    </a>   
+                {% endif %}  
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% include 'popups/enter_enrollment_key.html' %}
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/dashboard.css' %}">
+{% endblock %}

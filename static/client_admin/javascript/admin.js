@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     /* Select Table Options */
     let checkedOptionsList = [];
+    let selectedIds = [];
+    let selectedCourseIds = [];
     const tableOptions = document.querySelectorAll('.table-select-option');
     const tableSelectAllOption = document.querySelector('.table-select-all-option');
 
@@ -47,12 +49,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectedOptionsWrapper = document.getElementById('selectedOptionsWrapper');
     const selectedOptionsCount = document.getElementById('selectedOptionsCount');
     function countSelectedOptions(){
+        updateSelectedIds();
+        console.log(checkedOptionsList);
         if(checkedOptionsList.length < 1){
             selectedOptionsWrapper.style.display = 'none';
             closeOptionsSidebar();
         }else{
             selectedOptionsWrapper.style.display = 'flex';
             openOptionsSidebar();
+            populateUploadedAssignmentsBtn(); 
         };
         if(checkedOptionsList.length < 2){
             singleOptionsSelect();
@@ -62,27 +67,78 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedOptionsCount.innerText = checkedOptionsList.length;
         testActiveOptions();
     }
-    function singleOptionsSelect(){
-        // Setting Link on Edit User Option
-        document.getElementById('singleEditUser').addEventListener('click', () => {
-            window.location.href = checkedOptionsList[0].getAttribute('data-details');
-        });
-        // Setting Link on User Transcript Option
-        document.getElementById('singleTranscriptUser').addEventListener('click', () => {
-            window.location.href = checkedOptionsList[0].getAttribute('data-transcript');
-        });
-        // Setting Link on User History
-        document.getElementById('singleHistoryUser').addEventListener('click', () => {
-            window.location.href = checkedOptionsList[0].getAttribute('data-history');
-        });
+    
+    function singleOptionsSelect() {
+        // Assuming checkedOptionsList is an array of selected elements
+        if (checkedOptionsList.length === 0) return; // If no option is selected, exit the function
         
-        document.getElementById('singleOptionsSelect').style.display = 'flex';
-        document.getElementById('multiOptionsSelect').style.display = 'none';
+        const selectedOption = checkedOptionsList[0]; // The currently selected option
+    
+        // Get all sidebar items with class 'options-sidebar-item'
+        const sidebarItems = document.querySelectorAll('.options-sidebar-item');
+    
+        // Iterate over each sidebar item
+        sidebarItems.forEach(item => {
+            // Check if the selected option has a data attribute matching the item's ID
+            const matchingAttribute = selectedOption.getAttribute(`${item.id}`);
+            if (matchingAttribute) {
+                // Add click event listener to redirect to the matching URL
+                item.addEventListener('click', () => {
+                    updateSelectedIds();             
+                    console.log(checkedOptionsList, selectedIds);                
+                    // Store the unique IDs in localStorage
+                    localStorage.setItem('selectedUserIds', JSON.stringify(selectedIds)); 
+                    localStorage.setItem('selectedCourseIds', JSON.stringify(selectedCourseIds));          
+                    // Redirect to the matching URL
+                    window.location.href = matchingAttribute;
+                });
+            }
+        });
+    
+        // Display the single options section and hide the multi options section
+        const singleOptionsSelect = document.getElementById('singleOptionsSelect');
+        if (singleOptionsSelect) {
+            singleOptionsSelect.style.display = 'flex';
+        }
+    
+        const multiOptionsSelect = document.getElementById('multiOptionsSelect');
+        if (multiOptionsSelect) {
+            multiOptionsSelect.style.display = 'none';
+        }
+    }
+
+    function updateSelectedIds(){
+        // Clear the array to avoid duplicate entries
+        selectedIds = [];  
+        selectedCourseIds = [];      
+        // Collect all the selected IDs
+        checkedOptionsList.forEach(option => {
+            const id = option.getAttribute('data-id');
+            const courseId = option.getAttribute('data-course-id');
+            if (!selectedIds.includes(id)) {
+                selectedIds.push(id);
+            }
+            if (!selectedCourseIds.includes(courseId)) {
+                selectedCourseIds.push(courseId);
+            }
+        }); 
     }
 
     function multiOptionsSelect(){
         document.getElementById('singleOptionsSelect').style.display = 'none';
         document.getElementById('multiOptionsSelect').style.display = 'flex';
+    }
+
+    function populateUploadedAssignmentsBtn(){
+        // Opening uploaded course assignments
+        document.querySelectorAll('#data-uploaded-assignments').forEach(item => {
+            const selectedOption = document.querySelector('.selected-option');
+            const courseTitle = selectedOption.querySelector('.course-title');
+            console.log('selectedOption:', selectedOption, 'courseTitle:', courseTitle.innerText, courseTitle.innerHTML, );
+            item.addEventListener('click', () => {
+                window.location.href = `/admin/assignments/?filter_course__title=${courseTitle.textContent}`;
+            });
+        });
     }
 
     const activeFilters = document.getElementById('activeFilters');
@@ -111,103 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('.tooltip').forEach(function(elem) {
         const tooltipText = elem.getAttribute('data-tooltip');
         const tooltipSpan = elem.querySelector('.tooltiptext');
-        tooltipSpan.textContent = tooltipText;
-    });
-
-    // Custom Select Box
-    var customSelects = document.querySelectorAll('.custom-select');
-    var sortButton = document.getElementById('sortButton');
-    var sortForm = document.getElementById('sortForm');
-    var sortByInput = document.getElementById('sort_by');
-
-    customSelects.forEach(function(customSelect) {
-        var selectSelected = customSelect.querySelector('.select-selected');
-        var selectItems = customSelect.querySelector('.select-items');
-
-        // Toggle the dropdown
-        selectSelected.addEventListener('click', function() {
-            // Close any open dropdowns
-            customSelects.forEach(function(otherSelect) {
-                if (otherSelect !== customSelect) {
-                    otherSelect.querySelector('.select-items').style.display = 'none';
-                    otherSelect.querySelector('.select-selected').classList.remove('select-open');
-                }
-            });
-            selectSelected.classList.toggle('select-open');
-            selectItems.style.display = selectItems.style.display === 'block' ? 'none' : 'block';
-        });
-
-        // Close the dropdown if the user clicks outside of it
-        document.addEventListener('click', function(event) {
-            if (!customSelect.contains(event.target) && selectItems.id != 'sortSelectItems') {
-                selectItems.style.display = 'none';
-                selectSelected.classList.remove('select-open');
-            }
-        });
-
-        // Handle item selection
-        selectItems.querySelectorAll('div').forEach(function(item) {
-            if (selectItems.id === 'sortSelectItems') {
-                item.addEventListener('click', function() {
-                    var selectedValue = this.getAttribute('data-value');
-                    sortByInput.value = selectedValue;
-                    sortForm.submit();
-                });
-            } else {
-                item.addEventListener('click', function() {
-                    // Get the field name and value from data attributes
-                    var fieldName = this.getAttribute('data-name');
-                    var fieldValue = this.getAttribute('data-value');
-
-                    // Update the select box text and field value input
-                    selectSelected.textContent = this.textContent;
-                    selectItems.querySelectorAll('div').forEach(function(el) {
-                        el.classList.remove('same-as-selected');
-                    });
-                    this.classList.add('same-as-selected');
-                    selectItems.style.display = 'none';
-
-                    // Update the field name and value in the input
-                    var fieldValueInput = document.getElementById('fieldValue');
-                    if (fieldName) {
-                        fieldValueInput.name = fieldName;
-                        fieldValueInput.value = fieldValue;
-                    }
-                });
-            }
-        });
-    });
-
-    // Open the sort dropdown when the sort button is clicked
-    sortButton.addEventListener('click', function() {
-        // Close any open custom selects
-        customSelects.forEach(function(customSelect) {
-            customSelect.querySelector('.select-items').style.display = 'none';
-            customSelect.querySelector('.select-selected').classList.remove('select-open');
-        });
-
-        // Toggle the sort dropdown
-        sortSelectItems.style.display = sortSelectItems.style.display === 'block' ? 'none' : 'block';
-    });
-
-    // Close the sort dropdown if the user clicks outside of it
-    document.addEventListener('click', function(event) {
-        var sortByParent = event.target.closest('[data-key="sort_by"]');
-        if (!sortButton.contains(event.target) && !sortSelectItems.contains(event.target) && !sortByParent) {
-            sortSelectItems.style.display = 'none';
-        }
-    });
-
-    // Close the dropdown if the user clicks outside of it
-    document.addEventListener('click', function(event) {
-        customSelects.forEach(function(customSelect) {
-            var selectItems = customSelect.querySelector('.select-items');
-            var selectSelected = customSelect.querySelector('.select-selected');
-            if (!customSelect.contains(event.target) && selectItems.id !== 'sortSelectItems') {
-                selectItems.style.display = 'none';
-                selectSelected.classList.remove('select-open');
-            }
-        });
+        if(tooltipSpan){tooltipSpan.textContent = tooltipText};
     });
 
     // Showing / Hiding search option for all users 
@@ -251,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }else if(key === 'sort_by'){
                     const sortHiddenFilters = document.querySelectorAll('.sort-hidden-filters');
                     sortHiddenFilters.forEach(function(filter) {
-                        filter.value = '';
+                        filter.remove();
                     });
                     if(document.getElementById('searchTable').value != ''){
                         setTimeout(() => {
@@ -301,17 +261,394 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('.sort-item-wrapper').forEach(function(sortItemWrapper) {
         var radioInput = sortItemWrapper.querySelector('.radio-button__input');
         var labelDiv = sortItemWrapper.querySelector('.radio-button__label div');
-        if (labelDiv && labelDiv.innerText === activeSort) {
+        
+        if (labelDiv && labelDiv.innerHTML === activeSort || labelDiv && labelDiv.innerText === activeSort) {
             radioInput.checked = true;
         }
     });
+
+    // Select all elements with the class 'alert'
+    var alerts = document.querySelectorAll('.alert-container');
+
+    // Loop through each alert and add a new class if the alert is visible
+    alerts.forEach(function(alert) {
+        // Check if the alert is visible
+        if (window.getComputedStyle(alert).display !== 'none') {
+            // Add a class to the active alert
+            alert.classList.add('animate-alert-container');
+            setTimeout(() => {
+                alert.classList.remove('animate-alert-container');
+            }, 8000);
+        }
+    });
+
+    document.querySelectorAll('#data-delete-users').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('userDeleteConfirmation');
+        });
+    });
+    const deleteUserConfirmation = document.getElementById('deleteUserConfirmation');
+    if(deleteUserConfirmation){
+        deleteUserConfirmation.addEventListener('click', () => {
+            setDisabledDeleteBtns();
+            const url = '/admin/users/delete-users/';  // Change this to your actual endpoint
+    
+            fetch(url, {
+                method: 'POST',   // or 'DELETE', depending on how your API is set up
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())  // Assuming the server responds with JSON
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    // Redirect to the new page where messages will be shown
+                    window.location.href = data.redirect_url;
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                // Handle errors here, such as displaying a message to the user
+            });
+        });
+    }
+
+    // Deleting Courses
+    document.querySelectorAll('#data-delete-courses').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('courseDeleteConfirmation');
+        });
+    });
+
+    const deleteCourseConfirmation = document.getElementById('deleteCourseConfirmation');
+    if(deleteCourseConfirmation){
+        deleteCourseConfirmation.addEventListener('click', () => {
+            setDisabledDeleteBtns();
+            const url = '/admin/courses/delete-courses/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedCourseIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Deleting Categories 
+    document.querySelectorAll('#data-delete-categories').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('categoryDeleteConfirmation');
+        });
+    });
+
+    const deleteCategoryConfirmation = document.getElementById('deleteCategoryConfirmation');
+    if(deleteCategoryConfirmation){
+        deleteCategoryConfirmation.addEventListener('click', () => {
+            setDisabledDeleteBtns();
+            const url = '/admin/categories/delete-categories/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Deleting Enrollment Keys 
+    document.querySelectorAll('#data-delete-enrollment-keys').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('enrollmentKeyDeleteConfirmation');
+        });
+    });
+
+    const deleteEnrollmentKeyConfirmation = document.getElementById('deleteEnrollmentKeyConfirmation');
+    if(deleteEnrollmentKeyConfirmation){
+        deleteEnrollmentKeyConfirmation.addEventListener('click', () => {
+            setDisabledDeleteBtns();
+            const url = '/admin/enrollment-keys/delete-keys/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Deleting Quizzes
+    document.querySelectorAll('#data-delete-quizzes').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('quizDeleteConfirmation');
+        });
+    });
+
+    const deleteQuizConfirmation = document.getElementById('deleteQuizConfirmation');
+    if(deleteQuizConfirmation){
+        deleteQuizConfirmation.addEventListener('click', () => {
+            setDisabledDeleteBtns();
+            const url = '/admin/quizzes/delete-quizzes/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Deleting Questions
+    document.querySelectorAll('#data-delete-questions').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('questionDeleteConfirmation');
+        });
+    });
+
+    const deleteQuestionConfirmation = document.getElementById('deleteQuestionConfirmation');
+    if(deleteQuestionConfirmation){
+        deleteQuestionConfirmation.addEventListener('click', () => {
+            setDisabledDeleteBtns();
+            const url = '/admin/questions/delete-questions/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Deleting Quiz Templates
+    document.querySelectorAll('#data-delete-quiz-templates').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('quizTemplateDeleteConfirmation');
+        });
+    });
+
+    const deleteQuizTemplateConfirmation = document.getElementById('deleteQuizTemplateConfirmation');
+    if(deleteQuizTemplateConfirmation){
+        deleteQuizTemplateConfirmation.addEventListener('click', () => {
+            setDisabledDeleteBtns();
+            const url = '/admin/quiz-templates/delete-quiz-templates/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Deleting Assignments
+    document.querySelectorAll('#data-delete-assignments').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('assignmentDeleteConfirmation');
+        });
+    });
+
+    const deleteAssignmentConfirmation = document.getElementById('deleteAssignmentConfirmation');
+    if(deleteAssignmentConfirmation){
+        deleteAssignmentConfirmation.addEventListener('click', () => {
+            setDisabledDeleteBtns();
+            const url = '/admin/assignments/delete-assignments/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Deleting User Enrollments (Un-Enrolling users)
+    document.querySelectorAll('#data-unenroll-users').forEach(item => {
+        item.addEventListener('click', () => {
+            openPopup('userUnenrollConfirmation');
+        });
+    });
+
+    const unenrollUserConfirmation = document.getElementById('unenrollUserConfirmation');
+    if(unenrollUserConfirmation){
+        unenrollUserConfirmation.addEventListener('click', () => {
+            setDisabledDeleteBtns();
+            const url = '/admin/user-enrollments/delete-enrollments/';
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                    // displayValidationMessage(data.message, true);
+                } else {
+                    console.log('show error');
+                    displayValidationMessage(data.message, false);  // Error message
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Approving Assignments
+    document.querySelectorAll('#data-approve').forEach(item => {
+        item.addEventListener('click', () => {
+            manageAssignment(selectedIds, 'approved','', true);
+        });
+    });
+
+    // Rejecting Assignments
+    document.querySelectorAll('#data-reject').forEach(item => {
+        item.addEventListener('click', () => {
+            manageAssignment(selectedIds, 'rejected','', true);
+        });
+    });
+
+    function getCsrfToken() {
+        const cookieValue = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
+        return cookieValue;
+    } 
 });
 
 // Dynamically Opening Popups
-function openPopup(popup){
+function openPopup(popup){   
     const currentPopup = document.getElementById(popup);
     const popupContent = currentPopup.querySelector('.popup-content');
     currentPopup.style.display = "flex";
+    console.log(popup,currentPopup, popupContent);
     setTimeout(() => {
         popupContent.classList.add('animate-popup-content');
     }, 100);
@@ -324,4 +661,45 @@ function closePopup(popup){
     setTimeout(() => {
         currentPopup.style.display = "none";
     }, 200);
+}
+
+function setDisabledDeleteBtns() {
+    const courseSaveBtns = document.querySelectorAll('.delete-confirm-btn');
+    for (const btn of courseSaveBtns) {
+        setTimeout(() => {
+            btn.setAttribute('disabled', true);
+        }, 100);
+        btn.classList.add('disabled');
+
+        if (!btn.dataset.originalHtml) {
+            btn.dataset.originalHtml = btn.innerHTML;
+        }
+
+        const savedWidth = btn.offsetWidth + "px";
+        const savedHeight = btn.offsetHeight + "px";
+
+        btn.style.width = savedWidth;
+        btn.style.height = savedHeight;
+        btn.style.backgroundColor = '#d53e3e !important';
+
+        btn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
+    }
+}
+
+function removeDisabledDeleteBtns() {
+    setTimeout(() => {
+        const courseSaveBtns = document.querySelectorAll('.delete-confirm-btn');
+        for (const btn of courseSaveBtns) {
+            btn.classList.remove('disabled');
+            btn.removeAttribute('disabled');
+
+            if (btn.dataset.originalHtml) {
+                btn.innerHTML = btn.dataset.originalHtml;
+                delete btn.dataset.originalHtml;
+            }
+
+            btn.style.width = "";
+            btn.style.height = "";
+        }
+    }, 400);
 }

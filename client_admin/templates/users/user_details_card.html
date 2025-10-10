@@ -3,39 +3,47 @@
     <div class="top-section"></div>
     <div class="bottom-section">
         <div class="bottom-left">
-            {% if profile.photoid %}
+            {% if profile.passportphoto %}
                 <img class="profile-image" src="{{ profile.passportphoto.url }}" alt="Profile Image" />
             {% else %}
                 <div class="profile-image">
-                    <i class="fa-regular fa-user-graduate"></i>
+                    <i class="fa-light fa-user-graduate"></i>
                 </div>
             {% endif %}
             <div class="user-card-info">
                 <h3>{{ profile.first_name }} {{ profile.last_name }}</h3>
                 <div class="card-info-icons">
+                    {% if profile.username %}
                     <div class="card-info-icon">
                         <i class="fa-regular fa-signature"></i>
                         <span>{{ profile.username }}</span>
                     </div>
+                    {% endif %}
+                    {% if profile.city %}
                     <div class="card-info-icon">
                         <i class="fa-regular fa-map-location-dot"></i>
                         <span>{{ profile.city }}, {{ profile.state }}</span>
                     </div>
+                    {% endif %}
+                    {% if profile.birth_date %}
                     <div class="card-info-icon">
                         <i class="fa-regular fa-cake-candles"></i>
                         <span>{{ profile.birth_date }}</span>
                     </div>
+                    {% endif %}
+                    {% if profile.role %}
                     <div class="card-info-icon">
                         <i class="fa-regular fa-id-card-clip"></i>
                         <span>{{ profile.role }}</span>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
         <div class="bottom-right">
             <div onclick="openPopup('editUserPopup')" class="edit-user-btn action-button-primary">
-                <i class="fa-regular fa-pen-to-square"></i>
-                <span> Edit user</span>
+                <!-- <i class="fa-regular fa-pen"></i> -->
+                <span> Edit User</span>
             </div>
         </div>
     </div>

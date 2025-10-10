@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    {% include 'messageContainer/message_container.html' %}
+    <div class="admin-body align-center">
+        <div class="max-width-extend-1">
+            <div class="details-top-row">
+                <div class="details-top-row-left">
+                    <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <h3> Enroll Users </h3>
+                </div>
+                <div class="details-top-row-right">
+                    <div class="option-btn-row">
+                        <button onclick="sendEnrollmentRequest()" class="action-button-primary course-save-btns">
+                            <i class="fa-regular fa-paper-plane"></i>
+                            <span>Enroll Users</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="course-content-container margin-top-10">
+                <!-- Left Column -->
+                <div class="course-content-left-column">
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-square-dashed-circle-plus"></i>
+                                <span> Selected Users </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">
+                            <div id="selectedUsers">
+                                <span class="course-content-input-subtext"> Please select the User(s) you would like to enroll into the selected Course(s). </span>
+                                <div class="right-column-file-wrapper">
+                                    <div id="userDropdown1" class="user-dropdown course-content-input">
+                                        <input type="text" class="userSearch" placeholder="Search users...">
+                                        <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                                        <div class="userList scrollable-content-inner">
+                                            <div class="loadingIndicator" style="display:none;">Loading...</div>
+                                        </div>
+                                        
+                                        <div class="selectedUsers"></div>
+                                    </div>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+
+                    <div class="details-info-card">
+                        <div class="info-card-header collapsable-header">
+                            <div class="card-header-left">
+                                <i class="fa-regular fa-highlighter-line"></i>
+                                <span> Selected Courses </span>
+                            </div>
+                            <div class="card-header-right">
+                                <i class="fa-regular fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="info-card-body">
+                            <div id="selectedCourses">
+                                <span class="course-content-input-subtext"> Please select the Course(s) you would like to enroll the selected User(s) into. </span>
+                                <div class="right-column-file-wrapper">
+                                    <div id="courseDropdown" class="course-dropdown course-content-input">
+                                        <input type="text" class="courseSearch" placeholder="Search courses...">
+                                        <i class="fa-regular fa-magnifying-glass search-icon"></i>
+                                        <div class="courseList scrollable-content-inner">
+                                            <div class="loadingIndicator" style="display:none;">Loading...</div>
+                                        </div>
+                                        
+                                        <div class="selectedCourses"></div>
+                                    </div>
+                                </div>
+                            </div>                                
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'client_admin\javascript\ajax_search_options.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'content\css\content.css' %}">
+    <link rel="stylesheet" href="{% static 'client_admin\css\user_details.css' %}">
+    <script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+    <script src="{% static 'client_admin\javascript\user_details.js' %}"></script>
+{% endblock content %}

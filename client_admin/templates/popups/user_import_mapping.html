@@ -1,0 +1,115 @@
+<div id="userImportMap" class="popup-background">
+    <div class="popup-content max-width-extend-2">
+        <div class="popup-header">
+            <h3>Map CSV Columns to User Fields</h3>
+            <button type="button" onclick="closePopup('userImportMap')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div id="userImportMapBody" class="popup-body scrollable-content" style="max-height: 80dvh;">
+            <!-- <div class="mapping-instructions">
+                <p>Map each CSV column to a user or profile attribute. <strong>Email</strong> or <strong>Username</strong> is required.</p>
+            </div> -->
+            <div class="mapping-required grid-2 gap-4 margin-bottom-6">
+                <div class="course-content-input margin-top-4">
+                    <label class="edit-user-label" for="usernameColumnSelectUnset">Generated Username <span class="required-asterisk">*</span></label>
+                    
+                    <div id="usernameColumnSelectSlot"></div>
+                    <span class="course-content-input-subtext">Pick the attribute(s) you would like to use to create Usernames.</span>                 
+                </div>
+
+                <div class="course-content-input margin-top-4">
+                    <label class="edit-user-label" for="defaultPasswordInput">Default Password (for new users)</label>
+                    
+                    <input id="defaultPasswordInput" type="text" class="standard-input" placeholder="e.g. TempPass!234">
+                    <span class="course-content-input-subtext">Passwords are only set for new users. If a CSV column is mapped to Password (CSV Column), that value overrides the Default Password. If no password is provided, users must use the ‘Forgot Password?’ option. Existing users’ passwords are never changed.</span>                
+                </div>
+            </div>
+            
+            <div class="details-info-card user-import-info-card margin-bottom-12">
+                <div class="info-card-header collapsable-header">
+                    <div class="card-header-left">
+                        <span> Required Fields </span>
+                    </div>
+                </div>
+                <div class="info-card-body">                         
+                    <div id="userImportRequiredChecklist"></div>                 
+                </div>
+            </div>
+
+            <div class="table-container scrollable-content">
+                <div class="details-info-card details-info-card-overflow-hidden">
+                    <div class="info-card-header collapsable-header">
+                        <div class="card-header-left">
+                            <i class="fa-regular fa-table"></i>
+                            <span> CSV Data Preview (First 5 Records)</span>
+                        </div>
+                        <div class="standard-round-label pastel-gray">
+                            <div id="userImportColumns" class="question-editor-label-text" style="display:none;"></div>
+                        </div>
+                        <div class="card-header-right">
+                            <i class="fa-regular fa-angle-down"></i>
+                        </div>
+                    </div>
+                    <div style="border: 0;" class="info-card-body padding-0 scrollable-content">
+                        <table class="standard-table" id="userImportMappingTable">
+                            <thead>
+                                <tr>
+                                    <th>CSV Column</th>
+                                    <th>Sample Values</th>
+                                    <th>Map To</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+           
+            <div class="table-container scrollable-content margin-top-6">
+                <div class="details-info-card details-info-card-overflow-hidden">
+                    <div class="info-card-header collapsable-header">
+                        <div class="card-header-left">
+                            <i class="fa-regular fa-sliders"></i>
+                            <span> Additional Fields </span>
+                        </div>
+                        <div class="card-header-right">
+                            <i class="fa-regular fa-angle-down"></i>
+                        </div>
+                    </div>
+                    <div style="border: 0;" class="info-card-body padding-0 scrollable-content">
+                        <table class="standard-table" id="userImportAdditionalFields">
+                            <thead>
+                                <tr>
+                                    <th style="width: 120px;">Overwrite?</th>
+                                    <th>Field</th>
+                                    <th style="width: 40%;">Default Value</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="loading-symbol-blue-sm">
+                <svg class="loading-symbol-sm-inner" viewBox="25 25 50 50">
+                    <circle r="20" cy="50" cx="50"></circle>
+                </svg>
+                <span>Bringing your new users on board, please wait...</span>
+            </div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button type="button" class="popup-btn close-popup-btn" onclick="closePopup('userImportMap'); openPopup('userImportCSV'); removeUploadLoading();">Back</button>
+                <button type="button" id="startUserImportBtn" class="popup-btn disabled" disabled>Start Import</button>
+            </div>
+        </div>
+    </div>
+</div>
+<template id="countryOptionsTemplate" hidden>
+  {% include 'dropdownOptions/country_options.html' %}
+</template>
+<template id="citizenshipOptionsTemplate" hidden>
+  {% include 'dropdownOptions/citizenship_options.html' %}
+</template>

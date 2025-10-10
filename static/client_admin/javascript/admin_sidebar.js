@@ -56,4 +56,270 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     });
+
+    document.querySelectorAll('.collapsible-section').forEach(section => {
+        const collapsibleHeader = section.querySelector('.collapsible-header');
+        const collapsibleContent = section.querySelector('.collapsible-content');
+    
+        // Ensure both the header and content exist before proceeding
+        if (collapsibleHeader && collapsibleContent) {
+            if (collapsibleContent.querySelector('a.current-page')) {
+                collapsibleHeader.classList.add('highlight'); // Add your desired class to the header
+            }
+        }
+    });  
+    
+    updateBreadcrumbTrail();
+    initializeToggleKeyboardNav();
+    setTimeout(detectCharacterCounters, 300);
 });
+
+function updateBreadcrumbTrail() {
+    const currentPath = window.location.pathname;
+    let trail = JSON.parse(sessionStorage.getItem('breadcrumbTrail')) || [];
+
+    if (trail[trail.length - 1] !== currentPath) {
+        trail.push(currentPath);
+    }
+
+    sessionStorage.setItem('breadcrumbTrail', JSON.stringify(trail));
+} 
+
+function handleBackButton() {
+    let trail = JSON.parse(sessionStorage.getItem('breadcrumbTrail')) || [];
+
+    if (trail.length > 1) {
+        trail.pop();
+
+        const previousPage = trail[trail.length - 1];
+        sessionStorage.setItem('breadcrumbTrail', JSON.stringify(trail));
+
+        window.location.href = previousPage;
+    } else {
+        // Default fallback if no history
+        window.location.href = '/admin/dashboard/';
+    }
+} 
+
+function checkDropdownMenu(){
+    document.querySelectorAll('.collapsible-section').forEach(section => {
+        const collapsibleHeader = section.querySelector('.collapsible-header');
+        const collapsibleContent = section.querySelector('.collapsible-content');
+    
+        // Check if any 'a' tag inside the collapsible content has the 'current-page' class
+        if (collapsibleContent.querySelector('a.current-page')) {
+            collapsibleHeader.classList.add('highlight'); // Add your desired class to the header
+        }
+    });
+}
+
+/* Header Dropdown */
+function toggleDropdown(event) {
+    event.stopPropagation(); // Prevent the event from bubbling up to the window
+
+    var dropdown = document.getElementById("adminDropdownContent");
+    dropdown.classList.toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.addEventListener('click', function(event) {
+    var dropdown = document.getElementById("adminDropdownContent");
+    var toggleButton = document.querySelector('.admin-header-user-icon');
+
+    // Check if the click was outside the dropdown and the toggle button
+    if (dropdown && !event.target.matches('.admin-header-user-icon') && !dropdown.contains(event.target)) {
+        if (dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
+    }
+});
+
+
+// Global JS Actions
+function initializeToggleKeyboardNav(){
+    document.querySelectorAll('.toggle-switch').forEach(switchEl => {
+        switchEl.addEventListener('keydown', function(e) {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                const input = this.querySelector('input[type="checkbox"]');
+                input.checked = !input.checked;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                this.setAttribute('aria-checked', input.checked.toString());
+            }
+        });
+    });
+}
+
+function detectCharacterCounters() {
+    const editors = document.querySelectorAll('.editor-container');
+
+    // Handle Quill editors
+    editors.forEach((editorEl) => {
+        const editorId = editorEl.id;
+        if (!editorId) return;
+
+        let quillEditor;
+        try {
+            quillEditor = Quill.find(editorEl);
+        } catch (err) {
+            console.warn(`No Quill instance found for editor ID: ${editorId}`);
+            return;
+        }
+
+        const counterContainer = editorEl.parentElement.querySelector('.quill-character-counter');
+        const currentCounter = counterContainer?.querySelector('.quill-current-counter');
+        const maxCounter = counterContainer?.querySelector('.quill-max-counter');
+
+        if (!currentCounter || !maxCounter) return;
+
+        const MAX_LENGTH = parseInt(maxCounter.innerText, 10) || 5000;
+
+        const updateCount = () => {
+            const textLength = quillEditor.getText().trim().length;
+            currentCounter.textContent = textLength;
+        };
+
+        updateCount();
+
+        if (!editorEl.dataset.listenerAdded) {
+            quillEditor.on('text-change', function () {
+                const textLength = quillEditor.getText().trim().length;
+                if (textLength > MAX_LENGTH) {
+                    quillEditor.deleteText(MAX_LENGTH, quillEditor.getLength());
+                }
+                updateCount();
+            });
+            editorEl.dataset.listenerAdded = 'true';
+        }
+    });
+
+    // Handle standard textareas like the main question input
+    const questionInput = document.getElementById('questionContent');
+    if (questionInput) {
+        // Use document.querySelector since structure is known
+        const counterContainer = document.querySelector('.question-editor-title .quill-character-counter');
+        const currentCounter = counterContainer?.querySelector('.quill-current-counter');
+        const maxCounter = counterContainer?.querySelector('.quill-max-counter');
+
+        if (currentCounter && maxCounter) {
+            const MAX_LENGTH = parseInt(maxCounter.innerText, 10) || 1000;
+
+            const updateCount = () => {
+                const textLength = questionInput.value.trim().length;
+                currentCounter.textContent = textLength;
+            };
+
+            questionInput.addEventListener('input', () => {
+                if (questionInput.value.length > MAX_LENGTH) {
+                    questionInput.value = questionInput.value.slice(0, MAX_LENGTH);
+                }
+                updateCount();
+            });
+
+            updateCount(); // initialize counter on load
+        }
+    }
+}
+
+function toggleAdminSidebar(){
+    const adminSidebar = document.querySelector('.admin-sidebar-container');
+    const sidebarBody = document.querySelector('.sidebar-body');
+    const createMenuSection= document.querySelector('.create-menu-section');
+    const sidebarToggle = adminSidebar.querySelector('.sidebar-toggle');
+    const sidebarToggleWrapper = adminSidebar.querySelector('.sidebar-toggle-wrapper');
+
+    const stickyNavBar = document.getElementById('stickyNavBar');
+
+    adminSidebar.classList.toggle('toggle-sidebar');
+
+    if(adminSidebar.classList.contains('toggle-sidebar')){
+        sidebarBody.style.overflow = 'hidden';
+        createMenuSection.style.overflow = 'hidden';
+        sidebarToggle.innerHTML = `<i class="fa-light fa-sidebar-flip"></i>`;
+        setTimeout(() => {
+            sidebarToggle.innerHTML = `<span style="top: -60px; left: 130%;" class="tooltiptext">Expand Sidebar</span><i class="fa-light fa-sidebar-flip"></i>`;
+        }, 300);
+        if(stickyNavBar){stickyNavBar.style.marginLeft = '58.79px';}
+    }else{
+        sidebarToggle.innerHTML = `<i class="fa-light fa-sidebar"></i>`; 
+        sidebarToggleWrapper.style.justifyContent = 'flex-end';   
+        setTimeout(() => {
+            sidebarBody.style.overflow = 'unset';
+            createMenuSection.style.overflow = 'unset';
+            sidebarToggle.innerHTML = `<span style="top: -60px; left: 50%;" class="tooltiptext">Collapse Sidebar</span><i class="fa-light fa-sidebar"></i>`;   
+                
+        }, 300);
+        if(stickyNavBar){stickyNavBar.style.marginLeft = '222px';}
+    }
+    
+}
+
+let wasAdminOpen = null; // Store outside function for state persistence
+
+function toggleCreateSidebar() {
+    const adminSidebar = document.querySelector('.admin-sidebar-container');
+    const createAdminSidebar = document.querySelector('.create-sidebar-container');
+
+    const isCreateOpen = createAdminSidebar.classList.contains('create-sidebar-toggle');
+
+    if (!isCreateOpen) {
+        // About to OPEN create sidebar
+        wasAdminOpen = !adminSidebar.classList.contains('toggle-sidebar'); // true if admin sidebar is expanded
+
+        // If admin sidebar is collapsed, expand it
+        if (adminSidebar.classList.contains('toggle-sidebar')) {
+            toggleAdminSidebar();
+        }
+
+        createAdminSidebar.classList.add('create-sidebar-toggle');
+
+    } else {
+        // About to CLOSE create sidebar
+        createAdminSidebar.classList.remove('create-sidebar-toggle');
+
+        // Restore previous state of admin sidebar
+        if (!wasAdminOpen && !adminSidebar.classList.contains('toggle-sidebar')) {
+            toggleAdminSidebar();
+        }
+    }
+}
+
+function setDisabledSaveBtns() {
+    const courseSaveBtns = document.querySelectorAll('.course-save-btns');
+    for (const btn of courseSaveBtns) {
+        setTimeout(() => {
+            btn.setAttribute('disabled', true);
+        }, 100);
+        btn.classList.add('disabled');
+
+        if (!btn.dataset.originalHtml) {
+            btn.dataset.originalHtml = btn.innerHTML;
+        }
+
+        const savedWidth = btn.offsetWidth + "px";
+        const savedHeight = btn.offsetHeight + "px";
+
+        btn.style.width = savedWidth;
+        btn.style.height = savedHeight;
+
+        btn.innerHTML = `<i class="fa-regular fa-spinner-third fa-spin" style="--fa-animation-duration: 1s;">`;
+    }
+}
+
+function removeDisabledSaveBtns() {
+    setTimeout(() => {
+        const courseSaveBtns = document.querySelectorAll('.course-save-btns');
+        for (const btn of courseSaveBtns) {
+            btn.classList.remove('disabled');
+            btn.removeAttribute('disabled');
+
+            if (btn.dataset.originalHtml) {
+                btn.innerHTML = btn.dataset.originalHtml;
+                delete btn.dataset.originalHtml;
+            }
+
+            btn.style.width = "";
+            btn.style.height = "";
+        }
+    }, 400);
+}

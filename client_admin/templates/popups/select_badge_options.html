@@ -1,0 +1,20 @@
+<div id="selectBadgeOptions" class="popup-background">
+    <div class="popup-content max-width-1">
+        <div class="popup-header">
+            <h3>Select Badges</h3>
+            <div onclick="closePopup('selectBadgeOptions')" class="close-popup-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="popup-body scrollable-content">
+            <div id="badgePickerGrid" class="badges-list-container"></div>
+        </div>
+        <div class="popup-footer">
+            <div class="spacer"></div>
+            <div class="popup-btns">
+                <button type="button" onclick="closePopup('selectBadgeOptions')" class="popup-btn close-popup-btn">Cancel</button>
+                <button id="selectBadgeOptionsBtn" onclick="selectBadgeOptions()" class="popup-btn">Select</button>
+            </div>
+        </div>
+    </div>
+</div>

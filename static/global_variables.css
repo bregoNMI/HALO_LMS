@@ -4,10 +4,12 @@
     --primary-blue: #1863dc;
     --secondary-blue: #60abf9;
     --accent-blue: #e1eeff;
+    /* Item Selected Blue */
+    --item-selected-blue: #e3ecf9;
     /* Text Colors */
     --text-color1: #000;
     --text-color2: #333;
-    --text-color3: #9a9fa5;
+    --text-color3: #8d9297;
     --text-color4: #798292;
     --text-color5: #0c0c0c;
     --text-color6: #6b6b6b;
@@ -22,6 +24,7 @@
     --bg-color6: #f3f3f3;
     /* Main Fonts */
     --primary-font: 'Roboto', sans-serif;
+    /* --primary-font: 'Montserrat', sans-serif; */
     /* Font Size */
     --fs-xxs: 0.4rem;
     --fs-xs: 0.6rem;
@@ -33,7 +36,7 @@
     --fs-xxxl: 2rem;
     --btn-font: 0.95rem;
     --close-icon: 1.1rem;
-    --sidebar-icon: 1.3rem;
+    --sidebar-icon: 1.2rem;
     /* Padding */
     --pad-xxxs: 0.3rem;
     --pad-xxs: 0.4rem;
@@ -44,6 +47,9 @@
     --pad-xl: 1.4rem;
     --pad-xxl: 1.6rem;
     --pad-xxxl: 2rem;
+    --pad-xxxxl: 2.4rem;
+    --pad-xxxxxl: 2.8rem;
+    --pad-xxxxxxl: 3.2rem;
     /* Margin */
     --margin-xs: 0.6rem;
     --margin-sm: 0.8rem;
