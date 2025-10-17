@@ -3,6 +3,7 @@ from . import views
 from content import views as content_views
 from client_admin import views as facial_recognition_views
 from custom_templates import views as custom_template_views
+from emails import views as custom_email_views
 
 urlpatterns = [
     # Dashboard
@@ -109,14 +110,19 @@ urlpatterns = [
     # Main Dashboard
     path('templates/dashboard/set_main/<int:dashboard_id>/', custom_template_views.set_main_dashboard, name='set_main_dashboard'),
 
+    # Emails
+    path("templates/emails/", custom_email_views.templates_hub, name="templates.hub"),
+    path("templates/emails/<slug:key>/", custom_email_views.get_email_template, name="template.get"),
+    path("templates/emails/<slug:key>/save/", custom_email_views.save_email_template, name="template.save"),
+    path("templates/emails/<slug:key>/preview/", custom_email_views.preview_email_template, name="template.preview"),
+    path("templates/emails/test/", custom_email_views.trigger_test_email, name="template.test"),
+
     path('impersonate/<int:profile_id>/', views.impersonate_user, name='impersonate_user'),
     path('stop-impersonating/', views.stop_impersonating, name='stop_impersonating'),
 
     path('import-users/', views.import_user, name='import_user'),
 
     path('ajax/check-faces/', views.ajax_check_faces, name='ajax_check_faces'),
-
-
 
     # Facial Recognition
     path('compare-faces/', facial_recognition_views.compare_faces, name='compare_faces'),

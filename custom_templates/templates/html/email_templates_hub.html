@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="login-form-body-container">
+    {% include 'messageContainer/message_container.html' %}
+    <div class="login-form-header">
+      <div class="details-top-row">
+          <div class="details-top-row-left">
+              <button type="button" onclick="handleBackButton()" class="back-btn dynamic-back-btn">
+                  <i class="fa-solid fa-arrow-left"></i>
+              </button>
+              <h3> Customize Emails </h3>
+          </div>
+          <!-- If we even decide to have an actual email template viewer, we can use these -->
+          <div class="login-form-device-scaling" style="visibility: hidden;">
+            <label id="desktopLabel" class="device-selection-item tooltip" for="desktop" data-tooltip="Desktop">
+              <input id="desktop" type="radio" name="device-selection" hidden="" checked="" data-device="desktop">
+              <div class="device-selection-icon">
+                <i class="fa-light fa-desktop"></i>
+              </div>
+              <span class="tooltiptext"></span>
+            </label>
+            <label id="tabletLabel" class="device-selection-item tooltip" for="tablet" data-tooltip="Tablet Portrait">
+              <input id="tablet" type="radio" name="device-selection" hidden="" data-device="tablet">
+              <div class="device-selection-icon">
+                  <i class="fa-light fa-tablet-button"></i>
+              </div>
+              <span class="tooltiptext"></span>
+            </label>
+            <label id="mobileLabel" class="device-selection-item tooltip" for="mobile" data-tooltip="Mobile Portrait">
+              <input id="mobile" type="radio" name="device-selection" hidden="" data-device="mobile">
+              <div class="device-selection-icon">
+                  <i class="fa-light fa-mobile-button"></i>
+              </div>
+              <span class="tooltiptext"></span>
+            </label> 
+          </div>
+          <div class="details-top-row-right">
+              <button onclick="saveLoginForm()" class="action-button-primary course-save-btns">
+                  <i class="fa-regular fa-paper-plane"></i>
+                  <span>Publish</span>
+              </button>
+          </div>
+      </div>
+    </div>
+    <div class="login-form-body-inner">
+      <div class="login-form-sidebar scrollable-content" style="border-left: none; border-right: 1px solid #ececf1;">
+        <div style="justify-content: space-between;" class="options-sidebar-header">
+          <div style="display: flex; gap: 0.6rem;">
+            <div class="options-sidebar-icon pastel-yellow">
+              <i class="fa-light fa-envelope"></i>
+            </div>
+            <div class="options-sidebar-title">
+              <h6> Email Templates </h6>
+              <span> Select a template to edit </span>
+            </div>
+          </div>
+        </div>
+        <div id="templateList" class="column-select-sidebar-container"></div>
+      </div>
+
+      <!-- This is the email templates body  -->
+      <div class="login-form-body-wrapper scrollable-content">
+        <div id="emailEditor" class="editor" data-key="{{ default_key }}">
+          <h2 id="templateTitle"></h2>
+
+          <label>Locale</label>
+          <select id="tplLocale" class="input">
+            <option value="">Default</option>
+            <option value="en">en</option>
+            <option value="en-US">en-US</option>
+          </select>
+
+          <label style="margin-top:.5rem;">Subject</label>
+          <input id="tplSubject" type="text" class="input"/>
+
+          <div class="tabs">
+            <button class="tab active" data-tab="html">HTML</button>
+            <button class="tab" data-tab="text">Plain Text</button>
+          </div>
+
+          <div id="htmlPanel">
+            <textarea id="tplHtml" class="editor-textarea" rows="12"></textarea>
+          </div>
+          <div id="textPanel" class="hidden">
+            <textarea id="tplText" class="editor-textarea" rows="12"></textarea>
+          </div>
+
+          <div class="hint">
+            Available variables: <span id="allowedVars"></span>
+          </div>
+
+          <div class="actions">
+            <button id="previewBtn" class="btn">Preview</button>
+            <button id="saveBtn" class="btn btn-primary">Save</button>
+            <!-- optional quick test -->
+            <button id="testBtn" class="btn">Send Test</button>
+          </div>
+
+          <div id="previewArea" class="preview hidden">
+            <h3>Preview</h3>
+            <div><strong>Subject:</strong> <span id="previewSubject"></span></div>
+            <details open>
+              <summary>HTML</summary>
+              <iframe id="previewHtml" sandbox></iframe>
+            </details>
+            <details>
+              <summary>Text</summary>
+              <pre id="previewText"></pre>
+            </details>
+          </div>
+          <div id="defaultBanner" class="hidden">You’re viewing default content. Save to create a custom version.</div>
+        </div>
+      </div>
+    </div>
+</div>
+
+{% include 'popups/file_library.html' %}
+<script src="{% static 'client_admin\javascript\popups.js' %}"></script>
+<script src="{% static 'client_admin/javascript/user_details.js' %}"></script>
+<link rel="stylesheet" href="{% static 'content/css/content.css' %}">
+<link rel="stylesheet" href="{% static 'client_admin/css/user_details.css' %}">
+<link rel="stylesheet" href="{% static 'custom_dashboard/css/login.css' %}">
+<script id="email-keys" type="application/json">{{ email_keys_json|safe }}</script>
+<script id="allowed-vars-map" type="application/json">{{ allowed_vars_map_json|safe }}</script>
+<!-- CHANGE THIS TO THE EMAILS STATIC JS FOLDER -->
+<script src="{% static 'custom_dashboard/javascript/email_edit.js' %}"></script>
+<link rel="stylesheet" href="{% static 'emails/css/emails.css' %}">
+
+<script>
+  const EMAIL_KEYS = JSON.parse(document.getElementById("email-keys").textContent);
+  const ALLOWED_VARS_MAP = JSON.parse(document.getElementById("allowed-vars-map").textContent);
+</script>
+<style>
+  .admin-header-container, .admin-sidebar-container {
+    display: none;
+  }
+</style>
+{% endblock %}

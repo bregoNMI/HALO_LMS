@@ -3,13 +3,13 @@
 }
 
 .badge-card {
-    padding: 0.8rem;
     background-color: white;
     /* border-radius: 8px; */
     border-radius: 12px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    align-items: center;
     /* height: 17.375rem; */
     overflow: hidden;
     position: relative;
@@ -19,15 +19,22 @@
     text-decoration: none;
     margin-top: 0.5rem;
     gap: 1.2rem;
+    padding: 0 1rem;
 }
-.badge-card-left .badge-icon { 
-    width: 64px; 
-    height: 64px; 
+.badge-card-left{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.3rem 0;
+}.badge-card-left .badge-icon { 
+    width: 80px; 
+    height: 80px; 
     object-fit: contain; 
     padding: 0;
 }
 .badge-card-main { 
     flex: 1; 
+    padding: 0.8rem 0;
 }
 .badge-title { 
     font-size: 0.9rem;
@@ -48,7 +55,7 @@
     display: flex;
     gap: 0.7rem;
     align-items: center;
-    margin-top: 0.8rem;
+    margin-top: 0.5rem;
     max-width: 20rem;
 }.badge-progress .course-item-progress-bar{
     height: 9px;
@@ -82,7 +89,7 @@
     align-items: center;
     flex-direction: column;
     justify-content: center;
-    margin-right: 1rem;
+    padding-bottom: 1.5rem;
 }
 .badge-status.awarded { color:#16a34a; font-weight:600; }
 .badge-status.locked { color:#9ca3af; }

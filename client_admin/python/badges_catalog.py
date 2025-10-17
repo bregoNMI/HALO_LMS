@@ -28,7 +28,7 @@ BADGE_CATALOG = [
         "name": "Welcome Aboard",
         "description": "Log in for the first time.",
         "criteria": {"event": "user_login", "count": 1, "reward": {"credits": 40}},
-        "icon_static": "client_admin\Images\HALO LMS No Graphic Test-29.png",
+        "icon_static": "images/gamification/badges/Welcome_Aboard_Badge.png",
     },
     {
         "slug": "dedicated_learner",
@@ -53,6 +53,6 @@ BADGE_CATALOG = [
         "name": "Verified Learner",
         "description": "Complete your first verified facial verification check.",
         "criteria": {"event": "facial_verification", "count": 1, "reward": {"credits": 80}},
-        "icon_static": "images/gamification/badges/VerifiedLearner_Badge.jpg",
+        "icon_static": "images/gamification/badges/Verified_Learner_Badge.png",
     },
 ]

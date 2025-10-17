@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.contrib import messages
 from client_admin.models import Profile
+from django.conf import settings
 import boto3
 import os
 from django.contrib import messages

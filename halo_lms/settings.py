@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'impersonate',
     'course_player',
     'django_extensions',
+    'emails',
 ]
 
 MIDDLEWARE = [

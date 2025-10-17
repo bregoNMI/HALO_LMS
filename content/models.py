@@ -394,11 +394,18 @@ class Module(models.Model):
     order = models.PositiveIntegerField()
 
     def calculate_progress(self):
+        from client_admin.models import UserLessonProgress
         lessons = self.lessons.all()
         total_lessons = lessons.count()
-        completed_lessons = lessons.filter(is_completed=True).count()
+
         if total_lessons == 0:
             return 0
+
+        completed_lessons = UserLessonProgress.objects.filter(
+            user_module_progress__module=self,
+            completed=True
+        ).count()
+
         return (completed_lessons / total_lessons) * 100
 
     class Meta:

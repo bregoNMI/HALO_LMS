@@ -995,6 +995,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (layout === 'grid') {
                     item = document.createElement('div');
                     item.className = 'grid-item file-card folder-card table-select-option';
+                    console.log('ID:', file.id);
                     item.setAttribute('data-id', file.id);
                     item.setAttribute('data-title', file.title)
                     item.innerHTML = `

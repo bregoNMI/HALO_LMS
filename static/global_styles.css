@@ -2597,7 +2597,7 @@ input.disabled{
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   position: relative;
   width: 100%;
   max-width: 11rem;

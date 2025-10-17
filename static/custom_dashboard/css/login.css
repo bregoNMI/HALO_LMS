@@ -30,9 +30,9 @@ body{
     justify-content: space-evenly;
     background-color: #ffffff;
     backdrop-filter: blur(10px);
-    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+    /* box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px; */
     padding: 0.6rem 1.4rem 0.6rem 1.4rem;
-    border-bottom: 1px solid #d7d7d7;
+    /* border-bottom: 1px solid #d7d7d7; */
 }.login-form-header .details-top-row{
     flex: 1;
 }
@@ -42,6 +42,7 @@ body{
     margin-right: 0;
     box-shadow: rgba(0, 0, 0, 0.03) 0px 0px 0px 1px;
     border-left: 1px solid #ececf1;
+    border-top: 1px solid #ececf1;
     width: 20rem;
     z-index: 3;
     transition: all 0.4s ease-out;
@@ -172,7 +173,7 @@ body{
 }
 
 #previewContainer{
-    transition: all 0.2s;
+    transition: all 0.5s;
 }
 
 .login-form-device-scaling{
@@ -598,7 +599,7 @@ body{
     width: 2rem;
     text-align: center;
 }.custom-text-type{
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--text-color6);
     padding-left: 4px;
     padding-top: 5px;
@@ -609,7 +610,6 @@ body{
         display: none;
     }
 }
-
 
 /* Facial Recognition Popup */
 .facial-recognition-popup{

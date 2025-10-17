@@ -43,7 +43,7 @@
         <div id="mainNavBar" class="learner-top-row">
             <div class="learner-top-row-left">
                 <h2>Achievements</h2>
-                <span>View your learning achievements</span>
+                <span>View all learning achievements</span>
             </div>
         </div>
         <div class="learner-body-inner">
@@ -70,7 +70,7 @@
                             <div class="badge-card-right">
                                 {% if b.awarded %}
                                     <div class="badge-awarded-icon">
-                                        <i class="fa-solid fa-circle-check"></i>
+                                        <i class="fa-regular fa-circle-check"></i>
                                     </div>
                                 {% elif b.claimable %}
                                     <button class="course-button-primary claim-btn" data-credits="{{ b.credits }}" style="border: 1px solid;">Claim  Reward</button>
@@ -122,8 +122,8 @@
             headers: { 'X-CSRFToken': getCookie('csrftoken') }
             });
             if (!r.ok) {
-            const txt = await r.text();
-            throw new Error(txt || 'Claim failed');
+                const txt = await r.text();
+                throw new Error(txt || 'Claim failed');
             }
             const data = await r.json();
 
@@ -132,7 +132,7 @@
                 btn.remove();
                 const status = document.createElement('div');
                 status.className = 'badge-awarded-icon';
-                status.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+                status.innerHTML = `<i class="fa-regular fa-circle-check"></i>`;
                 card.querySelector('.badge-card-right').appendChild(status);
                 progressText.style.color = '#ffc32e';
             } else {

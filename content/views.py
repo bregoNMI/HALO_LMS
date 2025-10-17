@@ -1624,19 +1624,20 @@ def move_to_folder(request):
     # Handle root-level move
     target_folder = None
     if target_folder_id != 'null':
+        print('target_folder:', target_folder, 'target_folder_id:',target_folder_id)
         try:
-            target_folder = Folder.objects.get(id=target_folder_id, user=request.user)
+            target_folder = Folder.objects.get(id=target_folder_id)
         except Folder.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Target folder not found.'})
 
     try:
         if item_type == 'file':
-            file = File.objects.get(id=item_id, user=request.user)
+            file = File.objects.get(id=item_id)
             file.folders.clear()
             if target_folder:
                 file.folders.add(target_folder)
         elif item_type == 'folder':
-            folder = Folder.objects.get(id=item_id, user=request.user)
+            folder = Folder.objects.get(id=item_id)
             folder.parent = target_folder
             folder.save()
         else:
@@ -1650,14 +1651,14 @@ def get_folder_children(request):
     parent_id = request.GET.get('parent_id')
 
     if parent_id == '' or parent_id is None:
-        folders = Folder.objects.filter(user=request.user, parent__isnull=True)
+        folders = Folder.objects.filter(parent__isnull=True)
     else:
-        folders = Folder.objects.filter(user=request.user, parent_id=parent_id)
+        folders = Folder.objects.filter(parent_id=parent_id)
 
     data = [{
         'id': f.id,
         'title': f.title,
-        'has_children': Folder.objects.filter(user=request.user, parent=f).exists()
+        'has_children': Folder.objects.filter(parent=f).exists()
     } for f in folders]
 
     return JsonResponse({'folders': data})
@@ -1669,10 +1670,10 @@ def folder_path(request):
 
     try:
         if item_type == 'file':
-            file = File.objects.get(id=item_id, user=request.user)
+            file = File.objects.get(id=item_id)
             folder = file.folders.first()
         elif item_type == 'folder':
-            folder = Folder.objects.get(id=item_id, user=request.user).parent
+            folder = Folder.objects.get(id=item_id).parent
         else:
             return JsonResponse({'path': []})
 

@@ -606,6 +606,10 @@
 }.template-option-card:has(.pastel-green):hover{
     outline-color: #059f48;
     background-color: #e9f4ec;
+}.template-option-card:has(.pastel-yellow):hover{
+    /* outline-color: #a66c01; */
+    outline-color: #dd8f00;
+    background-color: #fef4e3;
 }
 
 .logo-image-preview img{

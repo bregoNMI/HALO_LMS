@@ -129,12 +129,12 @@ def learner_courses(request):
         key = f"{progress.assignment_id}-{progress.lesson_id}" if progress.lesson_id else str(progress.assignment_id)
         assignment_status_map[key] = {
             "status": progress.status,
-            "locked": False  # To be calculated later
+            "locked": False
         }
 
-    course_lesson_assignment_map = {}     # course_id → ordered lesson-assignment pairs
-    full_course_assignment_map = {}       # course_id → list of full-course assignments
-    lesson_assignment_map = defaultdict(list)  # lesson_id → list of assignments
+    course_lesson_assignment_map = {}
+    full_course_assignment_map = {}
+    lesson_assignment_map = defaultdict(list)
 
     for uc in user_courses:
         course = uc.course

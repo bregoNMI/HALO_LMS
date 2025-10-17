@@ -16,9 +16,9 @@
     z-index: 5;
     background-color: #ffffff;
     backdrop-filter: blur(10px);
-    box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+    /* box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px; */
     padding: 0.6rem 2rem 0.6rem 2rem;
-    border-bottom: 1px solid #d7d7d7;
+    border-bottom: 1px solid #ececf1;
 }.quiz-builder-header-left{
     display: flex;
     gap: 1rem;
