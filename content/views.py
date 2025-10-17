@@ -1532,7 +1532,7 @@ def file_rename(request):
             if not new_title:
                 return JsonResponse({'success': False, 'message': 'Title cannot be empty.'})
 
-            file = File.objects.get(id=file_id, user=request.user)
+            file = File.objects.get(id=file_id)
             file.title = new_title
             file.save()
 
@@ -1545,6 +1545,7 @@ def file_rename(request):
 
 @login_required
 def folder_create(request):
+
     if request.method != 'POST':
         return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)
 
@@ -1557,7 +1558,7 @@ def folder_create(request):
     parent_folder = None
     if parent_id:
         try:
-            parent_folder = Folder.objects.get(id=parent_id, user=request.user)
+            parent_folder = Folder.objects.get(id=parent_id)
         except Folder.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Parent folder not found.'}, status=404)
 
